@@ -1,15 +1,14 @@
 spring:
-#  datasource:
-#    username: S09P12D208
-#    url: mysql://stg-yswa-kr-practice-db-master.mariadb.database.azure.com:3306/S09P12D208?serverTimezone=UTC&useUnicode=true&characterEncoding=utf8
-#    driverClassName: org.mariadb.jdbc.Driver
-#    password: Pmgwb2y284
-#  jpa:
-#    database-platform: org.hibernate.dialect.
-#    hibernate:
-#      ddl-auto: update
-#  data:
-#    mongodb:
-#      uri: mongodb+srv://S09P12D208:xACDfpmiw5@ssafy.ngivl.mongodb.net/S09P12D208?authSource=admin
-#server:
-#  port: 8080
+  datasource:
+    username: S09P12D208
+    url: jdbc:mariadb://stg-yswa-kr-practice-db-master.mariadb.database.azure.com:3306/S09P12D208?serverTimezone=UTC&useUnicode=true&characterEncoding=utf8
+    driverClassName: org.mariadb.jdbc.Driver
+    password: Pmgwb2y284
+    hikari:
+      maximum-pool-size: 3
+  jpa:
+    hibernate:
+      ddl-auto: update
+  data:
+    mongodb:
+      uri: mongodb+srv://S09P12D208:xACDfpmiw5@ssafy.ngivl.mongodb.net/S09P12D208?authSource=admin
