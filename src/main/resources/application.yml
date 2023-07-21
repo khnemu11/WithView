@@ -17,7 +17,6 @@ spring:
       prefix: /WEB-INF/views/
       suffix: .jsp
 server:
-  port: 9001
   servlet:
     jsp:
       init-parameters:
@@ -41,3 +40,6 @@ spring:
       on-profile: production-set2
 server:
   port: 9092
+
+
+---

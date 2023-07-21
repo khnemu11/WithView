@@ -15,6 +15,7 @@ public class WebRestController {
 
 	@GetMapping("/profile")
 	public String getProfile(){
+		System.out.println("get: " + Arrays.stream(env.getActiveProfiles()).findFirst().orElse(""));
 		return Arrays.stream(env.getActiveProfiles()).findFirst().orElse("");
 	}
 }
