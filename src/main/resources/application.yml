@@ -17,8 +17,28 @@ spring:
       prefix: /WEB-INF/views/
       suffix: .jsp
 server:
-  port: 8888
+  port: 9001
   servlet:
     jsp:
       init-parameters:
         development : true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+---
+spring:
+  config:
+    activate:
+      on-profile: production-set1
+server:
+  port: 9091
+
+---
+spring:
+  config:
+    activate:
+      on-profile: production-set2
+server:
+  port: 9092
