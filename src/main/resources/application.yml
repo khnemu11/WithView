@@ -16,8 +16,11 @@ spring:
     view:
       prefix: /WEB-INF/views/
       suffix: .jsp
+  config:
+    activate:
+      on-profile: production-set1
 server:
-  port: 9001
+  port: 9091
   servlet:
     jsp:
       init-parameters:
@@ -29,16 +32,34 @@ management:
         include: health
 ---
 spring:
-  config:
-    activate:
-      on-profile: production-set1
-server:
-  port: 9091
-
----
-spring:
+  datasource:
+    username: S09P12D208
+    url: jdbc:mariadb://stg-yswa-kr-practice-db-master.mariadb.database.azure.com:3306/S09P12D208?serverTimezone=UTC&useUnicode=true&characterEncoding=utf8
+    driverClassName: org.mariadb.jdbc.Driver
+    password: Pmgwb2y284
+    hikari:
+      maximum-pool-size: 3
+  jpa:
+    hibernate:
+      ddl-auto: update
+  data:
+    mongodb:
+      uri: mongodb+srv://S09P12D208:xACDfpmiw5@ssafy.ngivl.mongodb.net/S09P12D208?authSource=admin
+  mvc:
+    view:
+      prefix: /WEB-INF/views/
+      suffix: .jsp
   config:
     activate:
       on-profile: production-set2
 server:
   port: 9092
+  servlet:
+    jsp:
+      init-parameters:
+        development : true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
