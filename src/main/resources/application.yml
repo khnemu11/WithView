@@ -35,7 +35,7 @@ spring:
 server:
   port: 9091
 
-#serverName: production-set1
+serverName: production-set1
 ---
 spring:
   config:
@@ -44,4 +44,4 @@ spring:
 server:
   port: 9092
 
-#serverName: production-set2
+serverName: production-set2
