@@ -6,23 +6,23 @@ import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.ssafy.withview.repository.dto.LoginDto;
+import com.ssafy.withview.repository.entity.LoginEntity;
 
 import lombok.Getter;
 
 @Getter
 public class PrincipalDetails implements UserDetails {
 
-	private LoginDto loginDto;
+	private LoginEntity loginEntity;
 
-	public PrincipalDetails(LoginDto loginDto) {
-		this.loginDto = loginDto;
+	public PrincipalDetails(LoginEntity loginEntity) {
+		this.loginEntity = loginEntity;
 	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		Collection<GrantedAuthority> auths = new ArrayList<>();
-		for (String role : loginDto.getRoleList()) {
+		for (String role : loginEntity.getRoleList()) {
 			auths.add(new GrantedAuthority() {
 				@Override
 				public String getAuthority() {
@@ -35,12 +35,12 @@ public class PrincipalDetails implements UserDetails {
 
 	@Override
 	public String getPassword() {
-		return loginDto.getPassword();
+		return loginEntity.getPassword();
 	}
 
 	@Override
 	public String getUsername() {
-		return null;
+		return loginEntity.getId();
 	}
 
 	@Override
