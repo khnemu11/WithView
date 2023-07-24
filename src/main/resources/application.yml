@@ -1,4 +1,19 @@
 spring:
+  profiles:
+    group:
+      production-set1:
+        - common
+        - port_9091
+      production-set2:
+        - common
+        - port_9092
+      production-set3:
+        - common
+        - port_9093
+
+---
+
+spring:
   datasource:
     username: S09P12D208
     url: jdbc:mariadb://stg-yswa-kr-practice-db-master.mariadb.database.azure.com:3306/S09P12D208?serverTimezone=UTC&useUnicode=true&characterEncoding=utf8
@@ -16,6 +31,9 @@ spring:
     view:
       prefix: /WEB-INF/views/
       suffix: .jsp
+  config:
+    activate:
+      on-profile: common
 server:
   servlet:
     jsp:
@@ -26,20 +44,33 @@ management:
     web:
       exposure:
         include: health
+
 ---
+
 spring:
   config:
     activate:
-      on-profile: production-set1
+      on-profile: port_9091
+
 server:
   port: 9091
+
 ---
+
 spring:
   config:
     activate:
-      on-profile: production-set2
+      on-profile: port_9092
+
 server:
   port: 9092
 
-
 ---
+
+spring:
+  config:
+    activate:
+      on-profile: port_9093
+
+server:
+  port: 9093
