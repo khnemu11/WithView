@@ -20,4 +20,7 @@ public class UtilController {
 		System.out.println("get: " + Arrays.stream(env.getActiveProfiles()).findFirst().orElse(""));
 		return Arrays.stream(env.getActiveProfiles()).findFirst().orElse("");
 	}
+
+	public void pushTest() {
+	}
 }
