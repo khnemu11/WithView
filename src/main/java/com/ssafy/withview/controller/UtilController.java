@@ -21,6 +21,6 @@ public class UtilController {
 		return Arrays.stream(env.getActiveProfiles()).findFirst().orElse("");
 	}
 
-	public void pushTest2() {
+	public void pushTest() {
 	}
 }
