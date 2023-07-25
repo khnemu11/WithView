@@ -17,8 +17,13 @@ spring:
       prefix: /WEB-INF/views/
       suffix: .jsp
 server:
-  port: 8888
+  port: 9091
   servlet:
     jsp:
       init-parameters:
         development : true
+  ssl:
+    enabled : false
+
+OPENVIDU_URL: https://i9d208.p.ssafy.io:8443/
+OPENVIDU_SECRET: ssafy

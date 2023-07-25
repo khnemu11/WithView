@@ -35,6 +35,10 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
 	implementation 'javax.servlet:jstl'
+	// https://mvnrepository.com/artifact/io.openvidu/openvidu-java-client
+	implementation 'io.openvidu:openvidu-java-client:2.28.0'
+	// https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple
+	implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
 }
 
 tasks.named('test') {
