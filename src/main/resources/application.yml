@@ -8,13 +8,10 @@ spring:
   profiles:
     group:
       production-set1:
-        - common
         - port_9091
       production-set2:
-        - common
         - port_9092
       production-set3:
-        - common
         - port_9093
 
 ---
@@ -37,9 +34,6 @@ spring:
     view:
       prefix: /WEB-INF/views/
       suffix: .jsp
-  config:
-    activate:
-      on-profile: common
 server:
   servlet:
     jsp:
