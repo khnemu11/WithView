@@ -9,28 +9,21 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.ssafy.withview.repository.entity.LoginEntity;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor
 public class PrincipalDetails implements UserDetails {
 
-	private LoginEntity loginEntity;
-
-	public PrincipalDetails(LoginEntity loginEntity) {
-		this.loginEntity = loginEntity;
-	}
+	private final LoginEntity loginEntity;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		Collection<GrantedAuthority> auths = new ArrayList<>();
-		for (String role : loginEntity.getRoleList()) {
-			auths.add(new GrantedAuthority() {
-				@Override
-				public String getAuthority() {
-					return role;
-				}
-			});
-		}
-		return null;
+		loginEntity.getRoleList().forEach(r -> {
+			auths.add(() -> r);
+		});
+		return auths;
 	}
 
 	@Override

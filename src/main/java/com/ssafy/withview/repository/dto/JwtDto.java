@@ -7,9 +7,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class LoginDto {
+public class JwtDto {
 
-	private String id;
-	private String password;
-	private String roles;
+	private String grantType;
+	private String accessToken;
+	private String refreshToken;
 }
