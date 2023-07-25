@@ -1,5 +1,7 @@
 package com.ssafy.withview.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,17 +15,27 @@ import com.ssafy.withview.repository.entity.LoginEntity;
 public class LoginService {
 
 	@Autowired
-	private LoginRepository loginRepository;
+	LoginRepository loginRepository;
 
-	@Autowired
-	BCryptPasswordEncoder bCryptPasswordEncoder;
+	private static final Logger logger = LoggerFactory.getLogger(LoginService.class);
 
 	@Transactional
-	public LoginEntity join(LoginDto loginDto) {
-		return loginRepository.save(LoginEntity.builder()
-			.id(loginDto.getId())
-			.password(bCryptPasswordEncoder.encode(loginDto.getPassword()))
-			.roles("ROLE_USER")
-			.build());
+	public LoginDto login(LoginDto loginDto) {
+		logger.info("LoginService: 로그인 진행");
+
+		LoginEntity loginEntity = loginRepository.findById(loginDto.getId())
+			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
+
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+		if (encoder.matches(loginDto.getPassword(), loginEntity.getPassword())) {
+			return LoginDto.builder()
+				.id(loginEntity.getId())
+				.password(loginEntity.getPassword())
+				.build();
+		} else {
+			logger.error("아이디와 비밀번호가 일치하지 않습니다.");
+			return null;
+		}
 	}
 }
