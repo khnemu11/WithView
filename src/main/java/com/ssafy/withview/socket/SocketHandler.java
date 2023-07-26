@@ -12,6 +12,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -19,7 +20,8 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 @Component
 public class SocketHandler extends TextWebSocketHandler {
 	private static final Map<String,  List<WebSocketSession>> memberByChannel = new ConcurrentHashMap<>() ;
-	private static final Map<String, String> stageByChannel = new ConcurrentHashMap<>() ;
+	private static final Map<String, String> imageByChannel = new ConcurrentHashMap<>() ;
+	private static final Map<String, String> videoByChannel = new ConcurrentHashMap<>() ;
 	private static final Map<WebSocketSession, String> channelByUser = new ConcurrentHashMap<>() ;
 
 	@Override
@@ -28,6 +30,19 @@ public class SocketHandler extends TextWebSocketHandler {
 		String url = session.getUri().toString();
 		String[] subQeury = url.toString().split("=");
 		String channelId = subQeury[1];
+		JSONObject jsonObject = new JSONObject();
+
+		if(imageByChannel.get(channelId)!=null){
+			System.out.println("저장된 이미지 있음");
+			jsonObject.put("image",imageByChannel.get(channelId));
+		}
+		if(videoByChannel.get(channelId)!=null){
+			jsonObject.put("video",videoByChannel.get(channelId));
+			System.out.println("저장된 비디오 있음");
+		}
+
+		jsonObject.put("type","join");
+
 		channelByUser.put(session,channelId);
 
 		System.out.println(session.getId() + " 접속" + channelId);
@@ -42,6 +57,10 @@ public class SocketHandler extends TextWebSocketHandler {
 
 		System.out.println("=====현재 접속중인 세션=====");
 		System.out.println(memberByChannel);
+
+		System.out.println("저장된 에셋");
+		System.out.println(jsonObject.toJSONString());
+		session.sendMessage(new TextMessage(jsonObject.toJSONString()));
 	}
 
 	@Override
@@ -51,8 +70,11 @@ public class SocketHandler extends TextWebSocketHandler {
 		System.out.println(jsonObject.toJSONString());
 		if(jsonObject.get("type").equals("change")){
 			System.out.println("변경된 스테이지");
-			System.out.println(jsonObject.get("stage").toString());
-			stageByChannel.put(jsonObject.get("channel").toString(),jsonObject.get("stage").toString());
+			System.out.println(jsonObject.get("image").toString());
+			System.out.println(jsonObject.get("video").toString());
+
+			videoByChannel.put(jsonObject.get("channel").toString(),jsonObject.get("video").toString());
+			imageByChannel.put(jsonObject.get("channel").toString(),jsonObject.get("image").toString());
 
 			for (WebSocketSession member : memberByChannel.get(jsonObject.get("channel").toString())) {
 				if (member.equals(session)) {
@@ -75,7 +97,18 @@ public class SocketHandler extends TextWebSocketHandler {
 		System.out.println(session.getId() + " 나감");
 		String channel = channelByUser.get(session);
 		memberByChannel.get(channel).remove(session);
+		System.out.println("남은 사람");
+		System.out.println(memberByChannel);
+		if(memberByChannel.get(channel).size()==0){
+			memberByChannel.remove(channel);
+			videoByChannel.remove(channel);
+		}
 		System.out.println("=====나머지 세션=====");
 		System.out.println(memberByChannel);
+		System.out.println("=====저장된 에셋====");
+		System.out.println("=====비디오====");
+		System.out.println(videoByChannel);
+		System.out.println("=====이미지====");
+		System.out.println(imageByChannel);
 	}
 }
