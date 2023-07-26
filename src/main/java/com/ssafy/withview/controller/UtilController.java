@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 public class UtilController {
 	private final Environment env;
 
+	// 로드밸런싱 할 때 쓰는 코드
 	@GetMapping("/profile")
 	public String getProfile(){
 		System.out.println("get: " + Arrays.stream(env.getActiveProfiles()).findFirst().orElse(""));
