@@ -19,10 +19,11 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 @Component
 public class SocketHandler extends TextWebSocketHandler {
-	private static final Map<String,  List<WebSocketSession>> memberByChannel = new ConcurrentHashMap<>() ;
-	private static final Map<String, String> imageByChannel = new ConcurrentHashMap<>() ;
-	private static final Map<String, String> videoByChannel = new ConcurrentHashMap<>() ;
-	private static final Map<WebSocketSession, String> channelByUser = new ConcurrentHashMap<>() ;
+	//채널seq : 채널에 속해있는 클라이언트(세션)
+	private static final Map<String, List<WebSocketSession>> memberByChannel = new ConcurrentHashMap<>();
+	private static final Map<String, String> imageByChannel = new ConcurrentHashMap<>();
+	private static final Map<String, String> videoByChannel = new ConcurrentHashMap<>();
+	private static final Map<WebSocketSession, String> channelByUser = new ConcurrentHashMap<>();
 
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -32,66 +33,56 @@ public class SocketHandler extends TextWebSocketHandler {
 		String channelId = subQeury[1];
 		JSONObject jsonObject = new JSONObject();
 
-		if(imageByChannel.get(channelId)!=null){
-			System.out.println("저장된 이미지 있음");
-			jsonObject.put("image",imageByChannel.get(channelId));
+		if (imageByChannel.get(channelId) != null) {
+			jsonObject.put("image", imageByChannel.get(channelId));
 		}
-		if(videoByChannel.get(channelId)!=null){
-			jsonObject.put("video",videoByChannel.get(channelId));
-			System.out.println("저장된 비디오 있음");
+		if (videoByChannel.get(channelId) != null) {
+			jsonObject.put("video", videoByChannel.get(channelId));
 		}
+		jsonObject.put("type", "join");
 
-		jsonObject.put("type","join");
-
-		channelByUser.put(session,channelId);
-
-		System.out.println(session.getId() + " 접속" + channelId);
+		channelByUser.put(session, channelId);
 
 		List<WebSocketSession> sessionList = memberByChannel.get(channelId);
 
-		if(sessionList == null){
+		if (sessionList == null) {
 			sessionList = new ArrayList<>();
 		}
 		sessionList.add(session);
-		memberByChannel.put(channelId,sessionList);
+		memberByChannel.put(channelId, sessionList);
 
-		System.out.println("=====현재 접속중인 세션=====");
-		System.out.println(memberByChannel);
-
-		System.out.println("저장된 에셋");
-		System.out.println(jsonObject.toJSONString());
 		session.sendMessage(new TextMessage(jsonObject.toJSONString()));
 	}
 
 	@Override
 	public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
+		//소켓 에서 메시지 받을 때 내용 파싱하기
 		JSONParser parser = new JSONParser();
 		JSONObject jsonObject = (JSONObject)parser.parse((String)message.getPayload());
-		System.out.println(jsonObject.toJSONString());
-		if(jsonObject.get("type").equals("change")){
-			System.out.println("변경된 스테이지");
-			System.out.println(jsonObject.get("image").toString());
-			System.out.println(jsonObject.get("video").toString());
 
-			videoByChannel.put(jsonObject.get("channel").toString(),jsonObject.get("video").toString());
-			imageByChannel.put(jsonObject.get("channel").toString(),jsonObject.get("image").toString());
+		//if 문으로 json파일의 type으로 소켓 실행 구분
+		if (jsonObject.get("type").equals("change")) {
+			videoByChannel.put(jsonObject.get("channel").toString(), jsonObject.get("video").toString());
+			imageByChannel.put(jsonObject.get("channel").toString(), jsonObject.get("image").toString());
 
 			for (WebSocketSession member : memberByChannel.get(jsonObject.get("channel").toString())) {
+				//자기 자신인 경우는 스킵
 				if (member.equals(session)) {
 					continue;
 				}
-				System.out.println(member.getId() + " 에게 메시지 송신");
-				try{
+
+				try {
 					synchronized (member) {
 						member.sendMessage(message);
 					}
-				}catch(Exception e){
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		}
 	}
 
+	//소켓에서 연결이 끊어지면
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
 		System.out.println(session.getId() + " 나감");
@@ -99,7 +90,7 @@ public class SocketHandler extends TextWebSocketHandler {
 		memberByChannel.get(channel).remove(session);
 		System.out.println("남은 사람");
 		System.out.println(memberByChannel);
-		if(memberByChannel.get(channel).size()==0){
+		if (memberByChannel.get(channel).size() == 0) {
 			memberByChannel.remove(channel);
 			videoByChannel.remove(channel);
 		}
