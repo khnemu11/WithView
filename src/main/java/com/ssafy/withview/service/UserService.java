@@ -15,7 +15,9 @@ public class UserService {
 	@Autowired
 	UserRepository userRepository;
 
-	// 현재: 로그인 table에만 저장
+	// 회원가입 시, login, users 테이블에 동시 저장
+	// 현재는 login 테이블에만 저장
+	// 유효성 검사 로직도 추가 예정
 	@Transactional
 	public LoginDto join(LoginDto loginDto) {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
