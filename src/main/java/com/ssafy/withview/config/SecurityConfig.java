@@ -24,9 +24,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-	private final CorsFilter corsFilter;
-
 	private final JwtService jwtService;
+
+	private final CorsFilter corsFilter;
 
 	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
@@ -46,7 +46,7 @@ public class SecurityConfig {
 			.authenticationEntryPoint(jwtAuthenticationEntryPoint)
 			.accessDeniedHandler(jwtAccessDeniedHandler);
 
-		http.addFilter(corsFilter)
+		http.addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
 			.addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
 
 		http.authorizeRequests()
