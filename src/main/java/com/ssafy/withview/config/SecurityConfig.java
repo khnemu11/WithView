@@ -34,8 +34,8 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.csrf().disable()
-			.cors();
+		http.csrf().disable();
+		http.cors();
 		// 시큐리티는 기본적으로 세션을 사용
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and()
