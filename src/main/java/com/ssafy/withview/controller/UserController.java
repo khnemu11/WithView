@@ -48,12 +48,13 @@ public class UserController {
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<Map<String, Object>> login2(@RequestBody LoginDto loginDto) {
+	public ResponseEntity<Map<String, Object>> login(@RequestBody LoginDto loginDto) {
 		logger.info("UserController: 로그인 진행");
 		Map<String, Object> resultMap = new HashMap<>();
 		HttpStatus status = null;
 		try {
 			Authentication authentication = loginService.login(loginDto);
+			logger.info("authentication" + authentication);
 			if (authentication != null) {
 				JwtDto jwtDto = jwtService.generateToken2(authentication);
 				logger.info("UserController: 로그인 성공");
@@ -62,14 +63,11 @@ public class UserController {
 				resultMap.put("success", true);
 				resultMap.put("JWT", jwtDto);
 				status = HttpStatus.CREATED;
-			} else {
-				resultMap.put("success", false);
-				status = HttpStatus.ACCEPTED;
 			}
 		} catch (Exception e) {
 			logger.error("UserController: 로그인 실패", e);
 			resultMap.put("success", false);
-			status = HttpStatus.INTERNAL_SERVER_ERROR;
+			status = HttpStatus.ACCEPTED;
 		}
 		return new ResponseEntity<>(resultMap, status);
 	}
