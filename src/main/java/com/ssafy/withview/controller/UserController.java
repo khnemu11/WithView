@@ -40,7 +40,7 @@ public class UserController {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-	@PostMapping("/join")
+	@PostMapping("")
 	public LoginDto join(@RequestBody LoginDto loginDto) {
 		logger.info("UserController: 회원가입 진행");
 		logger.info("loginDto: " + loginDto.getId() + ", " + loginDto.getPassword());
