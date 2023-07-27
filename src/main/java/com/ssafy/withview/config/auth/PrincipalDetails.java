@@ -3,6 +3,8 @@ package com.ssafy.withview.config.auth;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -17,6 +19,8 @@ public class PrincipalDetails implements UserDetails {
 
 	private final LoginEntity loginEntity;
 
+	private static final Logger logger = LoggerFactory.getLogger(PrincipalDetails.class);
+	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		Collection<GrantedAuthority> auths = new ArrayList<>();

@@ -23,10 +23,12 @@ public class PrincipalDetailsService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		logger.info("PrincipalDetailsService 실행");
+
 		LoginEntity loginEntity = loginRepository.findById(username)
 			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
 		logger.info("loginEntity: " + loginEntity.getId() + ", " + loginEntity.getPassword() + ", "
 			+ loginEntity.getRoleList());
+		
 		return new PrincipalDetails(loginEntity);
 	}
 }
