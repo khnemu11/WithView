@@ -21,4 +21,9 @@ server:
   servlet:
     jsp:
       init-parameters:
-        development: true
+        development : true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
