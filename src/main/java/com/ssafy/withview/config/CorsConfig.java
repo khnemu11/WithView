@@ -10,10 +10,11 @@ import org.springframework.web.filter.CorsFilter;
 public class CorsConfig {
 
 	@Bean
-	public CorsFilter corsFilter(){
+	public CorsFilter corsFilter() {
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowCredentials(true);
-		config.addAllowedOrigin("*");
+		config.addAllowedOrigin("http://localhost:5173");
+		config.addAllowedOrigin("http://i9D208.p.ssafy.io");
 		config.addAllowedHeader("*");
 		config.addAllowedMethod("*");
 

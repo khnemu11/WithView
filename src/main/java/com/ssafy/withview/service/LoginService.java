@@ -32,7 +32,7 @@ public class LoginService {
 		UsernamePasswordAuthenticationToken authenticationToken
 			= new UsernamePasswordAuthenticationToken(loginDto.getId(), loginDto.getPassword());
 
-		logger.info("login2 - authenticationToken: " + authenticationToken);
+		logger.info("login - authenticationToken: " + authenticationToken);
 
 		// authenticate 매서드가 실행될 때 PrincipalDetailsService 에서 만든 loadUserByUsername 메서드가 실행
 		Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
