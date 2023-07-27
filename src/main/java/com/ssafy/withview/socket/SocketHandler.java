@@ -39,6 +39,7 @@ public class SocketHandler extends TextWebSocketHandler {
 		if (videoByChannel.get(channelId) != null) {
 			jsonObject.put("video", videoByChannel.get(channelId));
 		}
+
 		jsonObject.put("type", "join");
 
 		channelByUser.put(session, channelId);
@@ -85,14 +86,18 @@ public class SocketHandler extends TextWebSocketHandler {
 	//소켓에서 연결이 끊어지면
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-		System.out.println(session.getId() + " 나감");
 		String channel = channelByUser.get(session);
+		System.out.println(session.getId() + " 나감");
+
 		memberByChannel.get(channel).remove(session);
+
 		System.out.println("남은 사람");
 		System.out.println(memberByChannel);
+
 		if (memberByChannel.get(channel).size() == 0) {
 			memberByChannel.remove(channel);
 			videoByChannel.remove(channel);
+
 		}
 		System.out.println("=====나머지 세션=====");
 		System.out.println(memberByChannel);
