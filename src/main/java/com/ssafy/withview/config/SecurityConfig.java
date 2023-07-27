@@ -12,6 +12,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import com.ssafy.withview.config.jwt.JwtAccessDeniedHandler;
 import com.ssafy.withview.config.jwt.JwtAuthenticationEntryPoint;
@@ -28,6 +29,8 @@ public class SecurityConfig {
 
 	private final JwtService jwtService;
 
+	private final CorsFilter corsFilter;
+
 	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
 	private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
@@ -35,7 +38,6 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.csrf().disable();
-		http.cors();
 		// 시큐리티는 기본적으로 세션을 사용
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and()
@@ -47,7 +49,8 @@ public class SecurityConfig {
 			.authenticationEntryPoint(jwtAuthenticationEntryPoint)
 			.accessDeniedHandler(jwtAccessDeniedHandler);
 
-		http.addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
+		http.addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
 
 		http.authorizeRequests()
 			.antMatchers("/api/users/login").permitAll()
