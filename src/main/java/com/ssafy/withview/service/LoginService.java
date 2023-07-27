@@ -3,15 +3,19 @@ package com.ssafy.withview.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.withview.repository.LoginRepository;
 import com.ssafy.withview.repository.dto.LoginDto;
-import com.ssafy.withview.repository.entity.LoginEntity;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class LoginService {
 
 	@Autowired
@@ -19,23 +23,21 @@ public class LoginService {
 
 	private static final Logger logger = LoggerFactory.getLogger(LoginService.class);
 
+	private final AuthenticationManagerBuilder authenticationManagerBuilder;
+
 	@Transactional
-	public LoginDto login(LoginDto loginDto) {
+	public Authentication login(LoginDto loginDto) {
 		logger.info("LoginService: 로그인 진행");
 
-		LoginEntity loginEntity = loginRepository.findById(loginDto.getId())
-			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
+		UsernamePasswordAuthenticationToken authenticationToken
+			= new UsernamePasswordAuthenticationToken(loginDto.getId(), loginDto.getPassword());
 
-		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		logger.info("login2 - authenticationToken: " + authenticationToken);
 
-		if (encoder.matches(loginDto.getPassword(), loginEntity.getPassword())) {
-			return LoginDto.builder()
-				.id(loginEntity.getId())
-				.password(loginEntity.getPassword())
-				.build();
-		} else {
-			logger.error("아이디와 비밀번호가 일치하지 않습니다.");
-			return null;
-		}
+		// authenticate 매서드가 실행될 때 PrincipalDetailsService 에서 만든 loadUserByUsername 메서드가 실행
+		Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+		logger.info("login2 - authentication: " + authentication);
+
+		return authentication;
 	}
 }
