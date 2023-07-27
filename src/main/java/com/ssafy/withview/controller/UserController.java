@@ -8,8 +8,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.withview.repository.dto.JwtDto;
@@ -22,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("/api/users")
 public class UserController {
 
 	@Autowired
@@ -43,14 +48,14 @@ public class UserController {
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<Map<String, Object>> login(@RequestBody LoginDto loginDto) {
+	public ResponseEntity<Map<String, Object>> login2(@RequestBody LoginDto loginDto) {
 		logger.info("UserController: 로그인 진행");
 		Map<String, Object> resultMap = new HashMap<>();
 		HttpStatus status = null;
 		try {
-			LoginDto loginUser = loginService.login(loginDto);
-			if (loginUser != null) {
-				JwtDto jwtDto = jwtService.generateToken(loginUser);
+			Authentication authentication = loginService.login(loginDto);
+			if (authentication != null) {
+				JwtDto jwtDto = jwtService.generateToken2(authentication);
 				logger.info("UserController: 로그인 성공");
 				logger.info("[JWT] AccessToken: " + jwtDto.getAccessToken()
 					+ ", RefreshToken: " + jwtDto.getRefreshToken());
@@ -67,5 +72,16 @@ public class UserController {
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
 		}
 		return new ResponseEntity<>(resultMap, status);
+	}
+
+	@GetMapping("/test")
+	public String test() {
+		return "유저";
+	}
+
+	@Secured("ROLE_ADMIN")
+	@GetMapping("/test2")
+	public String test2() {
+		return "관리자";
 	}
 }
