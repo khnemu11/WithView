@@ -1,9 +1,6 @@
 package com.ssafy.withview.repository.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import com.ssafy.withview.repository.dto.ChannelDto;
 
@@ -15,10 +12,9 @@ import lombok.ToString;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
 @Entity
-@Builder
 @ToString
+@Table(name = "channel")
 public class ChannelEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,11 +23,18 @@ public class ChannelEntity {
 	@Builder.Default
 	private int limitPeople=5;
 	private int serverSeq;
+
 	public static ChannelDto toDto(ChannelEntity entity){
 		return ChannelDto.builder()
-			.seq(entity.getSeq())
 			.name(entity.getName())
 			.limitPeople(entity.getLimitPeople())
 			.serverSeq(entity.getServerSeq()).build();
+	}
+
+	@Builder
+	public ChannelEntity(String name, int limitPeople, int serverSeq) {
+		this.name = name;
+		this.limitPeople = limitPeople;
+		this.serverSeq = serverSeq;
 	}
 }

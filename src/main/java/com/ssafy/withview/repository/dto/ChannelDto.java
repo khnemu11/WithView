@@ -23,7 +23,6 @@ public class ChannelDto {
 
 	public static ChannelEntity toEntity(ChannelDto dto){
 		return ChannelEntity.builder()
-			.seq(dto.getSeq())
 			.name(dto.getName())
 			.limitPeople(dto.getLimitPeople())
 			.serverSeq(dto.getServerSeq()).build();

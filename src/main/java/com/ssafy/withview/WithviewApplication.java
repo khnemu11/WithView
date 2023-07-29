@@ -11,6 +11,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 @CrossOrigin("*")
 public class WithviewApplication implements WebMvcConfigurer {
+	static {
+		System.setProperty("com.amazonaws.sdk.disableEc2Metadata", "true");
+	}
 	public static void main(String[] args) {
 		SpringApplication.run(WithviewApplication.class, args);
 	}

@@ -25,7 +25,16 @@ server:
   ssl:
     enabled : false
 
-
+cloud:
+  aws:
+    s3:
+      bucket: with-view-bucket
+    stack.auto: false
+    region.static: ap-northeast-2
+    credentials:
+      accessKey: AKIAQZFCIQLESJZHO4EF
+      secretKey: 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
 
 OPENVIDU_URL: https://i9d208.p.ssafy.io:8443/
 OPENVIDU_SECRET: ssafy
+CLOUD_FRONT_URL : https://dm51j1y1p1ekp.cloudfront.net/

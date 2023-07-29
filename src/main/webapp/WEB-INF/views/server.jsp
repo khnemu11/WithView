@@ -8,9 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-    <form method="post" action="/api/server/">
-        <input name="name">
-        <input name="hostSeq">
+    <form method="post" action="/api/server/" enctype="multipart/form-data">
+        서버 이름 <input name="name">
+        유저 seq <input name="hostSeq">
+        파일 <input type="file" name="file">
         <input type="submit">
     </form>
 </body>

@@ -21,12 +21,19 @@ public class ServerDto {
 	private String name;
 	private int limitChannel=5;
 	private int hostSeq;
+	private String backgroundImgSearchName;
+	private String backgroundImgOriginalName;
 
 	public static ServerEntity toEntity(ServerDto serverDto){
+		if(serverDto == null){
+			return null;
+		}
 		return ServerEntity.builder()
-			.seq(serverDto.getSeq())
 			.name(serverDto.getName())
 			.limitChannel(serverDto.getLimitChannel())
-			.hostSeq(serverDto.getHostSeq()).build();
+			.backgroundImgSearchName(serverDto.getBackgroundImgSearchName())
+			.backgroundImgOriginalName(serverDto.getBackgroundImgOriginalName())
+			.hostSeq(serverDto.getHostSeq())
+			.build();
 	}
 }

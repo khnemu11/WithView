@@ -3,6 +3,7 @@ package com.ssafy.withview.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.amazonaws.services.s3.AmazonS3;
 import org.springframework.stereotype.Service;
 
 import com.ssafy.withview.repository.ChannelRepository;
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 public class ServerServiceImpl implements ServerService {
 	private final ServerRepository serverRepository;
 	private final ChannelRepository channelRepository;
+
 
 	@Override
 	public List<ChannelDto> findAllChannelsByServerSeq(int seq) {
