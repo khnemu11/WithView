@@ -17,14 +17,18 @@ spring:
       prefix: /WEB-INF/views/
       suffix: .jsp
 server:
-  port: 9091
+  port: 8888
   servlet:
     jsp:
       init-parameters:
         development : true
   ssl:
-    enabled : false
-
+    enabled: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
 cloud:
   aws:
     s3:
