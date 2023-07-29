@@ -36,4 +36,5 @@ public class ServerDto {
 			.hostSeq(serverDto.getHostSeq())
 			.build();
 	}
+
 }

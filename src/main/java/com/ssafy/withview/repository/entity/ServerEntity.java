@@ -47,6 +47,7 @@ public class ServerEntity {
 			return null;
 		}
 		return ServerDto.builder()
+				.seq(serverEntity.getSeq())
 			.name(serverEntity.getName())
 			.limitChannel(serverEntity.getLimitChannel())
 			.hostSeq(serverEntity.getHostSeq())

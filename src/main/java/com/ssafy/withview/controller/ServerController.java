@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -61,11 +62,26 @@ public class ServerController {
 		}
 		return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
 	}
+	@GetMapping("/find-server-by-user/{userSeq}")
+	public ResponseEntity<?> findServerByUser(@PathVariable long userSeq) {
+		JSONObject jsonObject = new JSONObject();
+		try{
+			List<ServerDto> serverDtoList = serverService.findAllServerByUserSeq(userSeq);
+			jsonObject.put("success",true);
+			jsonObject.put("servers",serverDtoList);
+			jsonObject.put("imgUriPrefix",CLOUD_FRONT_URL+"server-background/");
+		}catch (Exception e){
+			e.printStackTrace();
+			jsonObject = new JSONObject();
+			jsonObject.put("succuess",false);
+			return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+	}
 	@GetMapping("/find-server-by-name")
 	public ResponseEntity<?> findServerBySeq(@RequestParam("name") String name,@RequestParam("userSeq") String userSeq) {
 		JSONObject jsonObject = new JSONObject();
 		try{
-
 			jsonObject.put("success",true);
 //			jsonObject.put("server",serverDto);
 		}catch (Exception e){
@@ -78,6 +94,7 @@ public class ServerController {
 	}
 	@PostMapping("/")
 	public ResponseEntity<?> addServer(@ModelAttribute ServerDto serverDto, @RequestParam("file") MultipartFile multipartFile) {
+		System.out.println("====== 서버 추가 시작 ======");
 		JSONObject jsonObject = new JSONObject();
 		try{
 			// #1 - 버킷 생성
@@ -105,6 +122,7 @@ public class ServerController {
 			serverDto = serverService.insertServer(serverDto);
 			backgroundImgFile.delete();	//기존 임시 저장용 파일 삭제
 		}catch (Exception e){
+			e.printStackTrace();
 			jsonObject.put("success",false);
 			jsonObject.put("msg","서버 추가를 실패했습니다.");
 			return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
@@ -113,7 +131,7 @@ public class ServerController {
 		jsonObject.put("success",true);
 		jsonObject.put("server",serverDto);
 		jsonObject.put("msg","서버 추가를 성공했습니다.");
-
+		System.out.println("====== 서버 추가 끝 ======");
 		return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
 	}
 }

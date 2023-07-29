@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 
 @DataJpaTest
@@ -24,6 +26,7 @@ class UserServerRepositoryTest {
     @Autowired
     ServerRepository serverRepository;
     @Test
+    @Transactional
     void addServer(){
         UserEntity userEntity = userRepository.findBySeq(4);
         System.out.println(userEntity);
@@ -33,33 +36,23 @@ class UserServerRepositoryTest {
         System.out.println("===== 유저/서버 목록 =====");
         System.out.println(userServerRepository.findAll());
 
-        UserServerEntity userServer = UserServerEntity.builder()
+        List<UserServerEntity> userServerEntityList = new ArrayList<>();
+        userServerEntityList.add(UserServerEntity.builder()
                 .userEntity(userEntity)
                 .serverEntity(serverRepository.findBySeq(1))
-                .build();
-
-        System.out.println(userServer);
-        userServerRepository.save(userServer);
-        System.out.println(userServerRepository.findAll());
-
-         userServer = UserServerEntity.builder()
+                .build());
+        userServerEntityList.add(UserServerEntity.builder()
                 .userEntity(userEntity)
-                .serverEntity(serverRepository.findBySeq(2))
-                .build();
-
-        userServerRepository.save(userServer);
-        System.out.println(userServerRepository.findAll());
-
-        userServer = UserServerEntity.builder()
+                .serverEntity(serverRepository.findBySeq(1))
+                .build());
+        userServerEntityList.add(UserServerEntity.builder()
                 .userEntity(userEntity)
-                .serverEntity(serverRepository.findBySeq(3))
-                .build();
+                .serverEntity(serverRepository.findBySeq(1))
+                .build());
 
-        userServerRepository.save(userServer);
-        System.out.println(userServerRepository.findAll());
+        userServerRepository.saveAll(userServerEntityList);
 
         System.out.println("===== 넣은 후 유저/서버 ======");
-        List<UserServerEntity> userServerEntityList = userServerRepository.findAll();
         System.out.println(userServerEntityList);
         System.out.println("===== 넣은 후 유저 ======");
         userEntity = userRepository.findBySeq(4);
