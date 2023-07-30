@@ -1,23 +1,20 @@
 package com.ssafy.withview.controller;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.ssafy.withview.repository.dto.ServerDto;
+import com.ssafy.withview.service.ServerService;
+import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import com.ssafy.withview.repository.ServerRepository;
-import com.ssafy.withview.repository.dto.ServerDto;
-import com.ssafy.withview.repository.entity.ServerEntity;
-import com.ssafy.withview.service.ServerService;
-
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -47,55 +44,54 @@ public class ServerController {
 	}
 	@GetMapping("/{serverSeq}")
 	public ResponseEntity<?> findServerBySeq(@PathVariable long serverSeq) {
-		JSONObject jsonObject = new JSONObject();
+		JSONObject result = new JSONObject();
 		try{
 			ServerDto serverDto = serverService.findServerBySeq(serverSeq);
 
-			jsonObject.put("success",true);
-			jsonObject.put("server",serverDto);
+			result.put("success",true);
+			result.put("server",serverDto);
 		}catch (Exception e){
 			e.printStackTrace();
-			jsonObject = new JSONObject();
-			jsonObject.put("succuess",false);
-			jsonObject.put("msg",serverSeq+"서버 찾기를 실패했습니다.");
-			return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.INTERNAL_SERVER_ERROR);
+			result = new JSONObject();
+			result.put("succuess",false);
+			result.put("msg",serverSeq+"서버 찾기를 실패했습니다.");
+			return new ResponseEntity<JSONObject>(result, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
 	}
 	@GetMapping("/find-server-by-user")
 	public ResponseEntity<?> findServerByUser(@RequestParam("userSeq") long userSeq) {
-		JSONObject jsonObject = new JSONObject();
+		JSONObject result = new JSONObject();
 		try{
 			List<ServerDto> serverDtoList = serverService.findAllServerByUserSeq(userSeq);
-			jsonObject.put("success",true);
-			jsonObject.put("servers",serverDtoList);
-			jsonObject.put("imgUriPrefix",CLOUD_FRONT_URL+"server-background/");
+			result.put("success",true);
+			result.put("servers",serverDtoList);
+			result.put("imgUriPrefix",CLOUD_FRONT_URL+"server-background/");
 		}catch (Exception e){
 			e.printStackTrace();
-			jsonObject = new JSONObject();
-			jsonObject.put("succuess",false);
-			return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.INTERNAL_SERVER_ERROR);
+			result = new JSONObject();
+			result.put("succuess",false);
+			return new ResponseEntity<JSONObject>(result, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
 	}
 	@GetMapping("/find-server-by-name")
 	public ResponseEntity<?> findServerBySeq(@RequestParam("name") String name,@RequestParam("userSeq") String userSeq) {
-		JSONObject jsonObject = new JSONObject();
+		JSONObject result = new JSONObject();
 		try{
-			jsonObject.put("success",true);
-//			jsonObject.put("server",serverDto);
+			result.put("success",true);
 		}catch (Exception e){
 			e.printStackTrace();
-			jsonObject = new JSONObject();
-			jsonObject.put("succuess",false);
-			return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.INTERNAL_SERVER_ERROR);
+			result = new JSONObject();
+			result.put("succuess",false);
+			return new ResponseEntity<JSONObject>(result, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
 	}
 	@PostMapping("")
 	public ResponseEntity<?> addServer(@ModelAttribute ServerDto serverDto, @RequestParam(name = "file",required = false) MultipartFile multipartFile) {
 		System.out.println("====== 서버 추가 시작 ======");
-		JSONObject jsonObject = new JSONObject();
+		JSONObject result = new JSONObject();
 		try{
 			// #1 - 버킷 생성
 			if (!s3client.doesBucketExist(bucketName)) {
@@ -134,28 +130,29 @@ public class ServerController {
 			
 			// #5 - 이미지 서버 저장
 			s3client.putObject(bucketName, "server-background/"+backgroundImgSearchName, backgroundImgFile);
-			jsonObject.put("imgUrl",CLOUD_FRONT_URL+"server-background/"+backgroundImgSearchName);
+			result.put("imgUrl",CLOUD_FRONT_URL+"server-background/"+backgroundImgSearchName);
 			// #6 - DB 저장
 			serverDto.setBackgroundImgSearchName(uuid.toString()+extend);
 			serverDto = serverService.insertServer(serverDto);
 			backgroundImgFile.delete();	//기존 임시 저장용 파일 삭제
 		}catch (Exception e){
 			e.printStackTrace();
-			jsonObject.put("success",false);
-			jsonObject.put("msg","서버 추가를 실패했습니다.");
-			return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+			result.put("success",false);
+			result.put("msg","서버 추가를 실패했습니다.");
+			return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
 		}
 
-		jsonObject.put("success",true);
-		jsonObject.put("server",serverDto);
-		jsonObject.put("msg","서버 추가를 성공했습니다.");
+		result.put("success",true);
+		result.put("server",serverDto);
+		result.put("msg","서버 추가를 성공했습니다.");
 		System.out.println("====== 서버 추가 끝 ======");
-		return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
 	}
+
 	@PutMapping("")
 	public ResponseEntity<?> updateServer(@ModelAttribute ServerDto serverDto, @RequestParam(name = "file", required = false) MultipartFile multipartFile) {
 		System.out.println("====== 서버 추가 시작 ======");
-		JSONObject jsonObject = new JSONObject();
+		JSONObject result = new JSONObject();
 		try{
 			// #1 - 버킷 생성
 			if(multipartFile != null){
@@ -178,7 +175,7 @@ public class ServerController {
 
 				// #5 - 이미지 서버 저장
 				s3client.putObject(bucketName, "server-background/"+backgroundImgSearchName, backgroundImgFile);
-				jsonObject.put("imgUrl",CLOUD_FRONT_URL+"server-background/"+backgroundImgSearchName);
+				result.put("imgUrl",CLOUD_FRONT_URL+"server-background/"+backgroundImgSearchName);
 				// #6 - DB 저장
 				serverDto.setBackgroundImgSearchName(uuid.toString()+extend);
 				backgroundImgFile.delete();	//기존 임시 저장용 파일 삭제
@@ -187,15 +184,43 @@ public class ServerController {
 
 		}catch (Exception e){
 			e.printStackTrace();
-			jsonObject.put("success",false);
-			jsonObject.put("msg","서버 추가를 실패했습니다.");
-			return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+			result.put("success",false);
+			result.put("msg","서버 추가를 실패했습니다.");
+			return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
 		}
 
-		jsonObject.put("success",true);
-		jsonObject.put("server",serverDto);
-		jsonObject.put("msg","서버 추가를 성공했습니다.");
+		result.put("success",true);
+		result.put("server",serverDto);
+		result.put("msg","서버 추가를 성공했습니다.");
 		System.out.println("====== 서버 추가 끝 ======");
-		return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
+	}
+	@DeleteMapping("")
+	public ResponseEntity<?> deleteServer(@RequestBody Map<String,String> request) {
+		System.out.println("====== 서버 삭제 시작 ======");
+		JSONObject result = new JSONObject();	//결과 json 변수
+		try{
+			long serverSeq = Long.valueOf(request.get("serverSeq"));
+			long userSeq = Long.valueOf(request.get("userSeq"));
+
+			result = serverService.deleteServer(serverSeq,userSeq);
+
+			//실패했으면 그대로 반환
+			if(String.valueOf(result.get("success")).equals("false")){
+				return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
+			}
+			//S3에 있는 이미지 삭제
+			s3client.deleteObject(bucketName, (String) result.get("img"));
+			result.remove("img");
+
+		}catch (Exception e){
+			e.printStackTrace();
+			result.put("success",false);
+			result.put("msg","서버 삭제를 실패했습니다.");
+			return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
+		}
+		
+		System.out.println("====== 서버 삭제 끝 ======");
+		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
 	}
 }

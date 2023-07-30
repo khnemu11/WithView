@@ -1,27 +1,23 @@
 package com.ssafy.withview.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import com.amazonaws.services.s3.AmazonS3;
-import com.ssafy.withview.repository.UserRepository;
-import com.ssafy.withview.repository.UserServerRepository;
-import com.ssafy.withview.repository.entity.UserEntity;
-import com.ssafy.withview.repository.entity.UserServerEntity;
-import org.apache.catalina.User;
-import org.springframework.stereotype.Service;
-
 import com.ssafy.withview.repository.ChannelRepository;
 import com.ssafy.withview.repository.ServerRepository;
+import com.ssafy.withview.repository.UserRepository;
+import com.ssafy.withview.repository.UserServerRepository;
 import com.ssafy.withview.repository.dto.ChannelDto;
 import com.ssafy.withview.repository.dto.ServerDto;
 import com.ssafy.withview.repository.entity.ChannelEntity;
 import com.ssafy.withview.repository.entity.ServerEntity;
-
+import com.ssafy.withview.repository.entity.UserEntity;
+import com.ssafy.withview.repository.entity.UserServerEntity;
 import lombok.RequiredArgsConstructor;
+import org.json.simple.JSONObject;
+import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -80,5 +76,33 @@ public class ServerServiceImpl implements ServerService {
 		}
 
 		return userServerDtoList;
+	}
+
+	@Transactional
+	@Override
+	public JSONObject deleteServer(long serverSeq,long userSeq) {
+		JSONObject result = new JSONObject();
+
+		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
+
+		if(serverEntity == null){
+			result.put("success",false);
+			result.put("msg","해당 서버가 없습니다.");
+
+			return result;
+		}
+
+		if(serverEntity.getHostSeq() != userSeq){
+			result.put("success",false);
+			result.put("msg","서버를 삭제할 권한이 없습니다.");
+
+			return result;
+		}
+		result.put("img",serverEntity.getBackgroundImgSearchName());
+		serverRepository.delete(serverEntity);
+
+		result.put("success",true);
+		result.put("msg","서버를 성공적으로 삭제하였습니다.");
+		return result;
 	}
 }
