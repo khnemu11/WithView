@@ -12,8 +12,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.filter.CorsFilter;
 
 import com.ssafy.withview.config.jwt.JwtAccessDeniedHandler;
-import com.ssafy.withview.config.jwt.JwtAuthenticationEntryPoint;
 import com.ssafy.withview.config.jwt.JwtAuthenticationFilter;
+import com.ssafy.withview.config.jwt.JwtExceptionFilter;
 import com.ssafy.withview.service.JwtService;
 
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ public class SecurityConfig {
 
 	private final CorsFilter corsFilter;
 
-	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+	private final JwtExceptionFilter jwtExceptionFilter;
 
 	private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
@@ -43,11 +43,11 @@ public class SecurityConfig {
 			.httpBasic().disable();
 
 		http.exceptionHandling()
-			.authenticationEntryPoint(jwtAuthenticationEntryPoint)
 			.accessDeniedHandler(jwtAccessDeniedHandler);
 
 		http.addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
-			.addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
+			.addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
 
 		http.authorizeRequests()
 			.antMatchers("/api/users/login").permitAll()

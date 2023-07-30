@@ -56,7 +56,7 @@ public class UserController {
 			Authentication authentication = loginService.login(loginDto);
 			logger.info("authentication" + authentication);
 			if (authentication != null) {
-				JwtDto jwtDto = jwtService.generateToken2(authentication);
+				JwtDto jwtDto = jwtService.generateToken(authentication);
 				logger.info("UserController: 로그인 성공");
 				logger.info("[JWT] AccessToken: " + jwtDto.getAccessToken()
 					+ ", RefreshToken: " + jwtDto.getRefreshToken());
