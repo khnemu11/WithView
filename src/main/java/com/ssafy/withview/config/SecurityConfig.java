@@ -42,17 +42,17 @@ public class SecurityConfig {
 			.formLogin().disable()
 			.httpBasic().disable();
 
-		http.exceptionHandling()
-			.authenticationEntryPoint(jwtAuthenticationEntryPoint)
-			.accessDeniedHandler(jwtAccessDeniedHandler);
+//		http.exceptionHandling()
+//			.authenticationEntryPoint(jwtAuthenticationEntryPoint)
+//			.accessDeniedHandler(jwtAccessDeniedHandler);
+//
+//		http.addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+//			.addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
 
-		http.addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
-			.addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
-
-		http.authorizeRequests()
-			.antMatchers("/api/users/login").permitAll()
-			.antMatchers("/api/users").permitAll()
-			.anyRequest().authenticated();
+//		http.authorizeRequests()
+//			.antMatchers("/api/users/login").permitAll()
+//			.antMatchers("/api/users").permitAll()
+//			.anyRequest().authenticated();
 
 		return http.build();
 	}

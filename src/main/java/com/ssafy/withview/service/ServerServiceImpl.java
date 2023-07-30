@@ -49,18 +49,18 @@ public class ServerServiceImpl implements ServerService {
 		return ServerEntity.toDto(serverRepository.save(serverEntity));
 	}
 
+	@Transactional
 	@Override
-	public ServerDto updateServer(ServerDto serverDto) {
+	public ServerDto updateServer(ServerDto serverDto) throws  Exception{
 		ServerEntity serverEntity = serverRepository.findBySeq(serverDto.getSeq());
-
+		System.out.println("대상 서버 " + serverEntity);
 		if(serverEntity == null){
-			return null;
+			throw new Exception("대상 서버가 없음");
 		}
-//		serverRepository.save(serverDto);
 
+		serverEntity.update(serverDto);
 
-
-		return null;
+		return ServerEntity.toDto(serverEntity);
 	}
 
 	@Override

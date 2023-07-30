@@ -6,10 +6,10 @@ import com.ssafy.withview.repository.dto.ChannelDto;
 import com.ssafy.withview.repository.dto.ServerDto;
 
 public interface ServerService {
-	public List<ChannelDto> findAllChannelsByServerSeq(int serverSeq);
+	public List<ChannelDto> findAllChannelsByServerSeq(int serverSeq) ;
 	public ChannelDto findChannelByName(String channelName);
 	public ServerDto insertServer(ServerDto serverDto);
-	public ServerDto updateServer(ServerDto serverDto);
+	public ServerDto updateServer(ServerDto serverDto) throws  Exception;
 	public ServerDto findServerBySeq(long serverSeq);
 	public List<ServerDto> findAllServerByUserSeq(long userSeq);
 }

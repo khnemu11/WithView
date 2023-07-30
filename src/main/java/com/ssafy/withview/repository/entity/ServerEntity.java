@@ -55,4 +55,10 @@ public class ServerEntity {
 			.backgroundImgOriginalName(serverEntity.getBackgroundImgOriginalName())
 			.build();
 	}
+
+	public void update(ServerDto serverDto){
+		this.backgroundImgSearchName = serverDto.getBackgroundImgOriginalName();
+		this.backgroundImgOriginalName = serverDto.getBackgroundImgOriginalName();
+		this.name = serverDto.getName();
+	}
 }
