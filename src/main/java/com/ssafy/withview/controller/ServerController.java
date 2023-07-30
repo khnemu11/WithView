@@ -1,10 +1,7 @@
 package com.ssafy.withview.controller;
 
 import com.amazonaws.services.s3.AmazonS3;
-import org.bson.json.JsonObject;
 import org.json.simple.JSONObject;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpStatus;
@@ -36,6 +33,9 @@ public class ServerController {
 	@Value(value = "${CLOUD_FRONT_URL}")
 	private String CLOUD_FRONT_URL;
 
+	@Value(value="${DEFAULT_IMG}")
+	private String DEFAULT_IMG;
+
 	@GetMapping("/test")
 	public void test() {
 		ServerDto inputServerDto= ServerDto.builder()
@@ -62,8 +62,8 @@ public class ServerController {
 		}
 		return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
 	}
-	@GetMapping("/find-server-by-user/{userSeq}")
-	public ResponseEntity<?> findServerByUser(@PathVariable long userSeq) {
+	@GetMapping("/find-server-by-user")
+	public ResponseEntity<?> findServerByUser(@RequestParam("userSeq") long userSeq) {
 		JSONObject jsonObject = new JSONObject();
 		try{
 			List<ServerDto> serverDtoList = serverService.findAllServerByUserSeq(userSeq);
@@ -92,11 +92,72 @@ public class ServerController {
 		}
 		return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
 	}
-	@PostMapping("/")
-	public ResponseEntity<?> addServer(@ModelAttribute ServerDto serverDto, @RequestParam("file") MultipartFile multipartFile) {
+	@PostMapping("")
+	public ResponseEntity<?> addServer(@ModelAttribute ServerDto serverDto, @RequestParam(name = "file",required = false) MultipartFile multipartFile) {
 		System.out.println("====== 서버 추가 시작 ======");
 		JSONObject jsonObject = new JSONObject();
 		try{
+			// #1 - 버킷 생성
+			if (!s3client.doesBucketExist(bucketName)) {
+				s3client.createBucket(bucketName);
+			}
+			String originalName = "";
+			File backgroundImgFile;
+			String backgroundImgSearchName="";
+			UUID uuid = UUID.randomUUID();
+			String extend = "";
+			//사진이 없는경우 로고 사진으로 대체
+			if(multipartFile == null){
+				originalName=DEFAULT_IMG;
+
+			}
+			//사진이 있으면 해당 사진을 배경화면으로
+			else{
+				originalName = multipartFile.getOriginalFilename();
+			}
+
+			extend = originalName.substring(originalName.lastIndexOf('.'));
+			// #2 - 원본 파일 이름 저장
+			serverDto.setBackgroundImgOriginalName(originalName);
+
+			// #3 - 저장용 랜점 파일 이름 저장
+			backgroundImgSearchName = uuid.toString()+extend;
+			
+			// #4 - 파일 임시 저장
+			//파일이 있으면 임시 파일 저장
+			if(multipartFile!=null){
+				backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),backgroundImgSearchName);
+				multipartFile.transferTo(backgroundImgFile);
+			}else{
+				backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),originalName);
+			}
+			
+			// #5 - 이미지 서버 저장
+			s3client.putObject(bucketName, "server-background/"+backgroundImgSearchName, backgroundImgFile);
+			jsonObject.put("imgUrl",CLOUD_FRONT_URL+"server-background/"+backgroundImgSearchName);
+			// #6 - DB 저장
+			serverDto.setBackgroundImgSearchName(uuid.toString()+extend);
+			serverDto = serverService.insertServer(serverDto);
+			backgroundImgFile.delete();	//기존 임시 저장용 파일 삭제
+		}catch (Exception e){
+			e.printStackTrace();
+			jsonObject.put("success",false);
+			jsonObject.put("msg","서버 추가를 실패했습니다.");
+			return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+		}
+
+		jsonObject.put("success",true);
+		jsonObject.put("server",serverDto);
+		jsonObject.put("msg","서버 추가를 성공했습니다.");
+		System.out.println("====== 서버 추가 끝 ======");
+		return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+	}
+	@PutMapping("/")
+	public ResponseEntity<?> updateServer(@ModelAttribute ServerDto serverDto, @RequestParam(name = "file", required = false) MultipartFile multipartFile) {
+		System.out.println("====== 서버 추가 시작 ======");
+		JSONObject jsonObject = new JSONObject();
+		try{
+
 			// #1 - 버킷 생성
 			if (!s3client.doesBucketExist(bucketName)) {
 				s3client.createBucket(bucketName);
@@ -109,7 +170,7 @@ public class ServerController {
 			String extend = originalName.substring(originalName.lastIndexOf('.'));
 			UUID uuid = UUID.randomUUID();
 			String backgroundImgSearchName = uuid.toString()+extend;
-			
+
 			// #4 - 파일 임시 저장
 			File backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),backgroundImgSearchName);
 			multipartFile.transferTo(backgroundImgFile);
@@ -119,7 +180,7 @@ public class ServerController {
 			jsonObject.put("imgUrl",CLOUD_FRONT_URL+"server-background/"+backgroundImgSearchName);
 			// #6 - DB 저장
 			serverDto.setBackgroundImgSearchName(uuid.toString()+extend);
-			serverDto = serverService.insertServer(serverDto);
+			serverDto = serverService.updateServer(serverDto);
 			backgroundImgFile.delete();	//기존 임시 저장용 파일 삭제
 		}catch (Exception e){
 			e.printStackTrace();

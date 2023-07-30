@@ -15,12 +15,12 @@ import lombok.ToString;
 @Entity
 @ToString
 @Table(name = "channel")
+@NoArgsConstructor
 public class ChannelEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long seq;
 	private String name;
-	@Builder.Default
 	private int limitPeople=5;
 	private int serverSeq;
 

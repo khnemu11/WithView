@@ -50,6 +50,20 @@ public class ServerServiceImpl implements ServerService {
 	}
 
 	@Override
+	public ServerDto updateServer(ServerDto serverDto) {
+		ServerEntity serverEntity = serverRepository.findBySeq(serverDto.getSeq());
+
+		if(serverEntity == null){
+			return null;
+		}
+//		serverRepository.save(serverDto);
+
+
+
+		return null;
+	}
+
+	@Override
 	public ServerDto findServerBySeq(long serverSeq) {
 
 		return ServerEntity.toDto(serverRepository.findBySeq(serverSeq));

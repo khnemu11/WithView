@@ -9,6 +9,7 @@ public interface ServerService {
 	public List<ChannelDto> findAllChannelsByServerSeq(int serverSeq);
 	public ChannelDto findChannelByName(String channelName);
 	public ServerDto insertServer(ServerDto serverDto);
+	public ServerDto updateServer(ServerDto serverDto);
 	public ServerDto findServerBySeq(long serverSeq);
 	public List<ServerDto> findAllServerByUserSeq(long userSeq);
 }
