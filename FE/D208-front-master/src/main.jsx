@@ -7,7 +7,7 @@ import { PersistGate } from "redux-persist/integration/react"; // Redux Persistë
 import { store, persistor } from "./redux/store";
 import Root from "./routes/root";
 import Hello from "./routes/hello";
-import Login from "./routes/Login";
+import Login from "./routes/login";
 import Signup from "./routes/signup";
 import "./css/main.css"; // Import the CSS file
 import GroupChat from "./routes/groupchat";
@@ -55,8 +55,8 @@ const router = createBrowserRouter([
     element: <ServerPlus />,
   },
   {
-    path:"/server",
-    element: <Serverpage/>,
+    path: "/server",
+    element: <Serverpage />,
   },
 ]);
 

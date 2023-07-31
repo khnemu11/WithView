@@ -33,9 +33,8 @@ export default function Signup() {
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const [buttonDisabled2, setButtonDisabled2] = useState(false);
 
-
   useEffect(() => {
-    // 페이지 진입 시 페이지 전환 애니메이션 클래스 추가
+    // 페이지 진입 시 페이지 전환 애니메이션 클래스 추가...
     document.body.classList.remove("signup_transition-enter-active");
     document.body.classList.add("signup_transition-enter");
     // 페이지 진입 시 활성화 애니메이션 클래스 추가
@@ -46,7 +45,6 @@ export default function Signup() {
       document.body.classList.add("signup_transition-enter-active");
     }, 300); // 애니메이션 시간과 일치하는 시간으로 설정 (0.3초)
   }, []);
-
 
   useEffect(() => {
     // 아이디 필드가 변경되었을 때 실행되는 함수
