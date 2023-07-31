@@ -23,6 +23,8 @@ public class ChannelEntity {
 	private String name;
 	private int limitPeople=5;
 	private int serverSeq;
+	private String backgroundImgSearchName;
+	private String backgroundImgOriginalName;
 
 	public static ChannelDto toDto(ChannelEntity entity){
 		return ChannelDto.builder()
@@ -30,11 +32,12 @@ public class ChannelEntity {
 			.limitPeople(entity.getLimitPeople())
 			.serverSeq(entity.getServerSeq()).build();
 	}
-
 	@Builder
-	public ChannelEntity(String name, int limitPeople, int serverSeq) {
+	public ChannelEntity(String name, int limitPeople, int serverSeq,String backgroundImgOriginalName, String backgroundImgSearchName) {
 		this.name = name;
 		this.limitPeople = limitPeople;
 		this.serverSeq = serverSeq;
+		this.backgroundImgOriginalName = backgroundImgOriginalName;
+		this.backgroundImgSearchName = backgroundImgSearchName;
 	}
 }

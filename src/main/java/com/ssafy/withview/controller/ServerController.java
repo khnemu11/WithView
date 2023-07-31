@@ -1,7 +1,10 @@
 package com.ssafy.withview.controller;
 
+import com.amazonaws.Response;
 import com.amazonaws.services.s3.AmazonS3;
+import com.ssafy.withview.repository.dto.ChannelDto;
 import com.ssafy.withview.repository.dto.ServerDto;
+import com.ssafy.withview.service.ChannelService;
 import com.ssafy.withview.service.ServerService;
 import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONObject;
@@ -22,16 +25,42 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ServerController {
 	private final ServerService serverService;
-	private final ResourceLoader resourceLoader;
-	private final AmazonS3 s3client;
+	private final ChannelService channelService;
 
-	@Value(value="${cloud.aws.s3.bucket}")
-	private String bucketName;
 	@Value(value = "${CLOUD_FRONT_URL}")
 	private String CLOUD_FRONT_URL;
 
-	@Value(value="${DEFAULT_IMG}")
-	private String DEFAULT_IMG;
+	@PostMapping("/{serverSeq}/channels")
+	public ResponseEntity insertChannel(@PathVariable long serverSeq, @ModelAttribute ChannelDto channelDto){
+		JSONObject result = new JSONObject();
+		try {
+			channelService.insertChannel(channelDto);
+
+			result.put("success",true);
+		}catch (Exception e){
+			e.printStackTrace();
+
+			result.put("success",false);
+			result.put("msg","채널 생성 중 오류가 발생했습니다.");
+			return new ResponseEntity<JSONObject>(result,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+		return new ResponseEntity<JSONObject>(result,HttpStatus.OK);
+	}
+//	@GetMapping("/{serverSeq}/channels/find-channel-by-user")
+//	public ResponseEntity findAllChannelsByUser(@PathVariable long serverSeq, @ModelAttribute(name = "userSeq") ChannelDto channelDto){
+//		JSONObject result = new JSONObject();
+//		try {
+//			channelService.insertChannel(channelDto);
+//		}catch (Exception e){
+//			e.printStackTrace();
+//
+//			result.put("success",false);
+//			result.put("msg","채널 생성 중 오류가 발생했습니다.");
+//			return new ResponseEntity<JSONObject>(result,HttpStatus.INTERNAL_SERVER_ERROR);
+//		}
+//		return new ResponseEntity<JSONObject>(result,HttpStatus.OK);
+//	}
 
 	@GetMapping("/test")
 	public void test() {
@@ -94,47 +123,7 @@ public class ServerController {
 		JSONObject result = new JSONObject();
 		try{
 			// #1 - 버킷 생성
-			if (!s3client.doesBucketExist(bucketName)) {
-				s3client.createBucket(bucketName);
-			}
-			String originalName = "";
-			File backgroundImgFile;
-			String backgroundImgSearchName="";
-			UUID uuid = UUID.randomUUID();
-			String extend = "";
-			//사진이 없는경우 로고 사진으로 대체
-			if(multipartFile == null){
-				originalName=DEFAULT_IMG;
-
-			}
-			//사진이 있으면 해당 사진을 배경화면으로
-			else{
-				originalName = multipartFile.getOriginalFilename();
-			}
-
-			extend = originalName.substring(originalName.lastIndexOf('.'));
-			// #2 - 원본 파일 이름 저장
-			serverDto.setBackgroundImgOriginalName(originalName);
-
-			// #3 - 저장용 랜점 파일 이름 저장
-			backgroundImgSearchName = uuid.toString()+extend;
-			
-			// #4 - 파일 임시 저장
-			//파일이 있으면 임시 파일 저장
-			if(multipartFile!=null){
-				backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),backgroundImgSearchName);
-				multipartFile.transferTo(backgroundImgFile);
-			}else{
-				backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),originalName);
-			}
-			
-			// #5 - 이미지 서버 저장
-			s3client.putObject(bucketName, "server-background/"+backgroundImgSearchName, backgroundImgFile);
-			result.put("imgUrl",CLOUD_FRONT_URL+"server-background/"+backgroundImgSearchName);
-			// #6 - DB 저장
-			serverDto.setBackgroundImgSearchName(uuid.toString()+extend);
-			serverDto = serverService.insertServer(serverDto);
-			backgroundImgFile.delete();	//기존 임시 저장용 파일 삭제
+			serverDto = serverService.insertServer(serverDto,multipartFile);
 		}catch (Exception e){
 			e.printStackTrace();
 			result.put("success",false);
@@ -144,6 +133,7 @@ public class ServerController {
 
 		result.put("success",true);
 		result.put("server",serverDto);
+		result.put("imgUrl",CLOUD_FRONT_URL+"server-background/"+serverDto.getBackgroundImgSearchName());
 		result.put("msg","서버 추가를 성공했습니다.");
 		System.out.println("====== 서버 추가 끝 ======");
 		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
@@ -151,48 +141,23 @@ public class ServerController {
 
 	@PutMapping("")
 	public ResponseEntity<?> updateServer(@ModelAttribute ServerDto serverDto, @RequestParam(name = "file", required = false) MultipartFile multipartFile) {
-		System.out.println("====== 서버 추가 시작 ======");
+		System.out.println("====== 서버 변경 시작 ======");
 		JSONObject result = new JSONObject();
 		try{
-			// #1 - 버킷 생성
-			if(multipartFile != null){
-				System.out.println("=== 파일 변경 ===");
-				if (!s3client.doesBucketExist(bucketName)) {
-					s3client.createBucket(bucketName);
-				}
-				// #2 - 원본 파일 이름 저장
-				String originalName = multipartFile.getOriginalFilename();
-				serverDto.setBackgroundImgOriginalName(originalName);
-
-				// #3 - 저장용 랜점 파일 이름 저장
-				String extend = originalName.substring(originalName.lastIndexOf('.'));
-				UUID uuid = UUID.randomUUID();
-				String backgroundImgSearchName = uuid.toString()+extend;
-
-				// #4 - 파일 임시 저장
-				File backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),backgroundImgSearchName);
-				multipartFile.transferTo(backgroundImgFile);
-
-				// #5 - 이미지 서버 저장
-				s3client.putObject(bucketName, "server-background/"+backgroundImgSearchName, backgroundImgFile);
-				result.put("imgUrl",CLOUD_FRONT_URL+"server-background/"+backgroundImgSearchName);
-				// #6 - DB 저장
-				serverDto.setBackgroundImgSearchName(uuid.toString()+extend);
-				backgroundImgFile.delete();	//기존 임시 저장용 파일 삭제
-			}
-			serverDto = serverService.updateServer(serverDto);
-
+			serverDto = serverService.updateServer(serverDto,multipartFile);
 		}catch (Exception e){
 			e.printStackTrace();
 			result.put("success",false);
-			result.put("msg","서버 추가를 실패했습니다.");
+			result.put("msg","서버 변경 중 오류가 발생했습니다.");
 			return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
 		}
 
 		result.put("success",true);
 		result.put("server",serverDto);
 		result.put("msg","서버 추가를 성공했습니다.");
-		System.out.println("====== 서버 추가 끝 ======");
+		result.put("imgUrl",CLOUD_FRONT_URL+"server-background/"+serverDto.getBackgroundImgSearchName());
+
+		System.out.println("====== 서버 변경 끝 ======");
 		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
 	}
 	@DeleteMapping("")
@@ -200,18 +165,7 @@ public class ServerController {
 		System.out.println("====== 서버 삭제 시작 ======");
 		JSONObject result = new JSONObject();	//결과 json 변수
 		try{
-			long serverSeq = Long.valueOf(request.get("serverSeq"));
-			long userSeq = Long.valueOf(request.get("userSeq"));
 
-			result = serverService.deleteServer(serverSeq,userSeq);
-
-			//실패했으면 그대로 반환
-			if(String.valueOf(result.get("success")).equals("false")){
-				return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
-			}
-			//S3에 있는 이미지 삭제
-			s3client.deleteObject(bucketName, (String) result.get("img"));
-			result.remove("img");
 
 		}catch (Exception e){
 			e.printStackTrace();
