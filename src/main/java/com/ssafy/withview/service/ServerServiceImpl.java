@@ -121,7 +121,7 @@ public class ServerServiceImpl implements ServerService {
 			String originalName = multipartFile.getOriginalFilename();
 			serverDto.setBackgroundImgOriginalName(originalName);
 
-			// #3 - 저장용 랜점 파일 이름 저장
+			// #3 - 저장용 랜덤 파일 이름 저장
 			String extend = originalName.substring(originalName.lastIndexOf('.'));
 			UUID uuid = UUID.randomUUID();
 			String backgroundImgSearchName = uuid.toString()+extend;
@@ -132,6 +132,7 @@ public class ServerServiceImpl implements ServerService {
 
 			// #5 - 이미지 서버 저장
 			s3client.putObject(bucketName, "server-background/"+backgroundImgSearchName, backgroundImgFile);
+
 			// #6 - DB 저장
 			serverDto.setBackgroundImgSearchName(uuid.toString()+extend);
 			backgroundImgFile.delete();	//기존 임시 저장용 파일 삭제
