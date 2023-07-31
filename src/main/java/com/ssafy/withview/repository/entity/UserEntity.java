@@ -12,7 +12,6 @@ import java.util.List;
 
 @Getter
 @Entity
-@ToString
 @NoArgsConstructor
 @Table(name="user")
 public class UserEntity {
