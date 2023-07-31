@@ -17,14 +17,14 @@ spring:
       prefix: /WEB-INF/views/
       suffix: .jsp
   redis:
-    host: localhost
+    host: i9d208.p.ssafy.io
     port: 6379
 server:
   port: 9091
   servlet:
     jsp:
       init-parameters:
-        development : true
+        development: true
 springdoc:
   swagger-ui:
     path: /api/api.html
@@ -45,7 +45,7 @@ cloud:
 
 OPENVIDU_URL: https://i9d208.p.ssafy.io:8443/
 OPENVIDU_SECRET: ssafy
-CLOUD_FRONT_URL : https://dm51j1y1p1ekp.cloudfront.net/
-AWS_ACCESS_KEY : AKIAQZFCIQLESJZHO4EF
-AWS_SECRET_KEY : fe3XBmE8Vq3s4YYVS
-DEFAULT_IMG : logo.png
+CLOUD_FRONT_URL: https://dm51j1y1p1ekp.cloudfront.net/
+AWS_ACCESS_KEY: AKIAQZFCIQLESJZHO4EF
+AWS_SECRET_KEY: fe3XBmE8Vq3s4YYVS
+DEFAULT_IMG: logo.png
