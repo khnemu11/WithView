@@ -61,16 +61,6 @@ public class ServerController {
 //		}
 //		return new ResponseEntity<JSONObject>(result,HttpStatus.OK);
 //	}
-
-	@GetMapping("/test")
-	public void test() {
-		ServerDto inputServerDto= ServerDto.builder()
-			.name("롤")
-			.hostSeq(1)
-			.build();
-
-		System.out.println(inputServerDto);
-	}
 	@GetMapping("/{serverSeq}")
 	public ResponseEntity<?> findServerBySeq(@PathVariable long serverSeq) {
 		JSONObject result = new JSONObject();
@@ -88,6 +78,23 @@ public class ServerController {
 		}
 		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
 	}
+	@GetMapping("")
+	public ResponseEntity<?> findAllserver() {
+		JSONObject result = new JSONObject();
+		try{
+			List<ServerDto> serverDtoList = serverService.findAllServer();
+
+			result.put("success",true);
+			result.put("server",serverDtoList);
+		}catch (Exception e){
+			e.printStackTrace();
+			result = new JSONObject();
+			result.put("succuess",false);
+			result.put("msg","서버 찾기를 실패했습니다.");
+			return new ResponseEntity<JSONObject>(result, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
+	}
 	@GetMapping("/find-server-by-user")
 	public ResponseEntity<?> findServerByUser(@RequestParam("userSeq") long userSeq) {
 		JSONObject result = new JSONObject();
@@ -96,19 +103,6 @@ public class ServerController {
 			result.put("success",true);
 			result.put("servers",serverDtoList);
 			result.put("imgUriPrefix",CLOUD_FRONT_URL+"server-background/");
-		}catch (Exception e){
-			e.printStackTrace();
-			result = new JSONObject();
-			result.put("succuess",false);
-			return new ResponseEntity<JSONObject>(result, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
-	}
-	@GetMapping("/find-server-by-name")
-	public ResponseEntity<?> findServerBySeq(@RequestParam("name") String name,@RequestParam("userSeq") String userSeq) {
-		JSONObject result = new JSONObject();
-		try{
-			result.put("success",true);
 		}catch (Exception e){
 			e.printStackTrace();
 			result = new JSONObject();

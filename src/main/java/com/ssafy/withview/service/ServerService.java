@@ -15,4 +15,5 @@ public interface ServerService {
 	public ServerDto findServerBySeq(long serverSeq);
 	public List<ServerDto> findAllServerByUserSeq(long userSeq);
 	public void deleteServer(long serverSeq, long userSeq) throws Exception;
+	public List<ServerDto> findAllServer();
 }

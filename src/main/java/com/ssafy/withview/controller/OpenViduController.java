@@ -1,4 +1,4 @@
-package com.ssafy.withview.openvidu;
+package com.ssafy.withview.controller;
 
 import java.util.Map;
 
@@ -55,11 +55,6 @@ public class OpenViduController {
 		SessionProperties properties = SessionProperties.fromJson(params).build();
 		Session session = openvidu.createSession(properties);
 		return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
-	}
-	@GetMapping("/test")
-	public ResponseEntity<String> testController(){
-		System.out.println("연결 성공");
-		return new ResponseEntity<>("연결 성공",HttpStatus.OK);
 	}
 	/**
 	 * @param sessionId The Session in which to create the Connection

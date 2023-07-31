@@ -179,4 +179,15 @@ public class ServerServiceImpl implements ServerService {
 		s3client.deleteObject(bucketName, "server-background/"+serverEntity.getBackgroundImgSearchName());
 
 	}
+
+	@Override
+	public List<ServerDto> findAllServer() {
+		List<ServerEntity> serverEntityList =serverRepository.findAll();
+		List<ServerDto> serverDtoList = new ArrayList<>();
+
+		for(int i=0;i<serverEntityList.size();i++){
+			serverDtoList.add(ServerEntity.toDto(serverEntityList.get(i)));
+		}
+		return serverDtoList;
+	}
 }
