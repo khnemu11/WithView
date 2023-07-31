@@ -1,5 +1,6 @@
 package com.ssafy.withview.service;
 
+import com.ssafy.withview.repository.LoginRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,7 @@ import com.ssafy.withview.repository.entity.LoginEntity;
 public class UserService {
 
 	@Autowired
-	UserRepository userRepository;
+	LoginRepository loginRepository;
 
 	// 회원가입 시, login, users 테이블에 동시 저장
 	// 현재는 login 테이블에만 저장
@@ -22,7 +23,7 @@ public class UserService {
 	public LoginDto join(LoginDto loginDto) {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-		LoginEntity loginEntity = userRepository.save(LoginEntity.builder()
+		LoginEntity loginEntity = loginRepository.save(LoginEntity.builder()
 			.id(loginDto.getId())
 			.password(encoder.encode(loginDto.getPassword()))
 			.roles("ROLE_USER")
