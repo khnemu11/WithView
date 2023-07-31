@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface UserRepository extends JpaRepository<UserEntity,Long> {
-    public UserEntity findBySeq(long seq);
+public interface UserServerRepository extends JpaRepository<UserServerEntity,Long> {
+    List<UserServerEntity> findAllServerByUserEntity(UserEntity userEntity);
 }
