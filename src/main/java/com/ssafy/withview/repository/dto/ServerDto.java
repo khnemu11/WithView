@@ -14,6 +14,7 @@ import lombok.ToString;
 @Setter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class ServerDto {
 	private long seq;
 	private String name;

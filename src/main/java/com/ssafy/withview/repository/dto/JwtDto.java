@@ -6,6 +6,7 @@ import lombok.*;
 @Setter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class JwtDto {
 	private String grantType;
 	private String accessToken;
