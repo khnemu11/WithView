@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor
+@AllArgsConstructor
 public class UserDto {
 	private long seq;
 	private String id;

@@ -12,7 +12,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor
+@AllArgsConstructor
 public class ChannelDto {
 	private long seq;
 	String name;
