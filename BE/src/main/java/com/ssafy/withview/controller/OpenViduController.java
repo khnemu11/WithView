@@ -25,7 +25,7 @@ import io.openvidu.java.client.SessionProperties;
 
 //오픈비두 원리 : 소켓을 이용하여 세션(채널) 관리
 //creatSession : 소켓에 채널 생성(단순 해시에 put하는 형식)
-//getActivateSesion(채널 ID) : 해당 채널ㄴ을 가져오는 메
+//getActivateSesion(채널 ID) : 해당 채널을 가져오는 메
 
 @CrossOrigin(origins = "*")
 @RestController
