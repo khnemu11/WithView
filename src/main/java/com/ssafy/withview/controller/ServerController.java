@@ -64,10 +64,11 @@ public class ServerController {
 
 			result.put("success",true);
 			result.put("server",serverDto);
+			result.put("imgUriPrefix",CLOUD_FRONT_URL+"server-background/");
 		}catch (Exception e){
 			e.printStackTrace();
 			result = new JSONObject();
-			result.put("succuess",false);
+			result.put("success",false);
 			result.put("msg",serverSeq+"서버 찾기를 실패했습니다.");
 			return new ResponseEntity<JSONObject>(result, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -81,10 +82,11 @@ public class ServerController {
 
 			result.put("success",true);
 			result.put("server",serverDtoList);
+			result.put("imgUriPrefix",CLOUD_FRONT_URL+"server-background/");
 		}catch (Exception e){
 			e.printStackTrace();
 			result = new JSONObject();
-			result.put("succuess",false);
+			result.put("success",false);
 			result.put("msg","서버 찾기를 실패했습니다.");
 			return new ResponseEntity<JSONObject>(result, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -100,7 +102,7 @@ public class ServerController {
 		}catch (Exception e){
 			e.printStackTrace();
 			result = new JSONObject();
-			result.put("succuess",false);
+			result.put("success",false);
 			result.put("msg","서버 참가자 목록 불러오기를 실패했습니다.");
 			return new ResponseEntity<JSONObject>(result, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -198,7 +200,7 @@ public class ServerController {
 
 		result.put("success",true);
 		result.put("server",serverDto);
-		result.put("msg","서버 추가를 성공했습니다.");
+		result.put("msg","서버 수정을 성공했습니다.");
 		result.put("imgUrl",CLOUD_FRONT_URL+"server-background/"+serverDto.getBackgroundImgSearchName());
 
 		System.out.println("====== 서버 변경 끝 ======");
