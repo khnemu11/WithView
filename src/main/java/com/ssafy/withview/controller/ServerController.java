@@ -32,7 +32,7 @@ public class ServerController {
 	private String CLOUD_FRONT_URL;
 
 	@PostMapping("/{serverSeq}/channels")
-	public ResponseEntity insertChannel(@PathVariable long serverSeq, @ModelAttribute ChannelDto channelDto){
+	public ResponseEntity<?> insertChannel(@PathVariable long serverSeq, @ModelAttribute ChannelDto channelDto){
 		JSONObject result = new JSONObject();
 		try {
 			channelService.insertChannel(channelDto);

@@ -15,10 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@ToString
 @Table(name = "server")
 public class ServerEntity {
 	@Id

@@ -4,10 +4,8 @@ import lombok.*;
 import javax.persistence.*;
 
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@ToString
 @Table(name="user_server")
 public class UserServerEntity {
 	@Id
