@@ -30,6 +30,7 @@ public class ServerEntity {
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
 
+
 	@OneToMany(mappedBy="userEntity")
 	private List<UserServerEntity> users = new ArrayList<>();
 

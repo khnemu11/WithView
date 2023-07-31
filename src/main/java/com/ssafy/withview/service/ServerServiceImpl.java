@@ -7,6 +7,7 @@ import com.ssafy.withview.repository.UserRepository;
 import com.ssafy.withview.repository.UserServerRepository;
 import com.ssafy.withview.repository.dto.ChannelDto;
 import com.ssafy.withview.repository.dto.ServerDto;
+import com.ssafy.withview.repository.dto.UserDto;
 import com.ssafy.withview.repository.entity.ChannelEntity;
 import com.ssafy.withview.repository.entity.ServerEntity;
 import com.ssafy.withview.repository.entity.UserEntity;
@@ -51,6 +52,7 @@ public class ServerServiceImpl implements ServerService {
 
 	@Override
 	public ChannelDto findChannelByName(String channelName) {
+
 		return null;
 	}
 
@@ -162,6 +164,19 @@ public class ServerServiceImpl implements ServerService {
 		return userServerDtoList;
 	}
 
+	@Override
+	public List<UserDto> findAllUsersByServerSeq(long serverSeq) {
+		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
+		List<UserServerEntity> userServerEntityList= userServerRepository.findAllUserByServerEntity(serverEntity);
+		List<UserDto> userDtoList = new ArrayList<>();
+
+		for(int i=0;i<userServerEntityList.size();i++) {
+			userDtoList.add(UserEntity.toDto(userServerEntityList.get(i).getUserEntity()));
+		}
+
+		return userDtoList;
+	}
+
 	@Transactional
 	@Override
 	public void deleteServer(long serverSeq,long userSeq) throws Exception{
@@ -178,7 +193,6 @@ public class ServerServiceImpl implements ServerService {
 		serverRepository.delete(serverEntity);
 		//S3에 있는 이미지 삭제
 		s3client.deleteObject(bucketName, "server-background/"+serverEntity.getBackgroundImgSearchName());
-
 	}
 
 	@Override
@@ -190,5 +204,46 @@ public class ServerServiceImpl implements ServerService {
 			serverDtoList.add(ServerEntity.toDto(serverEntityList.get(i)));
 		}
 		return serverDtoList;
+	}
+
+	@Transactional
+	@Override
+	public void enterServer(long serverSeq, long userSeq) throws Exception {
+		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
+		UserEntity userEntity = userRepository.findBySeq(userSeq);
+		if(serverEntity == null || userEntity == null){
+			throw new Exception("서버 혹은 유저가 없습니다.");
+		}
+
+		UserServerEntity userServerEntity = userServerRepository.findByServerEntityAndUserEntity(serverEntity,userEntity);
+
+		if(userServerEntity != null){
+			throw new Exception("이미 서버에 존재합니다.");
+		}
+
+		userServerEntity = UserServerEntity.builder()
+				.serverEntity(serverEntity)
+				.userEntity(userEntity)
+				.build();
+		userServerRepository.save(userServerEntity);
+	}
+
+	@Transactional
+	@Override
+	public void leaveServer(long serverSeq, long userSeq) throws Exception{
+		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
+		UserEntity userEntity = userRepository.findBySeq(userSeq);
+
+		if(serverEntity == null || userEntity == null){
+			throw new Exception("서버 혹은 유저가 없습니다.");
+		}
+
+		UserServerEntity userServerEntity = userServerRepository.findByServerEntityAndUserEntity(serverEntity,userEntity);
+
+		if(userServerEntity == null){
+			throw new Exception("이미 서버에 존재하지 않습니다.");
+		}
+
+		userServerRepository.delete(userServerEntity);
 	}
 }
