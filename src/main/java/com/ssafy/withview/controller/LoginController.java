@@ -25,7 +25,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/login")
 public class LoginController {
-
 	@Autowired
 	private LoginService loginService;
 

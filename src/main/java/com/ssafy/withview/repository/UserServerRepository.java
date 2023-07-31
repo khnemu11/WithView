@@ -11,4 +11,6 @@ import java.util.List;
 @Repository
 public interface UserServerRepository extends JpaRepository<UserServerEntity,Long> {
     List<UserServerEntity> findAllServerByUserEntity(UserEntity userEntity);
+    List<UserServerEntity> findAllUserByServerEntity(ServerEntity userEntity);
+    UserServerEntity findByServerEntityAndUserEntity(ServerEntity serverEntity,UserEntity userEntity);
 }
