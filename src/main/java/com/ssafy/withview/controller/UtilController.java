@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/utils")
+@RequestMapping("/api/utils")
 public class UtilController {
 	private final Environment env;
 
