@@ -13,6 +13,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class ServerDto {
 	private long seq;
