@@ -25,6 +25,9 @@ server:
     jsp:
       init-parameters:
         development : true
+springdoc:
+  swagger-ui:
+    path: /api/api.html
 management:
   endpoints:
     web:
