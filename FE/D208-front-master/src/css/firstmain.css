@@ -1,0 +1,87 @@
+html {
+  margin: 0;
+  padding: 0;
+  height: 100vh; /* 뷰포트 높이에 맞게 설정 */
+  /* text-align: center; */
+  background-image: url("/background.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  overflow-y: hidden;
+}
+
+.innerfirstmain {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  align-items: center;
+  background-color: rgba(247, 251, 252, 0.8);
+  border-radius: 20px;
+  padding: 10px;
+  max-width: 80%;
+  height: 80vh;
+  width: 180vh;
+  margin: 10vh auto;
+  position: relative;
+}
+
+.serverOptions {
+  width: 100%;
+  max-height: 45px;
+  display: flex;
+}
+
+.serverOptions p {
+  margin-right: 20px; /* 서버 옵션 텍스트 간격 조정 */
+}
+
+.serverOptionsLine {
+  width: 100%;
+  border-bottom: 1px solid #3077AA;
+  margin-top: 7px;
+  margin-bottom: 30px; /* 서버 옵션 라인과 컨텐츠 사이 간격 조정 */
+}
+.serverOptionsLine_main {
+  width: 100%;
+  border-bottom: 1px solid #3077AA;
+  margin-top: 7px;
+  margin-bottom: 10px; /* 서버 옵션 라인과 컨텐츠 사이 간격 조정 */
+}
+
+.withViewImage {
+  width: 100%;
+  max-width: 180px;
+  margin-top: 20px;
+}
+
+.withViewImageTop {
+  width: 100%;
+  max-width: 70px;
+  margin-right: 15px;
+}
+
+.profile-bar-image{
+  width: 100%;
+  max-width: 50px;
+  margin-right: 10px;
+  border-radius: 50%;
+}
+
+.userplusImage{
+  width: 95px;
+  margin: 0 120px 10px; 
+}
+.serverplusImage {
+  width: 80px;
+  margin: 0 120px 10px; /* 왼쪽과 오른쪽 마진 설정 */
+}
+
+.addFriendText,
+.addServerText {
+  margin-top: 10px;
+  white-space: nowrap;
+}
+
+
+.ml-auto {
+  margin-left: auto;
+}

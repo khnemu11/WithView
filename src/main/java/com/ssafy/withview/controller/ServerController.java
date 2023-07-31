@@ -1,7 +1,5 @@
 package com.ssafy.withview.controller;
 
-import com.amazonaws.Response;
-import com.amazonaws.services.s3.AmazonS3;
 import com.ssafy.withview.repository.dto.ChannelDto;
 import com.ssafy.withview.repository.dto.ServerDto;
 import com.ssafy.withview.repository.dto.UserDto;
@@ -10,16 +8,12 @@ import com.ssafy.withview.service.ServerService;
 import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/servers")
@@ -80,7 +74,7 @@ public class ServerController {
 		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
 	}
 	@GetMapping("")
-	public ResponseEntity<?> findAllserver() {
+	public ResponseEntity<?> findAllServers() {
 		JSONObject result = new JSONObject();
 		try{
 			List<ServerDto> serverDtoList = serverService.findAllServer();
@@ -97,7 +91,7 @@ public class ServerController {
 		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
 	}
 	@GetMapping("/{serverSeq}/users")
-	public ResponseEntity<?> findAllusersInServer(@PathVariable(name = "serverSeq") long serverSeq) {
+	public ResponseEntity<?> findAllUsersInServer(@PathVariable(name = "serverSeq") long serverSeq) {
 		JSONObject result = new JSONObject();
 		try{
 			List<UserDto> userDtoList = serverService.findAllUsersByServerSeq(serverSeq);
@@ -123,7 +117,7 @@ public class ServerController {
 		}catch (Exception e){
 			e.printStackTrace();
 			result = new JSONObject();
-			result.put("succuess",false);
+			result.put("success",false);
 			return new ResponseEntity<JSONObject>(result, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
