@@ -19,11 +19,16 @@ public class ChannelDto {
 	String name;
 	int limitPeople;
 	int serverSeq;
+	private String backgroundImgSearchName;
+	private String backgroundImgOriginalName;
 
 	public static ChannelEntity toEntity(ChannelDto dto){
 		return ChannelEntity.builder()
 			.name(dto.getName())
 			.limitPeople(dto.getLimitPeople())
-			.serverSeq(dto.getServerSeq()).build();
+			.serverSeq(dto.getServerSeq())
+			.backgroundImgOriginalName(dto.getBackgroundImgOriginalName())
+			.backgroundImgSearchName(dto.getBackgroundImgSearchName())
+			.build();
 	}
 }

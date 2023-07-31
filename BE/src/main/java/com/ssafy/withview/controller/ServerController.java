@@ -26,11 +26,10 @@ public class ServerController {
 	private String CLOUD_FRONT_URL;
 
 	@PostMapping("/{serverSeq}/channels")
-	public ResponseEntity<?> insertChannel(@PathVariable long serverSeq, @ModelAttribute ChannelDto channelDto){
+	public ResponseEntity<?> insertChannel(@PathVariable long serverSeq, @ModelAttribute ChannelDto channelDto,@RequestParam(name = "file") MultipartFile multipartFile){
 		JSONObject result = new JSONObject();
 		try {
-			channelService.insertChannel(channelDto);
-
+			channelService.insertChannel(channelDto,multipartFile);
 			result.put("success",true);
 		}catch (Exception e){
 			e.printStackTrace();
@@ -39,14 +38,13 @@ public class ServerController {
 			result.put("msg","채널 생성 중 오류가 발생했습니다.");
 			return new ResponseEntity<JSONObject>(result,HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-
 		return new ResponseEntity<JSONObject>(result,HttpStatus.OK);
 	}
 //	@GetMapping("/{serverSeq}/channels/find-channel-by-user")
 //	public ResponseEntity findAllChannelsByUser(@PathVariable long serverSeq, @ModelAttribute(name = "userSeq") ChannelDto channelDto){
 //		JSONObject result = new JSONObject();
 //		try {
-//			channelService.insertChannel(channelDto);
+//			serverService.insertChannel(channelDto);
 //		}catch (Exception e){
 //			e.printStackTrace();
 //
@@ -71,6 +69,27 @@ public class ServerController {
 			result.put("msg",serverSeq+"서버 찾기를 실패했습니다.");
 			return new ResponseEntity<JSONObject>(result, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
+	}
+	@GetMapping("/{serverSeq}/channels")
+	public ResponseEntity<?> addChannel(@PathVariable long serverSeq, @ModelAttribute ChannelDto channelDto
+	,@RequestParam(name = "file",required = false) MultipartFile multipartFile) {
+		System.out.println("====== 채널 추가 시작 ======");
+		JSONObject result = new JSONObject();
+		try{
+			channelDto = channelService.insertChannel(channelDto,multipartFile);
+		}catch (Exception e){
+			e.printStackTrace();
+			result.put("success",false);
+			result.put("msg","서버 추가를 실패했습니다.");
+			return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
+		}
+
+		result.put("success",true);
+		result.put("server",channelDto);
+		result.put("imgUrl",CLOUD_FRONT_URL+"server-background/"+channelDto.getBackgroundImgSearchName());
+		result.put("msg","서버 추가를 성공했습니다.");
+		System.out.println("====== 채널 추가 끝 ======");
 		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
 	}
 	@GetMapping("")

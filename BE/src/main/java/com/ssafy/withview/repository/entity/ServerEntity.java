@@ -23,7 +23,7 @@ public class ServerEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long seq;
 	private String name;
-	private int limitChannel=5;
+	private int limitChannel;
 	private int hostSeq;
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;

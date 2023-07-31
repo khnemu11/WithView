@@ -4,6 +4,7 @@ import javax.persistence.*;
 
 import com.ssafy.withview.repository.dto.ChannelDto;
 
+import com.ssafy.withview.repository.dto.ServerDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,7 +21,7 @@ public class ChannelEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long seq;
 	private String name;
-	private int limitPeople=5;
+	private int limitPeople;
 	private int serverSeq;
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
@@ -29,8 +30,18 @@ public class ChannelEntity {
 		return ChannelDto.builder()
 			.name(entity.getName())
 			.limitPeople(entity.getLimitPeople())
-			.serverSeq(entity.getServerSeq()).build();
+			.serverSeq(entity.getServerSeq())
+			.backgroundImgOriginalName(entity.getBackgroundImgOriginalName())
+			.backgroundImgSearchName(entity.getBackgroundImgSearchName())
+			.build();
 	}
+
+	public void update(ChannelDto channelDtoDto){
+		this.backgroundImgSearchName = channelDtoDto.getBackgroundImgOriginalName();
+		this.backgroundImgOriginalName = channelDtoDto.getBackgroundImgOriginalName();
+		this.name = channelDtoDto.getName();
+	}
+
 	@Builder
 	public ChannelEntity(String name, int limitPeople, int serverSeq,String backgroundImgOriginalName, String backgroundImgSearchName) {
 		this.name = name;
