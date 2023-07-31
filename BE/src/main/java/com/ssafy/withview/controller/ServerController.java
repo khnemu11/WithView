@@ -36,7 +36,7 @@ public class ServerController {
 			e.printStackTrace();
 
 			result.put("success",false);
-			result.put("msg","채널 생성 중 오류가 발생했습니다.");
+			result.put("msg","채널 생성 중 오류가 발생했습니다!");
 			return new ResponseEntity<JSONObject>(result,HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
