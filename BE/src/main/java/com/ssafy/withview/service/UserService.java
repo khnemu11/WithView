@@ -41,4 +41,14 @@ public class UserService {
 
 		return loginEntity.getSeq();
 	}
+
+	@Transactional
+	public boolean checkDuplicateId(String id) {
+		return userRepository.existsById(id);
+	}
+
+	@Transactional
+	public boolean checkDuplicateEmail(String email) {
+		return userRepository.existsByEmail(email);
+	}
 }
