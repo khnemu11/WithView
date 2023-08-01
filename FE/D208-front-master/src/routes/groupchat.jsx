@@ -15,6 +15,9 @@ import sticker from "../assets/sticker.png";
 import chat from "../assets/chat.png";
 import back from "../assets/back.png";
 import exit from "../assets/exit.png";
+// import room from "../assets/room.png";
+import room2 from "../assets/room2.jpg";
+import pool from "../assets/pool.png";
 import "../css/groupchat.css";
 import axios from "axios";
 
@@ -26,12 +29,13 @@ export default function GroupChat() {
   const [camClicked, setcamClicked] = useState(false);
   const [settingsClicked, setsettingsClicked] = useState(false);
   const [stickerClicked, setstickerClicked] = useState(false);
+  const [stickermenuClicked, setstickermenuClicked] = useState(false);
   const [chatClicked, setchatClicked] = useState(false);
   const [msgClicked, setmsgClicked] = useState(false);
   const [acc_volClicked, setacc_volClicked] = useState(false);
   const [acc_chClicked, setacc_chClicked] = useState(false);
   const [acc_ch_name, setacc_ch_name] = useState();
-
+  const [isCameraOn, setIsCameraOn] = useState(true);
   function backSettings() {
     setbackClicked((prevbackClicked) => !prevbackClicked);
     setprofileClicked(false);
@@ -59,6 +63,13 @@ export default function GroupChat() {
 
   function camSettings() {
     setcamClicked((prevcamClicked) => !prevcamClicked);
+    if (publisherRef.current) {
+      console.log(publisherRef.current);
+      console.log(publisherRef.current.stream);
+      const isCameraOn = !publisherRef.current.stream.videoActive;
+      publisherRef.current.publishVideo(isCameraOn);
+      setIsCameraOn(isCameraOn);
+    }
     setmicClicked(false);
     setvolClicked(false);
     setprofileClicked(false);
@@ -74,6 +85,10 @@ export default function GroupChat() {
     setstickerClicked((prevstickerClicked) => !prevstickerClicked);
     setsettingsClicked(false);
     setchatClicked(false);
+  }
+
+  function stickermenuSettings() {
+    setstickermenuClicked((prevstickermenuClicked) => !prevstickermenuClicked);
   }
 
   function chatSettings() {
@@ -122,15 +137,19 @@ export default function GroupChat() {
   //영상 : 이용자의 아이디
 
   let OV; //오픈비두 변수
-  let session; //현재 채널 이름(오픈비두에선 채팅방 단위를 'session'이라고 부름)
+  // let session; //현재 채널 이름(오픈비두에선 채팅방 단위를 'session'이라고 부름)
   let videoContainer = document.querySelector("#video-container"); //오픈비두로 받은 영상을 담은 컨테이너
   let port = 9091; //백엔드 포트 번호
   let domain = "localhost"; //도메인 주소
   let APPLICATION_SERVER_URL = `http://${domain}:${port}/`;
   let userId; //유저 아이디
+  let remoteBGLayer = new Konva.Layer(); //소켓에 저장된 비디오 레이어(최초 접속시 한번 사용)
   let remoteVideoLayer = new Konva.Layer(); //소켓에 저장된 비디오 레이어(최초 접속시 한번 사용)
   let remoteImageLayer = new Konva.Layer(); //소켓에 저장된 이미지 레이어(최초 접속시 한번 사용)
   let stage = useRef(null);
+  let session = useRef(null);
+  let socket = useRef(null);
+  let publisherRef = useRef(null);
 
   useEffect(() => {
     const container = document.getElementById("channel-screen");
@@ -138,11 +157,15 @@ export default function GroupChat() {
       stage.current = new Konva.Stage({
         container: "channel-screen",
         width: document.body.offsetWidth,
-        height: document.body.offsetWidth,
+        height: document.body.offsetHeight,
       });
     }
 
     // Stage에 대한 추가 작업 수행
+    // 배경 레이어 추가
+    const backLayer = new Konva.Layer();
+    stage.current.add(backLayer);
+
     // 비디오 레이어 추가
     const videoLayer = new Konva.Layer();
     stage.current.add(videoLayer);
@@ -150,6 +173,36 @@ export default function GroupChat() {
     // 이미지 레이어 추가
     const imageLayer = new Konva.Layer();
     stage.current.add(imageLayer);
+
+    // 트랜스포머를 그냥 선언
+    let tr = new Konva.Transformer();
+    videoLayer.add(tr);
+    imageLayer.add(tr);
+
+    videoLayer.on("click", function (e) {
+      // 클릭한 요소를 가져오고 해당 요소를 Transformer에 설정
+      let clickedShape = e.target;
+      tr.nodes([clickedShape]);
+
+      // 레이어 다시 그리기
+      videoLayer.batchDraw();
+    });
+
+    imageLayer.on("click", function (e) {
+      // 클릭한 요소를 가져오고 해당 요소를 Transformer에 설정
+      let clickedShape = e.target;
+      tr.nodes([clickedShape]);
+
+      // 레이어 다시 그리기
+      imageLayer.batchDraw();
+    });
+
+    backLayer.on("click", function () {
+      tr.nodes([]);
+
+      // 레이어 다시 그리기
+      backLayer.batchDraw();
+    });
 
     //요청 들어온 캔버스(보여주지 않으므로 크기를 0으로)
     let remoteStage = new Konva.Stage({
@@ -160,21 +213,29 @@ export default function GroupChat() {
     remoteStage.hide();
   }, []);
 
-  let socket; //소켓 통신 변수
+  // let socket; //소켓 통신 변수
   //소켓 메시지가 오면 반응하는 메소드
   //소켓을 통신하는 것들 (채팅, 캔버스 json파일)
   async function onMessage(message) {
     console.log("message from socket!");
     //받은 소켓 메시지를 JSON파일로 파싱
     let data = JSON.parse(message.data);
+    console.log(data);
 
     //캔버스 내용이 변경되면 실행
     if (data.type == "change") {
       console.log("캔버스 변화");
+      console.log(data);
       loadCanvasChange(data.object);
     }
     //처음 채널에 참가하면 실행
     else if (data.type == "join") {
+      //배경 레이어 로드
+      if (data.BG != null) {
+        console.log("서버에 있는 배경 레이어");
+        remoteBGLayer = Konva.Node.create(data.BG);
+        console.log(remoteBGLayer);
+      }
       //비디오 레이어 로드
       if (data.video != null) {
         console.log("서버에 있는 비디오 레이어");
@@ -190,7 +251,7 @@ export default function GroupChat() {
 
         for (let i = 0; i < images.length; i++) {
           let tr = new Konva.Transformer();
-          tr.nodes([images[i]]);
+          // tr.nodes([images[i]]);
 
           //이미지 변수 생성
           let imageObj = new Image();
@@ -214,18 +275,49 @@ export default function GroupChat() {
           });
           console.log(stage.current);
 
-          stage.current.children[1].add(tr);
-          stage.current.children[1].add(images[i]);
+          stage.current.children[2].add(tr);
+          stage.current.children[2].add(images[i]);
         }
       }
     }
   }
+
+  // 배경에 이미지 추가
+  function addBackImage(imageUrl) {
+    const backObj = new Image();
+    backObj.onload = function () {
+      const backgroundImage = new Konva.Image({
+        id: imageUrl.substring(12),
+        image: backObj,
+        width: document.body.offsetWidth,
+        height: document.body.offsetHeight,
+      });
+
+      stage.current.children[0].removeChildren(); // 모든 자식 제거
+      stage.current.children[0].add(backgroundImage);
+      stage.current.children[0].draw(); // 배경 레이어 다시 그리기
+      console.log("이미지 로드!");
+
+      console.log(session.current);
+      changeCanvas(backgroundImage);
+    };
+    backObj.src = imageUrl;
+  }
+
+  const addBackImageClick = (imageUrl) => {
+    console.log("배경 이미지 변환");
+    console.log(session.current);
+
+    addBackImage(imageUrl);
+  };
+
   //켄버스에 변경 내용을 저장하는 함수
   function loadCanvasChange(data) {
     let object = Konva.Node.create(data); //변경된 오브젝트
     let objectId = object.getAttr("id");
     console.log("소캣에서 넘어온 객체 아이디");
     console.log(objectId);
+    console.log(stage.current);
 
     let target = stage.current.find("#" + objectId); //객체 탐색
 
@@ -237,7 +329,7 @@ export default function GroupChat() {
       //이미지 삽입
       if (objectId.indexOf("img-") != -1) {
         let tr = new Konva.Transformer();
-        tr.nodes([object]);
+        // tr.nodes([object]);
 
         //이미지 변수 생성
         let imageObj = new Image();
@@ -259,9 +351,25 @@ export default function GroupChat() {
           changeCanvas(object);
         });
 
-        stage.current.children[1].add(tr);
-        stage.current.children[1].add(object);
-        ``;
+        stage.current.children[2].add(tr);
+        stage.current.children[2].add(object);
+      }
+
+      // 배경 삽입
+      else {
+        //배경 변수 생성
+        let backObj = new Image();
+        let imageName = objectId; // 임시 어차피 바꿔야함
+        backObj.src =
+          "https://dm51j1y1p1ekp.cloudfront.net/channel-background/" +
+          imageName;
+
+        //로딩돠면
+        backObj.onload = function () {
+          object.setAttr("image", backObj);
+        };
+
+        stage.current.children[0].add(object);
       }
     } else {
       //이미지 위치 변경
@@ -274,6 +382,7 @@ export default function GroupChat() {
       }
     }
   }
+
   // 소켓에서 나갔을 때
   function onClose() {
     console.log("소켓 종료");
@@ -291,32 +400,34 @@ export default function GroupChat() {
     event.preventDefault();
     let mySessionId = document.getElementById("sessionId").value;
     let myUserName = document.getElementById("userName").value;
-    console.log("보냈다");
 
     //참가한 채널 명을 url로 구분하도록 커스터마이징함
-    socket = new SockJS(
+    socket.current = new SockJS(
       `http://${domain}:${port}/socket?channelId=${mySessionId}`,
       null,
       { transports: ["websocket", "xhr-streaming", "xhr-polling"] }
     );
-    socket.onmessage = onMessage;
-    socket.onclose = onClose;
-    socket.onopen = onOpen;
+    socket.current.onmessage = onMessage;
+    socket.current.onclose = onClose;
+    socket.current.onopen = onOpen;
 
     // --- 1) Get an OpenVidu object ---
     OV = new OpenVidu();
     console.log(OV);
 
     // --- 2) Init a session ---
-    session = OV.initSession();
-    console.log(session);
+    session.current = OV.initSession();
+    console.log(session.current);
 
     // --- 3) Specify the actions when events take place in the session ---
     // On every new Stream received...
-    session.on("streamCreated", (event) => {
+    session.current.on("streamCreated", (event) => {
       console.log("세션 온");
       // Subscribe to the Stream to receive it. HTML video will be appended to element with 'video-container' id
-      let subscriber = session.subscribe(event.stream, "video-container");
+      let subscriber = session.current.subscribe(
+        event.stream,
+        "video-container"
+      );
 
       // When the HTML video has been appended to DOM...
       subscriber.on("videoElementCreated", (event) => {
@@ -328,7 +439,7 @@ export default function GroupChat() {
     });
 
     // On every Stream destroyed...
-    session.on("streamDestroyed", (event) => {
+    session.current.on("streamDestroyed", (event) => {
       console.log("접속자 비디오 나감");
       // Delete the HTML element with the user's nickname. HTML videos are automatically removed from DOM
       removeUserInCanvas(event.stream.connection.connectionId);
@@ -336,7 +447,7 @@ export default function GroupChat() {
     });
 
     // On every asynchronous exception...
-    session.on("exception", (exception) => {
+    session.current.on("exception", (exception) => {
       console.warn(exception);
     });
     // --- 4) Connect to the session with a valid user token ---
@@ -345,7 +456,7 @@ export default function GroupChat() {
     getToken(mySessionId).then((token) => {
       // First param is the token got from the OpenVidu deployment. Second param can be retrieved by every user on event
       // 'streamCreated' (property Stream.connection.data), and will be appended to DOM as the user's nickname
-      session
+      session.current
         .connect(token, { clientData: myUserName })
         .then(() => {
           // --- 5) Set page layout for active call ---
@@ -364,6 +475,7 @@ export default function GroupChat() {
             insertMode: "APPEND", // How the video is inserted in the target element 'video-container'
             mirror: false, // Whether to mirror your local video or not
           });
+          publisherRef.current = publisher;
 
           // --- 7) Specify the actions when events take place in our publisher ---
           // When our HTML video has been added to DOM...
@@ -376,9 +488,9 @@ export default function GroupChat() {
           });
 
           // --- 8) Publish your stream ---
-          session.publish(publisher);
+          session.current.publish(publisher);
 
-          let userData = JSON.parse(session.connection.data);
+          let userData = JSON.parse(session.current.connection.data);
           userId = userData.clientData;
         })
         .catch((error) => {
@@ -396,7 +508,7 @@ export default function GroupChat() {
   //꼭 필요함
   function leaveSession() {
     // --- 9) Leave the session by calling 'disconnect' method over the Session object ---
-    session.disconnect();
+    session.current.disconnect();
 
     // Removing all HTML elements with user's nicknames.
     // HTML videos are automatically removed when leaving a Session
@@ -412,7 +524,7 @@ export default function GroupChat() {
   //창이 꺼지면 소켓을 나가는 함수
   //꼭 필요함
   window.onbeforeunload = function () {
-    if (session) session.disconnect();
+    if (session) session.current.disconnect();
   };
 
   /* APPLICATION SPECIFIC METHODS */
@@ -456,15 +568,15 @@ export default function GroupChat() {
     var dataNode = document.getElementById("data-" + connectionId);
     var targetId = dataNode.innerText;
     //트랜스포머랑 비디오 삭제
-    for (var i = 0; i < stage.current.children[0].children.length; i++) {
+    for (var i = 0; i < stage.current.children[1].children.length; i++) {
       console.log(
-        stage.current.children[0].children[i].getAttr("id") + " vs " + targetId
+        stage.current.children[1].children[i].getAttr("id") + " vs " + targetId
       );
-      if (stage.current.children[0].children[i].getAttr("id") == targetId) {
-        console.log(stage.current.children[0]);
-        stage.current.children[0].children[i - 1].remove();
-        console.log(stage.current.children[0]);
-        stage.current.children[0].children[i - 1].remove();
+      if (stage.current.children[1].children[i].getAttr("id") == targetId) {
+        console.log(stage.current.children[1]);
+        stage.current.children[1].children[i - 1].remove();
+        console.log(stage.current.children[1]);
+        stage.current.children[1].children[i - 1].remove();
         break;
       }
     }
@@ -476,12 +588,15 @@ export default function GroupChat() {
     let jsonData = {};
 
     //stage 저장 및 바뀐 객체 전송
-    jsonData["video"] = stage.current.children[0];
-    jsonData["image"] = stage.current.children[1];
+    jsonData["BG"] = stage.current.children[0];
+    jsonData["video"] = stage.current.children[1];
+    jsonData["image"] = stage.current.children[2];
     jsonData["type"] = "update";
-    jsonData["channel"] = session.sessionId;
+    jsonData["channel"] = session.current.sessionId;
+    console.log(jsonData);
+    console.log(JSON.stringify(jsonData));
 
-    socket.send(JSON.stringify(jsonData));
+    socket.current.send(JSON.stringify(jsonData));
   }
 
   //캔버스에 영상을 넣는 함수
@@ -492,7 +607,7 @@ export default function GroupChat() {
     //다른사람의 커넥션 아이디 : 커넥션 고유 번호
     //자기 자신인 경우
     //비디오 영상 레이어 꺼내기
-    let layer = stage.current.children[0];
+    let layer = stage.current.children[1];
 
     //비디오 영상 초기 디자인
     var video;
@@ -541,7 +656,7 @@ export default function GroupChat() {
 
     //비디오 크기 및 회전을 도와주는 객체
     var tr = new Konva.Transformer();
-    tr.nodes([video]);
+    // tr.nodes([video]);
 
     //비디오 실행
     var animation = new Konva.Animation(function () {}, layer);
@@ -573,15 +688,21 @@ export default function GroupChat() {
     console.log(element.toJSON());
     let jsonData = {};
 
+    console.log("현재 채널 정보");
+    console.log(session.current);
     //stage 저장 및 바뀐 객체 전송
-    jsonData["video"] = stage.current.children[0]; //비디오 레이어
-    jsonData["image"] = stage.current.children[1]; //이미지 레이어
+    jsonData["BG"] = stage.current.children[0]; //배경 레이어
+    jsonData["video"] = stage.current.children[1]; //비디오 레이어
+    jsonData["image"] = stage.current.children[2]; //이미지 레이어
     jsonData["type"] = "change"; //소캣 메시지 타입
     jsonData["object"] = element.toJSON(); //변경된 오브젝트
-    jsonData["channel"] = session.sessionId; //채널명
+    jsonData["channel"] = session.current.sessionId; //채널명
 
+    console.log(stage.current.children[0]);
+    console.log(stage.current.children[1]);
+    console.log(stage.current.children[2]);
     console.log(JSON.stringify(jsonData));
-    socket.send(JSON.stringify(jsonData)); //소켓 전송
+    socket.current.send(JSON.stringify(jsonData)); //소켓 전송
   }
 
   //오픈비두 기본 함수
@@ -689,7 +810,7 @@ export default function GroupChat() {
 
     //이미지는 바로 로딩이 되지 않기 때문에 이미지가 로딩되면 객체를 생성하는 함수
     imageObj.onload = function () {
-      layer = stage.current.children[1];
+      layer = stage.current.children[2];
 
       //이미지 생성
       papago = new Konva.Image({
@@ -704,7 +825,7 @@ export default function GroupChat() {
 
       var tr = new Konva.Transformer();
 
-      tr.nodes([papago]);
+      // tr.nodes([papago]);
 
       //이미지를 움직이면 캔버스 변경사항을 다른사람에게 전송
       papago.on("dragend", function () {
@@ -870,16 +991,27 @@ export default function GroupChat() {
               </div>
             </ul>
           </div>
-          {/* 스티커 */}
+          {/* 스티커와 배경화면 */}
           <div
             className={stickerClicked ? "side-menu-div-on" : "side-menu-div"}
           >
-            <ul>
+            <div id="sticker-and-backimg">
+              <button onClick={stickermenuSettings}>스티커</button>
+              <p>|</p>
+              <button onClick={stickermenuSettings}>배경화면</button>
+            </div>
+            <ul id={stickermenuClicked ? "stivker-menu-on" : "stivker-menu"}>
+              <button onClick={stickertemp}>짜파게티</button>
               <li>스티커도 임시임시</li>
               <li>스티커도 임시임시</li>
               <li>스티커도 임시임시</li>
               <li>스티커도 임시임시</li>
-              <li>스티커도 임시임시</li>
+            </ul>
+            <ul id={stickermenuClicked ? "back-menu" : "back-menu-on"}>
+              <button onClick={() => addBackImageClick(room2)}>회의실</button>
+              <button onClick={() => addBackImageClick(pool)}>수영장</button>
+              <li>회의실</li>
+              <li>수영장</li>
             </ul>
           </div>
           {/* 채팅 */}

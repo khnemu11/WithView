@@ -6,7 +6,7 @@ html {
   background-image: url("/background.png");
   background-size: cover;
   background-repeat: no-repeat;
-  overflow-y: hidden;
+  /* overflow-y: hidden; */
 }
 
 .innerfirstmain {
@@ -36,13 +36,13 @@ html {
 
 .serverOptionsLine {
   width: 100%;
-  border-bottom: 1px solid #3077AA;
+  border-bottom: 1px solid #3077aa;
   margin-top: 7px;
   margin-bottom: 30px; /* 서버 옵션 라인과 컨텐츠 사이 간격 조정 */
 }
 .serverOptionsLine_main {
   width: 100%;
-  border-bottom: 1px solid #3077AA;
+  border-bottom: 1px solid #3077aa;
   margin-top: 7px;
   margin-bottom: 10px; /* 서버 옵션 라인과 컨텐츠 사이 간격 조정 */
 }
@@ -59,16 +59,16 @@ html {
   margin-right: 15px;
 }
 
-.profile-bar-image{
+.profile-bar-image {
   width: 100%;
   max-width: 50px;
   margin-right: 10px;
   border-radius: 50%;
 }
 
-.userplusImage{
+.userplusImage {
   width: 95px;
-  margin: 0 120px 10px; 
+  margin: 0 120px 10px;
 }
 .serverplusImage {
   width: 80px;
@@ -80,7 +80,6 @@ html {
   margin-top: 10px;
   white-space: nowrap;
 }
-
 
 .ml-auto {
   margin-left: auto;

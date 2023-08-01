@@ -468,3 +468,28 @@ button {
   height: 60px;
   opacity: 1;
 }
+
+#sticker-and-backimg {
+  display: flex;
+  justify-content: space-around;
+}
+
+#stivker-menu {
+  width: 0;
+  display: none;
+  transition-duration: 0.3s;
+}
+
+#stivker-menu-on {
+  transition-duration: 0.3s;
+}
+
+#back-menu {
+  width: 0;
+  display: none;
+  transition-duration: 0.3s;
+}
+
+#backs-menu-on {
+  transition-duration: 0.3s;
+}
