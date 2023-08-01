@@ -1,20 +1,62 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "../css/mainpage.css"; // CSS 파일 임포트
 import "../css/firstmain.css";
 import "../css/serverplus.css";
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
 import ServerOptions from "./components/serveroptions";
+import { useSelector } from "react-redux";
+import axios from "axios";
 
 const ServerPlus = () => {
-  const [profileNickname, setProfileNickname] = useState("기본 닉네임");
-  const [profileImage, setProfileImage] = useState("/프사.png");
+  const profileNickname = useSelector((state) => state.user.nickname);
+  const [profileImage, setProfileImage] = useState("null");
   const [serverImage, setServerImage] = useState("/withView.png");
+  const [editedImage, setEditedImage] = useState(null);
   const [serverName, setServerName] = useState("");
-
+  const hostSeqRef = useRef(useSelector((state) => state.user.seq));
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const [imageToCrop, setImageToCrop] = useState(null);
   const cropperRef = useRef(null);
+  const profileImageURL = useSelector((state) => state.user.profile);
+
+  useEffect(() => {
+    // 만약 redux에서 프로필 이미지가 null이면 기본 이미지로 설정
+    if (profileImageURL === null) {
+      setProfileImage("/withView2.png");
+    } else {
+      setProfileImage(profileImageURL);
+    }
+  }, [profileImageURL]);
+
+  
+const handleServerCreateButtonClick = () => {
+  const formData = new FormData();
+  formData.append("hostSeq", hostSeqRef.current);
+  formData.append("name", serverName);
+  formData.append("file", editedImage);
+
+  // 서버 생성 API 주소
+  const serverCreateAPI = "https://i9d208.p.ssafy.io/api/servers";
+
+  // 서버로 생성 요청 보내기
+  axios
+    .post(serverCreateAPI, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+    .then((response) => {
+      // 서버 생성 성공 처리
+      console.log("서버 생성 성공:", response.data);
+      // ... (추가적인 처리 로직)
+    })
+    .catch((error) => {
+      // 서버 생성 실패 처리
+      console.error("서버 생성 실패:", error);
+      // ... (에러 처리 로직)
+    });
+};
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -27,20 +69,18 @@ const ServerPlus = () => {
       reader.readAsDataURL(file);
     }
   };
-  const handleServerCreateButtonClick = () => {};
 
   const handleCropImage = () => {
     const imageElement = cropperRef?.current;
     const cropper = imageElement?.cropper;
-    setServerImage(
-      cropper
-        .getCroppedCanvas({
-          width: 300,
-          height: 300,
-        })
-        .toDataURL()
-    );
-    setIsCropModalOpen(false); // 모달 닫기
+    const croppedImageDataURL = cropper
+      .getCroppedCanvas({
+        width: 300,
+        height: 300,
+      })
+      .toDataURL();
+    setEditedImage(croppedImageDataURL);
+    setIsCropModalOpen(false); // Close the modal after cropping
   };
 
   return (
@@ -56,7 +96,7 @@ const ServerPlus = () => {
         <div className="serverCreate_text">서버 만들기</div>
         <label htmlFor="imageUpload-server">
           <img
-            src="/uploadimage.png"
+            src={editedImage || "/uploadimage.png"}
             className="image-upload-server"
             alt="Upload"
           />
@@ -75,14 +115,17 @@ const ServerPlus = () => {
             placeholder="서버 이름"
             value={serverName}
             onChange={(e) => setServerName(e.target.value)}
+            style={{ paddingLeft: "15px" }}
           />
         </div>
         <div className="button-div">
           <button
             className="button mt-2 has-text-white serverplus-ok-button"
-            onClick={handleServerCreateButtonClick}
+            onClick={() =>
+              handleServerCreateButtonClick(hostSeqRef, serverName, editedImage)
+            }
           >
-            확인
+            생성하기
           </button>
         </div>
         {isCropModalOpen && (

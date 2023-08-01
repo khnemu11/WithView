@@ -13,6 +13,7 @@ import com.ssafy.withview.repository.entity.ServerEntity;
 import com.ssafy.withview.repository.entity.UserEntity;
 import com.ssafy.withview.repository.entity.UserServerEntity;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
@@ -23,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -45,12 +47,6 @@ public class ServerServiceImpl implements ServerService {
 	private String DEFAULT_IMG;
 
 	@Override
-	public List<ChannelDto> findAllChannelsByServerSeq(int seq) {
-		List<ChannelEntity> entityList = channelRepository.findAllByServerSeq(seq);
-		return entityList.stream().map(ChannelEntity::toDto).collect(Collectors.toList());
-	}
-
-	@Override
 	public ChannelDto findChannelByName(String channelName) {
 
 		return null;
@@ -61,46 +57,43 @@ public class ServerServiceImpl implements ServerService {
 	public ServerDto insertServer(ServerDto serverDto, MultipartFile multipartFile) throws Exception{
 		ServerDto result;
 		try{
-			if (!s3client.doesBucketExist(bucketName)) {
-				s3client.createBucket(bucketName);
-			}
-			String originalName = "";
-			File backgroundImgFile;
-			String backgroundImgSearchName="";
-			UUID uuid = UUID.randomUUID();
-			String extend = "";
-			//사진이 없는경우 로고 사진으로 대체
-			if(multipartFile == null){
-				originalName=DEFAULT_IMG;
-			}
-			//사진이 있으면 해당 사진을 배경화면으로
-			else{
-				originalName = multipartFile.getOriginalFilename();
+			if(multipartFile != null){
+				if (!s3client.doesBucketExist(bucketName)) {
+					s3client.createBucket(bucketName);
+				}
+				String originalName = "";
+				File backgroundImgFile;
+				String backgroundImgSearchName="";
+				UUID uuid = UUID.randomUUID();
+				String extend = "";
+				//사진이 없는경우 로고 사진으로 대체
+				if(multipartFile == null){
+					originalName=DEFAULT_IMG;
+				}
+				//사진이 있으면 해당 사진을 배경화면으로
+				else{
+					originalName = multipartFile.getOriginalFilename();
+				}
+
+				extend = originalName.substring(originalName.lastIndexOf('.'));
+				// #2 - 원본 파일 이름 저장
+				serverDto.setBackgroundImgOriginalName(originalName);
+
+				// #3 - 저장용 랜덤 파일 이름 저장
+				backgroundImgSearchName = uuid.toString()+extend;
+				backgroundImgFile = File.createTempFile(uuid.toString(),extend);
+				FileUtils.copyInputStreamToFile(multipartFile.getInputStream(),backgroundImgFile);
+
+				// #5 - 이미지 서버 저장
+				s3client.putObject(bucketName, "server-background/"+backgroundImgSearchName, backgroundImgFile);
+				// #6 - DB 저장
+				serverDto.setBackgroundImgSearchName(uuid.toString()+extend);
 			}
 
-			extend = originalName.substring(originalName.lastIndexOf('.'));
-			// #2 - 원본 파일 이름 저장
-			serverDto.setBackgroundImgOriginalName(originalName);
-
-			// #3 - 저장용 랜점 파일 이름 저장
-			backgroundImgSearchName = uuid.toString()+extend;
-
-			// #4 - 파일 임시 저장
-			//파일이 있으면 임시 파일 저장
-			if(multipartFile!=null){
-				backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),backgroundImgSearchName);
-				multipartFile.transferTo(backgroundImgFile);
-			}else{
-				backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),originalName);
-			}
-			// #5 - 이미지 서버 저장
-			s3client.putObject(bucketName, "server-background/"+backgroundImgSearchName, backgroundImgFile);
-			// #6 - DB 저장
-			serverDto.setBackgroundImgSearchName(uuid.toString()+extend);
 			ServerEntity serverEntity = ServerDto.toEntity(serverDto);
 			result = ServerEntity.toDto(serverRepository.save(serverEntity));
 		}catch(Exception e){
-			throw new Exception("서버 생성 중 오류가 발생했습니다.");
+			throw new Exception(e.getMessage());
 		}
 
 		return result;
@@ -129,17 +122,21 @@ public class ServerServiceImpl implements ServerService {
 			String backgroundImgSearchName = uuid.toString()+extend;
 
 			// #4 - 파일 임시 저장
-			File backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),backgroundImgSearchName);
-			multipartFile.transferTo(backgroundImgFile);
+			backgroundImgSearchName = uuid.toString()+extend;
+			File backgroundImgFile = File.createTempFile(uuid.toString(),extend);
+			FileUtils.copyInputStreamToFile(multipartFile.getInputStream(),backgroundImgFile);
 
-			// #5 - 이미지 서버 저장
+			// #5 - 기존 이미지 삭제
+			s3client.deleteObject(bucketName, "server-background/"+serverEntity.getBackgroundImgSearchName());
+
+			// #6 - 이미지 서버 저장
 			s3client.putObject(bucketName, "server-background/"+backgroundImgSearchName, backgroundImgFile);
 
-			// #6 - DB 저장
+			// #7 - DB 저장
 			serverDto.setBackgroundImgSearchName(uuid.toString()+extend);
 			backgroundImgFile.delete();	//기존 임시 저장용 파일 삭제
 		}
-
+		System.out.println(serverDto);
 		serverEntity.update(serverDto);
 
 		return ServerEntity.toDto(serverEntity);
@@ -210,9 +207,15 @@ public class ServerServiceImpl implements ServerService {
 	@Override
 	public void enterServer(long serverSeq, long userSeq) throws Exception {
 		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
+
+		if(serverEntity == null){
+			throw new Exception("해당 서버가 없습니다.");
+		}
+
 		UserEntity userEntity = userRepository.findBySeq(userSeq);
-		if(serverEntity == null || userEntity == null){
-			throw new Exception("서버 혹은 유저가 없습니다.");
+
+		if(userEntity == null){
+			throw new Exception("해당 유저가 없습니다.");
 		}
 
 		UserServerEntity userServerEntity = userServerRepository.findByServerEntityAndUserEntity(serverEntity,userEntity);

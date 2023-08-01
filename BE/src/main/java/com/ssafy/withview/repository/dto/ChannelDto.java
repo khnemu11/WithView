@@ -14,16 +14,21 @@ import lombok.ToString;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class ChannelDto {
 	private long seq;
 	String name;
 	int limitPeople;
-	int serverSeq;
+	long serverSeq;
+	private String backgroundImgSearchName;
+	private String backgroundImgOriginalName;
 
 	public static ChannelEntity toEntity(ChannelDto dto){
 		return ChannelEntity.builder()
 			.name(dto.getName())
 			.limitPeople(dto.getLimitPeople())
-			.serverSeq(dto.getServerSeq()).build();
+			.backgroundImgOriginalName(dto.getBackgroundImgOriginalName())
+			.backgroundImgSearchName(dto.getBackgroundImgSearchName())
+			.build();
 	}
 }

@@ -6,13 +6,24 @@ import "slick-carousel/slick/slick-theme.css";
 import "../../css/firstmain.css";
 import "../../css/mainpage.css"; // CSS 파일 임포트
 import ServerOptions from "./serveroptions";
+import { useSelector } from "react-redux";
 
 Modal.setAppElement("#root");
 
 const Mainpage = () => {
   const [searchText, setSearchText] = useState("");
-  const [profileImage, setProfileImage] = useState("/프사.png");
-  const [profileNickname, setProfileNickname] = useState("기본 닉네임");
+  const [profileImage, setProfileImage] = useState(null);
+  const profileNickname = useSelector((state) => state.user.nickname)
+  const profileImageURL = useSelector((state) => state.user.profile);
+
+  useEffect(() => {
+    // 만약 redux에서 프로필 이미지가 null이면 기본 이미지로 설정
+    if (profileImageURL === null) {
+      setProfileImage("/withView2.png");
+    } else {
+      setProfileImage(profileImageURL);
+    }
+  }, [profileImageURL]);
 
   const handleSearchInputChange = (e) => {
     setSearchText(e.target.value);
@@ -145,7 +156,7 @@ const Mainpage = () => {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: favoriteserverData.length < 3 ? favoriteserverData.length : 3, // 이 부분을 수정했습니다.
+    slidesToShow: favoriteserverData.length < 3 ? favoriteserverData.length : 3,
     slidesToScroll: 1,
   };
 
