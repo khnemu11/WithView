@@ -1,0 +1,16 @@
+.serverEnterMain {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgba(247, 251, 252, 0.8);
+    border-radius: 20px;
+    padding: 10px;
+    max-width: 50%;
+    height: 80vh;
+    margin: 10vh auto;
+    position: relative;
+  }
+
+  .serverEnterImage{
+    max-width: 35%;
+  }
