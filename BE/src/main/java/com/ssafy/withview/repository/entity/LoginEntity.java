@@ -20,16 +20,18 @@ public class LoginEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int seq;
+	private long seq;
 	private String id;
 	private String password;
 	private String roles;
+	private long user_seq;
 
 	@Builder
-	public LoginEntity(String id, String password, String roles) {
+	public LoginEntity(String id, String password, String roles, long user_seq) {
 		this.id = id;
 		this.password = password;
 		this.roles = roles;
+		this.user_seq = user_seq;
 	}
 
 	public List<String> getRoleList() {
