@@ -43,7 +43,7 @@ export default function Signup() {
     setTimeout(() => {
       document.body.classList.remove("signup_transition-enter");
       document.body.classList.add("signup_transition-enter-active");
-    }, 300); // 애니메이션 시간과 일치하는 시간으로 설정 (0.3초)
+    }, 100); // 애니메이션 시간과 일치하는 시간으로 설정 (0.3초)
   }, []);
 
   useEffect(() => {
