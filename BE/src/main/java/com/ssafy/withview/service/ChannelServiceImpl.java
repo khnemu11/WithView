@@ -2,6 +2,7 @@ package com.ssafy.withview.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.ssafy.withview.repository.ChannelRepository;
+import com.ssafy.withview.repository.ServerRepository;
 import com.ssafy.withview.repository.dto.ChannelDto;
 import com.ssafy.withview.repository.dto.ServerDto;
 import com.ssafy.withview.repository.entity.ChannelEntity;
@@ -22,6 +23,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class ChannelServiceImpl implements ChannelService{
+	private final ServerRepository serverRepository;
 	private final ChannelRepository channelRepository;
 	private final ResourceLoader resourceLoader;
 	private final AmazonS3 s3client;
@@ -32,23 +34,34 @@ public class ChannelServiceImpl implements ChannelService{
 	@Value(value="${DEFAULT_IMG}")
 	private String DEFAULT_IMG;
 
+	private String IMG_PREFIX = "channel-background/";
 	@Override
 	public List<ChannelDto> findAllChannelsByServerSeq(long serverSeq){
-		List<ChannelEntity> channelEntities = channelRepository.findAllByServerSeq(serverSeq);
+		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
+		List<ChannelEntity> channelEntities = channelRepository.findAllChannelByServerEntity(serverEntity);
 		List<ChannelDto> channelDtos = new ArrayList<>();
 
 		for(ChannelEntity channelEntity : channelEntities){
 			channelDtos.add(ChannelEntity.toDto(channelEntity));
 		}
-
 		return channelDtos;
+	}
+
+	@Override
+	public ChannelDto findChannelByChannelSeq(long channelSeq) {
+		ChannelEntity channelEntity= channelRepository.findBySeq(channelSeq);
+		ChannelDto channelDto = ChannelEntity.toDto(channelEntity);
+
+		return channelDto;
 	}
 
 	@Transactional
 	@Override
-	public ChannelDto insertChannel(ChannelDto channelDto, MultipartFile multipartFile) throws Exception {
+	public ChannelDto insertChannel(ChannelDto channelDto, MultipartFile multipartFile, long serverSeq) throws Exception {
 		ChannelDto result;
 		try{
+
+
 			if (!s3client.doesBucketExist(bucketName)) {
 				s3client.createBucket(bucketName);
 			}
@@ -82,12 +95,21 @@ public class ChannelServiceImpl implements ChannelService{
 				backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),originalName);
 			}
 			// #5 - 이미지 서버 저장
-			s3client.putObject(bucketName, "server-background/"+backgroundImgSearchName, backgroundImgFile);
+			s3client.putObject(bucketName, IMG_PREFIX+backgroundImgSearchName, backgroundImgFile);
 			// #6 - DB 저장
 			channelDto.setBackgroundImgSearchName(uuid.toString()+extend);
-			ChannelEntity channelEntity = ChannelDto.toEntity(channelDto);
+			System.out.println(channelDto);
+			ServerEntity serverEntity= serverRepository.findBySeq(serverSeq);
+			ChannelEntity channelEntity = ChannelEntity.builder()
+					.name(channelDto.getName())
+					.serverEntity(serverEntity)
+					.backgroundImgSearchName(channelDto.getBackgroundImgSearchName())
+					.backgroundImgOriginalName(channelDto.getBackgroundImgOriginalName())
+					.build();
+
 			result = ChannelEntity.toDto(channelRepository.save(channelEntity));
 		}catch(Exception e){
+			e.printStackTrace();
 			throw new Exception("채널 생성 중 오류가 발생했습니다.");
 		}
 		return result;
@@ -95,7 +117,7 @@ public class ChannelServiceImpl implements ChannelService{
 
 	@Transactional
 	@Override
-	public ChannelDto updateChannel(ChannelDto channelDto,MultipartFile multipartFile) throws Exception{
+	public ChannelDto updateChannel(ChannelDto channelDto,MultipartFile multipartFile,long serverSeq) throws Exception{
 		ChannelEntity channelEntity = channelRepository.findBySeq(channelDto.getSeq());
 		System.out.println("대상 채널 " + channelEntity);
 		if(channelEntity == null){
@@ -120,7 +142,7 @@ public class ChannelServiceImpl implements ChannelService{
 			multipartFile.transferTo(backgroundImgFile);
 
 			// #5 - 이미지 서버 저장
-			s3client.putObject(bucketName, "server-background/"+backgroundImgSearchName, backgroundImgFile);
+			s3client.putObject(bucketName, IMG_PREFIX+backgroundImgSearchName, backgroundImgFile);
 
 			// #6 - DB 저장
 			channelDto.setBackgroundImgSearchName(uuid.toString()+extend);
@@ -133,15 +155,15 @@ public class ChannelServiceImpl implements ChannelService{
 
 	@Transactional
 	@Override
-	public void deleteChannel(long channelSeq,long userSeq) throws Exception{
+	public void deleteChannel(long channelSeq) throws Exception{
 		ChannelEntity channelEntity = channelRepository.findBySeq(channelSeq);
 
 		if(channelEntity == null){
-			throw new Exception("해당 서버가 없습니다.");
+			throw new Exception("해당 채널이 없습니다.");
 		}
 
 		channelRepository.delete(channelEntity);
 		//S3에 있는 이미지 삭제
-		s3client.deleteObject(bucketName, "server-background/"+channelEntity.getBackgroundImgSearchName());
+		s3client.deleteObject(bucketName, "channel-background/"+channelEntity.getBackgroundImgSearchName());
 	}
 }

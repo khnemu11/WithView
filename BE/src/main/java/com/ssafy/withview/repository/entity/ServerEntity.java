@@ -10,6 +10,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.apache.catalina.User;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +30,11 @@ public class ServerEntity {
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
 
+	@OneToMany(mappedBy="serverEntity", cascade = CascadeType.REMOVE)
+	private List<UserServerEntity> userServerEntityList = new ArrayList<>();
 
-	@OneToMany(mappedBy="userEntity")
-	private List<UserServerEntity> users = new ArrayList<>();
+	@OneToMany(mappedBy="serverEntity", cascade = CascadeType.REMOVE)
+	private List<ChannelEntity> channelEntityList = new ArrayList<>();
 
 	@Builder
 	public ServerEntity(String name, int limitChannel, long hostSeq, String backgroundImgSearchName, String backgroundImgOriginalName) {
@@ -56,7 +60,7 @@ public class ServerEntity {
 	}
 
 	public void update(ServerDto serverDto){
-		this.backgroundImgSearchName = serverDto.getBackgroundImgOriginalName();
+		this.backgroundImgSearchName = serverDto.getBackgroundImgSearchName();
 		this.backgroundImgOriginalName = serverDto.getBackgroundImgOriginalName();
 		this.name = serverDto.getName();
 	}

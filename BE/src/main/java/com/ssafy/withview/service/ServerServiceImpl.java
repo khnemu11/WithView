@@ -45,12 +45,6 @@ public class ServerServiceImpl implements ServerService {
 	private String DEFAULT_IMG;
 
 	@Override
-	public List<ChannelDto> findAllChannelsByServerSeq(int seq) {
-		List<ChannelEntity> entityList = channelRepository.findAllByServerSeq(seq);
-		return entityList.stream().map(ChannelEntity::toDto).collect(Collectors.toList());
-	}
-
-	@Override
 	public ChannelDto findChannelByName(String channelName) {
 
 		return null;
@@ -132,14 +126,17 @@ public class ServerServiceImpl implements ServerService {
 			File backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),backgroundImgSearchName);
 			multipartFile.transferTo(backgroundImgFile);
 
-			// #5 - 이미지 서버 저장
+			// #5 - 기존 이미지 삭제
+			s3client.deleteObject(bucketName, "server-background/"+serverEntity.getBackgroundImgSearchName());
+
+			// #6 - 이미지 서버 저장
 			s3client.putObject(bucketName, "server-background/"+backgroundImgSearchName, backgroundImgFile);
 
-			// #6 - DB 저장
+			// #7 - DB 저장
 			serverDto.setBackgroundImgSearchName(uuid.toString()+extend);
 			backgroundImgFile.delete();	//기존 임시 저장용 파일 삭제
 		}
-
+		System.out.println(serverDto);
 		serverEntity.update(serverDto);
 
 		return ServerEntity.toDto(serverEntity);
@@ -210,9 +207,15 @@ public class ServerServiceImpl implements ServerService {
 	@Override
 	public void enterServer(long serverSeq, long userSeq) throws Exception {
 		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
+
+		if(serverEntity == null){
+			throw new Exception("해당 서버가 없습니다.");
+		}
+
 		UserEntity userEntity = userRepository.findBySeq(userSeq);
-		if(serverEntity == null || userEntity == null){
-			throw new Exception("서버 혹은 유저가 없습니다.");
+
+		if(userEntity == null){
+			throw new Exception("해당 유저가 없습니다.");
 		}
 
 		UserServerEntity userServerEntity = userServerRepository.findByServerEntityAndUserEntity(serverEntity,userEntity);

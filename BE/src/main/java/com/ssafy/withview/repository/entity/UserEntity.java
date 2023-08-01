@@ -3,6 +3,8 @@ package com.ssafy.withview.repository.entity;
 import com.ssafy.withview.repository.dto.ServerDto;
 import com.ssafy.withview.repository.dto.UserDto;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
@@ -29,8 +31,8 @@ public class UserEntity {
 	private LocalDate createTime;
 	private LocalDate deleteTime;
 
-	@OneToMany(mappedBy="serverEntity")
-	private List<UserServerEntity> servers = new ArrayList<>();
+	@OneToMany(mappedBy="userEntity", cascade = CascadeType.REMOVE)
+	private List<UserServerEntity> userServerEntityList = new ArrayList<>();
 
 	@Builder
 	public UserEntity(String id, String nickname, String realName, String telephone, String address, String email, LocalDate createTime,LocalDate deleteTime){

@@ -14,6 +14,7 @@ import lombok.ToString;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class ChannelDto {
 	private long seq;
 	String name;
@@ -26,7 +27,6 @@ public class ChannelDto {
 		return ChannelEntity.builder()
 			.name(dto.getName())
 			.limitPeople(dto.getLimitPeople())
-			.serverSeq(dto.getServerSeq())
 			.backgroundImgOriginalName(dto.getBackgroundImgOriginalName())
 			.backgroundImgSearchName(dto.getBackgroundImgSearchName())
 			.build();
