@@ -94,7 +94,7 @@ public class ServerServiceImpl implements ServerService {
 			ServerEntity serverEntity = ServerDto.toEntity(serverDto);
 			result = ServerEntity.toDto(serverRepository.save(serverEntity));
 		}catch(Exception e){
-			throw new Exception("서버 생성 중 오류가 발생했습니다.");
+			throw new Exception(e.getMessage());
 		}
 
 		return result;

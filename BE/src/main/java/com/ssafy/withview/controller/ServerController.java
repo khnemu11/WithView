@@ -51,7 +51,7 @@ public class ServerController {
 			List<ServerDto> serverDtoList = serverService.findAllServer();
 
 			result.put("success",true);
-			result.put("server",serverDtoList);
+			result.put("servers",serverDtoList);
 			result.put("imgUriPrefix",CLOUD_FRONT_URL+"server-background/");
 		}catch (Exception e){
 			e.printStackTrace();
@@ -105,8 +105,8 @@ public class ServerController {
 		}catch (Exception e){
 			e.printStackTrace();
 			result.put("success",false);
-			result.put("msg","서버 추가를 실패했습니다.");
-			return new ResponseEntity<>(result, HttpStatus.OK);
+			result.put("msg",e.getMessage());
+			return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 		result.put("success",true);
@@ -162,18 +162,18 @@ public class ServerController {
 		JSONObject result = new JSONObject();
 		try{
 			serverDto = serverService.updateServer(serverDto,multipartFile);
+
+			result.put("success",true);
+			result.put("server",serverDto);
+			result.put("msg","서버 수정을 성공했습니다.");
+			result.put("imgUrl",CLOUD_FRONT_URL+"server-background/"+serverDto.getBackgroundImgSearchName());
+
 		}catch (Exception e){
 			e.printStackTrace();
 			result.put("success",false);
 			result.put("msg","서버 변경 중 오류가 발생했습니다.");
 			return new ResponseEntity<>(result, HttpStatus.OK);
 		}
-
-		result.put("success",true);
-		result.put("server",serverDto);
-		result.put("msg","서버 수정을 성공했습니다.");
-		result.put("imgUrl",CLOUD_FRONT_URL+"server-background/"+serverDto.getBackgroundImgSearchName());
-
 		System.out.println("====== 서버 변경 끝 ======");
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
@@ -185,6 +185,7 @@ public class ServerController {
 		try{
 			serverService.deleteServer(serverSeq,userSeq);
 			result.put("success",true);
+			result.put("msg","서버 삭제를 성공했습니다.");
 		}catch (Exception e){
 			e.printStackTrace();
 			result.put("success",false);
@@ -221,6 +222,7 @@ public class ServerController {
 			channelDto.setServerSeq(serverSeq);
 			channelDto.setSeq(channelSeq);
 			channelDto = channelService.updateChannel(channelDto,multipartFile,serverSeq);
+
 			result.put("success",true);
 			result.put("channel",channelDto);
 			result.put("imgUrlPrefix",CLOUD_FRONT_URL+"channel-background/");
