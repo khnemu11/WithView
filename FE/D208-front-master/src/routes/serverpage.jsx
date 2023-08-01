@@ -7,6 +7,7 @@ import "../css/mainpage.css"; // CSS 파일 임포트
 import "../css/serverpage.css";
 import ServerOptions from "./components/serveroptions";
 import axios from "axios";
+import { useSelector } from "react-redux";
 
 const ChannelCard = ({ channel }) => {
   return (
@@ -63,8 +64,8 @@ const Collapsible = ({ title, children }) => {
 };
 
 const Serverpage = () => {
-  const [profileImage, setProfileImage] = useState("/프사.png");
-  const [profileNickname, setProfileNickname] = useState("기본 닉네임");
+  const [profileImage, setProfileImage] = useState(null);
+  const profileNickname = useSelector((state) => state.user.nickname)
 
   const [serverName, setServerName] = useState("기본 서버 이름");
 
@@ -72,6 +73,17 @@ const Serverpage = () => {
 
   const [onlineMembers, setOnlineMembers] = useState([]);
   const [offlineMembers, setOfflineMembers] = useState([]);
+  const profileImageURL = useSelector((state) => state.user.profile);
+
+  useEffect(() => {
+    // 만약 redux에서 프로필 이미지가 null이면 기본 이미지로 설정
+    if (profileImageURL === null) {
+      setProfileImage("/withView2.png");
+    } else {
+      setProfileImage(profileImageURL);
+    }
+  }, [profileImageURL]);
+
 
   useEffect(() => {
     fetchChannels();

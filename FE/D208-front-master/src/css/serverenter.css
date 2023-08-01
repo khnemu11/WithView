@@ -10,7 +10,46 @@
     margin: 10vh auto;
     position: relative;
   }
+  .serverEnterText{
+    color: #1E4C80;
+    font-weight: bold;
+    margin: 5%;
+    font-size: x-large;
+  }
 
   .serverEnterImage{
-    max-width: 35%;
+    max-width: 85%;
+    max-height: 45%;
+  }
+  
+  .serverNameText{
+    font-weight: bold;
+    margin: 2%;
+    font-size: x-large;
+  }
+
+  .serverMembersIcon {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 10px;    
+  }
+  
+  .membersIcon {
+    width: 24px; /* 필요에 따라 아이콘의 너비를 조정하세요 */
+    height: 24px; /* 필요에 따라 아이콘의 높이를 조정하세요 */
+    background: url('/usersicon.png') no-repeat left center;
+    background-size: contain;
+    margin-right: 8px; /* 아이콘과 텍스트 사이의 간격을 조정하세요 */
+  }
+  .serverMembersSpan{
+    font-weight: bolder;
+
+  }
+
+  .serverEnterButton{
+    background-color: #769FCD;
+    width: 50%;
+    border-radius: 11px;
+    font-weight: bolder;
   }
