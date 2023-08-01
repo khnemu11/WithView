@@ -31,11 +31,17 @@ public class ChannelServiceImpl implements ChannelService{
 
 	@Value(value="${DEFAULT_IMG}")
 	private String DEFAULT_IMG;
-	
-	public List<ChannelDto> findAllChannelsByServerSeq(int serverSeq){
-		List<ChannelDto> list = new ArrayList<>();
 
-		return list;
+	@Override
+	public List<ChannelDto> findAllChannelsByServerSeq(long serverSeq){
+		List<ChannelEntity> channelEntities = channelRepository.findAllByServerSeq(serverSeq);
+		List<ChannelDto> channelDtos = new ArrayList<>();
+
+		for(ChannelEntity channelEntity : channelEntities){
+			channelDtos.add(ChannelEntity.toDto(channelEntity));
+		}
+
+		return channelDtos;
 	}
 
 	@Transactional
@@ -84,7 +90,6 @@ public class ChannelServiceImpl implements ChannelService{
 		}catch(Exception e){
 			throw new Exception("채널 생성 중 오류가 발생했습니다.");
 		}
-
 		return result;
 	}
 
@@ -92,7 +97,7 @@ public class ChannelServiceImpl implements ChannelService{
 	@Override
 	public ChannelDto updateChannel(ChannelDto channelDto,MultipartFile multipartFile) throws Exception{
 		ChannelEntity channelEntity = channelRepository.findBySeq(channelDto.getSeq());
-		System.out.println("대상 서버 " + channelEntity);
+		System.out.println("대상 채널 " + channelEntity);
 		if(channelEntity == null){
 			throw new Exception("대상 서버가 없음");
 		}
@@ -123,7 +128,6 @@ public class ChannelServiceImpl implements ChannelService{
 		}
 
 		channelEntity.update(channelDto);
-
 		return ChannelEntity.toDto(channelEntity);
 	}
 

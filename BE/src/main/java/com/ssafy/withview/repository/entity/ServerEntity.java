@@ -24,7 +24,7 @@ public class ServerEntity {
 	private long seq;
 	private String name;
 	private int limitChannel;
-	private int hostSeq;
+	private long hostSeq;
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
 
@@ -33,7 +33,7 @@ public class ServerEntity {
 	private List<UserServerEntity> users = new ArrayList<>();
 
 	@Builder
-	public ServerEntity(String name, int limitChannel, int hostSeq, String backgroundImgSearchName, String backgroundImgOriginalName) {
+	public ServerEntity(String name, int limitChannel, long hostSeq, String backgroundImgSearchName, String backgroundImgOriginalName) {
 		this.name = name;
 		this.limitChannel = limitChannel;
 		this.hostSeq = hostSeq;

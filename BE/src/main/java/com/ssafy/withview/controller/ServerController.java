@@ -3,6 +3,7 @@ package com.ssafy.withview.controller;
 import com.ssafy.withview.repository.dto.ChannelDto;
 import com.ssafy.withview.repository.dto.ServerDto;
 import com.ssafy.withview.repository.dto.UserDto;
+import com.ssafy.withview.repository.entity.ChannelEntity;
 import com.ssafy.withview.service.ChannelService;
 import com.ssafy.withview.service.ServerService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/servers")
@@ -40,20 +42,40 @@ public class ServerController {
 		}
 		return new ResponseEntity<JSONObject>(result,HttpStatus.OK);
 	}
-//	@GetMapping("/{serverSeq}/channels/find-channel-by-user")
-//	public ResponseEntity findAllChannelsByUser(@PathVariable long serverSeq, @ModelAttribute(name = "userSeq") ChannelDto channelDto){
-//		JSONObject result = new JSONObject();
-//		try {
-//			serverService.insertChannel(channelDto);
-//		}catch (Exception e){
-//			e.printStackTrace();
-//
-//			result.put("success",false);
-//			result.put("msg","채널 생성 중 오류가 발생했습니다.");
-//			return new ResponseEntity<JSONObject>(result,HttpStatus.INTERNAL_SERVER_ERROR);
-//		}
-//		return new ResponseEntity<JSONObject>(result,HttpStatus.OK);
-//	}
+	@GetMapping("/{serverSeq}/channels")
+	public ResponseEntity findAllChannelsByUser(@PathVariable long serverSeq){
+		JSONObject result = new JSONObject();
+		try {
+			List<ChannelDto> channelDtos = channelService.findAllChannelsByServerSeq(serverSeq);
+
+			result.put("success",true);
+			result.put("channels",channelDtos);
+		}catch (Exception e){
+			e.printStackTrace();
+
+			result.put("success",false);
+			result.put("msg","채널 탐색 중 오류가 발생했습니다.");
+			return new ResponseEntity<JSONObject>(result,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<JSONObject>(result,HttpStatus.OK);
+	}
+	@PostMapping("/{serverSeq}/channels")
+	public ResponseEntity addChannel(@PathVariable long serverSeq,@ModelAttribute ChannelDto channelDto){
+		JSONObject result = new JSONObject();
+		try {
+			List<ChannelDto> channelDtos = channelService.findAllChannelsByServerSeq(serverSeq);
+
+			result.put("success",true);
+			result.put("channels",channelDtos);
+		}catch (Exception e){
+			e.printStackTrace();
+
+			result.put("success",false);
+			result.put("msg","채널 탐색 중 오류가 발생했습니다.");
+			return new ResponseEntity<JSONObject>(result,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<JSONObject>(result,HttpStatus.OK);
+	}
 	@GetMapping("/{serverSeq}")
 	public ResponseEntity<?> findServerBySeq(@PathVariable long serverSeq) {
 		JSONObject result = new JSONObject();
@@ -204,7 +226,7 @@ public class ServerController {
 		System.out.println("====== 서버 퇴장 끝 ======");
 		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
 	}
-	@PutMapping("")
+	@PostMapping("")
 	public ResponseEntity<?> updateServer(@ModelAttribute ServerDto serverDto, @RequestParam(name = "file", required = false) MultipartFile multipartFile) {
 		System.out.println("====== 서버 변경 시작 ======");
 		JSONObject result = new JSONObject();

@@ -18,7 +18,7 @@ public class ChannelDto {
 	private long seq;
 	String name;
 	int limitPeople;
-	int serverSeq;
+	long serverSeq;
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
 

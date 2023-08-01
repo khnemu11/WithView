@@ -22,7 +22,7 @@ public class ChannelEntity {
 	private long seq;
 	private String name;
 	private int limitPeople;
-	private int serverSeq;
+	private long serverSeq;
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
 
@@ -43,7 +43,7 @@ public class ChannelEntity {
 	}
 
 	@Builder
-	public ChannelEntity(String name, int limitPeople, int serverSeq,String backgroundImgOriginalName, String backgroundImgSearchName) {
+	public ChannelEntity(String name, int limitPeople, long serverSeq,String backgroundImgOriginalName, String backgroundImgSearchName) {
 		this.name = name;
 		this.limitPeople = limitPeople;
 		this.serverSeq = serverSeq;
