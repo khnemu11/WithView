@@ -13,6 +13,7 @@ import com.ssafy.withview.repository.entity.ServerEntity;
 import com.ssafy.withview.repository.entity.UserEntity;
 import com.ssafy.withview.repository.entity.UserServerEntity;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
@@ -23,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -55,42 +57,39 @@ public class ServerServiceImpl implements ServerService {
 	public ServerDto insertServer(ServerDto serverDto, MultipartFile multipartFile) throws Exception{
 		ServerDto result;
 		try{
-			if (!s3client.doesBucketExist(bucketName)) {
-				s3client.createBucket(bucketName);
-			}
-			String originalName = "";
-			File backgroundImgFile;
-			String backgroundImgSearchName="";
-			UUID uuid = UUID.randomUUID();
-			String extend = "";
-			//사진이 없는경우 로고 사진으로 대체
-			if(multipartFile == null){
-				originalName=DEFAULT_IMG;
-			}
-			//사진이 있으면 해당 사진을 배경화면으로
-			else{
-				originalName = multipartFile.getOriginalFilename();
+			if(multipartFile != null){
+				if (!s3client.doesBucketExist(bucketName)) {
+					s3client.createBucket(bucketName);
+				}
+				String originalName = "";
+				File backgroundImgFile;
+				String backgroundImgSearchName="";
+				UUID uuid = UUID.randomUUID();
+				String extend = "";
+				//사진이 없는경우 로고 사진으로 대체
+				if(multipartFile == null){
+					originalName=DEFAULT_IMG;
+				}
+				//사진이 있으면 해당 사진을 배경화면으로
+				else{
+					originalName = multipartFile.getOriginalFilename();
+				}
+
+				extend = originalName.substring(originalName.lastIndexOf('.'));
+				// #2 - 원본 파일 이름 저장
+				serverDto.setBackgroundImgOriginalName(originalName);
+
+				// #3 - 저장용 랜덤 파일 이름 저장
+				backgroundImgSearchName = uuid.toString()+extend;
+				backgroundImgFile = File.createTempFile(uuid.toString(),extend);
+				FileUtils.copyInputStreamToFile(multipartFile.getInputStream(),backgroundImgFile);
+
+				// #5 - 이미지 서버 저장
+				s3client.putObject(bucketName, "server-background/"+backgroundImgSearchName, backgroundImgFile);
+				// #6 - DB 저장
+				serverDto.setBackgroundImgSearchName(uuid.toString()+extend);
 			}
 
-			extend = originalName.substring(originalName.lastIndexOf('.'));
-			// #2 - 원본 파일 이름 저장
-			serverDto.setBackgroundImgOriginalName(originalName);
-
-			// #3 - 저장용 랜점 파일 이름 저장
-			backgroundImgSearchName = uuid.toString()+extend;
-
-			// #4 - 파일 임시 저장
-			//파일이 있으면 임시 파일 저장
-			if(multipartFile!=null){
-				backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),backgroundImgSearchName);
-				multipartFile.transferTo(backgroundImgFile);
-			}else{
-				backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),originalName);
-			}
-			// #5 - 이미지 서버 저장
-			s3client.putObject(bucketName, "server-background/"+backgroundImgSearchName, backgroundImgFile);
-			// #6 - DB 저장
-			serverDto.setBackgroundImgSearchName(uuid.toString()+extend);
 			ServerEntity serverEntity = ServerDto.toEntity(serverDto);
 			result = ServerEntity.toDto(serverRepository.save(serverEntity));
 		}catch(Exception e){
@@ -123,8 +122,9 @@ public class ServerServiceImpl implements ServerService {
 			String backgroundImgSearchName = uuid.toString()+extend;
 
 			// #4 - 파일 임시 저장
-			File backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),backgroundImgSearchName);
-			multipartFile.transferTo(backgroundImgFile);
+			backgroundImgSearchName = uuid.toString()+extend;
+			File backgroundImgFile = File.createTempFile(uuid.toString(),extend);
+			FileUtils.copyInputStreamToFile(multipartFile.getInputStream(),backgroundImgFile);
 
 			// #5 - 기존 이미지 삭제
 			s3client.deleteObject(bucketName, "server-background/"+serverEntity.getBackgroundImgSearchName());
