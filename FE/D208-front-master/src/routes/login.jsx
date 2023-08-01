@@ -5,18 +5,24 @@ import { setToken } from "../redux/actions/tokenActions";
 import "../css/Login.css";
 import axios from "axios";
 import withview from "../assets/withview.png";
+import { setUser } from "../redux/actions/userActions";
 
 export default function Login() {
   const [Id, setId] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const checktoken = useSelector((state) => state.token);
   const url = "https://i9d208.p.ssafy.io/api";
-
+  
+  // redux 저장 테스트용
+  const checktoken = useSelector((state) => state.token);
+  const userInfotest = useSelector((state) => state.user);
   useEffect(() => {
     console.log(checktoken); // 토큰 값이 변경될 때마다 출력...
-  }, [checktoken]);
+    console.log(userInfotest); // 토큰 값이 변경될 때마다 출력...
+  }, [checktoken,userInfotest]);
+  //
+
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
@@ -35,13 +41,15 @@ export default function Login() {
           console.log("토큰 받아라");
           const accessToken = res.data.JWT.accessToken;
           const refreshToken = res.data.JWT.refreshToken;
+          const userInfo = {seq : res.data.UserInfo.seq, nickname : res.data.UserInfo.nickname, profile : res.data.UserInfo.profileImgSearchName}
+
           console.log(res.data);
           // 토큰을 Redux로 저장
           dispatch(setToken(accessToken));
-          // console.log(checktoken)
+          dispatch(setUser(userInfo));
           sessionStorage.setItem("refreshToken", refreshToken);
           // 로비화면으로 이동
-          navigate("/firstmain");
+          navigate("/mainpage");
         } else {
           alert("로그인 실패!!");
           setId("");

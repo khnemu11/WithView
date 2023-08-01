@@ -12,11 +12,11 @@ public class UserServerEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long seq;
 
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="user_seq")
 	private UserEntity userEntity;
 
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="server_seq")
 	private ServerEntity serverEntity;
 
