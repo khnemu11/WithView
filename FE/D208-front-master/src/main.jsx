@@ -16,6 +16,8 @@ import Profile from "./routes/profile";
 import ServerPlus from "./routes/serverplus";
 import Serverpage from "./routes/serverpage";
 import MainController from "./routes/maincontroller";
+import Mainpage from "./routes/components/mainpage";
+import ServerEnter from "./routes/serverenter";
 
 const router = createBrowserRouter([
   {
@@ -58,6 +60,14 @@ const router = createBrowserRouter([
     path: "/server",
     element: <Serverpage />,
   },
+  {
+    path:'/mainpagecheck',
+    element:<Mainpage/>,
+  },
+  {
+    path:'/serverenter',
+    element:<ServerEnter/>,
+  }
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(

@@ -10,8 +10,67 @@
     cursor: pointer;
     margin-left: 4%; /* Adjust the spacing as needed */
     margin-right: 30%;
+    margin-top: 0.2%;
+    max-width: 3%;
   }
 
 .serverNameText{
-    
+    font-size: 20pt;
+    font-weight: 600;
+}
+
+.channelNameText{
+  margin-top: 2%;
+  align-self: flex-start; /* add this line */
+  font-size: x-large;
+  font-weight: 600;
+  margin-left: 5%;
+  margin-bottom: 2%;
+}
+
+.sliderChannelContainer{
+  width:100%;
+}
+
+.channelCard {
+  background-color: white;
+  height: 180px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.channelCard-imageContainer {
+  width: 100%;
+  height: 0;
+  padding-bottom: 56.25%; /* for 16:9 aspect ratio */
+  position: relative;
+}
+
+.channelCard-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.channelCard-content {
+  padding: 20px;
+}
+
+.collapsible-server{
+  align-self: flex-start;
+  font-weight: 600;
+
+  margin-left: 5%;
+  margin-bottom: 5%;
+}
+
+.collapsibleIcon {
+  height: 8px;
+  width: 15px;
+  margin-left: 10px;
+  margin-bottom: 3px;
 }

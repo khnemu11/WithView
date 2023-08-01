@@ -145,7 +145,7 @@ const Mainpage = () => {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: favoriteserverData.length < 3 ? favoriteserverData.length : 3, // 이 부분을 수정했습니다.
+    slidesToShow: favoriteserverData.length < 3 ? favoriteserverData.length : 3,
     slidesToScroll: 1,
   };
 
