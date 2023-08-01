@@ -3,9 +3,6 @@ package com.ssafy.withview.controller;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -16,42 +13,46 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.withview.repository.dto.JwtDto;
 import com.ssafy.withview.repository.dto.LoginDto;
+import com.ssafy.withview.repository.dto.UserDto;
 import com.ssafy.withview.service.JwtService;
 import com.ssafy.withview.service.LoginService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/login")
+@RequiredArgsConstructor
+@Slf4j
 public class LoginController {
-	@Autowired
-	private LoginService loginService;
 
-	@Autowired
-	private JwtService jwtService;
+	private final LoginService loginService;
 
-	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+	private final JwtService jwtService;
 
 	@PostMapping("/login")
 	public ResponseEntity<Map<String, Object>> login(@RequestBody LoginDto loginDto) {
-		logger.info("UserController: 로그인 진행");
+		log.info("LoginController: 로그인 진행");
 		Map<String, Object> resultMap = new HashMap<>();
 		HttpStatus status = null;
 		try {
 			Authentication authentication = loginService.login(loginDto);
-			logger.info("authentication" + authentication);
 			if (authentication != null) {
+				// JWT 정보
 				JwtDto jwtDto = jwtService.generateToken(authentication);
-				logger.info("UserController: 로그인 성공");
-				logger.info("[JWT] AccessToken: " + jwtDto.getAccessToken()
-					+ ", RefreshToken: " + jwtDto.getRefreshToken());
-				resultMap.put("success", true);
+				log.info("AccessToken: {}", jwtDto.getAccessToken());
+				log.info("RefreshToken: {}", jwtDto.getRefreshToken());
 				resultMap.put("JWT", jwtDto);
+				// seq, nickname, profileImgSearchName 정보
+				UserDto userDto = loginService.getUserInfo(loginDto);
+				log.info("UserInfo: {}", userDto);
+				resultMap.put("UserInfo", userDto);
+				log.info("LoginController: 로그인 성공");
+				resultMap.put("success", true);
 				status = HttpStatus.CREATED;
 			}
 		} catch (Exception e) {
-			logger.error("UserController: 로그인 실패", e);
+			log.error("LoginController: 로그인 실패 {}", e.getMessage());
 			resultMap.put("success", false);
 			status = HttpStatus.ACCEPTED;
 		}
