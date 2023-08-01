@@ -9,7 +9,6 @@ import org.json.simple.JSONObject;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ServerService {
-	public List<ChannelDto> findAllChannelsByServerSeq(int serverSeq) ;
 	public ChannelDto findChannelByName(String channelName);
 	public ServerDto insertServer(ServerDto serverDto, MultipartFile multipartFile) throws Exception;
 	public ServerDto updateServer(ServerDto serverDto, MultipartFile multipartFile) throws  Exception;
