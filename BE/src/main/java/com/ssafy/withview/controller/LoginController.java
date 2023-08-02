@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ssafy.withview.repository.dto.JwtDto;
-import com.ssafy.withview.repository.dto.LoginDto;
-import com.ssafy.withview.repository.dto.UserDto;
+import com.ssafy.withview.dto.JwtDto;
+import com.ssafy.withview.dto.LoginDto;
+import com.ssafy.withview.dto.UserDto;
 import com.ssafy.withview.service.JwtService;
 import com.ssafy.withview.service.LoginService;
 

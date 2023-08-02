@@ -7,8 +7,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.ssafy.withview.entity.LoginEntity;
 import com.ssafy.withview.repository.LoginRepository;
-import com.ssafy.withview.repository.entity.LoginEntity;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,7 +28,7 @@ public class PrincipalDetailsService implements UserDetailsService {
 			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
 		logger.info("loginEntity: " + loginEntity.getId() + ", " + loginEntity.getPassword() + ", "
 			+ loginEntity.getRoleList());
-		
+
 		return new PrincipalDetails(loginEntity);
 	}
 }

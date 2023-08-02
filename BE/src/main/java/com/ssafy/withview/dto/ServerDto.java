@@ -1,14 +1,12 @@
-package com.ssafy.withview.repository.dto;
+package com.ssafy.withview.dto;
 
-import com.ssafy.withview.repository.entity.ChannelEntity;
-import com.ssafy.withview.repository.entity.ServerEntity;
+import com.ssafy.withview.entity.ServerEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
@@ -23,8 +21,8 @@ public class ServerDto {
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
 
-	public static ServerEntity toEntity(ServerDto serverDto){
-		if(serverDto == null){
+	public static ServerEntity toEntity(ServerDto serverDto) {
+		if (serverDto == null) {
 			return null;
 		}
 		return ServerEntity.builder()

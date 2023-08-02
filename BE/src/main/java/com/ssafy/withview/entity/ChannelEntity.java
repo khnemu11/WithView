@@ -1,11 +1,13 @@
-package com.ssafy.withview.repository.entity;
+package com.ssafy.withview.entity;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
-import com.ssafy.withview.repository.dto.ChannelDto;
+import com.ssafy.withview.dto.ChannelDto;
 
-import com.ssafy.withview.repository.dto.ServerDto;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,7 +28,7 @@ public class ChannelEntity {
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
 
-	public static ChannelDto toDto(ChannelEntity entity){
+	public static ChannelDto toDto(ChannelEntity entity) {
 		return ChannelDto.builder()
 			.name(entity.getName())
 			.limitPeople(entity.getLimitPeople())
@@ -36,14 +38,15 @@ public class ChannelEntity {
 			.build();
 	}
 
-	public void update(ChannelDto channelDtoDto){
+	public void update(ChannelDto channelDtoDto) {
 		this.backgroundImgSearchName = channelDtoDto.getBackgroundImgOriginalName();
 		this.backgroundImgOriginalName = channelDtoDto.getBackgroundImgOriginalName();
 		this.name = channelDtoDto.getName();
 	}
 
 	@Builder
-	public ChannelEntity(String name, int limitPeople, int serverSeq,String backgroundImgOriginalName, String backgroundImgSearchName) {
+	public ChannelEntity(String name, int limitPeople, int serverSeq, String backgroundImgOriginalName,
+		String backgroundImgSearchName) {
 		this.name = name;
 		this.limitPeople = limitPeople;
 		this.serverSeq = serverSeq;

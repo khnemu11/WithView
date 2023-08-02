@@ -1,13 +1,10 @@
 package com.ssafy.withview.service.pubsub;
 
-import org.springframework.data.redis.connection.Message;
-import org.springframework.data.redis.connection.MessageListener;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ssafy.withview.repository.dto.ChatMessageDTO;
+import com.ssafy.withview.dto.ChatMessageDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,9 +23,11 @@ public class RedisSubscriber {
 	public void sendMessage(String publishMessage) {
 		try {
 			// ChatMessageDTO 객체로 매핑
-			ChatMessageDTO chatMessage = objectMapper.readValue(publishMessage, ChatMessageDTO.class);
+			ChatMessageDto chatMessage = objectMapper.readValue(publishMessage, ChatMessageDto.class);
 			// 채팅방을 구독한 클라이언트에게 메시지 발송
-			messagingTemplate.convertAndSend("/api/sub/chat/room/" + chatMessage.getServerSeq(), chatMessage);
+			messagingTemplate.convertAndSend(
+				"/api/sub/chat/" + chatMessage.getChatRoom().getRoomType() + "/" + chatMessage.getChatRoom().getSeq(),
+				chatMessage);
 		} catch (Exception e) {
 			log.error("Exception {}", e);
 		}

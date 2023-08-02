@@ -1,13 +1,12 @@
-package com.ssafy.withview.repository.dto;
+package com.ssafy.withview.dto;
 
-import com.ssafy.withview.repository.entity.ChannelEntity;
+import com.ssafy.withview.entity.ChannelEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
@@ -22,7 +21,7 @@ public class ChannelDto {
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
 
-	public static ChannelEntity toEntity(ChannelDto dto){
+	public static ChannelEntity toEntity(ChannelDto dto) {
 		return ChannelEntity.builder()
 			.name(dto.getName())
 			.limitPeople(dto.getLimitPeople())

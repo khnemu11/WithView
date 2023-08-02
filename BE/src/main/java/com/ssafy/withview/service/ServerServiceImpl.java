@@ -1,32 +1,32 @@
 package com.ssafy.withview.service;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.ssafy.withview.repository.ChannelRepository;
-import com.ssafy.withview.repository.ServerRepository;
-import com.ssafy.withview.repository.UserRepository;
-import com.ssafy.withview.repository.UserServerRepository;
-import com.ssafy.withview.repository.dto.ChannelDto;
-import com.ssafy.withview.repository.dto.ServerDto;
-import com.ssafy.withview.repository.dto.UserDto;
-import com.ssafy.withview.repository.entity.ChannelEntity;
-import com.ssafy.withview.repository.entity.ServerEntity;
-import com.ssafy.withview.repository.entity.UserEntity;
-import com.ssafy.withview.repository.entity.UserServerEntity;
-import lombok.RequiredArgsConstructor;
-import org.json.simple.JSONObject;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.transaction.Transactional;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.amazonaws.services.s3.AmazonS3;
+import com.ssafy.withview.dto.ChannelDto;
+import com.ssafy.withview.dto.ServerDto;
+import com.ssafy.withview.dto.UserDto;
+import com.ssafy.withview.entity.ChannelEntity;
+import com.ssafy.withview.entity.ServerEntity;
+import com.ssafy.withview.entity.UserEntity;
+import com.ssafy.withview.entity.UserServerEntity;
+import com.ssafy.withview.repository.ChannelRepository;
+import com.ssafy.withview.repository.ServerRepository;
+import com.ssafy.withview.repository.UserRepository;
+import com.ssafy.withview.repository.UserServerRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -38,10 +38,10 @@ public class ServerServiceImpl implements ServerService {
 	private final ResourceLoader resourceLoader;
 	private final AmazonS3 s3client;
 
-	@Value(value="${cloud.aws.s3.bucket}")
+	@Value(value = "${cloud.aws.s3.bucket}")
 	private String bucketName;
 
-	@Value(value="${DEFAULT_IMG}")
+	@Value(value = "${DEFAULT_IMG}")
 	private String DEFAULT_IMG;
 
 	@Override
@@ -58,23 +58,23 @@ public class ServerServiceImpl implements ServerService {
 
 	@Transactional
 	@Override
-	public ServerDto insertServer(ServerDto serverDto, MultipartFile multipartFile) throws Exception{
+	public ServerDto insertServer(ServerDto serverDto, MultipartFile multipartFile) throws Exception {
 		ServerDto result;
-		try{
+		try {
 			if (!s3client.doesBucketExist(bucketName)) {
 				s3client.createBucket(bucketName);
 			}
 			String originalName = "";
 			File backgroundImgFile;
-			String backgroundImgSearchName="";
+			String backgroundImgSearchName = "";
 			UUID uuid = UUID.randomUUID();
 			String extend = "";
 			//사진이 없는경우 로고 사진으로 대체
-			if(multipartFile == null){
-				originalName=DEFAULT_IMG;
+			if (multipartFile == null) {
+				originalName = DEFAULT_IMG;
 			}
 			//사진이 있으면 해당 사진을 배경화면으로
-			else{
+			else {
 				originalName = multipartFile.getOriginalFilename();
 			}
 
@@ -83,23 +83,25 @@ public class ServerServiceImpl implements ServerService {
 			serverDto.setBackgroundImgOriginalName(originalName);
 
 			// #3 - 저장용 랜점 파일 이름 저장
-			backgroundImgSearchName = uuid.toString()+extend;
+			backgroundImgSearchName = uuid.toString() + extend;
 
 			// #4 - 파일 임시 저장
 			//파일이 있으면 임시 파일 저장
-			if(multipartFile!=null){
-				backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),backgroundImgSearchName);
+			if (multipartFile != null) {
+				backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),
+					backgroundImgSearchName);
 				multipartFile.transferTo(backgroundImgFile);
-			}else{
-				backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),originalName);
+			} else {
+				backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),
+					originalName);
 			}
 			// #5 - 이미지 서버 저장
-			s3client.putObject(bucketName, "server-background/"+backgroundImgSearchName, backgroundImgFile);
+			s3client.putObject(bucketName, "server-background/" + backgroundImgSearchName, backgroundImgFile);
 			// #6 - DB 저장
-			serverDto.setBackgroundImgSearchName(uuid.toString()+extend);
+			serverDto.setBackgroundImgSearchName(uuid.toString() + extend);
 			ServerEntity serverEntity = ServerDto.toEntity(serverDto);
 			result = ServerEntity.toDto(serverRepository.save(serverEntity));
-		}catch(Exception e){
+		} catch (Exception e) {
 			throw new Exception("서버 생성 중 오류가 발생했습니다.");
 		}
 
@@ -108,13 +110,13 @@ public class ServerServiceImpl implements ServerService {
 
 	@Transactional
 	@Override
-	public ServerDto updateServer(ServerDto serverDto, MultipartFile multipartFile) throws  Exception{
+	public ServerDto updateServer(ServerDto serverDto, MultipartFile multipartFile) throws Exception {
 		ServerEntity serverEntity = serverRepository.findBySeq(serverDto.getSeq());
 		System.out.println("대상 서버 " + serverEntity);
-		if(serverEntity == null){
+		if (serverEntity == null) {
 			throw new Exception("대상 서버가 없음");
 		}
-		if(multipartFile != null){
+		if (multipartFile != null) {
 			System.out.println("=== 파일 변경 ===");
 			if (!s3client.doesBucketExist(bucketName)) {
 				s3client.createBucket(bucketName);
@@ -126,18 +128,19 @@ public class ServerServiceImpl implements ServerService {
 			// #3 - 저장용 랜덤 파일 이름 저장
 			String extend = originalName.substring(originalName.lastIndexOf('.'));
 			UUID uuid = UUID.randomUUID();
-			String backgroundImgSearchName = uuid.toString()+extend;
+			String backgroundImgSearchName = uuid.toString() + extend;
 
 			// #4 - 파일 임시 저장
-			File backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),backgroundImgSearchName);
+			File backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),
+				backgroundImgSearchName);
 			multipartFile.transferTo(backgroundImgFile);
 
 			// #5 - 이미지 서버 저장
-			s3client.putObject(bucketName, "server-background/"+backgroundImgSearchName, backgroundImgFile);
+			s3client.putObject(bucketName, "server-background/" + backgroundImgSearchName, backgroundImgFile);
 
 			// #6 - DB 저장
-			serverDto.setBackgroundImgSearchName(uuid.toString()+extend);
-			backgroundImgFile.delete();	//기존 임시 저장용 파일 삭제
+			serverDto.setBackgroundImgSearchName(uuid.toString() + extend);
+			backgroundImgFile.delete();    //기존 임시 저장용 파일 삭제
 		}
 
 		serverEntity.update(serverDto);
@@ -155,9 +158,9 @@ public class ServerServiceImpl implements ServerService {
 	public List<ServerDto> findAllServerByUserSeq(long userSeq) {
 		List<ServerDto> userServerDtoList = new ArrayList<>();
 		UserEntity userEntity = userRepository.findBySeq(userSeq);
-		List<UserServerEntity> userServerEntityList= userServerRepository.findAllServerByUserEntity(userEntity);
+		List<UserServerEntity> userServerEntityList = userServerRepository.findAllServerByUserEntity(userEntity);
 
-		for(UserServerEntity userServerEntity : userServerEntityList){
+		for (UserServerEntity userServerEntity : userServerEntityList) {
 			userServerDtoList.add(ServerEntity.toDto(userServerEntity.getServerEntity()));
 		}
 
@@ -167,10 +170,10 @@ public class ServerServiceImpl implements ServerService {
 	@Override
 	public List<UserDto> findAllUsersByServerSeq(long serverSeq) {
 		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
-		List<UserServerEntity> userServerEntityList= userServerRepository.findAllUserByServerEntity(serverEntity);
+		List<UserServerEntity> userServerEntityList = userServerRepository.findAllUserByServerEntity(serverEntity);
 		List<UserDto> userDtoList = new ArrayList<>();
 
-		for(int i=0;i<userServerEntityList.size();i++) {
+		for (int i = 0; i < userServerEntityList.size(); i++) {
 			userDtoList.add(UserEntity.toDto(userServerEntityList.get(i).getUserEntity()));
 		}
 
@@ -179,28 +182,28 @@ public class ServerServiceImpl implements ServerService {
 
 	@Transactional
 	@Override
-	public void deleteServer(long serverSeq,long userSeq) throws Exception{
+	public void deleteServer(long serverSeq, long userSeq) throws Exception {
 		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
 
-		if(serverEntity == null){
+		if (serverEntity == null) {
 			throw new Exception("해당 서버가 없습니다.");
 		}
 
-		if(serverEntity.getHostSeq() != userSeq){
+		if (serverEntity.getHostSeq() != userSeq) {
 			throw new Exception("해당 서버를 삭제할 권한이 없습니다.");
 		}
 
 		serverRepository.delete(serverEntity);
 		//S3에 있는 이미지 삭제
-		s3client.deleteObject(bucketName, "server-background/"+serverEntity.getBackgroundImgSearchName());
+		s3client.deleteObject(bucketName, "server-background/" + serverEntity.getBackgroundImgSearchName());
 	}
 
 	@Override
 	public List<ServerDto> findAllServer() {
-		List<ServerEntity> serverEntityList =serverRepository.findAll();
+		List<ServerEntity> serverEntityList = serverRepository.findAll();
 		List<ServerDto> serverDtoList = new ArrayList<>();
 
-		for(int i=0;i<serverEntityList.size();i++){
+		for (int i = 0; i < serverEntityList.size(); i++) {
 			serverDtoList.add(ServerEntity.toDto(serverEntityList.get(i)));
 		}
 		return serverDtoList;
@@ -211,36 +214,38 @@ public class ServerServiceImpl implements ServerService {
 	public void enterServer(long serverSeq, long userSeq) throws Exception {
 		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
 		UserEntity userEntity = userRepository.findBySeq(userSeq);
-		if(serverEntity == null || userEntity == null){
+		if (serverEntity == null || userEntity == null) {
 			throw new Exception("서버 혹은 유저가 없습니다.");
 		}
 
-		UserServerEntity userServerEntity = userServerRepository.findByServerEntityAndUserEntity(serverEntity,userEntity);
+		UserServerEntity userServerEntity = userServerRepository.findByServerEntityAndUserEntity(serverEntity,
+			userEntity);
 
-		if(userServerEntity != null){
+		if (userServerEntity != null) {
 			throw new Exception("이미 서버에 존재합니다.");
 		}
 
 		userServerEntity = UserServerEntity.builder()
-				.serverEntity(serverEntity)
-				.userEntity(userEntity)
-				.build();
+			.serverEntity(serverEntity)
+			.userEntity(userEntity)
+			.build();
 		userServerRepository.save(userServerEntity);
 	}
 
 	@Transactional
 	@Override
-	public void leaveServer(long serverSeq, long userSeq) throws Exception{
+	public void leaveServer(long serverSeq, long userSeq) throws Exception {
 		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
 		UserEntity userEntity = userRepository.findBySeq(userSeq);
 
-		if(serverEntity == null || userEntity == null){
+		if (serverEntity == null || userEntity == null) {
 			throw new Exception("서버 혹은 유저가 없습니다.");
 		}
 
-		UserServerEntity userServerEntity = userServerRepository.findByServerEntityAndUserEntity(serverEntity,userEntity);
+		UserServerEntity userServerEntity = userServerRepository.findByServerEntityAndUserEntity(serverEntity,
+			userEntity);
 
-		if(userServerEntity == null){
+		if (userServerEntity == null) {
 			throw new Exception("이미 서버에 존재하지 않습니다.");
 		}
 

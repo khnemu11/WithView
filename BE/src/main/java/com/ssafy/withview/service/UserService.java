@@ -4,11 +4,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ssafy.withview.dto.JoinDto;
+import com.ssafy.withview.entity.LoginEntity;
+import com.ssafy.withview.entity.UserEntity;
 import com.ssafy.withview.repository.LoginRepository;
 import com.ssafy.withview.repository.UserRepository;
-import com.ssafy.withview.repository.dto.JoinDto;
-import com.ssafy.withview.repository.entity.LoginEntity;
-import com.ssafy.withview.repository.entity.UserEntity;
 
 import lombok.RequiredArgsConstructor;
 
