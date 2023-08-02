@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect  } from "react";
 import "../css/mainpage.css"; // CSS 파일 임포트
 import "../css/firstmain.css";
 import "../css/serverplus.css";
@@ -13,6 +13,7 @@ const ServerPlus = () => {
   const [profileImage, setProfileImage] = useState("null");
   const [serverImage, setServerImage] = useState("/withView.png");
   const [editedImage, setEditedImage] = useState(null);
+  const [editedImageShow, setEditedImageShow] = useState(null);
   const [serverName, setServerName] = useState("");
   const hostSeqRef = useRef(useSelector((state) => state.user.seq));
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
@@ -28,6 +29,19 @@ const ServerPlus = () => {
       setProfileImage(profileImageURL);
     }
   }, [profileImageURL]);
+
+  // Base64 -> Blob
+  function base64ToBlob(base64String) {
+    const byteString = atob(base64String.split(",")[1]);
+    const arrayBuffer = new ArrayBuffer(byteString.length);
+    const uint8Array = new Uint8Array(arrayBuffer);
+  
+    for (let i = 0; i < byteString.length; i++) {
+      uint8Array[i] = byteString.charCodeAt(i);
+    }
+  
+    return new Blob([uint8Array], { type: "image/png" });
+  }
 
   
 const handleServerCreateButtonClick = () => {
@@ -48,6 +62,7 @@ const handleServerCreateButtonClick = () => {
     })
     .then((response) => {
       // 서버 생성 성공 처리
+      console.log(editedImage)
       console.log("서버 생성 성공:", response.data);
       // ... (추가적인 처리 로직)
     })
@@ -73,14 +88,25 @@ const handleServerCreateButtonClick = () => {
   const handleCropImage = () => {
     const imageElement = cropperRef?.current;
     const cropper = imageElement?.cropper;
-    const croppedImageDataURL = cropper
-      .getCroppedCanvas({
-        width: 300,
-        height: 300,
-      })
-      .toDataURL();
-    setEditedImage(croppedImageDataURL);
-    setIsCropModalOpen(false); // Close the modal after cropping
+    const croppedCanvas = cropper.getCroppedCanvas({
+      width: 300,
+      height: 300,
+    });
+  
+    // 캔버스에서 Base64로 변환된 PNG 이미지 가져오기
+    const croppedImageDataURL = croppedCanvas.toDataURL("image/png");
+  
+    // Base64를 Blob 객체로 변환
+    const blob = base64ToBlob(croppedImageDataURL);
+  
+    // Blob 객체를 File 객체로 변환 (파일 이름은 "croppedSeverImage.png"로 설정)
+    const file = new File([blob], "croppedSeverImage.png", { type: "image/png" });
+  
+    // File 객체를 editedImage에 설정
+    setEditedImage(file);
+    setEditedImageShow(croppedImageDataURL);
+  
+    setIsCropModalOpen(false); // 모달 닫기
   };
 
   return (
@@ -96,7 +122,7 @@ const handleServerCreateButtonClick = () => {
         <div className="serverCreate_text">서버 만들기</div>
         <label htmlFor="imageUpload-server">
           <img
-            src={editedImage || "/uploadimage.png"}
+            src={editedImageShow || "/uploadimage.png"}
             className="image-upload-server"
             alt="Upload"
           />

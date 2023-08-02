@@ -57,7 +57,7 @@ const router = createBrowserRouter([
     element: <ServerPlus />,
   },
   {
-    path: "/server",
+    path: "/server/:seq",
     element: <Serverpage />,
   },
   {

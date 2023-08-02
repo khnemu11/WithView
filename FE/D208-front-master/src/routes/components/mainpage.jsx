@@ -7,14 +7,22 @@ import "../../css/firstmain.css";
 import "../../css/mainpage.css"; // CSS 파일 임포트
 import ServerOptions from "./serveroptions";
 import { useSelector } from "react-redux";
+import axios from "axios";
+import { Link } from "react-router-dom";
 
 Modal.setAppElement("#root");
 
 const Mainpage = () => {
   const [searchText, setSearchText] = useState("");
   const [profileImage, setProfileImage] = useState(null);
-  const profileNickname = useSelector((state) => state.user.nickname)
+  const profileNickname = useSelector((state) => state.user.nickname);
   const profileImageURL = useSelector((state) => state.user.profile);
+  const userSeq = useSelector((state) => state.user.seq);
+
+  const [joinserverData, setJoinServerData] = useState([]);
+  const [favoriteserverData, setFavoriteServerData] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     // 만약 redux에서 프로필 이미지가 null이면 기본 이미지로 설정
@@ -29,14 +37,11 @@ const Mainpage = () => {
     setSearchText(e.target.value);
   };
 
-  const [searchResults, setSearchResults] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   const handleSearchIconClick = () => {
     // 검색 아이콘 클릭 시 검색 동작 추가 (원하는 로직으로 대체)
     // Filter the joinserverData based on the search text and set the search results.
     const results = joinserverData.filter((server) =>
-      server.title.toLowerCase().includes(searchText.toLowerCase())
+      server.name.toLowerCase().includes(searchText.toLowerCase())
     );
     setSearchResults(results);
 
@@ -48,106 +53,113 @@ const Mainpage = () => {
     setIsModalOpen(false);
   };
 
-  const [joinserverData, setJoinServerData] = useState([
-    // 기존 joinserverData의 내용
-    {
-      id: 1,
-      title: "Card 1",
-      content: "This is card 1 content.",
-      imageSrc: "/놀이터.png", // 카드 1 이미지 파일 경로
-      isFavorite: true,
-    },
-    {
-      id: 2,
-      title: "Card 2",
-      content: "This is card 2 content.",
-      imageSrc: "/롤.jpg", // 카드 2 이미지 파일 경로
-      isFavorite: true,
-    },
-    // Add more card objects as needed
-    {
-      id: 3,
-      title: "Card 3",
-      content: "This is card 3 content.",
-      imageSrc: "/고양이.jpg", // 카드 3 이미지 파일 경로
-      isFavorite: true,
-    },
-    {
-      id: 4,
-      title: "Card 4",
-      content: "This is card 4 content.",
-      imageSrc: "/에이펙스.jpg", // 카드 4 이미지 파일 경로
-      isFavorite: true,
-    },
-    {
-      id: 5,
-      title: "Card 5",
-      content: "This is card 5 content.",
-      imageSrc: "/개방.png", // 카드 4 이미지 파일 경로
-      isFavorite: false,
-    },
-    {
-      id: 6,
-      title: "Card 6",
-      content: "This is card 6 content.",
-      imageSrc: "/풀방.png", // 카드 4 이미지 파일 경로
-      isFavorite: false,
-    },
-  ]);
-
-  const [favoriteserverData, setFavoriteServerData] = useState([]);
+  const handleSearchKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSearchIconClick();
+    }
+  };
 
   useEffect(() => {
-    const favorites = joinserverData.filter((server) => server.isFavorite);
+    // API를 통해 사용자가 참여한 서버 데이터를 가져오는 함수
+    const fetchJoinedServers = async () => {
+      try {
+        const response = await axios.get(
+          `https://i9d208.p.ssafy.io/api/servers/find-server-by-user?userSeq=${userSeq}`
+        );
+        const data = response.data;
+        setJoinServerData(data.servers);
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+
+    fetchJoinedServers();
+  }, [userSeq]);
+
+  useEffect(() => {
+    // joinserverData에서 즐겨찾기된 서버를 필터링하여 설정
+    const favorites = joinserverData.filter((server) => server.favorite);
     setFavoriteServerData(favorites);
   }, [joinserverData]);
 
   useEffect(() => {
+    // joinserverData에서 검색 결과를 필터링하여 설정
     const results = joinserverData.filter((server) =>
-      server.title.toLowerCase().includes(searchText.toLowerCase())
+      server.name.toLowerCase().includes(searchText.toLowerCase())
     );
     setSearchResults(results);
   }, [joinserverData, searchText]);
 
-  const handleFavoriteToggle = (id) => {
-    // joinserverData 상태를 업데이트하여 isFavorite 값을 토글합니다.
-    setJoinServerData((prevData) =>
-      prevData.map((server) =>
-        server.id === id
-          ? { ...server, isFavorite: !server.isFavorite }
-          : server
-      )
-    );
+  const handleFavoriteToggle = async (serverSeq, favorite) => {
+    try {
+      const url = `https://i9d208.p.ssafy.io/api/users/1/favorites/`;
+
+      const formData = new FormData();
+      formData.append("userSeq", userSeq);
+      formData.append("serverSeq", serverSeq);
+
+      if (favorite) {
+        // 이미 즐겨찾기에 추가된 서버이면 삭제 요청 (DELETE)
+        await axios.delete(url, { data: formData });
+      } else {
+        // 즐겨찾기에 추가되지 않은 서버이면 추가 요청 (POST)
+        await axios.post(url, formData);
+      }
+
+      // 서버의 즐겨찾기 상태가 토글되었으므로 joinserverData 상태를 업데이트합니다.
+      setJoinServerData((prevData) =>
+        prevData.map((server) =>
+          server.seq === serverSeq ? { ...server, favorite: !favorite } : server
+        )
+      );
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+    }
   };
 
   const CardItem = ({
-    id,
-    title,
-    content,
-    imageSrc,
-    isFavorite,
-    isJoinServerData,
+    seq,
+    name,
+    limitChannel,
+    hostSeq,
+    backgroundImgSearchName,
+    backgroundImgOriginalName,
+    favorite,
   }) => {
-    console.log(imageSrc);
+    const handleCardClick = () => {
+      // 서버 화면으로 이동하는 경로를 설정합니다.
+      const serverLinkPath = `/server/${seq}`;
+      // 클릭 시 서버로 이동합니다.
+      window.location.href = serverLinkPath;
+    };
+
+    const handleFavoriteButtonClick = (e) => {
+      e.stopPropagation();
+      // 즐겨찾기 기능 작동
+      handleFavoriteToggle(seq, favorite);
+    };
+
     return (
       <div className="card custom-card-height" style={{ position: "relative" }}>
-        <div className="card-image">
+        <div
+          className="card-image"
+          onClick={handleCardClick}
+          style={{ cursor: "pointer" }}
+        >
           <figure className="image">
-            <img src={imageSrc} />
+            <img
+              src={`https://dm51j1y1p1ekp.cloudfront.net/server-background/${backgroundImgSearchName}`}
+            />
           </figure>
         </div>
-        <button
-          className="star-button"
-          onClick={() => handleFavoriteToggle(id)}
-        >
-          <img src={isFavorite ? "/yellowstar.png" : "/whitestar.png"} />
+        <button className="star-button" onClick={handleFavoriteButtonClick}>
+          <img src={favorite ? "/yellowstar.png" : "/whitestar.png"} />
         </button>
-        <header className="card-header">
-          <p className="card-header-title">{title}</p>
-        </header>
-        {/* <div className="card-content">
-          <div className="content">{content}</div>
-        </div> */}
+        <Link to={`/server/${seq}`} style={{ textDecoration: "none" }}>
+          <header className="card-header">
+            <p className="card-header-title">{name}</p>
+          </header>
+        </Link>
       </div>
     );
   };
@@ -177,6 +189,7 @@ const Mainpage = () => {
               placeholder="서버 찾기"
               value={searchText}
               onChange={handleSearchInputChange}
+              onKeyDown={handleSearchKeyPress} // 엔터키 입력 처리를 위한 이벤트 핸들러 추가
             />
             <img
               className="searchIcon"
@@ -194,17 +207,20 @@ const Mainpage = () => {
           className="serverSearchModal"
           overlayClassName="modal-overlay"
         >
-          <h2>서버 검색 결과</h2>
+          <h2 className="serverSearchText">서버 검색 결과</h2>
+          <hr className="serverOptionsLine_main" />
           {searchResults.length > 0 ? (
             <div className="grid-container-modal">
-              {searchResults.map((card) => (
-                <div key={card.id} className="grid-item">
+              {searchResults.map((server) => (
+                <div key={server.seq} className="grid-item">
                   <CardItem
-                    id={card.id}
-                    title={card.title}
-                    content={card.content}
-                    imageSrc={card.imageSrc}
-                    isFavorite={card.isFavorite}
+                    seq={server.seq}
+                    name={server.name}
+                    limitChannel={server.limitChannel}
+                    hostSeq={server.hostSeq}
+                    backgroundImgSearchName={server.backgroundImgSearchName}
+                    backgroundImgOriginalName={server.backgroundImgOriginalName}
+                    favorite={server.favorite}
                   />
                 </div>
               ))}
@@ -212,7 +228,6 @@ const Mainpage = () => {
           ) : (
             <p>검색 결과가 없습니다.</p>
           )}
-          <button onClick={closeModal}>Close</button>
         </Modal>
         {/* "즐겨찾기" 텍스트와 줄 */}
         <div className="lefttextlayer">
@@ -224,14 +239,16 @@ const Mainpage = () => {
         {/* 카드 슬라이더 */}
         <div className="sliderContainer">
           <Slider {...sliderSettings}>
-            {favoriteserverData.map((card) => (
-              <div key={card.id} className="slide">
+            {favoriteserverData.map((server) => (
+              <div key={server.seq} className="slide">
                 <CardItem
-                  id={card.id}
-                  title={card.title}
-                  content={card.content}
-                  imageSrc={card.imageSrc}
-                  isFavorite={card.isFavorite}
+                  seq={server.seq}
+                  name={server.name}
+                  limitChannel={server.limitChannel}
+                  hostSeq={server.hostSeq}
+                  backgroundImgSearchName={server.backgroundImgSearchName}
+                  backgroundImgOriginalName={server.backgroundImgOriginalName}
+                  favorite={server.favorite}
                 />
               </div>
             ))}
@@ -247,14 +264,16 @@ const Mainpage = () => {
         {/* Scrollable Area */}
         <div className="scrollable-area">
           <div className="grid-container">
-            {joinserverData.map((card) => (
-              <div key={card.id} className="grid-item">
+            {joinserverData.map((server) => (
+              <div key={server.seq} className="grid-item">
                 <CardItem
-                  id={card.id}
-                  title={card.title}
-                  content={card.content}
-                  imageSrc={card.imageSrc}
-                  isFavorite={card.isFavorite}
+                  seq={server.seq}
+                  name={server.name}
+                  limitChannel={server.limitChannel}
+                  hostSeq={server.hostSeq}
+                  backgroundImgSearchName={server.backgroundImgSearchName}
+                  backgroundImgOriginalName={server.backgroundImgOriginalName}
+                  favorite={server.favorite}
                 />
               </div>
             ))}
