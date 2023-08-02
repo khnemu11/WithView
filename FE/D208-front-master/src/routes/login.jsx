@@ -6,6 +6,9 @@ import "../css/Login.css";
 import axios from "axios";
 import withview from "../assets/withview.png";
 import { setUser } from "../redux/actions/userActions";
+import { Button } from 'react-bootstrap';
+
+
 
 export default function Login() {
   const [Id, setId] = useState("");
@@ -110,14 +113,14 @@ export default function Login() {
           </div>
 
           <div className="login_buttons">
-            <button
+            <Button
               className="button login_button"
               style={{ width: "55%", marginRight: "10px" }}
               onClick={checkLogin}
             >
               로그인
-            </button>
-            <button
+            </Button>
+            <Button
               className="button login_button"
               onClick={() => {
                 navigate("/signup");
@@ -125,16 +128,20 @@ export default function Login() {
               style={{ width: "25%", marginRight: "35px" }}
             >
               회원가입
-            </button>
+            </Button>
           </div>
 
           <div className="login_findes">
             <div style={{ marginRight: "30px" }}>
-              <a href="#">아이디 찾기</a>
+              <a onClick={()=>{
+                navigate("/findid")
+              }}>아이디 찾기</a>
             </div>
             |
             <div style={{ marginLeft: "30px" }}>
-              <a href="#">비밀번호 찾기</a>
+              <a onClick={()=>{
+                navigate("/findpassword")
+              }}>비밀번호 찾기</a>
             </div>
           </div>
         </div>

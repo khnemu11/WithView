@@ -5,6 +5,7 @@ import { Provider } from "react-redux";
 // import store from "./store";
 import { PersistGate } from "redux-persist/integration/react"; // Redux Persist를 사용하기 위한 컴포넌트
 import { store, persistor } from "./redux/store";
+import "bootstrap/dist/css/bootstrap.min.css";
 import Root from "./routes/root";
 import Hello from "./routes/hello";
 import Login from "./routes/login";
@@ -18,6 +19,8 @@ import Serverpage from "./routes/serverpage";
 import MainController from "./routes/maincontroller";
 import Mainpage from "./routes/components/mainpage";
 import ServerEnter from "./routes/serverenter";
+import FindId from "./routes/findid";
+import FindPassword from "./routes/findpassword";
 
 const router = createBrowserRouter([
   {
@@ -61,13 +64,21 @@ const router = createBrowserRouter([
     element: <Serverpage />,
   },
   {
-    path:'/mainpagecheck',
-    element:<Mainpage/>,
+    path: "/mainpagecheck",
+    element: <Mainpage />,
   },
   {
-    path:'/serverenter',
-    element:<ServerEnter/>,
-  }
+    path: "/serverenter",
+    element: <ServerEnter />,
+  },
+  {
+    path: "/findid",
+    element: <FindId />,
+  },
+  {
+    path: "/findpassword",
+    element: <FindPassword />,
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
