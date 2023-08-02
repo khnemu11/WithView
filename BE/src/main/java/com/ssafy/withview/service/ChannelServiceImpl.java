@@ -3,14 +3,13 @@ package com.ssafy.withview.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.ssafy.withview.repository.ChannelRepository;
 import com.ssafy.withview.repository.ServerRepository;
-import com.ssafy.withview.repository.dto.ChannelDto;
-import com.ssafy.withview.repository.dto.ServerDto;
-import com.ssafy.withview.repository.entity.ChannelEntity;
-import com.ssafy.withview.repository.entity.ServerEntity;
+import com.ssafy.withview.dto.ChannelDto;
+import com.ssafy.withview.entity.ChannelEntity;
+import com.ssafy.withview.entity.ServerEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.json.simple.JSONObject;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
@@ -63,44 +62,38 @@ public class ChannelServiceImpl implements ChannelService{
 	public ChannelDto insertChannel(ChannelDto channelDto, MultipartFile multipartFile, long serverSeq) throws Exception {
 		ChannelDto result;
 		try{
-			if (!s3client.doesBucketExist(bucketName)) {
-				s3client.createBucket(bucketName);
-			}
-			String originalName = "";
-			File backgroundImgFile;
-			String backgroundImgSearchName="";
-			UUID uuid = UUID.randomUUID();
-			String extend = "";
-			//사진이 없는경우 로고 사진으로 대체
-			if(multipartFile == null){
-				originalName=DEFAULT_IMG;
-			}
-			//사진이 있으면 해당 사진을 배경화면으로
-			else{
+			if(multipartFile !=null){
+				if (!s3client.doesBucketExist(bucketName)) {
+					s3client.createBucket(bucketName);
+				}
+				String originalName = "";
+				File backgroundImgFile;
+				String backgroundImgSearchName="";
+				UUID uuid = UUID.randomUUID();
+				String extend = "";
+
 				originalName = multipartFile.getOriginalFilename();
+				extend = originalName.substring(originalName.lastIndexOf('.'));
+				// #2 - 원본 파일 이름 저장
+				channelDto.setBackgroundImgOriginalName(originalName);
+
+				// #3 - 저장용 랜점 파일 이름 저장
+				backgroundImgSearchName = uuid.toString()+extend;
+
+				// #4 - 파일 임시 저장
+				//파일이 있으면 임시 파일 저장
+				backgroundImgFile = File.createTempFile(uuid.toString(),extend);
+				FileUtils.copyInputStreamToFile(multipartFile.getInputStream(),backgroundImgFile);
+				//5 - 이미지 서버 저장
+				s3client.putObject(bucketName, IMG_PREFIX+backgroundImgSearchName, backgroundImgFile);
+				// #6 - DB 저장
+				channelDto.setBackgroundImgSearchName(uuid.toString()+extend);
+				backgroundImgFile.delete();
+				log.info(channelDto.toString());
 			}
 
-			extend = originalName.substring(originalName.lastIndexOf('.'));
-			// #2 - 원본 파일 이름 저장
-			channelDto.setBackgroundImgOriginalName(originalName);
-
-			// #3 - 저장용 랜점 파일 이름 저장
-			backgroundImgSearchName = uuid.toString()+extend;
-
-			// #4 - 파일 임시 저장
-			//파일이 있으면 임시 파일 저장
-			if(multipartFile!=null){
-				backgroundImgFile = new File(resourceLoader.getResource("classpath:/resources/img/").getFile().getAbsolutePath(),backgroundImgSearchName);
-				multipartFile.transferTo(backgroundImgFile);
-			}else{
-				backgroundImgFile = new File(resourceLoader.getResource("classpath:/resources/img/").getFile().getAbsolutePath(),originalName);
-			}
-			// #5 - 이미지 서버 저장
-			s3client.putObject(bucketName, IMG_PREFIX+backgroundImgSearchName, backgroundImgFile);
-			// #6 - DB 저장
-			channelDto.setBackgroundImgSearchName(uuid.toString()+extend);
-			log.info(channelDto.toString());
 			ServerEntity serverEntity= serverRepository.findBySeq(serverSeq);
+
 			ChannelEntity channelEntity = ChannelEntity.builder()
 					.name(channelDto.getName())
 					.serverEntity(serverEntity)
@@ -139,8 +132,8 @@ public class ChannelServiceImpl implements ChannelService{
 			String backgroundImgSearchName = uuid.toString()+extend;
 
 			// #4 - 파일 임시 저장
-			File backgroundImgFile = new File(resourceLoader.getResource("classpath:/resources/img/").getFile().getAbsolutePath(),backgroundImgSearchName);
-			multipartFile.transferTo(backgroundImgFile);
+			File backgroundImgFile = File.createTempFile(uuid.toString(),extend);
+			FileUtils.copyInputStreamToFile(multipartFile.getInputStream(),backgroundImgFile);
 
 			// #5 - 이미지 서버 저장
 			s3client.putObject(bucketName, IMG_PREFIX+backgroundImgSearchName, backgroundImgFile);

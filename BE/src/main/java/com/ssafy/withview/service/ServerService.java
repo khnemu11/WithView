@@ -2,10 +2,10 @@ package com.ssafy.withview.service;
 
 import java.util.List;
 
-import com.ssafy.withview.repository.dto.ChannelDto;
-import com.ssafy.withview.repository.dto.ServerDto;
-import com.ssafy.withview.repository.dto.UserDto;
-import org.json.simple.JSONObject;
+import com.ssafy.withview.dto.ChannelDto;
+import com.ssafy.withview.dto.ServerDto;
+import com.ssafy.withview.dto.UserDto;
+
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ServerService {

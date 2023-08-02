@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.ssafy.withview.repository.entity.LoginEntity;
+import com.ssafy.withview.entity.LoginEntity;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

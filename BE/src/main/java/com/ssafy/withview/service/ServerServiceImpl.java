@@ -2,42 +2,35 @@ package com.ssafy.withview.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.ssafy.withview.repository.ChannelRepository;
+import com.ssafy.withview.repository.FavoriteRepository;
 import com.ssafy.withview.repository.ServerRepository;
 import com.ssafy.withview.repository.UserRepository;
 import com.ssafy.withview.repository.UserServerRepository;
-import com.ssafy.withview.repository.dto.ChannelDto;
-import com.ssafy.withview.repository.dto.ServerDto;
-import com.ssafy.withview.repository.dto.UserDto;
-import com.ssafy.withview.repository.entity.ChannelEntity;
-import com.ssafy.withview.repository.entity.ServerEntity;
-import com.ssafy.withview.repository.entity.UserEntity;
-import com.ssafy.withview.repository.entity.UserServerEntity;
+import com.ssafy.withview.dto.ChannelDto;
+import com.ssafy.withview.dto.ServerDto;
+import com.ssafy.withview.dto.UserDto;
+import com.ssafy.withview.entity.ServerEntity;
+import com.ssafy.withview.entity.UserEntity;
+import com.ssafy.withview.entity.UserServerEntity;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ServerServiceImpl implements ServerService {
 	private final ServerRepository serverRepository;
-	private final ChannelRepository channelRepository;
 	private final UserServerRepository userServerRepository;
 	private final UserRepository userRepository;
-	private final ResourceLoader resourceLoader;
 	private final AmazonS3 s3client;
 
 	@Value(value="${cloud.aws.s3.bucket}")
@@ -144,7 +137,6 @@ public class ServerServiceImpl implements ServerService {
 
 	@Override
 	public ServerDto findServerBySeq(long serverSeq) {
-
 		return ServerEntity.toDto(serverRepository.findBySeq(serverSeq));
 	}
 

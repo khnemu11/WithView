@@ -1,11 +1,9 @@
-package com.ssafy.withview.repository.entity;
+package com.ssafy.withview.entity;
 
 import javax.persistence.*;
 
-import com.ssafy.withview.repository.dto.ChannelDto;
+import com.ssafy.withview.dto.ChannelDto;
 
-import com.ssafy.withview.repository.dto.ServerDto;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

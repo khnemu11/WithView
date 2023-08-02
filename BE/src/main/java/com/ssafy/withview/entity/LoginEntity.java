@@ -1,4 +1,4 @@
-package com.ssafy.withview.repository.entity;
+package com.ssafy.withview.entity;
 
 import java.util.ArrayList;
 import java.util.Arrays;

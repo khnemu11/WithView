@@ -1,8 +1,8 @@
-package com.ssafy.withview.repository.dto;
+package com.ssafy.withview.dto;
 
 import java.time.LocalDate;
 
-import com.ssafy.withview.repository.entity.UserEntity;
+import com.ssafy.withview.entity.UserEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

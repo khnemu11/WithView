@@ -1,7 +1,7 @@
-package com.ssafy.withview.repository.entity;
+package com.ssafy.withview.entity;
 
-import com.ssafy.withview.repository.dto.CanvasDto;
-import com.ssafy.withview.repository.dto.ChannelDto;
+import com.ssafy.withview.dto.CanvasDto;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
