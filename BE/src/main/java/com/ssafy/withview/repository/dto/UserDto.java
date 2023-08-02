@@ -13,10 +13,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class UserDto {
-	private long seq;
+	private Long seq;
 	private String id;
 	private String nickname;
 	private String realName;
@@ -43,7 +43,6 @@ public class UserDto {
 			.profileImgSearchName(userDto.getProfileImgSearchName())
 			.profileImgOriginalName(userDto.getProfileImgOriginalName())
 			.profileMsg(userDto.getProfileMsg())
-			.createTime(userDto.getCreateTime())
 			.deleteTime(userDto.getDeleteTime())
 			.build();
 	}

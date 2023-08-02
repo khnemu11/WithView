@@ -9,7 +9,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
 
 import org.springframework.data.annotation.CreatedDate;
 
@@ -20,13 +19,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@Entity
 @NoArgsConstructor
-@Table(name = "user")
+@Entity(name = "user")
 public class UserEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long seq;
+	private Long seq;
 	private String id;
 	private String email;
 	private String nickname;
@@ -46,7 +44,7 @@ public class UserEntity {
 
 	@Builder
 	public UserEntity(String id, String nickname, String realName, String telephone, String address, String email,
-		String profileImgSearchName, String profileImgOriginalName, String profileMsg, LocalDate createTime,
+		String profileImgSearchName, String profileImgOriginalName, String profileMsg,
 		LocalDate deleteTime) {
 		this.id = id;
 		this.nickname = nickname;
@@ -57,7 +55,6 @@ public class UserEntity {
 		this.profileImgSearchName = profileImgSearchName;
 		this.profileImgOriginalName = profileImgOriginalName;
 		this.profileMsg = profileMsg;
-		this.createTime = createTime;
 		this.deleteTime = deleteTime;
 	}
 
