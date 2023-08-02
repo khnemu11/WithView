@@ -2,6 +2,7 @@ package com.ssafy.withview.controller;
 
 import com.ssafy.withview.dto.ServerDto;
 import com.ssafy.withview.dto.UserDto;
+import com.ssafy.withview.service.FavoriteService;
 import com.ssafy.withview.service.ServerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/servers")
@@ -21,6 +24,7 @@ import java.util.List;
 @Slf4j
 public class ServerController {
 	private final ServerService serverService;
+	private final FavoriteService favoriteService;
 
 	@Value(value = "${CLOUD_FRONT_URL}")
 	private String CLOUD_FRONT_URL;
@@ -51,7 +55,6 @@ public class ServerController {
 		JSONObject result = new JSONObject();
 		try{
 			List<ServerDto> serverDtoList = serverService.findAllServer();
-
 			result.put("success",true);
 			result.put("servers",serverDtoList);
 			result.put("imgUriPrefix",CLOUD_FRONT_URL+"server-background/");
@@ -85,6 +88,20 @@ public class ServerController {
 		JSONObject result = new JSONObject();
 		try{
 			List<ServerDto> serverDtoList = serverService.findAllServerByUserSeq(userSeq);
+			List<ServerDto> favoriteDtoList = favoriteService.findAllFavoriteByUserSeq(userSeq);
+			Set<Long> favoriteSet = new HashSet<>();
+
+			for(ServerDto favorite : favoriteDtoList){
+				favoriteSet.add(favorite.getSeq());
+			}
+			for(int i=0;i<serverDtoList.size();i++){
+				if(!favoriteSet.contains(serverDtoList.get(i).getSeq())){
+					continue;
+				}
+				serverDtoList.get(i).setFavorite(true);
+			}
+
+
 			result.put("success",true);
 			result.put("servers",serverDtoList);
 			result.put("imgUriPrefix",CLOUD_FRONT_URL+"server-background/");

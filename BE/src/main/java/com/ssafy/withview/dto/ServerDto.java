@@ -22,6 +22,7 @@ public class ServerDto {
 	private long hostSeq;
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
+	private boolean isFavorite;
 
 	public static ServerEntity toEntity(ServerDto serverDto){
 		if(serverDto == null){
