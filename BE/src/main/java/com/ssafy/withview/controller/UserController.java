@@ -39,7 +39,7 @@ public class UserController {
 	public ResponseEntity<Map<String, Object>> join(@RequestBody JoinDto joinDto) {
 		log.info("UserController: 회원가입 진행");
 		Map<String, Object> resultMap = new HashMap<>();
-		HttpStatus status = null;
+		HttpStatus status;
 		log.info("joinDto - id: {}", joinDto.getId());
 		try {
 			userService.join(joinDto);
@@ -65,7 +65,7 @@ public class UserController {
 	public ResponseEntity<Map<String, Object>> checkDuplicateId(@RequestParam(value = "id") String id) {
 		log.info("UserController - checkDuplicateId: 아이디 중복 검사 실행");
 		Map<String, Object> resultMap = new HashMap<>();
-		HttpStatus status = null;
+		HttpStatus status;
 		try {
 			if (userService.checkDuplicateId(id)) {
 				throw new DuplicateException("Duplicate Id");
@@ -97,7 +97,7 @@ public class UserController {
 	public ResponseEntity<Map<String, Object>> getEmailValidationCode(@RequestParam(value = "email") String email) {
 		log.info("UserController - getEmailValidationCode: 이메일 인증 요청");
 		Map<String, Object> resultMap = new HashMap<>();
-		HttpStatus status = null;
+		HttpStatus status;
 		try {
 			if (userService.checkDuplicateEmail(email)) {
 				throw new DuplicateException("Duplicate Email");
@@ -133,7 +133,7 @@ public class UserController {
 		@RequestParam(value = "code") String code) {
 		log.info("UserController - checkAuthenticateCode: 이메일 인증 코드 검사 실행");
 		Map<String, Object> resultMap = new HashMap<>();
-		HttpStatus status = null;
+		HttpStatus status;
 		try {
 			if (!emailService.checkEmailVerificationCode(email, code)) {
 				throw new InvalidVerificationCodeException("Invalid code");
