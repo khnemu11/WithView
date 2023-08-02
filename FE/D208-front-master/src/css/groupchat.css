@@ -309,6 +309,16 @@ button {
   border-radius: 0.8rem;
 }
 
+/* .cam-dev-block {
+  height: 0;
+  display: none;
+} */
+
+.sharingScreen {
+  height: 300px;
+  width: 300px;
+}
+
 #profile {
   background-color: #f7fbfc;
   border: 0px;

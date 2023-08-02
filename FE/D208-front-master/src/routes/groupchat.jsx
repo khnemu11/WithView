@@ -63,11 +63,11 @@ export default function GroupChat() {
 
   function camSettings() {
     setcamClicked((prevcamClicked) => !prevcamClicked);
-    if (publisherRef.current) {
-      console.log(publisherRef.current);
-      console.log(publisherRef.current.stream);
-      const isCameraOn = !publisherRef.current.stream.videoActive;
-      publisherRef.current.publishVideo(isCameraOn);
+    if (camPublisherRef.current) {
+      console.log(camPublisherRef.current);
+      console.log(camPublisherRef.current.stream);
+      const isCameraOn = !camPublisherRef.current.stream.videoActive;
+      camPublisherRef.current.publishVideo(isCameraOn);
       setIsCameraOn(isCameraOn);
     }
     setmicClicked(false);
@@ -136,7 +136,8 @@ export default function GroupChat() {
   //이미지 : img-로 시작
   //영상 : 이용자의 아이디
 
-  let OV; //오픈비두 변수
+  let CamOV; //오픈비두 변수
+  let ScreenOV; //오픈비두 변수
   // let session; //현재 채널 이름(오픈비두에선 채팅방 단위를 'session'이라고 부름)
   let videoContainer = document.querySelector("#video-container"); //오픈비두로 받은 영상을 담은 컨테이너
   let port = 9091; //백엔드 포트 번호
@@ -148,14 +149,18 @@ export default function GroupChat() {
   let remoteImageLayer = new Konva.Layer(); //소켓에 저장된 이미지 레이어(최초 접속시 한번 사용)
   let stage = useRef(null);
   let session = useRef(null);
+  let sessionScreen = useRef(null);
   let socket = useRef(null);
-  let publisherRef = useRef(null);
+  let camPublisherRef = useRef(null);
+  let sharePublisherRef = useRef(null);
 
   useEffect(() => {
     const container = document.getElementById("channel-screen");
     if (container) {
       stage.current = new Konva.Stage({
         container: "channel-screen",
+        x: 0,
+        y: 0,
         width: document.body.offsetWidth,
         height: document.body.offsetHeight,
       });
@@ -397,6 +402,7 @@ export default function GroupChat() {
   //제일 중요함
   /* OPENVIDU METHODS */
   function joinSession(event) {
+    console.log("join !");
     event.preventDefault();
     let mySessionId = document.getElementById("sessionId").value;
     let myUserName = document.getElementById("userName").value;
@@ -412,11 +418,11 @@ export default function GroupChat() {
     socket.current.onopen = onOpen;
 
     // --- 1) Get an OpenVidu object ---
-    OV = new OpenVidu();
-    console.log(OV);
+    CamOV = new OpenVidu();
+    console.log(CamOV);
 
     // --- 2) Init a session ---
-    session.current = OV.initSession();
+    session.current = CamOV.initSession();
     console.log(session.current);
 
     // --- 3) Specify the actions when events take place in the session ---
@@ -465,7 +471,7 @@ export default function GroupChat() {
           document.getElementById("session").style.display = "block";
 
           // --- 6) Get your own camera stream with the desired properties ---
-          let publisher = OV.initPublisher("video-container", {
+          let publisher = CamOV.initPublisher("video-container", {
             audioSource: undefined, // The source of audio. If undefined default microphone
             videoSource: undefined, // The source of video. If undefined default webcam
             publishAudio: true, // Whether you want to start publishing with your audio unmuted or not
@@ -475,13 +481,15 @@ export default function GroupChat() {
             insertMode: "APPEND", // How the video is inserted in the target element 'video-container'
             mirror: false, // Whether to mirror your local video or not
           });
-          publisherRef.current = publisher;
+          console.log("cam");
+          console.log(publisher);
+          camPublisherRef.current = publisher;
 
           // --- 7) Specify the actions when events take place in our publisher ---
           // When our HTML video has been added to DOM...
           publisher.on("videoElementCreated", function (event) {
             console.log("내 비디오 시작");
-            initMainVideo(event.element, myUserName);
+            // initMainVideo(event.element, myUserName);
             appendUserData(event.element, myUserName);
             addVideoInCanvas(event.element, myUserName);
             event.element["muted"] = true;
@@ -547,6 +555,10 @@ export default function GroupChat() {
   //오픈비두 예제 함수
   //현재 참가자 데이터, 영상을 video-container에 넣는다.
   function appendUserData(videoElement, connection) {
+    console.log("videoElement");
+    console.log(videoElement);
+    console.log("connection");
+    console.log(connection);
     var userData;
     var nodeId;
     if (typeof connection === "string") {
@@ -561,8 +573,10 @@ export default function GroupChat() {
     dataNode.id = "data-" + nodeId;
     dataNode.innerHTML = "<p>" + userData + "</p>";
     videoElement.parentNode.insertBefore(dataNode, videoElement.nextSibling);
-    addClickListener(videoElement, userData);
+    // addClickListener(videoElement, userData);
+    console.log("data clear");
   }
+
   //캔버스에 영상을 삭제하는 함수
   function removeUserInCanvas(connectionId) {
     var dataNode = document.getElementById("data-" + connectionId);
@@ -601,6 +615,7 @@ export default function GroupChat() {
 
   //캔버스에 영상을 넣는 함수
   function addVideoInCanvas(videoElement, connection) {
+    console.log("video in canvas");
     var connectionId = connection;
 
     //자기 자신의 영상의 커넥션 아이디 : 로그인한 유저 닉네임
@@ -611,6 +626,10 @@ export default function GroupChat() {
 
     //비디오 영상 초기 디자인
     var video;
+    console.log("connectionId");
+    console.log(connectionId);
+    console.log("layer");
+    console.log(layer);
 
     //자기 자신영상인 경우
     if (typeof connection === "string") {
@@ -622,6 +641,7 @@ export default function GroupChat() {
       connectionId = document.querySelector(
         "#data-" + connection.connectionId + " p"
       ).textContent;
+      console.log(connectionId);
     }
     //이미 채널에 참가한 사람의 영상인지 아닌지 비디오 레이어에서 찾는 코드
     let remoteVideo = remoteVideoLayer.find("#" + connectionId);
@@ -665,11 +685,15 @@ export default function GroupChat() {
 
     layer.add(tr);
     layer.add(video);
+    console.log("점프");
+    console.log(video);
 
     //자기 자신의 비디오 경우 자동으로 실행이 되지 않는 오류가 있어 직접 실행
     videoElement.oncanplaythrough = function () {
       videoElement.play();
+      console.log("한번더 점프");
     };
+    console.log("한번더 점프");
 
     //비디오를 움직이면 캔버스 변경사항을 다른사람에게 전송
     video.on("dragend", function () {
@@ -721,32 +745,32 @@ export default function GroupChat() {
     }
   }
 
-  //오픈비두 기본 함수
-  //특정 비디오를 클릭하면 해당 비디오가 메인 화면으로 가지는 함수
-  //사용 안함
-  function addClickListener(videoElement, userData) {
-    console.log("add click");
-    console.log(videoElement.srcObject);
-    videoElement.addEventListener("click", function () {
-      var mainVideo = $("#main-video video").get(0);
-      if (mainVideo.srcObject !== videoElement.srcObject) {
-        $("#main-video").fadeOut("fast", () => {
-          $("#main-video p").html(userData);
-          mainVideo.srcObject = videoElement.srcObject;
-          $("#main-video").fadeIn("fast");
-        });
-      }
-    });
-  }
-  //오픈비두 기본 함수
-  //메인화면 초기화 하는 함수
-  //사용 안함
-  function initMainVideo(videoElement, userData) {
-    document.querySelector("#main-video video").srcObject =
-      videoElement.srcObject;
-    document.querySelector("#main-video p").innerHTML = userData;
-    document.querySelector("#main-video video")["muted"] = true;
-  }
+  // //오픈비두 기본 함수
+  // //특정 비디오를 클릭하면 해당 비디오가 메인 화면으로 가지는 함수
+  // //사용 안함
+  // function addClickListener(videoElement, userData) {
+  //   console.log("add click");
+  //   console.log(videoElement.srcObject);
+  //   videoElement.addEventListener("click", function () {
+  //     var mainVideo = $("#main-video video").get(0);
+  //     if (mainVideo.srcObject !== videoElement.srcObject) {
+  //       $("#main-video").fadeOut("fast", () => {
+  //         $("#main-video p").html(userData);
+  //         mainVideo.srcObject = videoElement.srcObject;
+  //         $("#main-video").fadeIn("fast");
+  //       });
+  //     }
+  //   });
+  // }
+  // //오픈비두 기본 함수
+  // //메인화면 초기화 하는 함수
+  // //사용 안함
+  // function initMainVideo(videoElement, userData) {
+  //   document.querySelector("#main-video video").srcObject =
+  //     videoElement.srcObject;
+  //   document.querySelector("#main-video p").innerHTML = userData;
+  //   document.querySelector("#main-video video")["muted"] = true;
+  // }
 
   /**
    * --------------------------------------------
@@ -766,6 +790,7 @@ export default function GroupChat() {
   //오픈비두 기본 함수
   //최초 접속 시 채팅방에 연결하기 위한 정보(채널, 서버 정보)를 가져오는 함수
   function getToken(mySessionId) {
+    console.log("토큰 받기");
     return createSession(mySessionId).then((sessionId) =>
       createToken(sessionId)
     );
@@ -777,10 +802,13 @@ export default function GroupChat() {
     const url = APPLICATION_SERVER_URL + "api/sessions";
     const headers = { "Content-Type": "application/json" };
     const data = { customSessionId: sessionId };
-
+    console.log("세션 만들기");
     return axios
       .post(url, data, { headers })
-      .then((response) => response.data)
+      .then((response) => {
+        console.log(response);
+        return response.data;
+      })
       .catch((error) => Promise.reject(error));
   };
 
@@ -846,12 +874,159 @@ export default function GroupChat() {
     };
   }
 
+  // 화면 공유 기능을 시작하는 함수
+  function startScreenSharing() {
+    ScreenOV = new OpenVidu();
+    console.log("공유 시작 !");
+    let myUserName = document.getElementById("userName").value;
+    sessionScreen.current = ScreenOV.initSession();
+
+    // // 토큰을 받아온 후 세션에 연결하는 함수
+    getToken().then((token) => {
+      console.log("session on");
+      console.log(token);
+      // 세션에 연결
+      sessionScreen.current
+        .connect(token, { clientData: myUserName + "share" })
+        .then(() => {
+          // 화면 공유를 위한 Publisher를 초기화
+          let screenPublisher = ScreenOV.initPublisher("sharingScreen", {
+            videoSource: "screen",
+          });
+          console.log("share");
+          console.log(screenPublisher);
+          sharePublisherRef.current = screenPublisher;
+
+          // 사용자가 화면 공유에 대한 접근 권한을 허용할 경우 이벤트 처리
+          screenPublisher.once("accessAllowed", () => {
+            console.log("good!");
+            // 화면 공유 시작 후, 사용자가 "Stop sharing" 버튼을 눌렀을 때의 이벤트 처리
+            screenPublisher.stream
+              .getMediaStream()
+              .getVideoTracks()[0]
+              .addEventListener("ended", () => {
+                console.log('User pressed the "Stop sharing" button');
+              });
+
+            // Publisher를 세션에 발행하여 화면 공유 시작
+            sessionScreen.current.publish(screenPublisher);
+            screenPublisher.on("videoElementCreated", function (event) {
+              console.log("내 비디오 시작");
+              // initMainVideo(event.element, myUserName);
+              appendUserData(event.element, myUserName);
+              addScreenInCanvas(event.element, myUserName);
+              event.element["muted"] = true;
+            });
+            console.log(session.current);
+          });
+
+          // 사용자가 화면 공유에 대한 접근 권한을 거부할 경우 이벤트 처리
+          screenPublisher.once("accessDenied", () => {
+            console.warn("ScreenShare: Access Denied");
+          });
+        })
+        .catch((error) => {
+          console.warn(
+            "There was an error connecting to the session:",
+            error.code,
+            error.message
+          );
+        });
+    });
+  }
+
+  function addScreenInCanvas(videoElement, connection) {
+    console.log("video in canvas");
+    var connectionId = connection;
+
+    //자기 자신의 영상의 커넥션 아이디 : 로그인한 유저 닉네임
+    //다른사람의 커넥션 아이디 : 커넥션 고유 번호
+    //자기 자신인 경우
+    //비디오 영상 레이어 꺼내기
+    let layer = stage.current.children[1];
+
+    //비디오 영상 초기 디자인
+    var video;
+    console.log("connectionId");
+    console.log(connectionId);
+    console.log("layer");
+    console.log(layer);
+
+    //자기 자신영상인 경우
+    if (typeof connection === "string") {
+      connectionId = connection;
+    }
+    //다른 사람인 경우
+    else {
+      //다른사람의 로그인 유저 닉네임은 비디오 컨테이너의 data- 중 p태그에 있다
+      connectionId = document.querySelector(
+        "#data-" + connection.connectionId + " p"
+      ).textContent;
+      console.log(connectionId);
+    }
+    //이미 채널에 참가한 사람의 영상인지 아닌지 비디오 레이어에서 찾는 코드
+    let remoteVideo = remoteVideoLayer.find("#" + connectionId);
+
+    //자기 자신인 경우
+    if (remoteVideo.length == 0) {
+      video = new Konva.Image({
+        x: 10,
+        y: 10,
+        width: 300,
+        height: 300,
+        image: videoElement,
+        draggable: true,
+        id: connectionId, //수정하면 안됨!!
+      });
+    }
+
+    //채녈에 참가한 사람의 영상이 아닌 경우(참가자)
+    else {
+      video = new Konva.Image({
+        x: remoteVideo[0].getAttr("x"),
+        y: remoteVideo[0].getAttr("y"),
+        width: remoteVideo[0].getAttr("width"),
+        height: remoteVideo[0].getAttr("height"),
+        image: videoElement,
+        draggable: true,
+        id: connectionId, //수정하면 안됨!!
+      });
+    }
+
+    //비디오 크기 및 회전을 도와주는 객체
+    var tr = new Konva.Transformer();
+    // tr.nodes([video]);
+
+    //비디오 실행
+    var animation = new Konva.Animation(function () {}, layer);
+
+    animation.start();
+
+    layer.add(tr);
+    layer.add(video);
+
+    //자기 자신의 비디오 경우 자동으로 실행이 되지 않는 오류가 있어 직접 실행
+    videoElement.oncanplaythrough = function () {
+      videoElement.play();
+    };
+
+    //비디오를 움직이면 캔버스 변경사항을 다른사람에게 전송
+    video.on("dragend", function () {
+      changeCanvas(video);
+    });
+
+    //비디오의 모양을 변경하면 캔버스 변경사항을 다른사람에게 전송
+    video.on("transformend", function () {
+      changeCanvas(video);
+    });
+  }
+
   return (
     <>
       {/* 전체 화면 */}
       <div className="groupchat">
         {/* 캔버스 화면 */}
-        <div id="main-container" className="container">
+        <div id="video-chat-main-container">
           <div id="join">
             <div id="join-dialog">
               <h1>Join a video session</h1>
@@ -883,24 +1058,24 @@ export default function GroupChat() {
 
           <div id="channel-screen"></div>
           <div id="shared-screen"></div>
-          <button id="button" onClick={stickertemp}>
-            파파고 이미지 만들기
-          </button>
-          <div id="session">
-            <div id="session-header">
-              <h1 id="session-title"></h1>
-              <input
-                type="button"
-                id="buttonLeaveSession"
-                onMouseUp={leaveSession}
-                value="Leave session"
-              />
+          <div className="cam-dev-block">
+            <div id="session">
+              <div id="session-header">
+                <h1 id="session-title"></h1>
+                <input
+                  type="button"
+                  id="buttonLeaveSession"
+                  onMouseUp={leaveSession}
+                  value="Leave session"
+                />
+              </div>
+              <div id="main-video" className="col-md-6">
+                <p></p>
+                <video autoPlay playsInline={true}></video>
+              </div>
+              <div id="video-container" className="col-md-6"></div>
+              <div id="sharingScreen" className="sharingScreen"></div>
             </div>
-            <div id="main-video" className="col-md-6">
-              <p></p>
-              <video autoPlay playsInline={true}></video>
-            </div>
-            <div id="video-container" className="col-md-6"></div>
           </div>
         </div>
         {/* exit버튼 */}
@@ -955,7 +1130,12 @@ export default function GroupChat() {
               </div>
               <div className="accordion">
                 <div className="accordion-item">
-                  <div className="accordion-header">화면 공유</div>
+                  <div
+                    className="accordion-header"
+                    onClick={startScreenSharing}
+                  >
+                    화면 공유
+                  </div>
                   <div className="accordion-content"></div>
                 </div>
               </div>
