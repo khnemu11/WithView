@@ -5,13 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
 
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.ssafy.withview.dto.UserDto;
 
@@ -20,13 +21,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@Entity
 @NoArgsConstructor
-@Table(name = "user")
+@Entity(name = "user")
+@EntityListeners(AuditingEntityListener.class)
 public class UserEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long seq;
+	private Long seq;
 	private String id;
 	private String email;
 	private String nickname;
@@ -35,6 +36,7 @@ public class UserEntity {
 	private String address;
 	private String profileImgSearchName;
 	private String profileImgOriginalName;
+	private String profileMsg;
 
 	@CreatedDate
 	private LocalDate createTime;
@@ -48,7 +50,8 @@ public class UserEntity {
 
 	@Builder
 	public UserEntity(String id, String nickname, String realName, String telephone, String address, String email,
-		String profileImgSearchName, String profileImgOriginalName, LocalDate createTime, LocalDate deleteTime) {
+		String profileImgSearchName, String profileImgOriginalName, String profileMsg,
+		LocalDate deleteTime) {
 		this.id = id;
 		this.nickname = nickname;
 		this.realName = realName;
@@ -57,7 +60,7 @@ public class UserEntity {
 		this.email = email;
 		this.profileImgSearchName = profileImgSearchName;
 		this.profileImgOriginalName = profileImgOriginalName;
-		this.createTime = createTime;
+		this.profileMsg = profileMsg;
 		this.deleteTime = deleteTime;
 	}
 
@@ -75,8 +78,15 @@ public class UserEntity {
 			.email(userEntity.getEmail())
 			.profileImgSearchName(userEntity.getProfileImgSearchName())
 			.profileImgOriginalName(userEntity.getProfileImgOriginalName())
+			.profileMsg(userEntity.getProfileMsg())
 			.createTime(userEntity.getCreateTime())
 			.deleteTime(userEntity.getDeleteTime())
 			.build();
+	}
+
+	public void updateProfile(String profileImgOriginalName, String profileImgSearchName, String profileMsg) {
+		this.profileImgOriginalName = profileImgOriginalName;
+		this.profileImgSearchName = profileImgSearchName;
+		this.profileMsg = profileMsg;
 	}
 }
