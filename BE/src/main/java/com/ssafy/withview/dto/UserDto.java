@@ -13,10 +13,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class UserDto {
-	private long seq;
+	private Long seq;
 	private String id;
 	private String nickname;
 	private String realName;
@@ -25,6 +25,7 @@ public class UserDto {
 	private String email;
 	private String profileImgSearchName;
 	private String profileImgOriginalName;
+	private String profileMsg;
 	private LocalDate createTime;
 	private LocalDate deleteTime;
 
@@ -41,7 +42,7 @@ public class UserDto {
 			.email(userDto.getEmail())
 			.profileImgSearchName(userDto.getProfileImgSearchName())
 			.profileImgOriginalName(userDto.getProfileImgOriginalName())
-			.createTime(userDto.getCreateTime())
+			.profileMsg(userDto.getProfileMsg())
 			.deleteTime(userDto.getDeleteTime())
 			.build();
 	}
