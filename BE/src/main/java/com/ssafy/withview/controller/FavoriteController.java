@@ -69,8 +69,7 @@ public class FavoriteController {
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 	@DeleteMapping("")
-	public ResponseEntity<?> deleteFavorite(@PathVariable Long userSeq,@RequestParam(name="serverSeq") Long serverSeq) {
-		log.info("===== 즐겨찾기 등록 시작 =====");
+	public ResponseEntity<?> deleteFavorite(@PathVariable(name = "userSeq") Long userSeq,@RequestParam(name="serverSeq") Long serverSeq) {
 		JSONObject result = new JSONObject();
 		try{
 			favoriteService.deleteFavoriteByUserSeq(userSeq,serverSeq);
