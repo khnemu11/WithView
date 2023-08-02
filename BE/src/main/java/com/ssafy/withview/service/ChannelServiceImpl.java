@@ -8,6 +8,8 @@ import com.ssafy.withview.repository.dto.ServerDto;
 import com.ssafy.withview.repository.entity.ChannelEntity;
 import com.ssafy.withview.repository.entity.ServerEntity;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
@@ -22,6 +24,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ChannelServiceImpl implements ChannelService{
 	private final ServerRepository serverRepository;
 	private final ChannelRepository channelRepository;
@@ -60,8 +63,6 @@ public class ChannelServiceImpl implements ChannelService{
 	public ChannelDto insertChannel(ChannelDto channelDto, MultipartFile multipartFile, long serverSeq) throws Exception {
 		ChannelDto result;
 		try{
-
-
 			if (!s3client.doesBucketExist(bucketName)) {
 				s3client.createBucket(bucketName);
 			}
@@ -89,16 +90,16 @@ public class ChannelServiceImpl implements ChannelService{
 			// #4 - 파일 임시 저장
 			//파일이 있으면 임시 파일 저장
 			if(multipartFile!=null){
-				backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),backgroundImgSearchName);
+				backgroundImgFile = new File(resourceLoader.getResource("classpath:/resources/img/").getFile().getAbsolutePath(),backgroundImgSearchName);
 				multipartFile.transferTo(backgroundImgFile);
 			}else{
-				backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),originalName);
+				backgroundImgFile = new File(resourceLoader.getResource("classpath:/resources/img/").getFile().getAbsolutePath(),originalName);
 			}
 			// #5 - 이미지 서버 저장
 			s3client.putObject(bucketName, IMG_PREFIX+backgroundImgSearchName, backgroundImgFile);
 			// #6 - DB 저장
 			channelDto.setBackgroundImgSearchName(uuid.toString()+extend);
-			System.out.println(channelDto);
+			log.info(channelDto.toString());
 			ServerEntity serverEntity= serverRepository.findBySeq(serverSeq);
 			ChannelEntity channelEntity = ChannelEntity.builder()
 					.name(channelDto.getName())
@@ -119,12 +120,12 @@ public class ChannelServiceImpl implements ChannelService{
 	@Override
 	public ChannelDto updateChannel(ChannelDto channelDto,MultipartFile multipartFile,long serverSeq) throws Exception{
 		ChannelEntity channelEntity = channelRepository.findBySeq(channelDto.getSeq());
-		System.out.println("대상 채널 " + channelEntity);
+		log.info("대상 채널 " + channelEntity);
 		if(channelEntity == null){
 			throw new Exception("대상 서버가 없음");
 		}
 		if(multipartFile != null){
-			System.out.println("=== 파일 변경 ===");
+			log.info("=== 파일 변경 ===");
 			if (!s3client.doesBucketExist(bucketName)) {
 				s3client.createBucket(bucketName);
 			}
@@ -138,7 +139,7 @@ public class ChannelServiceImpl implements ChannelService{
 			String backgroundImgSearchName = uuid.toString()+extend;
 
 			// #4 - 파일 임시 저장
-			File backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),backgroundImgSearchName);
+			File backgroundImgFile = new File(resourceLoader.getResource("classpath:/resources/img/").getFile().getAbsolutePath(),backgroundImgSearchName);
 			multipartFile.transferTo(backgroundImgFile);
 
 			// #5 - 이미지 서버 저장
@@ -146,7 +147,7 @@ public class ChannelServiceImpl implements ChannelService{
 
 			// #6 - DB 저장
 			channelDto.setBackgroundImgSearchName(uuid.toString()+extend);
-			backgroundImgFile.delete();	//기존 임시 저장용 파일 삭제
+			boolean delete = backgroundImgFile.delete();	//기존 임시 저장용 파일 삭제
 		}
 
 		channelEntity.update(channelDto);

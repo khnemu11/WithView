@@ -58,6 +58,7 @@ public class ServerServiceImpl implements ServerService {
 		ServerDto result;
 		try{
 			if(multipartFile != null){
+				System.out.println("이미지 저장 시작");
 				if (!s3client.doesBucketExist(bucketName)) {
 					s3client.createBucket(bucketName);
 				}
@@ -74,7 +75,7 @@ public class ServerServiceImpl implements ServerService {
 				else{
 					originalName = multipartFile.getOriginalFilename();
 				}
-
+				System.out.println("원본 파일 이름 : "+originalName);
 				extend = originalName.substring(originalName.lastIndexOf('.'));
 				// #2 - 원본 파일 이름 저장
 				serverDto.setBackgroundImgOriginalName(originalName);
@@ -120,7 +121,6 @@ public class ServerServiceImpl implements ServerService {
 			String extend = originalName.substring(originalName.lastIndexOf('.'));
 			UUID uuid = UUID.randomUUID();
 			String backgroundImgSearchName = uuid.toString()+extend;
-
 			// #4 - 파일 임시 저장
 			backgroundImgSearchName = uuid.toString()+extend;
 			File backgroundImgFile = File.createTempFile(uuid.toString(),extend);
