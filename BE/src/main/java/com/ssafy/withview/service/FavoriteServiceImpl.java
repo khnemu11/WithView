@@ -67,8 +67,11 @@ public class FavoriteServiceImpl implements  FavoriteService{
 
 	@Override
 	public void deleteFavoriteByUserSeq(Long userSeq, Long serverSeq) throws Exception {
+		System.out.println("즐겨찾기 삭제 시작");
+		log.info("즐겨찾기 삭제 서비스 시작");
+		
 		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
-
+		
 		if(serverEntity ==null){
 			throw new Exception("해당 서버 없음");
 		}
@@ -79,11 +82,12 @@ public class FavoriteServiceImpl implements  FavoriteService{
 			throw new Exception("해당 유저 없음");
 		}
 
-		FavoriteEntity favoriteEntity = FavoriteEntity.builder()
-			.serverEntity(serverEntity)
-			.userEntity(userEntity)
-			.build();
+		log.info("user Seq : "+userSeq);
+		log.info("user Seq : "+serverSeq);
+
+		FavoriteEntity favoriteEntity = favoriteRepository.findAllByUserEntityAndServerEntity(userEntity,serverEntity);
 
 		favoriteRepository.delete(favoriteEntity);
+		log.info("즐겨찾기 삭제 서비스 끝");
 	}
 }

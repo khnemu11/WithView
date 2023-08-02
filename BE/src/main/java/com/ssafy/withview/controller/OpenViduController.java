@@ -56,7 +56,6 @@ public class OpenViduController {
 		Session session = openvidu.createSession(properties);
 		return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
 	}
-
 	/**
 	 * @param sessionId The Session in which to create the Connection
 	 * @param params    The Connection properties
