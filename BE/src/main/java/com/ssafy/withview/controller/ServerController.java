@@ -97,6 +97,10 @@ public class ServerController {
 	@PostMapping("")
 	public ResponseEntity<?> insertServer(@ModelAttribute ServerDto serverDto,@RequestParam(name = "file",required = false) MultipartFile multipartFile) {
 		System.out.println("====== 서버 추가 시작 ======");
+		System.out.println("====== 입력 서버 정보 ======");
+		System.out.println(serverDto);
+		System.out.println("====== 입력 파일 정보 ======");
+		System.out.println(multipartFile);
 		JSONObject result = new JSONObject();
 		try{
 			serverDto = serverService.insertServer(serverDto,multipartFile);
