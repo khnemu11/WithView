@@ -1,7 +1,6 @@
-package com.ssafy.withview.repository.dto;
+package com.ssafy.withview.dto;
 
-import com.ssafy.withview.repository.entity.ChannelEntity;
-import com.ssafy.withview.repository.entity.ServerEntity;
+import com.ssafy.withview.entity.ServerEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +22,7 @@ public class ServerDto {
 	private long hostSeq;
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
+	private boolean isFavorite;
 
 	public static ServerEntity toEntity(ServerDto serverDto){
 		if(serverDto == null){

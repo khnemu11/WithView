@@ -3,12 +3,17 @@ import { useNavigate } from "react-router-dom";
 import "../css/Signup.css";
 import axios from "axios";
 
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
+import Modal from "react-bootstrap/Modal";
+
 export default function Signup() {
   const [email, setEmail] = useState("");
   const [password1, setPassword1] = useState("");
-  const [id, setId] = useState("");
+  const [Id, setId] = useState("");
   const [password2, setPassword2] = useState("");
   const [nickname, setNickname] = useState("");
+  const [code,setCode] = useState("");
 
   const [checkPass, setCheckPass] = useState(false);
   const [checkID, setCheckID] = useState(false);
@@ -32,31 +37,59 @@ export default function Signup() {
   });
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const [buttonDisabled2, setButtonDisabled2] = useState(false);
+  const [buttonDisabled3, setButtonDisabled3] = useState(false);
+
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
 
   useEffect(() => {
     // 페이지 진입 시 페이지 전환 애니메이션 클래스 추가...
-    document.body.classList.remove("signup_transition-enter-active");
-    document.body.classList.add("signup_transition-enter");
+    document
+      .querySelector(".signup_signup")
+      .classList.remove("signup_transition-enter-active");
+    document
+      .querySelector(".signup_signup")
+      .classList.add("signup_transition-enter");
     // 페이지 진입 시 활성화 애니메이션 클래스 추가
 
     // 애니메이션이 끝난 후에 활성화 애니메이션 클래스 제거
     setTimeout(() => {
-      document.body.classList.remove("signup_transition-enter");
-      document.body.classList.add("signup_transition-enter-active");
+      document
+        .querySelector(".signup_signup")
+        .classList.remove("signup_transition-enter");
+      document
+        .querySelector(".signup_signup")
+        .classList.add("signup_transition-enter-active");
     }, 100); // 애니메이션 시간과 일치하는 시간으로 설정 (0.3초)
   }, []);
 
   useEffect(() => {
     // 아이디 필드가 변경되었을 때 실행되는 함수
-    if (id === "" || idLabel === "아이디를 다시한번 확인해주세요!") {
+    if (Id === "" || idLabel === "아이디를 다시한번 확인해주세요!") {
       setButtonDisabled(true); // 아이디 빈칸 또는 유효성 검사 실패 시 버튼 비활성화
-    } else {
+      
+    }
+    else if (checkID) {
+      setIdLabel("중복 확인 완료!")
+      setIdLabelColor({ color: "lightgreen" });
+    }
+    else {
       setButtonDisabled(false); // 그 외의 경우 버튼 활성화
     }
-  }, [id, idLabel]);
+
+  }, [Id, idLabel, checkID]);
 
   useEffect(() => {
-    if (!checkPass || !checkPass2 || !checkNickname) {
+    if(checkEmail){
+      setButtonDisabled3(false)
+      setCheckEmail(false)
+    }
+  }, [email]);
+
+  useEffect(() => {
+    if (!checkPass || !checkPass2 || !checkNickname || !checkEmail || !checkID) {
       setButtonDisabled2(true);
     } else {
       setButtonDisabled2(false);
@@ -84,17 +117,53 @@ export default function Signup() {
   }, [password1, password2]);
 
   const navigate = useNavigate();
-  const url = "https://i9d208.p.ssafy.io/:9091/api/";
+  const url = "https://i9d208.p.ssafy.io/api";
+
+  const validateMail = (e) => {
+    e.preventDefault();
+    axios({
+      method: "GET",
+      url: `${url}/users/email/validate?email=${email}`,
+    })
+    .then((res) => {
+      console.log(res.data);
+      handleShow();
+    })
+    .catch((err) => {
+      console.log(err);
+      if (err.response && err.response.status === 409){
+        alert("이 Email로 가입한 계정이 존재합니다!!")
+      }
+    });
+  };
+
+  const authenticateCode = (e) => {
+    e.preventDefault()
+    axios({
+      method : 'GET',
+      url : `${url}/users/email/authenticate?email=${email}&code=${code}`
+    })
+    .then((res)=>{
+      console.log(res.data)
+      alert('인증완료!!')
+      setCheckEmail(true)
+      setButtonDisabled3(true)
+      handleClose()
+    })
+    .catch((err)=>{
+      console.log(err)
+    })
+  }
 
   const checkSignUp = (e) => {
     e.preventDefault();
     axios({
       method: "POST",
       url: `${url}/users`,
-      data: { id, password1, nickname, email },
+      data: { id : Id, email : email, password : password1, nickname : nickname },
     })
       .then((res) => {
-        console.log(res);
+        console.log(res.data);
         navigate("/login");
       })
       .catch((err) => {
@@ -108,15 +177,19 @@ export default function Signup() {
     e.preventDefault();
     axios({
       method: "GET",
-      url: `${url}/users/check-id`,
-      data: { id },
+      url: `${url}/users/check-id?id=${Id}`,
     })
       .then((res) => {
-        console.log(res);
+        console.log(res.data);
         setCheckID(true);
       })
       .catch((err) => {
         console.log(err);
+        if (err.response && err.response.status === 409){
+          setIdLabel("이미 존재하는 id입니다!!")
+          setIdLabelColor({ color: "red" });
+        }
+        
       });
   };
 
@@ -136,7 +209,7 @@ export default function Signup() {
                   <input
                     type="text"
                     className="input signup_id_email_input"
-                    value={id}
+                    value={Id}
                     placeholder="5~20자, 영어와 숫자만 가능, 빈칸 X"
                     onChange={(e) => {
                       setId(e.target.value);
@@ -150,9 +223,12 @@ export default function Signup() {
                       ) {
                         setIdLabel("아이디를 다시한번 확인해주세요!");
                         setIdLabelColor({ color: "red" });
-                      } else {
+                        setCheckID(false)
+                      }
+                      else {
                         setIdLabel("중복 확인 가능!");
                         setIdLabelColor({ color: "#80C4FF" });
+                        setCheckID(false)
                       }
                     }}
                   />
@@ -178,9 +254,43 @@ export default function Signup() {
                       setEmail(e.target.value);
                     }}
                   />
-                  <button className="button signup_inputs_buttons">
+                  <Button
+                    className="signup_inputs_buttons"
+                    onClick={validateMail}
+                    disabled = {buttonDisabled3}
+                  >
                     인증메일발송
-                  </button>
+                  </Button>
+
+                  <Modal show={show} onHide={handleClose}>
+                    <Modal.Header closeButton>
+                      <Modal.Title>인증번호를 발송했어요!</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                      <Form>
+                        <Form.Group
+                          className="mb-3"
+                          controlId="exampleForm.ControlInput1"
+                        >
+                          <Form.Label>인증번호</Form.Label>
+                          <Form.Control
+                            type="number"
+                            placeholder="인증번호를 입력해주세요!"
+                            autoFocus
+                            onChange={(e)=>{setCode(e.target.value)}}
+                          />
+                        </Form.Group>
+                      </Form>
+                    </Modal.Body>
+                    <Modal.Footer>
+                      <Button variant="secondary" onClick={handleClose}>
+                        뒤로가기
+                      </Button>
+                      <Button variant="primary" onClick={authenticateCode}>
+                        인증
+                      </Button>
+                    </Modal.Footer>
+                  </Modal>
                 </div>
               </div>
 

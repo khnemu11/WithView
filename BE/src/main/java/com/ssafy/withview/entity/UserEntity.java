@@ -1,4 +1,4 @@
-package com.ssafy.withview.repository.entity;
+package com.ssafy.withview.entity;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -13,12 +13,11 @@ import javax.persistence.Table;
 
 import org.springframework.data.annotation.CreatedDate;
 
-import com.ssafy.withview.repository.dto.UserDto;
+import com.ssafy.withview.dto.UserDto;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Getter
 @Entity
@@ -41,8 +40,11 @@ public class UserEntity {
 	private LocalDate createTime;
 	private LocalDate deleteTime;
 
-	@OneToMany(mappedBy = "serverEntity")
-	private List<UserServerEntity> servers = new ArrayList<>();
+	@OneToMany(mappedBy = "userEntity")
+	private List<UserServerEntity> userServerEntityList = new ArrayList<>();
+
+	@OneToMany(mappedBy = "userEntity")
+	private List<FavoriteEntity> favoriteEntityList = new ArrayList<>();
 
 	@Builder
 	public UserEntity(String id, String nickname, String realName, String telephone, String address, String email,
