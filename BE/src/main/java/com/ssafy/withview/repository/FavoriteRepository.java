@@ -6,9 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.ssafy.withview.entity.FavoriteEntity;
+import com.ssafy.withview.entity.ServerEntity;
 import com.ssafy.withview.entity.UserEntity;
 
 @Repository
 public interface FavoriteRepository extends JpaRepository<FavoriteEntity,Long> {
 	public List<FavoriteEntity> findAllByUserEntity(UserEntity userEntity);
+	public FavoriteEntity findAllByUserEntityAndServerEntity(UserEntity userEntity, ServerEntity serverEntity);
 }
