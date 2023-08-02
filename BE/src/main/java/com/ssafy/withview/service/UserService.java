@@ -25,7 +25,7 @@ public class UserService {
 	 * login table 정보 저장 (아이디, 비밀번호, 권한, user table 의 pk 값)
 	 * user table 정보 버장 (아이디, 닉네임, 이메일)
 	 * @param joinDto (아이디, 비밀번호, 닉네임, 이메일)
-	 * @return 회원가입을
+	 * @return login table 의 seq (pk 값)
 	 */
 	@Transactional
 	public Long join(JoinDto joinDto) {
