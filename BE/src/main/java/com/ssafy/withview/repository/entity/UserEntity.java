@@ -18,7 +18,6 @@ import com.ssafy.withview.repository.dto.UserDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Getter
 @Entity
@@ -36,6 +35,7 @@ public class UserEntity {
 	private String address;
 	private String profileImgSearchName;
 	private String profileImgOriginalName;
+	private String profileMsg;
 
 	@CreatedDate
 	private LocalDate createTime;
@@ -46,7 +46,8 @@ public class UserEntity {
 
 	@Builder
 	public UserEntity(String id, String nickname, String realName, String telephone, String address, String email,
-		String profileImgSearchName, String profileImgOriginalName, LocalDate createTime, LocalDate deleteTime) {
+		String profileImgSearchName, String profileImgOriginalName, String profileMsg, LocalDate createTime,
+		LocalDate deleteTime) {
 		this.id = id;
 		this.nickname = nickname;
 		this.realName = realName;
@@ -55,6 +56,7 @@ public class UserEntity {
 		this.email = email;
 		this.profileImgSearchName = profileImgSearchName;
 		this.profileImgOriginalName = profileImgOriginalName;
+		this.profileMsg = profileMsg;
 		this.createTime = createTime;
 		this.deleteTime = deleteTime;
 	}
@@ -73,6 +75,7 @@ public class UserEntity {
 			.email(userEntity.getEmail())
 			.profileImgSearchName(userEntity.getProfileImgSearchName())
 			.profileImgOriginalName(userEntity.getProfileImgOriginalName())
+			.profileMsg(userEntity.getProfileMsg())
 			.createTime(userEntity.getCreateTime())
 			.deleteTime(userEntity.getDeleteTime())
 			.build();
