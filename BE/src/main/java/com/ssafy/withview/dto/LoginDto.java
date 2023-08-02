@@ -1,4 +1,4 @@
-package com.ssafy.withview.repository.dto;
+package com.ssafy.withview.dto;
 
 import lombok.*;
 

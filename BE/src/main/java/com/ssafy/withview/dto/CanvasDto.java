@@ -1,7 +1,7 @@
-package com.ssafy.withview.repository.dto;
+package com.ssafy.withview.dto;
 
-import com.ssafy.withview.repository.entity.CanvasEntity;
-import com.ssafy.withview.repository.entity.ServerEntity;
+import com.ssafy.withview.entity.CanvasEntity;
+
 import lombok.*;
 
 @Getter
