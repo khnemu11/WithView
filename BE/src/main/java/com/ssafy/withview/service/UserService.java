@@ -12,12 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.ssafy.withview.dto.JoinDto;
+import com.ssafy.withview.dto.UserDto;
+import com.ssafy.withview.entity.LoginEntity;
+import com.ssafy.withview.entity.UserEntity;
 import com.ssafy.withview.repository.LoginRepository;
 import com.ssafy.withview.repository.UserRepository;
-import com.ssafy.withview.repository.dto.JoinDto;
-import com.ssafy.withview.repository.dto.UserDto;
-import com.ssafy.withview.repository.entity.LoginEntity;
-import com.ssafy.withview.repository.entity.UserEntity;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

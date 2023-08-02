@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ssafy.withview.dto.JoinDto;
+import com.ssafy.withview.dto.UserDto;
 import com.ssafy.withview.exception.DuplicateException;
 import com.ssafy.withview.exception.InvalidVerificationCodeException;
-import com.ssafy.withview.repository.dto.JoinDto;
-import com.ssafy.withview.repository.dto.UserDto;
 import com.ssafy.withview.service.EmailService;
 import com.ssafy.withview.service.UserService;
 
