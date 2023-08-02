@@ -2,6 +2,7 @@ package com.ssafy.withview.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.ssafy.withview.repository.ChannelRepository;
+import com.ssafy.withview.repository.FavoriteRepository;
 import com.ssafy.withview.repository.ServerRepository;
 import com.ssafy.withview.repository.UserRepository;
 import com.ssafy.withview.repository.UserServerRepository;
@@ -28,10 +29,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ServerServiceImpl implements ServerService {
 	private final ServerRepository serverRepository;
-	private final ChannelRepository channelRepository;
 	private final UserServerRepository userServerRepository;
 	private final UserRepository userRepository;
-	private final ResourceLoader resourceLoader;
 	private final AmazonS3 s3client;
 
 	@Value(value="${cloud.aws.s3.bucket}")
@@ -138,7 +137,6 @@ public class ServerServiceImpl implements ServerService {
 
 	@Override
 	public ServerDto findServerBySeq(long serverSeq) {
-
 		return ServerEntity.toDto(serverRepository.findBySeq(serverSeq));
 	}
 
