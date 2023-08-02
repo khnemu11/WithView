@@ -41,8 +41,11 @@ public class UserEntity {
 	private LocalDate createTime;
 	private LocalDate deleteTime;
 
-	@OneToMany(mappedBy = "serverEntity")
-	private List<UserServerEntity> servers = new ArrayList<>();
+	@OneToMany(mappedBy = "userEntity")
+	private List<UserServerEntity> userServerEntityList = new ArrayList<>();
+
+	@OneToMany(mappedBy = "userEntity")
+	private List<FavoriteEntity> favoriteEntityList = new ArrayList<>();
 
 	@Builder
 	public UserEntity(String id, String nickname, String realName, String telephone, String address, String email,

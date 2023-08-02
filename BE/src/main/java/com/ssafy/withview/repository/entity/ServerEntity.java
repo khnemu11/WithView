@@ -36,6 +36,10 @@ public class ServerEntity {
 	@OneToMany(mappedBy="serverEntity", cascade = CascadeType.REMOVE)
 	private List<ChannelEntity> channelEntityList = new ArrayList<>();
 
+	@OneToMany(mappedBy="serverEntity",cascade = CascadeType.REMOVE)
+	private List<FavoriteEntity> favoriteEntityList = new ArrayList<>();
+
+
 	@Builder
 	public ServerEntity(String name, int limitChannel, long hostSeq, String backgroundImgSearchName, String backgroundImgOriginalName) {
 		this.name = name;
