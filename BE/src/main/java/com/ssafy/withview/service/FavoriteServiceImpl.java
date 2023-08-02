@@ -51,10 +51,16 @@ public class FavoriteServiceImpl implements  FavoriteService{
 			throw new Exception("해당 유저 없음");
 		}
 
-		FavoriteEntity favoriteEntity = FavoriteEntity.builder()
-									.serverEntity(serverEntity)
-									.userEntity(userEntity)
-									.build();
+		FavoriteEntity favoriteEntity = favoriteRepository.findAllByUserEntityAndServerEntity(userEntity,serverEntity);
+
+		if(favoriteEntity !=null){
+			throw new Exception("이미 즐겨찾기에 등록됨");
+		}
+
+		favoriteEntity = FavoriteEntity.builder()
+						.serverEntity(serverEntity)
+						.userEntity(userEntity)
+						.build();
 
 		favoriteRepository.save(favoriteEntity);
 	}
