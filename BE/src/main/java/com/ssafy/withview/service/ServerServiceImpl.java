@@ -120,7 +120,6 @@ public class ServerServiceImpl implements ServerService {
 			String extend = originalName.substring(originalName.lastIndexOf('.'));
 			UUID uuid = UUID.randomUUID();
 			String backgroundImgSearchName = uuid.toString()+extend;
-
 			// #4 - 파일 임시 저장
 			backgroundImgSearchName = uuid.toString()+extend;
 			File backgroundImgFile = File.createTempFile(uuid.toString(),extend);

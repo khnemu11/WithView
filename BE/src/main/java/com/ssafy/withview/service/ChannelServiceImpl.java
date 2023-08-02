@@ -89,10 +89,10 @@ public class ChannelServiceImpl implements ChannelService{
 			// #4 - 파일 임시 저장
 			//파일이 있으면 임시 파일 저장
 			if(multipartFile!=null){
-				backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),backgroundImgSearchName);
+				backgroundImgFile = new File(resourceLoader.getResource("classpath:/resources/img/").getFile().getAbsolutePath(),backgroundImgSearchName);
 				multipartFile.transferTo(backgroundImgFile);
 			}else{
-				backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),originalName);
+				backgroundImgFile = new File(resourceLoader.getResource("classpath:/resources/img/").getFile().getAbsolutePath(),originalName);
 			}
 			// #5 - 이미지 서버 저장
 			s3client.putObject(bucketName, IMG_PREFIX+backgroundImgSearchName, backgroundImgFile);
@@ -138,7 +138,7 @@ public class ChannelServiceImpl implements ChannelService{
 			String backgroundImgSearchName = uuid.toString()+extend;
 
 			// #4 - 파일 임시 저장
-			File backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),backgroundImgSearchName);
+			File backgroundImgFile = new File(resourceLoader.getResource("classpath:/resources/img/").getFile().getAbsolutePath(),backgroundImgSearchName);
 			multipartFile.transferTo(backgroundImgFile);
 
 			// #5 - 이미지 서버 저장
@@ -146,7 +146,7 @@ public class ChannelServiceImpl implements ChannelService{
 
 			// #6 - DB 저장
 			channelDto.setBackgroundImgSearchName(uuid.toString()+extend);
-			backgroundImgFile.delete();	//기존 임시 저장용 파일 삭제
+			boolean delete = backgroundImgFile.delete();	//기존 임시 저장용 파일 삭제
 		}
 
 		channelEntity.update(channelDto);
