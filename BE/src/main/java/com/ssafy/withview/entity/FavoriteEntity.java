@@ -1,4 +1,4 @@
-package com.ssafy.withview.repository.entity;
+package com.ssafy.withview.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -9,17 +9,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.apache.catalina.Server;
-import org.springframework.data.mongodb.core.mapping.Document;
-
-import com.ssafy.withview.repository.dto.CanvasDto;
-import com.ssafy.withview.repository.dto.FavoriteDto;
-import com.ssafy.withview.repository.dto.ServerDto;
+import com.ssafy.withview.dto.FavoriteDto;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Getter
 @NoArgsConstructor

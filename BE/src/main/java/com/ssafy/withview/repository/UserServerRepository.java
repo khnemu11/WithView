@@ -1,8 +1,8 @@
 package com.ssafy.withview.repository;
 
-import com.ssafy.withview.repository.entity.ServerEntity;
-import com.ssafy.withview.repository.entity.UserEntity;
-import com.ssafy.withview.repository.entity.UserServerEntity;
+import com.ssafy.withview.entity.ServerEntity;
+import com.ssafy.withview.entity.UserEntity;
+import com.ssafy.withview.entity.UserServerEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

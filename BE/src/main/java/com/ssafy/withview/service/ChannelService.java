@@ -1,9 +1,7 @@
 package com.ssafy.withview.service;
 
-import com.ssafy.withview.repository.dto.ChannelDto;
-import com.ssafy.withview.repository.dto.ServerDto;
-import com.ssafy.withview.repository.entity.ServerEntity;
-import org.json.simple.JSONObject;
+import com.ssafy.withview.dto.ChannelDto;
+
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;

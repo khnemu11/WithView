@@ -20,8 +20,8 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.ssafy.withview.config.jwt.JwtProperties;
 import com.ssafy.withview.repository.RefreshTokenRepository;
-import com.ssafy.withview.repository.dto.JwtDto;
-import com.ssafy.withview.repository.entity.RefreshTokenEntity;
+import com.ssafy.withview.dto.JwtDto;
+import com.ssafy.withview.entity.RefreshTokenEntity;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;

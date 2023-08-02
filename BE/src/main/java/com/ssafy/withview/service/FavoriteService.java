@@ -2,9 +2,7 @@ package com.ssafy.withview.service;
 
 import java.util.List;
 
-import com.ssafy.withview.repository.dto.CanvasDto;
-import com.ssafy.withview.repository.dto.FavoriteDto;
-import com.ssafy.withview.repository.dto.ServerDto;
+import com.ssafy.withview.dto.ServerDto;
 
 public interface FavoriteService {
 	public List<ServerDto> findAllFavoriteByUserSeq(Long userSeq);

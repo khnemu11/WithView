@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.withview.repository.UserRepository;
-import com.ssafy.withview.repository.dto.LoginDto;
-import com.ssafy.withview.repository.dto.UserDto;
-import com.ssafy.withview.repository.entity.UserEntity;
+import com.ssafy.withview.dto.LoginDto;
+import com.ssafy.withview.dto.UserDto;
+import com.ssafy.withview.entity.UserEntity;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -16,11 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ssafy.withview.repository.dto.ChannelDto;
-import com.ssafy.withview.repository.dto.ServerDto;
-import com.ssafy.withview.repository.dto.UserDto;
+import com.ssafy.withview.dto.ChannelDto;
 import com.ssafy.withview.service.ChannelService;
-import com.ssafy.withview.service.ServerService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

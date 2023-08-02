@@ -3,17 +3,15 @@ package com.ssafy.withview.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 import com.ssafy.withview.repository.FavoriteRepository;
 import com.ssafy.withview.repository.ServerRepository;
 import com.ssafy.withview.repository.UserRepository;
-import com.ssafy.withview.repository.dto.FavoriteDto;
-import com.ssafy.withview.repository.dto.ServerDto;
-import com.ssafy.withview.repository.entity.FavoriteEntity;
-import com.ssafy.withview.repository.entity.ServerEntity;
-import com.ssafy.withview.repository.entity.UserEntity;
+import com.ssafy.withview.dto.ServerDto;
+import com.ssafy.withview.entity.FavoriteEntity;
+import com.ssafy.withview.entity.ServerEntity;
+import com.ssafy.withview.entity.UserEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

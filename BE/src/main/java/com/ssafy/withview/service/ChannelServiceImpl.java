@@ -3,15 +3,13 @@ package com.ssafy.withview.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.ssafy.withview.repository.ChannelRepository;
 import com.ssafy.withview.repository.ServerRepository;
-import com.ssafy.withview.repository.dto.ChannelDto;
-import com.ssafy.withview.repository.dto.ServerDto;
-import com.ssafy.withview.repository.entity.ChannelEntity;
-import com.ssafy.withview.repository.entity.ServerEntity;
+import com.ssafy.withview.dto.ChannelDto;
+import com.ssafy.withview.entity.ChannelEntity;
+import com.ssafy.withview.entity.ServerEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.io.FileUtils;
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,6 @@
 package com.ssafy.withview.service;
 
-import com.ssafy.withview.repository.dto.CanvasDto;
+import com.ssafy.withview.dto.CanvasDto;
 
 public interface CanvasService {
 	public void insertCanvas(CanvasDto canvasDto);

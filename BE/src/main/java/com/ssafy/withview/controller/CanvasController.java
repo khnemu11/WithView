@@ -1,30 +1,15 @@
 package com.ssafy.withview.controller;
 
-import com.ssafy.withview.repository.CanvasRepository;
-import com.ssafy.withview.repository.dto.CanvasDto;
-import com.ssafy.withview.repository.dto.JwtDto;
-import com.ssafy.withview.repository.dto.LoginDto;
-import com.ssafy.withview.repository.dto.UserDto;
-import com.ssafy.withview.repository.entity.CanvasEntity;
+import com.ssafy.withview.dto.CanvasDto;
 import com.ssafy.withview.service.CanvasService;
-import com.ssafy.withview.service.JwtService;
-import com.ssafy.withview.service.LoginService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.json.simple.JSONObject;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.transaction.Transactional;
 
 @RestController
 @RequestMapping("/api/canvas")
