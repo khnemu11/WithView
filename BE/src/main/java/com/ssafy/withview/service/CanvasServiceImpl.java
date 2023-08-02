@@ -1,8 +1,8 @@
 package com.ssafy.withview.service;
 
 import com.ssafy.withview.repository.CanvasRepository;
-import com.ssafy.withview.repository.dto.CanvasDto;
-import com.ssafy.withview.repository.entity.CanvasEntity;
+import com.ssafy.withview.dto.CanvasDto;
+import com.ssafy.withview.entity.CanvasEntity;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.withview.exception.DuplicateException;
 import com.ssafy.withview.exception.InvalidVerificationCodeException;
-import com.ssafy.withview.repository.dto.JoinDto;
+import com.ssafy.withview.dto.JoinDto;
 import com.ssafy.withview.service.EmailService;
 import com.ssafy.withview.service.UserService;
 

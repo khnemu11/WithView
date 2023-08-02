@@ -1,7 +1,6 @@
-package com.ssafy.withview.repository.dto;
+package com.ssafy.withview.dto;
 
-import com.ssafy.withview.repository.entity.ChannelEntity;
-import com.ssafy.withview.repository.entity.ServerEntity;
+import com.ssafy.withview.entity.ServerEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

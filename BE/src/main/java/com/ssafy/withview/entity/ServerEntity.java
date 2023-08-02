@@ -1,17 +1,12 @@
-package com.ssafy.withview.repository.entity;
+package com.ssafy.withview.entity;
 
 import javax.persistence.*;
 
-import com.ssafy.withview.repository.dto.ServerDto;
+import com.ssafy.withview.dto.ServerDto;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
-import org.apache.catalina.User;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +30,10 @@ public class ServerEntity {
 
 	@OneToMany(mappedBy="serverEntity", cascade = CascadeType.REMOVE)
 	private List<ChannelEntity> channelEntityList = new ArrayList<>();
+
+	@OneToMany(mappedBy="serverEntity",cascade = CascadeType.REMOVE)
+	private List<FavoriteEntity> favoriteEntityList = new ArrayList<>();
+
 
 	@Builder
 	public ServerEntity(String name, int limitChannel, long hostSeq, String backgroundImgSearchName, String backgroundImgOriginalName) {

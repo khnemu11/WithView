@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.ssafy.withview.repository.LoginRepository;
-import com.ssafy.withview.repository.entity.LoginEntity;
+import com.ssafy.withview.entity.LoginEntity;
 
 import lombok.RequiredArgsConstructor;
 
