@@ -80,4 +80,10 @@ public class UserEntity {
 			.deleteTime(userEntity.getDeleteTime())
 			.build();
 	}
+
+	public void updateProfile(String profileImgOriginalName, String profileImgSearchName, String profileMsg) {
+		this.profileImgOriginalName = profileImgOriginalName;
+		this.profileImgSearchName = profileImgSearchName;
+		this.profileMsg = profileMsg;
+	}
 }
