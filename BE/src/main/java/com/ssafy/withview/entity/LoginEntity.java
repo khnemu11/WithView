@@ -40,4 +40,8 @@ public class LoginEntity {
 		}
 		return new ArrayList<>();
 	}
+
+	public void updatePassword(String password) {
+		this.password = password;
+	}
 }

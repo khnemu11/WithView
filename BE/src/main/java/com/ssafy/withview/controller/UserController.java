@@ -220,7 +220,7 @@ public class UserController {
 	 * @param nickname (변경할 닉네임)
 	 * @return ResponseEntity(true / false, 상태코드, UserDto - 변경된 닉네임)
 	 */
-	@PutMapping("/{seq}")
+	@PutMapping("/{seq}/nickname")
 	public ResponseEntity<Map<String, Object>> updateNickName(@PathVariable(value = "seq") Long seq,
 		@RequestParam(value = "nickname") String nickname) {
 		log.info("UserController - updateNickName: 닉네임 변경");
@@ -234,6 +234,32 @@ public class UserController {
 			status = HttpStatus.OK;
 		} catch (Exception e) {
 			log.error("UserController - updateNickName: {}", e.getMessage());
+			resultMap.put("success", false);
+			resultMap.put("message", e.getMessage());
+			status = HttpStatus.INTERNAL_SERVER_ERROR;
+		}
+		return new ResponseEntity<>(resultMap, status);
+	}
+
+	/**
+	 * 마이페이지 - 비밀번호 변경
+	 * @param seq (변경할 유저 pk 값)
+	 * @param password (변경할 비밀번호)
+	 * @return ResponseEntity(true / false, 상태코드)
+	 */
+	@PutMapping("/{seq}/password")
+	public ResponseEntity<Map<String, Object>> updatePassword(@PathVariable(value = "seq") Long seq,
+		@RequestParam(value = "password") String password) {
+		log.info("UserController - updatePassword: 비밀번호 변경");
+		Map<String, Object> resultMap = new HashMap<>();
+		HttpStatus status;
+		try {
+			userService.updatePassword(seq, password);
+			log.info("UserController - updatePassword: 비밀번호 변경 완료");
+			resultMap.put("success", true);
+			status = HttpStatus.OK;
+		} catch (Exception e) {
+			log.error("UserController - updatePassword: {}", e.getMessage());
 			resultMap.put("success", false);
 			resultMap.put("message", e.getMessage());
 			status = HttpStatus.INTERNAL_SERVER_ERROR;

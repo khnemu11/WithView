@@ -159,4 +159,19 @@ public class UserService {
 			.nickname(userEntity.getNickname())
 			.build();
 	}
+
+	/**
+	 * 회원 정보 수정 - 비밀번호 변경
+	 * @param seq (변경할 유저 pk 값)
+	 * @param password (변경할 비밀번호)
+	 */
+	@Transactional
+	public void updatePassword(Long seq, String password) {
+		log.info("UserService - updatePassword 실행");
+
+		LoginEntity loginEntity = loginRepository.findBySeq(seq)
+			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
+
+		loginEntity.updatePassword(bCryptPasswordEncoder.encode(password));
+	}
 }
