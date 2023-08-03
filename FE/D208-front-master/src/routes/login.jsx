@@ -6,7 +6,7 @@ import "../css/Login.css";
 import axios from "axios";
 import withview from "../assets/withview.png";
 import { setUser } from "../redux/actions/userActions";
-import { Button } from 'react-bootstrap';
+
 
 
 
@@ -33,6 +33,33 @@ export default function Login() {
     }
   };
 
+  function setSessionCookie(name, value) {
+    // 쿠키 만료 시간을 현재 시간으로부터 1시간으로 설정합니다. (세션 쿠키로 만들기 위해 시간을 지정하지 않습니다.)
+    const expires = new Date(Date.now() + 3600000).toUTCString();
+  
+    // 쿠키를 생성합니다.
+    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+  }
+  
+  function getSessionCookie(name) {
+    // 쿠키를 읽어옵니다.
+    const cookies = document.cookie.split(";").map(cookie => cookie.trim());
+    for (const cookie of cookies) {
+      if (cookie.startsWith(`${name}=`)) {
+        return decodeURIComponent(cookie.substring(name.length + 1));
+      }
+    }
+    return null;
+  }
+
+  function deleteSessionCookie(name) {
+    // 쿠키를 삭제하려면 쿠키 만료 시간을 현재 시간으로 설정합니다.
+    const expires = new Date(0).toUTCString();
+    document.cookie = `${name}=; expires=${expires}; path=/`;
+  }
+
+  
+
   function checkLogin() {
     axios({
       method: "POST",
@@ -50,7 +77,8 @@ export default function Login() {
           // 토큰을 Redux로 저장
           dispatch(setToken(accessToken));
           dispatch(setUser(userInfo));
-          sessionStorage.setItem("refreshToken", refreshToken);
+          // refreshToken 저장하기
+          setSessionCookie("refreshToken", refreshToken);
           // 로비화면으로 이동
           navigate("/mainpage");
         } else {
@@ -76,7 +104,7 @@ export default function Login() {
 
               <div>
                 <label className="label login_label">
-                  이메일을 입력해주세요 !
+                  아이디를 입력해주세요 !
                 </label>
                 <input
                   type="text"
@@ -113,14 +141,14 @@ export default function Login() {
           </div>
 
           <div className="login_buttons">
-            <Button
+            <button
               className="button login_button"
               style={{ width: "55%", marginRight: "10px" }}
               onClick={checkLogin}
             >
               로그인
-            </Button>
-            <Button
+            </button>
+            <button
               className="button login_button"
               onClick={() => {
                 navigate("/signup");
@@ -128,7 +156,7 @@ export default function Login() {
               style={{ width: "25%", marginRight: "35px" }}
             >
               회원가입
-            </Button>
+            </button>
           </div>
 
           <div className="login_findes">
