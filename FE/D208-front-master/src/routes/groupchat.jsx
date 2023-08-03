@@ -136,8 +136,6 @@ export default function GroupChat() {
   //이미지 : img-로 시작
   //영상 : 이용자의 아이디
 
-  let CamOV; //오픈비두 변수
-  let ScreenOV; //오픈비두 변수
   // let session; //현재 채널 이름(오픈비두에선 채팅방 단위를 'session'이라고 부름)
   let videoContainer = document.querySelector("#video-container"); //오픈비두로 받은 영상을 담은 컨테이너
   let port = 9091; //백엔드 포트 번호
@@ -153,6 +151,9 @@ export default function GroupChat() {
   let socket = useRef(null);
   let camPublisherRef = useRef(null);
   let sharePublisherRef = useRef(null);
+  let screensharing = false;
+  let CamOV = useRef(null); //오픈비두 변수
+  let ScreenOV = useRef(null); //오픈비두 변수
 
   useEffect(() => {
     const container = document.getElementById("channel-screen");
@@ -418,30 +419,49 @@ export default function GroupChat() {
     socket.current.onopen = onOpen;
 
     // --- 1) Get an OpenVidu object ---
-    CamOV = new OpenVidu();
-    console.log(CamOV);
+    CamOV.current = new OpenVidu();
+    ScreenOV.current = new OpenVidu();
 
     // --- 2) Init a session ---
-    session.current = CamOV.initSession();
-    console.log(session.current);
+    session.current = CamOV.current.initSession();
+    sessionScreen.current = ScreenOV.current.initSession();
 
     // --- 3) Specify the actions when events take place in the session ---
     // On every new Stream received...
     session.current.on("streamCreated", (event) => {
-      console.log("세션 온");
+      console.log("카메라 세션 온");
       // Subscribe to the Stream to receive it. HTML video will be appended to element with 'video-container' id
-      let subscriber = session.current.subscribe(
-        event.stream,
-        "video-container"
-      );
+      if (event.stream.typeOfVideo == "CAMERA") {
+        let subscriber = session.current.subscribe(
+          event.stream,
+          "video-container"
+        );
 
-      // When the HTML video has been appended to DOM...
-      subscriber.on("videoElementCreated", (event) => {
-        console.log("접속자 비디오 생성");
-        // Add a new <p> element for the user's nickname just below its video
-        appendUserData(event.element, subscriber.stream.connection);
-        addVideoInCanvas(event.element, subscriber.stream.connection);
-      });
+        // When the HTML video has been appended to DOM...
+        subscriber.on("videoElementCreated", (event) => {
+          console.log("접속자 비디오 생성");
+          // Add a new <p> element for the user's nickname just below its video
+          appendUserData(event.element, subscriber.stream.connection);
+          addVideoInCanvas(event.element, subscriber.stream.connection);
+        });
+      }
+    });
+
+    sessionScreen.current.on("streamCreated", (event) => {
+      console.log("공유 세션 온");
+      if (event.stream.typeOfVideo == "SCREEN") {
+        // Subscribe to the Stream to receive it. HTML video will be appended to element with 'container-screens' id
+        var subscriberScreen = sessionScreen.subscribe(
+          event.stream,
+          "sharingScreen"
+        );
+        // When the HTML video has been appended to DOM...
+        subscriberScreen.on("videoElementCreated", (event) => {
+          console.log("공유 비디오 생성");
+          // Add a new <p> element for the user's nickname just below its video
+          appendUserData(event.element, subscriberScreen.stream.connection);
+        });
+      }
     });
 
     // On every Stream destroyed...
@@ -471,7 +491,7 @@ export default function GroupChat() {
           document.getElementById("session").style.display = "block";
 
           // --- 6) Get your own camera stream with the desired properties ---
-          let publisher = CamOV.initPublisher("video-container", {
+          let publisher = CamOV.current.initPublisher("video-container", {
             audioSource: undefined, // The source of audio. If undefined default microphone
             videoSource: undefined, // The source of video. If undefined default webcam
             publishAudio: true, // Whether you want to start publishing with your audio unmuted or not
@@ -489,7 +509,7 @@ export default function GroupChat() {
           // When our HTML video has been added to DOM...
           publisher.on("videoElementCreated", function (event) {
             console.log("내 비디오 시작");
-            // initMainVideo(event.element, myUserName);
+            initMainVideo(event.element, myUserName);
             appendUserData(event.element, myUserName);
             addVideoInCanvas(event.element, myUserName);
             event.element["muted"] = true;
@@ -509,6 +529,61 @@ export default function GroupChat() {
           );
         });
     });
+
+    getToken(mySessionId).then((tokenScreen) => {
+      // Create a token for screen share
+      sessionScreen.current
+        .connect(tokenScreen, { clientData: myUserName })
+        .then(() => {
+          document.getElementById("buttonScreenShare").style.visibility =
+            "visible";
+          console.log("Session screen connected");
+        })
+        .catch((error) => {
+          console.warn(
+            "There was an error connecting to the session for screen share:",
+            error.code,
+            error.message
+          );
+        });
+    });
+  }
+
+  function publishScreenShare() {
+    console.log(ScreenOV.current);
+    // --- 9.1) To create a publisherScreen set the property 'videoSource' to 'screen'
+    var publisherScreen = ScreenOV.current.initPublisher("sharingScreen", {
+      videoSource: "screen",
+      // audioSource: "false",
+    });
+    console.log(publisherScreen);
+
+    // --- 9.2) Publish the screen share stream only after the user grants permission to the browser
+    publisherScreen.once("accessAllowed", (event) => {
+      document.getElementById("buttonScreenShare").style.visibility = "hidden";
+      screensharing = true;
+      // If the user closes the shared window or stops sharing it, unpublish the stream
+      publisherScreen.stream
+        .getMediaStream()
+        .getVideoTracks()[0]
+        .addEventListener("ended", () => {
+          console.log('User pressed the "Stop sharing" button');
+          sessionScreen.unpublish(publisherScreen);
+          document.getElementById("buttonScreenShare").style.visibility =
+            "visible";
+          screensharing = false;
+        });
+      sessionScreen.publish(publisherScreen);
+    });
+
+    publisherScreen.on("videoElementCreated", function (event) {
+      appendUserData(event.element, sessionScreen.connection);
+      event.element["muted"] = true;
+    });
+
+    publisherScreen.once("accessDenied", (event) => {
+      console.error("Screen Share: Access Denied");
+    });
   }
 
   //오픈비두 예제함수
@@ -516,6 +591,7 @@ export default function GroupChat() {
   //꼭 필요함
   function leaveSession() {
     // --- 9) Leave the session by calling 'disconnect' method over the Session object ---
+    sessionScreen.current.disconnect();
     session.current.disconnect();
 
     // Removing all HTML elements with user's nicknames.
@@ -526,6 +602,7 @@ export default function GroupChat() {
     // Back to 'Join session' page
     document.getElementById("join").style.display = "block";
     document.getElementById("session").style.display = "none";
+    screensharing = false;
   }
 
   //오픈비두 예제함수
@@ -533,6 +610,7 @@ export default function GroupChat() {
   //꼭 필요함
   window.onbeforeunload = function () {
     if (session) session.current.disconnect();
+    if (session) sessionScreen.current.disconnect();
   };
 
   /* APPLICATION SPECIFIC METHODS */
@@ -555,10 +633,6 @@ export default function GroupChat() {
   //오픈비두 예제 함수
   //현재 참가자 데이터, 영상을 video-container에 넣는다.
   function appendUserData(videoElement, connection) {
-    console.log("videoElement");
-    console.log(videoElement);
-    console.log("connection");
-    console.log(connection);
     var userData;
     var nodeId;
     if (typeof connection === "string") {
@@ -573,7 +647,7 @@ export default function GroupChat() {
     dataNode.id = "data-" + nodeId;
     dataNode.innerHTML = "<p>" + userData + "</p>";
     videoElement.parentNode.insertBefore(dataNode, videoElement.nextSibling);
-    // addClickListener(videoElement, userData);
+    addClickListener(videoElement, userData);
     console.log("data clear");
   }
 
@@ -745,48 +819,6 @@ export default function GroupChat() {
     }
   }
 
-  // //오픈비두 기본 함수
-  // //특정 비디오를 클릭하면 해당 비디오가 메인 화면으로 가지는 함수
-  // //사용 안함
-  // function addClickListener(videoElement, userData) {
-  //   console.log("add click");
-  //   console.log(videoElement.srcObject);
-  //   videoElement.addEventListener("click", function () {
-  //     var mainVideo = $("#main-video video").get(0);
-  //     if (mainVideo.srcObject !== videoElement.srcObject) {
-  //       $("#main-video").fadeOut("fast", () => {
-  //         $("#main-video p").html(userData);
-  //         mainVideo.srcObject = videoElement.srcObject;
-  //         $("#main-video").fadeIn("fast");
-  //       });
-  //     }
-  //   });
-  // }
-  // //오픈비두 기본 함수
-  // //메인화면 초기화 하는 함수
-  // //사용 안함
-  // function initMainVideo(videoElement, userData) {
-  //   document.querySelector("#main-video video").srcObject =
-  //     videoElement.srcObject;
-  //   document.querySelector("#main-video p").innerHTML = userData;
-  //   document.querySelector("#main-video video")["muted"] = true;
-  // }
-
-  /**
-   * --------------------------------------------
-   * GETTING A TOKEN FROM YOUR APPLICATION SERVER
-   * --------------------------------------------
-   * The methods below request the creation of a Session and a Token to
-   * your application server. This keeps your OpenVidu deployment secure.
-   *
-   * In this sample code, there is no user control at all. Anybody could
-   * access your application server endpoints! In a real production
-   * environment, your application server must identify the user to allow
-   * access to the endpoints.
-   *
-   * Visit https://docs.openvidu.io/en/stable/application-server to learn
-   * more about the integration of OpenVidu in your application server.
-   */
   //오픈비두 기본 함수
   //최초 접속 시 채팅방에 연결하기 위한 정보(채널, 서버 정보)를 가져오는 함수
   function getToken(mySessionId) {
@@ -824,6 +856,26 @@ export default function GroupChat() {
       .then((response) => response.data)
       .catch((error) => Promise.reject(error));
   };
+
+  function addClickListener(videoElement, userData) {
+    videoElement.addEventListener("click", function () {
+      var mainVideo = $("#main-video video").get(0);
+      if (mainVideo.srcObject !== videoElement.srcObject) {
+        $("#main-video").fadeOut("fast", () => {
+          $("#main-video p").html(userData);
+          mainVideo.srcObject = videoElement.srcObject;
+          $("#main-video").fadeIn("fast");
+        });
+      }
+    });
+  }
+
+  function initMainVideo(videoElement, userData) {
+    document.querySelector("#main-video video").srcObject =
+      videoElement.srcObject;
+    document.querySelector("#main-video p").innerHTML = userData;
+    document.querySelector("#main-video video")["muted"] = true;
+  }
 
   //버튼을 누르면 이미지가 생성되는 함수
   function stickertemp() {
@@ -874,152 +926,156 @@ export default function GroupChat() {
     };
   }
 
-  // 화면 공유 기능을 시작하는 함수
-  function startScreenSharing() {
-    ScreenOV = new OpenVidu();
-    console.log("공유 시작 !");
-    let myUserName = document.getElementById("userName").value;
-    sessionScreen.current = ScreenOV.initSession();
+  // // 화면 공유 기능을 시작하는 함수
+  // function startScreenSharing() {
+  //   ScreenOV = new OpenVidu();
+  //   console.log("공유 시작 !");
+  //   let myUserName = document.getElementById("userName").value;
+  //   let shareSessionId = "share" + document.getElementById("sessionId").value;
 
-    // // 토큰을 받아온 후 세션에 연결하는 함수
-    getToken().then((token) => {
-      console.log("session on");
-      console.log(token);
-      // 세션에 연결
-      sessionScreen.current
-        .connect(token, { clientData: myUserName + "share" })
-        .then(() => {
-          // 화면 공유를 위한 Publisher를 초기화
-          let screenPublisher = ScreenOV.initPublisher("sharingScreen", {
-            videoSource: "screen",
-          });
-          console.log("share");
-          console.log(screenPublisher);
-          sharePublisherRef.current = screenPublisher;
+  //   sessionScreen.current = ScreenOV.initSession();
+  //   console.log(sessionScreen.current);
 
-          // 사용자가 화면 공유에 대한 접근 권한을 허용할 경우 이벤트 처리
-          screenPublisher.once("accessAllowed", () => {
-            console.log("good!");
-            // 화면 공유 시작 후, 사용자가 "Stop sharing" 버튼을 눌렀을 때의 이벤트 처리
-            screenPublisher.stream
-              .getMediaStream()
-              .getVideoTracks()[0]
-              .addEventListener("ended", () => {
-                console.log('User pressed the "Stop sharing" button');
-              });
+  //   // // 토큰을 받아온 후 세션에 연결하는 함수
+  //   getToken(shareSessionId).then((token) => {
+  //     console.log("session on");
+  //     console.log(token);
+  //     // 세션에 연결
+  //     sessionScreen.current
+  //       .connect(token, { clientData: myUserName + "share" })
+  //       .then(() => {
+  //         // 화면 공유를 위한 Publisher를 초기화
+  //         let screenPublisher = ScreenOV.initPublisher("sharingScreen", {
+  //           videoSource: "screen",
+  //         });
+  //         console.log("share");
+  //         console.log(screenPublisher);
+  //         sharePublisherRef.current = screenPublisher;
 
-            // Publisher를 세션에 발행하여 화면 공유 시작
-            sessionScreen.current.publish(screenPublisher);
-            screenPublisher.on("videoElementCreated", function (event) {
-              console.log("내 비디오 시작");
-              // initMainVideo(event.element, myUserName);
-              appendUserData(event.element, myUserName);
-              addScreenInCanvas(event.element, myUserName);
-              event.element["muted"] = true;
-            });
-            console.log(session.current);
-          });
+  //         // 사용자가 화면 공유에 대한 접근 권한을 허용할 경우 이벤트 처리
+  //         screenPublisher.once("accessAllowed", () => {
+  //           console.log("good!");
+  //           // 화면 공유 시작 후, 사용자가 "Stop sharing" 버튼을 눌렀을 때의 이벤트 처리
+  //           screenPublisher.stream
+  //             .getMediaStream()
+  //             .getVideoTracks()[0]
+  //             .addEventListener("ended", () => {
+  //               console.log('User pressed the "Stop sharing" button');
+  //             });
 
-          // 사용자가 화면 공유에 대한 접근 권한을 거부할 경우 이벤트 처리
-          screenPublisher.once("accessDenied", () => {
-            console.warn("ScreenShare: Access Denied");
-          });
-        })
-        .catch((error) => {
-          console.warn(
-            "There was an error connecting to the session:",
-            error.code,
-            error.message
-          );
-        });
-    });
-  }
+  //           // Publisher를 세션에 발행하여 화면 공유 시작
+  //           sessionScreen.current.publish(screenPublisher);
+  //           screenPublisher.on("videoElementCreated", function (event) {
+  //             console.log("내 공유 비디오 시작");
+  //             // initMainVideo(event.element, myUserName);
+  //             appendUserData(event.element, myUserName);
+  //             addScreenInCanvas(event.element, myUserName);
+  //             event.element["muted"] = true;
+  //           });
+  //           console.log(sessionScreen.current);
+  //         });
 
-  function addScreenInCanvas(videoElement, connection) {
-    console.log("video in canvas");
-    var connectionId = connection;
+  //         // 사용자가 화면 공유에 대한 접근 권한을 거부할 경우 이벤트 처리
+  //         screenPublisher.once("accessDenied", () => {
+  //           console.warn("ScreenShare: Access Denied");
+  //         });
+  //       })
+  //       .catch((error) => {
+  //         console.warn(
+  //           "There was an error connecting to the session:",
+  //           error.code,
+  //           error.message
+  //         );
+  //       });
+  //   });
+  // }
 
-    //자기 자신의 영상의 커넥션 아이디 : 로그인한 유저 닉네임
-    //다른사람의 커넥션 아이디 : 커넥션 고유 번호
-    //자기 자신인 경우
-    //비디오 영상 레이어 꺼내기
-    let layer = stage.current.children[1];
+  // function addScreenInCanvas(videoElement, connection) {
+  //   console.log("video in canvas");
+  //   var connectionId = connection;
 
-    //비디오 영상 초기 디자인
-    var video;
-    console.log("connectionId");
-    console.log(connectionId);
-    console.log("layer");
-    console.log(layer);
+  //   //자기 자신의 영상의 커넥션 아이디 : 로그인한 유저 닉네임
+  //   //다른사람의 커넥션 아이디 : 커넥션 고유 번호
+  //   //자기 자신인 경우
+  //   //비디오 영상 레이어 꺼내기
+  //   let layer = stage.current.children[1];
 
-    //자기 자신영상인 경우
-    if (typeof connection === "string") {
-      connectionId = connection;
-    }
-    //다른 사람인 경우
-    else {
-      //다른사람의 로그인 유저 닉네임은 비디오 컨테이너의 data- 중 p태그에 있다
-      connectionId = document.querySelector(
-        "#data-" + connection.connectionId + " p"
-      ).textContent;
-      console.log(connectionId);
-    }
-    //이미 채널에 참가한 사람의 영상인지 아닌지 비디오 레이어에서 찾는 코드
-    let remoteVideo = remoteVideoLayer.find("#" + connectionId);
+  //   //비디오 영상 초기 디자인
+  //   var video;
+  //   console.log("connectionId");
+  //   console.log(connectionId);
+  //   console.log("layer");
+  //   console.log(layer);
 
-    //자기 자신인 경우
-    if (remoteVideo.length == 0) {
-      video = new Konva.Image({
-        x: 10,
-        y: 10,
-        width: 300,
-        height: 300,
-        image: videoElement,
-        draggable: true,
-        id: connectionId, //수정하면 안됨!!
-      });
-    }
+  //   //자기 자신영상인 경우
+  //   if (typeof connection === "string") {
+  //     connectionId = "screen-" + connection;
+  //   }
+  //   //다른 사람인 경우
+  //   else {
+  //     //다른사람의 로그인 유저 닉네임은 비디오 컨테이너의 data- 중 p태그에 있다
+  //     connectionId =
+  //       "screen-" +
+  //       document.querySelector("#data-" + connection.connectionId + " p")
+  //         .textContent;
+  //     console.log(connectionId);
+  //   }
+  //   //이미 채널에 참가한 사람의 영상인지 아닌지 비디오 레이어에서 찾는 코드
+  //   let remoteVideo = remoteVideoLayer.find("#" + connectionId);
 
-    //채녈에 참가한 사람의 영상이 아닌 경우(참가자)
-    else {
-      video = new Konva.Image({
-        x: remoteVideo[0].getAttr("x"),
-        y: remoteVideo[0].getAttr("y"),
-        width: remoteVideo[0].getAttr("width"),
-        height: remoteVideo[0].getAttr("height"),
-        image: videoElement,
-        draggable: true,
-        id: connectionId, //수정하면 안됨!!
-      });
-    }
+  //   //자기 자신인 경우
+  //   if (remoteVideo.length == 0) {
+  //     video = new Konva.Image({
+  //       x: 10,
+  //       y: 10,
+  //       width: 300,
+  //       height: 300,
+  //       image: videoElement,
+  //       draggable: true,
+  //       id: connectionId, //수정하면 안됨!!
+  //     });
+  //   }
 
-    //비디오 크기 및 회전을 도와주는 객체
-    var tr = new Konva.Transformer();
-    // tr.nodes([video]);
+  //   //채녈에 참가한 사람의 영상이 아닌 경우(참가자)
+  //   else {
+  //     video = new Konva.Image({
+  //       x: remoteVideo[0].getAttr("x"),
+  //       y: remoteVideo[0].getAttr("y"),
+  //       width: remoteVideo[0].getAttr("width"),
+  //       height: remoteVideo[0].getAttr("height"),
+  //       image: videoElement,
+  //       draggable: true,
+  //       id: connectionId, //수정하면 안됨!!
+  //     });
+  //   }
 
-    //비디오 실행
-    var animation = new Konva.Animation(function () {}, layer);
+  //   //비디오 크기 및 회전을 도와주는 객체
+  //   var tr = new Konva.Transformer();
+  //   // tr.nodes([video]);
 
-    animation.start();
+  //   //비디오 실행
+  //   var animation = new Konva.Animation(function () {}, layer);
 
-    layer.add(tr);
-    layer.add(video);
+  //   animation.start();
 
-    //자기 자신의 비디오 경우 자동으로 실행이 되지 않는 오류가 있어 직접 실행
-    videoElement.oncanplaythrough = function () {
-      videoElement.play();
-    };
+  //   layer.add(tr);
+  //   layer.add(video);
 
-    //비디오를 움직이면 캔버스 변경사항을 다른사람에게 전송
-    video.on("dragend", function () {
-      changeCanvas(video);
-    });
+  //   //자기 자신의 비디오 경우 자동으로 실행이 되지 않는 오류가 있어 직접 실행
+  //   videoElement.oncanplaythrough = function () {
+  //     videoElement.play();
+  //   };
 
-    //비디오의 모양을 변경하면 캔버스 변경사항을 다른사람에게 전송
-    video.on("transformend", function () {
-      changeCanvas(video);
-    });
-  }
+  //   //비디오를 움직이면 캔버스 변경사항을 다른사람에게 전송
+  //   video.on("dragend", function () {
+  //     changeCanvas(video);
+  //   });
+
+  //   //비디오의 모양을 변경하면 캔버스 변경사항을 다른사람에게 전송
+  //   video.on("transformend", function () {
+  //     changeCanvas(video);
+  //   });
+  // }
 
   return (
     <>
@@ -1074,7 +1130,7 @@ export default function GroupChat() {
                 <video autoPlay playsInline={true}></video>
               </div>
               <div id="video-container" className="col-md-6"></div>
-              <div id="sharingScreen" className="sharingScreen"></div>
+              <div id="sharingScreen" className="sharing-Screen"></div>
             </div>
           </div>
         </div>
@@ -1131,8 +1187,9 @@ export default function GroupChat() {
               <div className="accordion">
                 <div className="accordion-item">
                   <div
+                    id="buttonScreenShare"
                     className="accordion-header"
-                    onClick={startScreenSharing}
+                    onMouseUp={publishScreenShare}
                   >
                     화면 공유
                   </div>
