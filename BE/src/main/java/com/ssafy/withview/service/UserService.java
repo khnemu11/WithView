@@ -79,6 +79,28 @@ public class UserService {
 		return userRepository.existsByEmail(email);
 	}
 
+	/**
+	 * 입력받은 id 와 email 이 같은 유저 정보인지 검사
+	 * @param id (확인할 id)
+	 * @param email (확인할 email)
+	 * @return boolean (true: 같은 유저의 정보, false: 일치하지 않는 정보)
+	 */
+	public boolean findByIdAndEmail(String id, String email) {
+		UserEntity userEntity = userRepository.findByIdAndEmail(id, email)
+			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
+
+		if (userEntity != null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * 프로필 이미지 및 상태 메시지 가져오기
+	 * @param seq (확인할 유저 pk 값)
+	 * @return UserDto (확인할 프로필 이미지, 확인할 상태 메시지)
+	 */
 	@Transactional
 	public UserDto getProfile(Long seq) {
 		log.info("UserService - getProfile 실행");

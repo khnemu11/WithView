@@ -18,8 +18,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ssafy.withview.dto.JoinDto;
 import com.ssafy.withview.dto.UserDto;
+import com.ssafy.withview.exception.BadRequestException;
 import com.ssafy.withview.exception.DuplicateException;
 import com.ssafy.withview.exception.InvalidVerificationCodeException;
+import com.ssafy.withview.exception.MismatchedUserInformationException;
 import com.ssafy.withview.service.EmailService;
 import com.ssafy.withview.service.UserService;
 
@@ -93,30 +95,54 @@ public class UserController {
 	}
 
 	/**
-	 * 이메일 중복 검사 및 해당 이메일로 인증 코드 발송
+	 * 이메일 중복검사 및 인증 코드 발송 (회원가입, 아이디 찾기, 비밀번호 찾기)
 	 * @param email (인증 받을 이메일)
+	 * @param id (비밀번호 찾기 할 때 필요한 아이디)
+	 * @param var (1: 회원가입 - 중복검사 필요, 2: 아이디,비밀번호 찾기 - 중복검사 불필요)   
 	 * @return ResponseEntity(true / false, 상태코드)
 	 * @throws DuplicateException 이메일이 중복될 때
 	 */
 	@GetMapping("/email/validate")
-	public ResponseEntity<Map<String, Object>> getEmailValidationCode(@RequestParam(value = "email") String email) {
+	public ResponseEntity<Map<String, Object>> getEmailValidationCode(@RequestParam(value = "email") String email,
+		@RequestParam(value = "id", required = false) String id,
+		@RequestParam(value = "var") String var
+	) {
 		log.info("UserController - getEmailValidationCode: 이메일 인증 요청");
 		Map<String, Object> resultMap = new HashMap<>();
 		HttpStatus status;
 		try {
-			if (userService.checkDuplicateEmail(email)) {
-				throw new DuplicateException("Duplicate Email");
+			if (!var.equals("1") && !var.equals("2") && !var.equals("3")) {
+				throw new BadRequestException("BAD_REQUEST");
 			}
-			log.info("UserController - getEmailValidationCode: 사용 가능한 이메일입니다.");
+			if (var.equals("1")) {
+				if (userService.checkDuplicateEmail(email)) {
+					throw new DuplicateException("Duplicate Email");
+				}
+				log.info("UserController - checkDuplicateEmail: 사용 가능한 이메일입니다.");
+			}
+			if (var.equals("3")) {
+				if (id == null) {
+					throw new BadRequestException("BAD_REQUEST");
+				}
+				if (!userService.findByIdAndEmail(id, email)) {
+					throw new MismatchedUserInformationException("MismatchedUserInformation");
+				}
+				log.info("UserController - findByIdAndEmail: 같은 유저의 정보가 맞습니다.");
+			}
 			emailService.sendEmail(email);
 			log.info("UserController - getEmailValidationCode: 이메일 인증 코드 전송 완료");
 			resultMap.put("success", true);
 			status = HttpStatus.OK;
 		} catch (DuplicateException e) {
-			log.info("UserController - getEmailValidationCode: 이미 사용중인 이메일입니다.");
+			log.info("UserController - getEmailValidationCode: {}", e.getMessage());
 			resultMap.put("success", false);
 			resultMap.put("message", e.getMessage());
 			status = HttpStatus.CONFLICT;
+		} catch (MismatchedUserInformationException | BadRequestException e) {
+			log.info("UserController - getEmailValidationCode: {}", e.getMessage());
+			resultMap.put("success", false);
+			resultMap.put("message", e.getMessage());
+			status = HttpStatus.BAD_REQUEST;
 		} catch (Exception e) {
 			log.error("UserController - getEmailValidationCode: {}", e.getMessage());
 			resultMap.put("success", false);
@@ -127,7 +153,7 @@ public class UserController {
 	}
 
 	/**
-	 * 이메일 중복 검사 및 해당 이메일로 인증 코드 발송
+	 * 이메일 인증 코드 확인
 	 * @param email (인증 받을 이메일)
 	 * @param code (이메일로 발송된 인증 코드)
 	 * @return ResponseEntity(true / false, 상태코드)
@@ -280,7 +306,7 @@ public class UserController {
 		HttpStatus status;
 		try {
 			userService.withdraw(seq);
-			log.info("UserController - withdraw: 비밀번호 변경 완료");
+			log.info("UserController - withdraw: 회원탈퇴 완료");
 			resultMap.put("success", true);
 			status = HttpStatus.OK;
 		} catch (Exception e) {
