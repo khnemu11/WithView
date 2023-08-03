@@ -19,4 +19,5 @@ public interface ServerService {
 	public List<ServerDto> findAllServer();
 	public void enterServer(long serverSeq, long userSeq) throws Exception;
 	public void leaveServer(long serverSeq, long userSeq) throws Exception;
+	public String insertInviteCode(long serverSeq, long userSeq) throws Exception;
 }

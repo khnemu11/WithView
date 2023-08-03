@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.ssafy.withview.repository.ServerRepository;
+import com.ssafy.withview.repository.UserRepository;
+import com.ssafy.withview.repository.UserServerRepository;
 import com.ssafy.withview.dto.ChannelDto;
 import com.ssafy.withview.dto.ServerDto;
 import com.ssafy.withview.dto.UserDto;
@@ -24,6 +27,17 @@ import com.ssafy.withview.repository.UserRepository;
 import com.ssafy.withview.repository.UserServerRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.transaction.Transactional;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -39,9 +53,16 @@ public class ServerServiceImpl implements ServerService {
 	@Value(value = "${DEFAULT_IMG}")
 	private String DEFAULT_IMG;
 
+	@Value(value="${NAVER_CLIENT_ID}")
+	private String NAVER_CLIENT_ID;
+
+	@Value(value="${NAVER_SECRET_KEY}")
+	private String NAVER_SECRET_KEY;
+
+	private String hostUrl = "https://i9d208.p.ssafy.io:9091/";
+
 	@Override
 	public ChannelDto findChannelByName(String channelName) {
-
 		return null;
 	}
 
@@ -245,5 +266,40 @@ public class ServerServiceImpl implements ServerService {
 		}
 
 		userServerRepository.delete(userServerEntity);
+	}
+
+	@Override
+	public String insertInviteCode(long serverSeq, long userSeq) throws Exception {
+		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
+		if(serverEntity == null){
+			throw new Exception("대상 서버가 존재하지 않습니다.");
+		}
+
+		UserEntity userEntity = userRepository.findBySeq(userSeq)
+			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
+
+		if(userEntity == null){
+			throw new Exception("대상 유저가 존재하지 않습니다.");
+		}
+
+		UserServerEntity userServerEntity = userServerRepository.findByServerEntityAndUserEntity(serverEntity,userEntity);
+
+		if(userServerEntity == null){
+			throw new Exception("가입하지 않아 초대링크를 생성할 수 없습니다.");
+		}
+
+		int leftLimit = 48; // numeral '0'
+		int rightLimit = 122; // letter 'z'
+		int targetStringLength = 10;
+
+		Random random = new Random();
+
+		String generatedString = random.ints(leftLimit, rightLimit + 1)
+			.filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+			.limit(targetStringLength)
+				.collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+			.toString();
+
+		return generatedString;
 	}
 }

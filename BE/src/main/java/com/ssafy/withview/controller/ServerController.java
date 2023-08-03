@@ -151,7 +151,7 @@ public class ServerController {
 		}catch (Exception e){
 			e.printStackTrace();
 			result.put("success",false);
-			result.put("msg","서버 입장을 실패했습니다.");
+			result.put("msg",e.getMessage());
 			return new ResponseEntity<>(result, HttpStatus.OK);
 		}
 
@@ -170,7 +170,7 @@ public class ServerController {
 		}catch (Exception e){
 			e.printStackTrace();
 			result.put("success",false);
-			result.put("msg","서버 퇴장을 실패했습니다.");
+			result.put("msg",e.getMessage());
 			return new ResponseEntity<>(result, HttpStatus.OK);
 		}
 
@@ -194,7 +194,7 @@ public class ServerController {
 		}catch (Exception e){
 			e.printStackTrace();
 			result.put("success",false);
-			result.put("msg","서버 변경 중 오류가 발생했습니다.");
+			result.put("msg",e.getMessage());
 			return new ResponseEntity<>(result, HttpStatus.OK);
 		}
 		log.info("====== 서버 변경 끝 ======");
