@@ -50,7 +50,7 @@ public class UserService {
 				.nickname(joinDto.getNickname())
 				.build());
 
-		LoginEntity loginEntity = loginRepository.save(
+		loginRepository.save(
 			LoginEntity.builder()
 				.id(userEntity.getId())
 				.password(bCryptPasswordEncoder.encode(joinDto.getPassword()))
@@ -141,6 +141,22 @@ public class UserService {
 		return UserDto.builder()
 			.profileImgSearchName(userEntity.getProfileImgSearchName())
 			.profileMsg(userEntity.getProfileMsg())
+			.build();
+	}
+
+	/**
+	 * 회원 정보 수정 - 닉네임 변경
+	 * @param seq (변경할 유저 pk 값)
+	 * @param nickname (변경할 닉네임)
+	 * @return UserDto (변경된 닉네임)
+	 */
+	@Transactional
+	public UserDto updateNickName(Long seq, String nickname) {
+		log.info("UserService - updateNickName 실행");
+		UserEntity userEntity = userRepository.findBySeq(seq);
+		userEntity.updateNickName(nickname);
+		return UserDto.builder()
+			.nickname(userEntity.getNickname())
 			.build();
 	}
 }

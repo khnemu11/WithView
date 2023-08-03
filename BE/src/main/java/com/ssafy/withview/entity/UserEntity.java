@@ -92,4 +92,8 @@ public class UserEntity {
 	public void updateProfileMsg(String profileMsg) {
 		this.profileMsg = profileMsg;
 	}
+
+	public void updateNickName(String nickname) {
+		this.nickname = nickname;
+	}
 }

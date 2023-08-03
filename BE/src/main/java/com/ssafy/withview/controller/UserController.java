@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -202,11 +203,37 @@ public class UserController {
 			UserDto userDto = userService.updateProfile(seq, multipartFile, profileMsg);
 			log.info("UserController - updateProfile: 프로필 수정 완료");
 			resultMap.put("success", true);
-			resultMap.put("profileImgSearchName", userDto.getProfileImgSearchName());
-			resultMap.put("profileMsg", userDto.getProfileMsg());
+			resultMap.put("UserInfo", userDto);
 			status = HttpStatus.OK;
 		} catch (Exception e) {
 			log.error("UserController - updateProfile: {}", e.getMessage());
+			resultMap.put("success", false);
+			resultMap.put("message", e.getMessage());
+			status = HttpStatus.INTERNAL_SERVER_ERROR;
+		}
+		return new ResponseEntity<>(resultMap, status);
+	}
+
+	/**
+	 * 마이페이지 - 닉네임 변경
+	 * @param seq (변경할 유저 pk 값)
+	 * @param nickname (변경할 닉네임)
+	 * @return ResponseEntity(true / false, 상태코드, UserDto - 변경된 닉네임)
+	 */
+	@PutMapping("/{seq}")
+	public ResponseEntity<Map<String, Object>> updateNickName(@PathVariable(value = "seq") Long seq,
+		@RequestParam(value = "nickname") String nickname) {
+		log.info("UserController - updateNickName: 닉네임 변경");
+		Map<String, Object> resultMap = new HashMap<>();
+		HttpStatus status;
+		try {
+			UserDto userDto = userService.updateNickName(seq, nickname);
+			log.info("UserController - updateNickName: 닉네임 변경 완료");
+			resultMap.put("success", true);
+			resultMap.put("UserInfo", userDto);
+			status = HttpStatus.OK;
+		} catch (Exception e) {
+			log.error("UserController - updateNickName: {}", e.getMessage());
 			resultMap.put("success", false);
 			resultMap.put("message", e.getMessage());
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
