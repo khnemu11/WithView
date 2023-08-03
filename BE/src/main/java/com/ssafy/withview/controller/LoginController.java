@@ -27,7 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 public class LoginController {
 
 	private final LoginService loginService;
-
 	private final JwtService jwtService;
 
 	@PostMapping("/login")
