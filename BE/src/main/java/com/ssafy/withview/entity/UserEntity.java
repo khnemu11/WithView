@@ -31,9 +31,6 @@ public class UserEntity {
 	private String id;
 	private String email;
 	private String nickname;
-	private String realName;
-	private String telephone;
-	private String address;
 	private String profileImgSearchName;
 	private String profileImgOriginalName;
 	private String profileMsg;
@@ -49,14 +46,11 @@ public class UserEntity {
 	private List<FavoriteEntity> favoriteEntityList = new ArrayList<>();
 
 	@Builder
-	public UserEntity(String id, String nickname, String realName, String telephone, String address, String email,
+	public UserEntity(String id, String nickname, String email,
 		String profileImgSearchName, String profileImgOriginalName, String profileMsg,
 		LocalDate deleteTime) {
 		this.id = id;
 		this.nickname = nickname;
-		this.realName = realName;
-		this.telephone = telephone;
-		this.address = address;
 		this.email = email;
 		this.profileImgSearchName = profileImgSearchName;
 		this.profileImgOriginalName = profileImgOriginalName;
@@ -72,9 +66,6 @@ public class UserEntity {
 			.seq(userEntity.getSeq())
 			.id(userEntity.getId())
 			.nickname(userEntity.getNickname())
-			.realName(userEntity.getRealName())
-			.telephone(userEntity.getTelephone())
-			.address(userEntity.getAddress())
 			.email(userEntity.getEmail())
 			.profileImgSearchName(userEntity.getProfileImgSearchName())
 			.profileImgOriginalName(userEntity.getProfileImgOriginalName())
