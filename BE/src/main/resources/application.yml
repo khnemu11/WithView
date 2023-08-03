@@ -47,9 +47,23 @@ cloud:
       access-key: AKIASOYPQPSFBDSTFBV4
       secret-key: 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
 
+#OpenVidu
 OPENVIDU_URL: https://i9d208.p.ssafy.io:8443/
 OPENVIDU_SECRET: ssafy
+
+#Cloudfront
 CLOUD_FRONT_URL: https://dm51j1y1p1ekp.cloudfront.net/
+
+#aws
 AWS_ACCESS_KEY: AKIAQZFCIQLESJZHO4EF
 AWS_SECRET_KEY: fe3XBmE8Vq3s4YYVS
+
+#img
 DEFAULT_IMG: logo.png
+
+#naver
+NAVER_CLIENT_ID : EJaP4F6NRqqIUaqpvaAV
+NAVER_SECRET_KEY : 4dzNPOpfeW
+
+#domain
+FRONT_URL : https://i9d208.p.ssafy.io:5173/
