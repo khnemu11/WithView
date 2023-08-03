@@ -2,6 +2,8 @@ package com.ssafy.withview.config.handler;
 
 import java.util.Optional;
 
+import com.ssafy.withview.repository.FriendRepository;
+import com.ssafy.withview.repository.ServerRepository;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -23,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 public class StompHandler implements ChannelInterceptor {
 
 	private final WebSocketRepository webSocketRepository;
+	private final FriendRepository friendRepository;
+	private final ServerRepository serverRepository;
 	private final ChatService chatService;
 
 	@Override
