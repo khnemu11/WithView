@@ -29,18 +29,24 @@ public class RedisConfig {
 	}
 
 	@Bean
-	public ChannelTopic channelTopic() {
+	public ChannelTopic chatRoomChannelTopic() {
 		return new ChannelTopic("chatroom");
+	}
+
+	@Bean
+	public ChannelTopic channelValueChannelTopic() {
+		return new ChannelTopic("channelValue");
 	}
 
 	// redis pub/sub 메시지를 처리하는 listener 설정
 	@Bean
 	public RedisMessageListenerContainer redisMessageListener(RedisConnectionFactory connectionFactory,
-		MessageListenerAdapter listenerAdapter,
-		ChannelTopic channelTopic) {
+		MessageListenerAdapter chatRoomListenerAdapter, MessageListenerAdapter channelValueListenerAdapter,
+		ChannelTopic chatRoomChannelTopic, ChannelTopic channelValueChannelTopic) {
 		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
 		container.setConnectionFactory(connectionFactory);
-		container.addMessageListener(listenerAdapter, channelTopic);
+		container.addMessageListener(chatRoomListenerAdapter, chatRoomChannelTopic);
+		container.addMessageListener(channelValueListenerAdapter, channelValueChannelTopic);
 		return container;
 	}
 
@@ -54,7 +60,12 @@ public class RedisConfig {
 	}
 
 	@Bean
-	public MessageListenerAdapter listenerAdapter(RedisSubscriber subscriber) {
+	public MessageListenerAdapter chatRoomListenerAdapter(RedisSubscriber subscriber) {
 		return new MessageListenerAdapter(subscriber, "sendMessage");
+	}
+
+	@Bean
+	public MessageListenerAdapter channelValueListenerAdapter(RedisSubscriber subscriber) {
+		return new MessageListenerAdapter(subscriber, "sendChannelValue");
 	}
 }

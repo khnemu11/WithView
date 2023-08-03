@@ -4,8 +4,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 
+import com.ssafy.withview.constant.RoomType;
+import com.ssafy.withview.dto.ChannelValueDto;
 import com.ssafy.withview.dto.ChatMessageDto;
-import com.ssafy.withview.repository.ChannelChatRepository;
+import com.ssafy.withview.repository.WebSocketRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -13,20 +15,22 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class ChatService {
 
-	private final ChannelTopic channelTopic;
+	private final ChannelTopic chatRoomChannelTopic;
+	private final ChannelTopic channelValueChannelTopic;
 	private final RedisTemplate redisTemplate;
-	private final ChannelChatRepository channelChatRepository;
+	private final WebSocketRepository webSocketRepository;
 
 	/**
 	 * destination 정보에서 roomId 추출
 	 */
-	public String getServerSeq(String destination) {
-		int lastIndex = destination.lastIndexOf('/');
-		if (lastIndex != -1) {
-			return destination.substring(lastIndex + 1);
-		} else {
-			return "";
-		}
+	public Long getChannelSeq(String destination) {
+		String[] split = destination.split("/");
+		return Long.valueOf(split[4]);
+	}
+
+	public RoomType getRoomType(String destination) {
+		String[] split = destination.split("/");
+		return RoomType.valueOf(split[3]);
 	}
 
 	/**
@@ -35,6 +39,10 @@ public class ChatService {
 	public void sendChatMessage(ChatMessageDto chatMessage) {
 		// chatMessage.setUserCount(channelChatRepository.getUserCount(chatMessage.getUserSeq()));
 
-		redisTemplate.convertAndSend(channelTopic.getTopic(), chatMessage);
+		redisTemplate.convertAndSend(chatRoomChannelTopic.getTopic(), chatMessage);
+	}
+
+	public void sendChannelValue(ChannelValueDto channelValue) {
+		redisTemplate.convertAndSend(channelValueChannelTopic.getTopic(), channelValue);
 	}
 }
