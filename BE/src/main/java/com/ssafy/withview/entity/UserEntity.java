@@ -84,9 +84,12 @@ public class UserEntity {
 			.build();
 	}
 
-	public void updateProfile(String profileImgOriginalName, String profileImgSearchName, String profileMsg) {
+	public void updateProfileImg(String profileImgOriginalName, String profileImgSearchName) {
 		this.profileImgOriginalName = profileImgOriginalName;
 		this.profileImgSearchName = profileImgSearchName;
+	}
+
+	public void updateProfileMsg(String profileMsg) {
 		this.profileMsg = profileMsg;
 	}
 }

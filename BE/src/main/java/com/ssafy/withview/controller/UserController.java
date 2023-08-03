@@ -168,7 +168,7 @@ public class UserController {
 	@PostMapping("/{seq}")
 	public ResponseEntity<Map<String, Object>> updateProfile(
 		@PathVariable(value = "seq") Long seq,
-		@RequestParam(value = "file") MultipartFile multipartFile,
+		@RequestParam(value = "file", required = false) MultipartFile multipartFile,
 		@RequestParam(value = "profileMsg") String profileMsg) {
 		log.info("UserController - updateProfile: 프로필 이미지 및 상태 메시지 변경");
 		Map<String, Object> resultMap = new HashMap<>();

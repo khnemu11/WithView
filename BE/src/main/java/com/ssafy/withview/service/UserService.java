@@ -79,8 +79,6 @@ public class UserService {
 
 	/**
 	 * 프로필 이미지 및 상태 메시지 변경
-	 * (1) User table 에 프로필 이미지 이름 및 상태 메시지 변경
-	 * (2) Amazon S3에 이미지 저장
 	 * @param seq (변경할 유저 pk 값)
 	 * @param multipartFile (변경할 프로필 이미지)
 	 * @param profileMsg (변경할 상태 메시지)
@@ -90,34 +88,43 @@ public class UserService {
 	public UserDto updateProfile(Long seq, MultipartFile multipartFile, String profileMsg) throws IOException {
 		log.info("UserService - updateProfile 실행");
 
-		log.info("=== 저장할 이미지 생성 시작 ===");
+		UserEntity userEntity = userRepository.findBySeq(seq);
 
-		if (!s3client.doesBucketExistV2(bucketName)) {
-			s3client.createBucket(bucketName);
+		// 변경할 사진이 있을 경우, 기존 이미지 삭제 후 저장
+		if (multipartFile != null) {
+			log.info("=== 저장할 이미지 생성 시작 ===");
+
+			if (!s3client.doesBucketExistV2(bucketName)) {
+				s3client.createBucket(bucketName);
+			}
+
+			String newOriginalName;
+			File profileImgFile;
+			UUID uuid = UUID.randomUUID();
+
+			newOriginalName = multipartFile.getOriginalFilename();
+			log.info("new 원본 파일 이름: {}", newOriginalName);
+
+			String extend = newOriginalName.substring(newOriginalName.lastIndexOf('.'));
+			String newSearchName = uuid + extend;
+			log.info("new 랜덤 파일 이름: {}", newSearchName);
+
+			profileImgFile = File.createTempFile(uuid.toString(), extend);
+			FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), profileImgFile);
+			log.info("=== 저장할 이미지 생성 완료 ===");
+
+			String oldSearchName = userEntity.getProfileImgSearchName();
+
+			userEntity.updateProfileImg(newOriginalName, newSearchName);
+			log.info("User table: 이미지 이름 저장 완료");
+
+			s3client.deleteObject(bucketName, "profile/" + oldSearchName);
+			s3client.putObject(bucketName, "profile/" + newSearchName, profileImgFile);
+			log.info("Amazon S3 Bucket: 기존 이미지 삭제 및 새로운 이미지 저장 완료");
 		}
 
-		String originalName;
-		File profileImgFile;
-		UUID uuid = UUID.randomUUID();
-
-		originalName = multipartFile.getOriginalFilename();
-		log.info("원본 파일 이름: {}", originalName);
-
-		String extend = originalName.substring(originalName.lastIndexOf('.'));
-		String profileImgSearchName = uuid.toString() + extend;
-		log.info("랜덤 파일 이름: {}", profileImgSearchName);
-
-		profileImgFile = File.createTempFile(uuid.toString(), extend);
-		FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), profileImgFile);
-
-		log.info("=== 저장할 이미지 생성 완료 ===");
-
-		UserEntity userEntity = userRepository.findBySeq(seq);
-		userEntity.updateProfile(originalName, profileImgSearchName, profileMsg);
-		log.info("User table: 이미지 이름 및 상태 메시지 저장 완료");
-
-		s3client.putObject(bucketName, "profile/" + profileImgSearchName, profileImgFile);
-		log.info("Amazon S3 Bucket: 이미지 저장 완료");
+		// 상태 메시지 변경
+		userEntity.updateProfileMsg(profileMsg);
 
 		return UserDto.builder()
 			.profileImgSearchName(userEntity.getProfileImgSearchName())
