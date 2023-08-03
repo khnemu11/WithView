@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -260,6 +261,30 @@ public class UserController {
 			status = HttpStatus.OK;
 		} catch (Exception e) {
 			log.error("UserController - updatePassword: {}", e.getMessage());
+			resultMap.put("success", false);
+			resultMap.put("message", e.getMessage());
+			status = HttpStatus.INTERNAL_SERVER_ERROR;
+		}
+		return new ResponseEntity<>(resultMap, status);
+	}
+
+	/**
+	 * 회원 탈퇴
+	 * @param seq (탈퇴할 유저 pk 값)
+	 * @return ResponseEntity(true / false, 상태코드)
+	 */
+	@DeleteMapping("/{seq}")
+	public ResponseEntity<Map<String, Object>> withdraw(@PathVariable(value = "seq") Long seq) {
+		log.info("UserController - withdraw: 회원탈퇴");
+		Map<String, Object> resultMap = new HashMap<>();
+		HttpStatus status;
+		try {
+			userService.withdraw(seq);
+			log.info("UserController - withdraw: 비밀번호 변경 완료");
+			resultMap.put("success", true);
+			status = HttpStatus.OK;
+		} catch (Exception e) {
+			log.error("UserController - withdraw: {}", e.getMessage());
 			resultMap.put("success", false);
 			resultMap.put("message", e.getMessage());
 			status = HttpStatus.INTERNAL_SERVER_ERROR;

@@ -2,10 +2,12 @@ package com.ssafy.withview.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,7 +83,8 @@ public class UserService {
 	public UserDto getProfile(Long seq) {
 		log.info("UserService - getProfile 실행");
 
-		UserEntity userEntity = userRepository.findBySeq(seq);
+		UserEntity userEntity = userRepository.findBySeq(seq)
+			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
 
 		return UserDto.builder()
 			.profileImgSearchName(userEntity.getProfileImgSearchName())
@@ -100,7 +103,8 @@ public class UserService {
 	public UserDto updateProfile(Long seq, MultipartFile multipartFile, String profileMsg) throws IOException {
 		log.info("UserService - updateProfile 실행");
 
-		UserEntity userEntity = userRepository.findBySeq(seq);
+		UserEntity userEntity = userRepository.findBySeq(seq)
+			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
 
 		// 변경할 사진이 있을 경우, 기존 이미지 삭제 후 저장
 		if (multipartFile != null) {
@@ -153,8 +157,12 @@ public class UserService {
 	@Transactional
 	public UserDto updateNickName(Long seq, String nickname) {
 		log.info("UserService - updateNickName 실행");
-		UserEntity userEntity = userRepository.findBySeq(seq);
+
+		UserEntity userEntity = userRepository.findBySeq(seq)
+			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
+
 		userEntity.updateNickName(nickname);
+
 		return UserDto.builder()
 			.nickname(userEntity.getNickname())
 			.build();
@@ -173,5 +181,26 @@ public class UserService {
 			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
 
 		loginEntity.updatePassword(bCryptPasswordEncoder.encode(password));
+	}
+
+	/**
+	 * 회원 탈퇴
+	 * @param seq (탈퇴할 유저 pk 값)
+	 */
+	@Transactional
+	public void withdraw(Long seq) {
+		log.info("UserService - withdraw 실행");
+
+		UserEntity userEntity = userRepository.findBySeq(seq)
+			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
+
+		// 1. DB 회원 탈퇴 처리
+		LocalDateTime time = LocalDateTime.now();
+		log.info("회원 탈퇴 신청 시간: {}", time);
+
+		userEntity.withdraw(seq, time);
+
+		// 2. 강제 로그아웃
+		SecurityContextHolder.clearContext();
 	}
 }

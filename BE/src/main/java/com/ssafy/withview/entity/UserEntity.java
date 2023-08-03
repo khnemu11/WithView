@@ -1,6 +1,6 @@
 package com.ssafy.withview.entity;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
-import org.springframework.data.annotation.CreatedDate;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.ssafy.withview.dto.UserDto;
@@ -35,9 +35,9 @@ public class UserEntity {
 	private String profileImgOriginalName;
 	private String profileMsg;
 
-	@CreatedDate
-	private LocalDate createTime;
-	private LocalDate deleteTime;
+	@CreationTimestamp
+	private LocalDateTime createTime;
+	private LocalDateTime deleteTime;
 
 	@OneToMany(mappedBy = "userEntity")
 	private List<UserServerEntity> userServerEntityList = new ArrayList<>();
@@ -47,15 +47,13 @@ public class UserEntity {
 
 	@Builder
 	public UserEntity(String id, String nickname, String email,
-		String profileImgSearchName, String profileImgOriginalName, String profileMsg,
-		LocalDate deleteTime) {
+		String profileImgSearchName, String profileImgOriginalName, String profileMsg) {
 		this.id = id;
 		this.nickname = nickname;
 		this.email = email;
 		this.profileImgSearchName = profileImgSearchName;
 		this.profileImgOriginalName = profileImgOriginalName;
 		this.profileMsg = profileMsg;
-		this.deleteTime = deleteTime;
 	}
 
 	public static UserDto toDto(UserEntity userEntity) {
@@ -70,8 +68,6 @@ public class UserEntity {
 			.profileImgSearchName(userEntity.getProfileImgSearchName())
 			.profileImgOriginalName(userEntity.getProfileImgOriginalName())
 			.profileMsg(userEntity.getProfileMsg())
-			.createTime(userEntity.getCreateTime())
-			.deleteTime(userEntity.getDeleteTime())
 			.build();
 	}
 
@@ -86,5 +82,9 @@ public class UserEntity {
 
 	public void updateNickName(String nickname) {
 		this.nickname = nickname;
+	}
+
+	public void withdraw(Long seq, LocalDateTime time) {
+		this.deleteTime = time;
 	}
 }
