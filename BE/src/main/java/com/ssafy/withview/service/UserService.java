@@ -77,6 +77,18 @@ public class UserService {
 		return userRepository.existsByEmail(email);
 	}
 
+	@Transactional
+	public UserDto getProfile(Long seq) {
+		log.info("UserService - getProfile 실행");
+
+		UserEntity userEntity = userRepository.findBySeq(seq);
+
+		return UserDto.builder()
+			.profileImgSearchName(userEntity.getProfileImgSearchName())
+			.profileMsg(userEntity.getProfileMsg())
+			.build();
+	}
+
 	/**
 	 * 프로필 이미지 및 상태 메시지 변경
 	 * @param seq (변경할 유저 pk 값)

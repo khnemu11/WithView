@@ -159,6 +159,31 @@ public class UserController {
 	}
 
 	/**
+	 * 마이페이지 - 프로필 이미지 및 상태메시지 수정 페이지, 상대 프로필 정보 확인
+	 * @param seq (확인할 유저 pk 값)
+	 * @return ResponseEntity(true / false, 상태코드, UserDto - 프로필 이미지 이름 및 상태 메시지)
+	 */
+	@GetMapping("/{seq}")
+	public ResponseEntity<Map<String, Object>> getProfile(@PathVariable(value = "seq") Long seq) {
+		log.info("UserController - getProfile: 프로필 이미지 및 상태 메시지 정보 받기");
+		Map<String, Object> resultMap = new HashMap<>();
+		HttpStatus status;
+		try {
+			UserDto userDto = userService.getProfile(seq);
+			log.info("프로필 정보: {}", userDto);
+			resultMap.put("success", true);
+			resultMap.put("UserInfo", userDto);
+			status = HttpStatus.OK;
+		} catch (Exception e) {
+			log.error("UserController - updateProfile: {}", e.getMessage());
+			resultMap.put("success", false);
+			resultMap.put("message", e.getMessage());
+			status = HttpStatus.INTERNAL_SERVER_ERROR;
+		}
+		return new ResponseEntity<>(resultMap, status);
+	}
+
+	/**
 	 * 마이페이지 - 프로필 이미지 및 상태 메시지 변경
 	 * @param seq (변경할 유저 pk 값)
 	 * @param multipartFile (변경할 이미지)
