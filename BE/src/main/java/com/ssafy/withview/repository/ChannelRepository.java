@@ -11,5 +11,5 @@ import com.ssafy.withview.entity.ChannelEntity;
 @Repository
 public interface ChannelRepository extends JpaRepository<ChannelEntity,Long> {
 	public List<ChannelEntity> findAllChannelByServerEntity(ServerEntity serverEntity);
-	public ChannelEntity findBySeq(long channelSeq);
+	public ChannelEntity findBySeq(Long channelSeq);
 }

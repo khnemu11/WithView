@@ -30,7 +30,7 @@ public class ServerController {
 	private String CLOUD_FRONT_URL;
 
 	@GetMapping("/{serverSeq}")
-	public ResponseEntity<?> findServerBySeq(@PathVariable long serverSeq) {
+	public ResponseEntity<?> findServerBySeq(@PathVariable Long serverSeq) {
 		log.info("서버 탐색 시작");
 		JSONObject result = new JSONObject();
 		try{
@@ -68,7 +68,7 @@ public class ServerController {
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 	@GetMapping("/{serverSeq}/users")
-	public ResponseEntity<?> findAllUsersInServer(@PathVariable(name = "serverSeq") long serverSeq) {
+	public ResponseEntity<?> findAllUsersInServer(@PathVariable(name = "serverSeq") Long serverSeq) {
 		JSONObject result = new JSONObject();
 		try{
 			List<UserDto> userDtoList = serverService.findAllUsersByServerSeq(serverSeq);
@@ -84,7 +84,7 @@ public class ServerController {
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 	@GetMapping("/find-server-by-user")
-	public ResponseEntity<?> findServerByUser(@RequestParam("userSeq") long userSeq) {
+	public ResponseEntity<?> findServerByUser(@RequestParam("userSeq") Long userSeq) {
 		JSONObject result = new JSONObject();
 		try{
 			List<ServerDto> serverDtoList = serverService.findAllServerByUserSeq(userSeq);
@@ -140,7 +140,7 @@ public class ServerController {
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 	@PostMapping("/enter")
-	public ResponseEntity<?> enterServer(@RequestParam(name="serverSeq")long serverSeq,@RequestParam(name="userSeq")long userSeq) {
+	public ResponseEntity<?> enterServer(@RequestParam(name="serverSeq")Long serverSeq,@RequestParam(name="userSeq")Long userSeq) {
 		log.info("====== 서버 입장 시작 ======");
 		log.info("서버 seq" + serverSeq);
 		log.info("유저 seq" + userSeq);
@@ -161,7 +161,7 @@ public class ServerController {
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 	@DeleteMapping("/leave")
-	public ResponseEntity<?> leaveServer(@RequestParam(name="serverSeq")long serverSeq,@RequestParam(name="userSeq")long userSeq) {
+	public ResponseEntity<?> leaveServer(@RequestParam(name="serverSeq")Long serverSeq,@RequestParam(name="userSeq")Long userSeq) {
 		log.info("====== 서버 퇴장 시작 ======");
 		JSONObject result = new JSONObject();
 		try{
@@ -180,7 +180,7 @@ public class ServerController {
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 	@PostMapping("/{serverSeq}")
-	public ResponseEntity<?> updateServer(@PathVariable(name = "serverSeq") long serverSeq,@ModelAttribute ServerDto serverDto, @RequestParam(name = "file", required = false) MultipartFile multipartFile) {
+	public ResponseEntity<?> updateServer(@PathVariable(name = "serverSeq") Long serverSeq,@ModelAttribute ServerDto serverDto, @RequestParam(name = "file", required = false) MultipartFile multipartFile) {
 		log.info("====== 서버 변경 시작 ======");
 		JSONObject result = new JSONObject();
 		try{
@@ -201,8 +201,8 @@ public class ServerController {
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 	@DeleteMapping("")
-	public ResponseEntity<?> deleteServer(@RequestParam(name="serverSeq") long serverSeq,
-										  @RequestParam(name="userSeq") long userSeq) {
+	public ResponseEntity<?> deleteServer(@RequestParam(name="serverSeq") Long serverSeq,
+										  @RequestParam(name="userSeq") Long userSeq) {
 		log.info("====== 서버 삭제 시작 ======");
 		JSONObject result = new JSONObject();	//결과 json 변수
 		try{

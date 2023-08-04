@@ -51,7 +51,7 @@ public class EmailService {
 		return "123456";
 	}
 
-	public boolean checkEmailVerificationCode(String email, String code) {
+	public Boolean checkEmailVerificationCode(String email, String code) {
 		log.info("EmailService - checkEmailVerificationCode 실행");
 		// 1. redis 에 key: email 존재 여부 확인
 		// 2. 해당 code 가져온 후 값 비교

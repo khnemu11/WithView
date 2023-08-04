@@ -33,7 +33,7 @@ public class ChannelController {
 	private String CLOUD_FRONT_URL;
 
 	@GetMapping("")
-	public ResponseEntity<?> findAllChannelsByServer(@PathVariable long serverSeq){
+	public ResponseEntity<?> findAllChannelsByServer(@PathVariable Long serverSeq){
 		JSONObject result = new JSONObject();
 		log.info("====== 서버 내 모든 채널 탐색 시작 ======");
 		try {
@@ -51,7 +51,7 @@ public class ChannelController {
 		return new ResponseEntity<>(result,HttpStatus.OK);
 	}
 	@PostMapping("/{channelSeq}")
-	public ResponseEntity<?> updateChannel(@PathVariable(name = "serverSeq") long serverSeq,@PathVariable(name = "channelSeq") long channelSeq, @ModelAttribute ChannelDto channelDto,@RequestParam(name = "file") MultipartFile multipartFile){
+	public ResponseEntity<?> updateChannel(@PathVariable(name = "serverSeq") Long serverSeq,@PathVariable(name = "channelSeq") Long channelSeq, @ModelAttribute ChannelDto channelDto,@RequestParam(name = "file") MultipartFile multipartFile){
 		JSONObject result = new JSONObject();
 		log.info("====== 채널 수정 시작 ======");
 		try {
@@ -73,7 +73,7 @@ public class ChannelController {
 		return new ResponseEntity<>(result,HttpStatus.OK);
 	}
 	@PostMapping("")
-	public ResponseEntity<?> insertChannel(@PathVariable long serverSeq, @ModelAttribute ChannelDto channelDto,@RequestParam(name = "file") MultipartFile multipartFile){
+	public ResponseEntity<?> insertChannel(@PathVariable Long serverSeq, @ModelAttribute ChannelDto channelDto,@RequestParam(name = "file") MultipartFile multipartFile){
 		JSONObject result = new JSONObject();
 		log.info("====== 채널 생성 시작 ======");
 		try {
@@ -94,7 +94,7 @@ public class ChannelController {
 		return new ResponseEntity<>(result,HttpStatus.OK);
 	}
 	@DeleteMapping("/{channelSeq}")
-	public ResponseEntity<?> deleteChannel(@PathVariable(name="serverSeq") long serverSeq, @PathVariable(name="channelSeq") long channelSeq){
+	public ResponseEntity<?> deleteChannel(@PathVariable(name="serverSeq") Long serverSeq, @PathVariable(name="channelSeq") Long channelSeq){
 		JSONObject result = new JSONObject();
 		log.info("====== 채널 삭제 시작 ======");
 		try {
@@ -111,7 +111,7 @@ public class ChannelController {
 		return new ResponseEntity<>(result,HttpStatus.OK);
 	}
 	@GetMapping("/{channelSeq}")
-	public ResponseEntity<?> findChannel(@PathVariable(name = "serverSeq") long serverSeq,@PathVariable(name = "channelSeq") long channelSeq) {
+	public ResponseEntity<?> findChannel(@PathVariable(name = "serverSeq") Long serverSeq,@PathVariable(name = "channelSeq") Long channelSeq) {
 		log.info("====== 채널 탐색 시작 ======");
 		JSONObject result = new JSONObject();
 		try{

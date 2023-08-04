@@ -17,9 +17,9 @@ import lombok.ToString;
 public class ChannelEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long seq;
+	private Long seq;
 	private String name;
-	private int limitPeople;
+	private Integer limitPeople;
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
 
@@ -44,7 +44,7 @@ public class ChannelEntity {
 	}
 
 	@Builder
-	public ChannelEntity(String name, int limitPeople,String backgroundImgOriginalName, String backgroundImgSearchName,ServerEntity serverEntity) {
+	public ChannelEntity(String name, Integer limitPeople,String backgroundImgOriginalName, String backgroundImgSearchName,ServerEntity serverEntity) {
 		this.name = name;
 		this.limitPeople = limitPeople;
 		this.backgroundImgOriginalName = backgroundImgOriginalName;

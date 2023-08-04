@@ -144,12 +144,12 @@ public class ServerServiceImpl implements ServerService {
 	}
 
 	@Override
-	public ServerDto findServerBySeq(long serverSeq) {
+	public ServerDto findServerBySeq(Long serverSeq) {
 		return ServerEntity.toDto(serverRepository.findBySeq(serverSeq));
 	}
 
 	@Override
-	public List<ServerDto> findAllServerByUserSeq(long userSeq) {
+	public List<ServerDto> findAllServerByUserSeq(Long userSeq) {
 		List<ServerDto> userServerDtoList = new ArrayList<>();
 		UserEntity userEntity = userRepository.findBySeq(userSeq)
 			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
@@ -163,7 +163,7 @@ public class ServerServiceImpl implements ServerService {
 	}
 
 	@Override
-	public List<UserDto> findAllUsersByServerSeq(long serverSeq) {
+	public List<UserDto> findAllUsersByServerSeq(Long serverSeq) {
 		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
 		List<UserServerEntity> userServerEntityList = userServerRepository.findAllUserByServerEntity(serverEntity);
 		List<UserDto> userDtoList = new ArrayList<>();
@@ -177,7 +177,7 @@ public class ServerServiceImpl implements ServerService {
 
 	@Transactional
 	@Override
-	public void deleteServer(long serverSeq, long userSeq) throws Exception {
+	public void deleteServer(Long serverSeq,Long userSeq) throws Exception{
 		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
 
 		if (serverEntity == null) {
@@ -206,7 +206,7 @@ public class ServerServiceImpl implements ServerService {
 
 	@Transactional
 	@Override
-	public void enterServer(long serverSeq, long userSeq) throws Exception {
+	public void enterServer(Long serverSeq, Long userSeq) throws Exception {
 		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
 
 		if (serverEntity == null) {
@@ -236,7 +236,7 @@ public class ServerServiceImpl implements ServerService {
 
 	@Transactional
 	@Override
-	public void leaveServer(long serverSeq, long userSeq) throws Exception {
+	public void leaveServer(Long serverSeq, Long userSeq) throws Exception{
 		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
 		UserEntity userEntity = userRepository.findBySeq(userSeq)
 			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
@@ -256,7 +256,7 @@ public class ServerServiceImpl implements ServerService {
 	}
 
 	@Override
-	public String insertInviteCode(long serverSeq, long userSeq) throws Exception {
+	public String insertInviteCode(Long serverSeq, Long userSeq) throws Exception {
 		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
 		if (serverEntity == null) {
 			throw new Exception("대상 서버가 존재하지 않습니다.");
@@ -276,9 +276,9 @@ public class ServerServiceImpl implements ServerService {
 			throw new Exception("가입하지 않아 초대링크를 생성할 수 없습니다.");
 		}
 
-		int leftLimit = 48; // numeral '0'
-		int rightLimit = 122; // letter 'z'
-		int targetStringLength = 10;
+		Integer leftLimit = 48; // numeral '0'
+		Integer rightLimit = 122; // letter 'z'
+		Integer targetStringLength = 10;
 
 		Random random = new Random();
 
