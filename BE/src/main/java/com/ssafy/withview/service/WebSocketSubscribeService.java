@@ -1,10 +1,5 @@
 package com.ssafy.withview.service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
@@ -32,17 +27,19 @@ public class WebSocketSubscribeService {
 		return webSocketSubscribeRepository.userUnsubscribeChatRoom(userSeq, channelSeq);
 	}
 
-	public Map<Long, Set<Long>> getChannelValue(Long channelSeq) {
-		Set<Long> chatRoomMembers = webSocketSubscribeRepository.getChatRoomMembers(channelSeq);
-		HashMap<Long, Set<Long>> map = new HashMap<>();
-		map.put(channelSeq, chatRoomMembers);
-		return map;
+	public Long getChannelValue(Long channelSeq) {
+		// Set<Long> chatRoomMembers = webSocketSubscribeRepository.getChatRoomMembers(channelSeq);
+		// HashMap<Long, Set<Long>> map = new HashMap<>();
+		// map.put(channelSeq, chatRoomMembers);
+		return webSocketSubscribeRepository.getChatRoomMembers(channelSeq);
+		// return map;
 	}
 
 	/**
 	 * 채팅방에 메시지 발송
 	 */
-	public void sendChannelValue(List<ChannelValueDto> channelValues) {
-		redisTemplate.convertAndSend(channelValueChannelTopic.getTopic(), channelValues);
+	public void sendChannelValue(ChannelValueDto channelValue) {
+		System.out.println("안녕~");
+		redisTemplate.convertAndSend(channelValueChannelTopic.getTopic(), channelValue);
 	}
 }

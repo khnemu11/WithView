@@ -1,11 +1,10 @@
 package com.ssafy.withview.repository;
 
-import java.util.Set;
-
 import javax.annotation.Resource;
 
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.SetOperations;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Repository;
 
 import lombok.RequiredArgsConstructor;
@@ -24,17 +23,21 @@ public class WebSocketSubscribeRepository {
 	@Resource(name = "redisTemplate")
 	private HashOperations<String, Long, Long> hashOpsUserEnterChatChannelInfo;
 	@Resource(name = "redisTemplate")
-	private SetOperations<Long, Long> setOpsChatRoomUserValue;
+	private SetOperations<String, Long> setOpsChatRoomUserValue;
+	@Resource(name = "redisTemplate")
+	private ValueOperations<String, String> valOpsRoomUserValue;
 
 	public Long userSubscribeChatRoom(Long userSeq, Long channelSeq) {
+		// hashOpsUserEnterChatChannelInfo.put(ENTER_CHAT_CHANNEL, userSeq, channelSeq);
+		// setOpsChatRoomUserValue.add(String.valueOf(channelSeq), userSeq);
 		hashOpsUserEnterChatChannelInfo.put(ENTER_CHAT_CHANNEL, userSeq, channelSeq);
-		setOpsChatRoomUserValue.add(channelSeq, userSeq);
+		valOpsRoomUserValue.set(String.valueOf(channelSeq), String.valueOf(userSeq));
 		return channelSeq;
 	}
 
 	public Long userUnsubscribeChatRoom(Long userSeq, Long channelSeq) {
 		hashOpsUserEnterChatChannelInfo.delete(ENTER_CHAT_CHANNEL, userSeq);
-		setOpsChatRoomUserValue.remove(channelSeq, userSeq);
+		setOpsChatRoomUserValue.remove(String.valueOf(channelSeq), userSeq);
 		return channelSeq;
 	}
 
@@ -42,7 +45,8 @@ public class WebSocketSubscribeRepository {
 		return hashOpsUserEnterChatChannelInfo.get(ENTER_CHAT_CHANNEL, userSeq);
 	}
 
-	public Set<Long> getChatRoomMembers(Long channelSeq) {
-		return setOpsChatRoomUserValue.members(channelSeq);
+	public Long getChatRoomMembers(Long channelSeq) {
+		// return setOpsChatRoomUserValue.members(String.valueOf(channelSeq));
+		return Long.valueOf(valOpsRoomUserValue.get(String.valueOf(channelSeq)));
 	}
 }

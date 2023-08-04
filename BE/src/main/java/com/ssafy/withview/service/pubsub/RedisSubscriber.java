@@ -1,11 +1,8 @@
 package com.ssafy.withview.service.pubsub;
 
-import java.util.List;
-
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.withview.dto.ChannelValueDto;
 import com.ssafy.withview.dto.ChatMessageDto;
@@ -39,13 +36,14 @@ public class RedisSubscriber {
 	}
 
 	public void sendChannelValue(String publishMessage) {
+		System.out.println("subscriber 들어오니?");
 		try {
-			List<ChannelValueDto> channelValueDtos = objectMapper.readValue(publishMessage,
-				new TypeReference<List<ChannelValueDto>>() {
-				});
+			ChannelValueDto channelValueDto = objectMapper.readValue(publishMessage, ChannelValueDto.class);
+			System.out.println(channelValueDto.getServerSeq());
+			System.out.println("여기는 try 안이에요~");
 			messagingTemplate.convertAndSend(
-				"/api/sub/server/" + channelValueDtos.get(0).getServerSeq(),
-				channelValueDtos);
+				"/api/sub/server/" + channelValueDto.getServerSeq(),
+				channelValueDto);
 		} catch (Exception e) {
 			log.error("Exception {}", e);
 		}
