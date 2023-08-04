@@ -1,5 +1,7 @@
 package com.ssafy.withview.dto;
 
+import java.time.LocalDateTime;
+
 import com.ssafy.withview.entity.FriendEntity;
 
 import lombok.AllArgsConstructor;
@@ -8,8 +10,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @Builder
@@ -17,18 +17,18 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class FriendDto {
 
-    private Long followingUserSeq;
-    private Long followedUserSeq;
-    private LocalDateTime createdTime;
+	private Long followingUserSeq;
+	private Long followedUserSeq;
+	private LocalDateTime createdTime;
 
-    public static FriendEntity toEntity(FriendDto friendDto) {
-        if (friendDto == null) {
-            return null;
-        }
-        return FriendEntity.builder()
-                .followedUserSeq(friendDto.getFollowedUserSeq())
-                .followingUserSeq(friendDto.getFollowingUserSeq())
-                .build();
+	public static FriendEntity toEntity(FriendDto friendDto) {
+		if (friendDto == null) {
+			return null;
+		}
+		return FriendEntity.builder()
+			.followedUserSeq(friendDto.getFollowedUserSeq())
+			.followingUserSeq(friendDto.getFollowingUserSeq())
+			.build();
 
-    }
+	}
 }

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import com.ssafy.withview.constant.RoomType;
 import com.ssafy.withview.dto.ChannelValueDto;
 import com.ssafy.withview.dto.ChatMessageDto;
-import com.ssafy.withview.repository.WebSocketRepository;
+import com.ssafy.withview.repository.WebSocketSubscribeRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +18,7 @@ public class ChatService {
 	private final ChannelTopic chatRoomChannelTopic;
 	private final ChannelTopic channelValueChannelTopic;
 	private final RedisTemplate redisTemplate;
-	private final WebSocketRepository webSocketRepository;
+	private final WebSocketSubscribeRepository webSocketSubscribeRepository;
 
 	/**
 	 * destination 정보에서 roomId 추출

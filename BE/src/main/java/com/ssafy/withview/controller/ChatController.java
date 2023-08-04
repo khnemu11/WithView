@@ -23,9 +23,4 @@ public class ChatController {
 		// Websocket 에 발행된 메시지를 redis로 발행 (publish)
 		chatService.sendChatMessage(message);
 	}
-
-	// @MessageMapping("/chat/friend")
-	// public void chatFriend(ChatMessageDto message, Long friendChatSeq) {
-	// 	message.getChatRoom().setRoomType(RoomType.FRIEND);
-	// }
 }

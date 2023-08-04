@@ -2,8 +2,6 @@ package com.ssafy.withview.config.handler;
 
 import java.util.Optional;
 
-import com.ssafy.withview.repository.FriendRepository;
-import com.ssafy.withview.repository.ServerRepository;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -11,9 +9,9 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
 
-import com.ssafy.withview.constant.RoomType;
-import com.ssafy.withview.dto.ChatRoomDto;
-import com.ssafy.withview.repository.WebSocketRepository;
+import com.ssafy.withview.repository.FriendRepository;
+import com.ssafy.withview.repository.ServerRepository;
+import com.ssafy.withview.repository.WebSocketSubscribeRepository;
 import com.ssafy.withview.service.ChatService;
 
 import lombok.RequiredArgsConstructor;
@@ -24,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class StompHandler implements ChannelInterceptor {
 
-	private final WebSocketRepository webSocketRepository;
+	private final WebSocketSubscribeRepository webSocketSubscribeRepository;
 	private final FriendRepository friendRepository;
 	private final ServerRepository serverRepository;
 	private final ChatService chatService;
@@ -45,19 +43,19 @@ public class StompHandler implements ChannelInterceptor {
 			// channelChatRepository.userConnectSocket(id, userSeq);
 		} else if (StompCommand.SUBSCRIBE == accessor.getCommand()) { // 채팅룸 구독요청
 			// header정보에서 구독 destination정보를 얻고, roomId를 추출한다.
-			Long userSeq = Long.valueOf(Optional.ofNullable(accessor.getFirstNativeHeader("userseq")).orElse("0L"));
-			Long serverSeq = Long.valueOf(Optional.ofNullable(accessor.getFirstNativeHeader("serverseq")).orElse("0L"));
-			Long channelSeq = Long.valueOf(
-				Optional.ofNullable(accessor.getFirstNativeHeader("channelseq")).orElse("0L"));
-			RoomType roomType = RoomType.valueOf(
-				(Optional.ofNullable((String)accessor.getFirstNativeHeader("roomtype")).orElse("INVALID")));
-
-			ChatRoomDto chatRoom = ChatRoomDto.builder()
-				.roomType(roomType)
-				.seq(channelSeq)
-				.build();
-
-			webSocketRepository.userSubscribeChatRoom(userSeq, chatRoom);
+			// Long userSeq = Long.valueOf(Optional.ofNullable(accessor.getFirstNativeHeader("userseq")).orElse("0L"));
+			// Long serverSeq = Long.valueOf(Optional.ofNullable(accessor.getFirstNativeHeader("serverseq")).orElse("0L"));
+			// Long channelSeq = Long.valueOf(
+			// 	Optional.ofNullable(accessor.getFirstNativeHeader("channelseq")).orElse("0L"));
+			// RoomType roomType = RoomType.valueOf(
+			// 	(Optional.ofNullable((String)accessor.getFirstNativeHeader("roomtype")).orElse("INVALID")));
+			//
+			// ChatRoomDto chatRoom = ChatRoomDto.builder()
+			// 	.roomType(roomType)
+			// 	.seq(channelSeq)
+			// 	.build();
+			//
+			// webSocketRepository.userSubscribeChatRoom(userSeq, chatRoom);
 
 			// channelChatRepository.getChannelValueOfServer(serverSeq);
 			//
