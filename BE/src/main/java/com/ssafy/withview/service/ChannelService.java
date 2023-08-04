@@ -7,9 +7,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface ChannelService {
-	public List<ChannelDto> findAllChannelsByServerSeq(long serverSeq) ;
-	public ChannelDto findChannelByChannelSeq(long channelSeq) ;
-	public ChannelDto insertChannel(ChannelDto channelDto, MultipartFile multipartFile,long serverSeq) throws Exception;
-	public ChannelDto updateChannel(ChannelDto channelDto, MultipartFile multipartFile,long serverSeq) throws Exception;
-	public void deleteChannel(long channelSeq) throws Exception;
+	public List<ChannelDto> findAllChannelsByServerSeq(Long serverSeq) ;
+	public ChannelDto findChannelByChannelSeq(Long channelSeq) ;
+	public ChannelDto insertChannel(ChannelDto channelDto, MultipartFile multipartFile,Long serverSeq) throws Exception;
+	public ChannelDto updateChannel(ChannelDto channelDto, MultipartFile multipartFile,Long serverSeq) throws Exception;
+	public void deleteChannel(Long channelSeq) throws Exception;
 }

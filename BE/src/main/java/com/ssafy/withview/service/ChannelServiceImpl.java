@@ -38,7 +38,7 @@ public class ChannelServiceImpl implements ChannelService{
 
 	private String IMG_PREFIX = "channel-background/";
 	@Override
-	public List<ChannelDto> findAllChannelsByServerSeq(long serverSeq){
+	public List<ChannelDto> findAllChannelsByServerSeq(Long serverSeq){
 		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
 		List<ChannelEntity> channelEntities = channelRepository.findAllChannelByServerEntity(serverEntity);
 		List<ChannelDto> channelDtos = new ArrayList<>();
@@ -50,7 +50,7 @@ public class ChannelServiceImpl implements ChannelService{
 	}
 
 	@Override
-	public ChannelDto findChannelByChannelSeq(long channelSeq) {
+	public ChannelDto findChannelByChannelSeq(Long channelSeq) {
 		ChannelEntity channelEntity= channelRepository.findBySeq(channelSeq);
 		ChannelDto channelDto = ChannelEntity.toDto(channelEntity);
 
@@ -59,7 +59,7 @@ public class ChannelServiceImpl implements ChannelService{
 
 	@Transactional
 	@Override
-	public ChannelDto insertChannel(ChannelDto channelDto, MultipartFile multipartFile, long serverSeq) throws Exception {
+	public ChannelDto insertChannel(ChannelDto channelDto, MultipartFile multipartFile, Long serverSeq) throws Exception {
 		ChannelDto result;
 		try{
 			if(multipartFile !=null){
@@ -111,7 +111,7 @@ public class ChannelServiceImpl implements ChannelService{
 
 	@Transactional
 	@Override
-	public ChannelDto updateChannel(ChannelDto channelDto,MultipartFile multipartFile,long serverSeq) throws Exception{
+	public ChannelDto updateChannel(ChannelDto channelDto,MultipartFile multipartFile,Long serverSeq) throws Exception{
 		ChannelEntity channelEntity = channelRepository.findBySeq(channelDto.getSeq());
 		log.info("대상 채널 " + channelEntity);
 		if(channelEntity == null){
@@ -140,7 +140,7 @@ public class ChannelServiceImpl implements ChannelService{
 
 			// #6 - DB 저장
 			channelDto.setBackgroundImgSearchName(uuid.toString()+extend);
-			boolean delete = backgroundImgFile.delete();	//기존 임시 저장용 파일 삭제
+			Boolean delete = backgroundImgFile.delete();	//기존 임시 저장용 파일 삭제
 		}
 
 		channelEntity.update(channelDto);
@@ -149,7 +149,7 @@ public class ChannelServiceImpl implements ChannelService{
 
 	@Transactional
 	@Override
-	public void deleteChannel(long channelSeq) throws Exception{
+	public void deleteChannel(Long channelSeq) throws Exception{
 		ChannelEntity channelEntity = channelRepository.findBySeq(channelSeq);
 
 		if(channelEntity == null){

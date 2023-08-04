@@ -20,7 +20,8 @@
 }
 
 .channelNameText{
-  margin-top: 2%;
+  display: flex;
+  margin-top: 1%;
   align-self: flex-start; /* add this line */
   font-size: x-large;
   font-weight: 600;
@@ -42,8 +43,7 @@
 
 .channelCard-imageContainer {
   width: 100%;
-  height: 0;
-  padding-bottom: 56.25%; /* for 16:9 aspect ratio */
+  padding-bottom: 135px; /* for 16:9 aspect ratio */
   position: relative;
 }
 
@@ -57,7 +57,8 @@
 }
 
 .channelCard-content {
-  padding: 20px;
+  padding: 10px 20px 20px 20px;
+  font-weight: bold;
 }
 
 .collapsible-server{
@@ -73,4 +74,99 @@
   width: 15px;
   margin-left: 10px;
   margin-bottom: 3px;
+}
+
+.plusIcon{
+  margin-left: 8px;
+  margin-top: 5px;
+  padding-bottom: 1px;
+  max-width: 20%;
+  max-height: 63%;
+  cursor: pointer;
+}
+
+.channelPlusModal {
+  width: 70%;
+  height: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: hidden;
+  border-radius: 15px;
+}
+.channelPlusModal:focus {
+  outline: none;
+}
+
+.cPMOverlay{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.641)
+}
+
+.closeModalButton {
+  align-self: start;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.cPImagePlaceholder{
+  display: flex;
+  cursor: pointer;
+  width: 600px;
+  height: 400px;
+  align-items: center;
+  justify-content: center;
+}
+
+.cPImagePlaceholder img{
+  width: 40%;
+}
+
+.channel-apply-button{
+  background-color: #769FCD;
+  width: 20%;
+  height: 40px;
+  border-radius: 10px;
+  margin-top: 3%
+}
+
+.channelNameInput{
+  background-color: #E9F8FF;
+    border-radius: 8px;
+    border-width: 0.5px;
+    width: 75%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-right: 20px;
+    height: 40px;
+    padding-left: 20px;
+}
+
+.changeImageButton{
+  margin-top: 5px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.modal-content-channelplus-image .cropper-view-box {
+  border-radius: 0;
+}
+
+.serverMenuIcon{
+  margin-top: 12px;
+  margin-left: 9px;
+  max-height: 40%;
+  cursor: pointer;
 }

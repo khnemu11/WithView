@@ -116,7 +116,7 @@ public class JwtService {
 	}
 
 	// 토큰 검증
-	public boolean isValidToken(String token) {
+	public Boolean isValidToken(String token) {
 		logger.info("JwtService - isValidToken 실행");
 		try {
 			Jwts.parserBuilder().setSigningKey(JwtProperties.SECRET_KEY.getBytes()).build().parseClaimsJws(token);
@@ -154,7 +154,7 @@ public class JwtService {
 		}
 	}
 
-	public boolean existsRefreshToken(String refreshToken) {
+	public Boolean existsRefreshToken(String refreshToken) {
 		logger.info("JwtService - existsRefreshToken 실행");
 
 		Claims claims = getClaims(refreshToken);

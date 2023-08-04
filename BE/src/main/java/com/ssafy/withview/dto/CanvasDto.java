@@ -11,8 +11,8 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 public class CanvasDto {
-	private String	 id;
-	private long channelSeq;
+	private String id;
+	private Long channelSeq;
 	private String canvas;
 
 	public static CanvasEntity toEntity(CanvasDto canvasDto){

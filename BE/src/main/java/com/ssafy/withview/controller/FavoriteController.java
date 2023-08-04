@@ -31,7 +31,7 @@ public class FavoriteController {
 	private String CLOUD_FRONT_URL;
 
 	@GetMapping("")
-	public ResponseEntity<?> findAllFavorite(@PathVariable long userSeq) {
+	public ResponseEntity<?> findAllFavorite(@PathVariable Long userSeq) {
 		log.info("===== 즐겨찾기 목록 =====");
 		JSONObject result = new JSONObject();
 		try{
