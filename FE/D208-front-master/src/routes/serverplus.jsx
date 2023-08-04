@@ -21,6 +21,8 @@ const ServerPlus = () => {
   const [imageToCrop, setImageToCrop] = useState(null);
   const cropperRef = useRef(null);
   const profileImageURL = useSelector((state) => state.user.profile);
+  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImage}`;
+
 
   const navigate = useNavigate();
 
@@ -119,7 +121,7 @@ const ServerPlus = () => {
     <div className="mainbox">
       <div className="innermain">
         <ServerOptions
-          profileImage={profileImage}
+          profileImage={profileImageUrl}
           profileNickname={profileNickname}
         />
 

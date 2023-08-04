@@ -12,62 +12,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import Modal from "react-modal";
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
+import Popover from "react-popover";
 
 Modal.setAppElement("#root");
-
-const ChannelCard = ({ channel }) => {
-  return (
-    <div className="channelCard">
-      <div className="channelCard-imageContainer">
-        <img
-          src={`https://dm51j1y1p1ekp.cloudfront.net/channel-background/${channel.backgroundImgSearchName}`}
-          alt={channel.name}
-          className="channelCard-image"
-        />
-      </div>
-      <div className="channelCard-content">
-        <p className="channelCard-title">{channel.name}</p>
-      </div>
-    </div>
-  );
-};
-
-const CreateChannelCard = ({ onClick }) => {
-  return (
-    <div className="channelCard" onClick={onClick}>
-      <div className="channelCard-content">
-        <p className="channelCard-title">+ Create new channel</p>
-      </div>
-    </div>
-  );
-};
-
-const Member = ({ member }) => {
-  return (
-    <div className="member">
-      <img src={member.image} alt={member.name} className="memberImage" />
-      <p>{member.name}</p>
-    </div>
-  );
-};
-
-const Collapsible = ({ title, children }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="collapsible-server">
-      <div className="collapsibleHeader" onClick={() => setIsOpen(!isOpen)}>
-        {title}
-        <img
-          src={isOpen ? "/nav arrow up.png" : "/nav arrow down.png"}
-          alt="Toggle"
-          className="collapsibleIcon"
-        />
-      </div>
-      {isOpen && <div className="collapsibleBody">{children}</div>}
-    </div>
-  );
-};
 
 const Serverpage = () => {
   const [profileImage, setProfileImage] = useState(null);
@@ -80,6 +27,8 @@ const Serverpage = () => {
   const [onlineMembers, setOnlineMembers] = useState([]);
   const [offlineMembers, setOfflineMembers] = useState([]);
   const profileImageURL = useSelector((state) => state.user.profile);
+  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImage}`;
+
   const userSeq = useSelector((state) => state.user.seq);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -92,6 +41,120 @@ const Serverpage = () => {
 
   const { seq } = useParams();
   const navigate = useNavigate();
+
+  //서버 이름
+  useEffect(() => {
+    const fetchServerName = async () => {
+      try {
+        const response = await axios.get(
+          `https://i9d208.p.ssafy.io/api/servers/${seq}`
+        );
+        const serverInfo = response.data.server;
+
+        setServerInfo(serverInfo);
+        setServerName(serverInfo.name);
+        // 사용자가 호스트인지 확인
+        setIsHost(serverInfo.hostSeq === userSeq);
+      } catch (error) {
+        console.error("Error fetching server name:", error);
+      }
+    };
+    fetchServerName();
+  }, [seq]);
+
+  const ChannelCard = ({ channel, isHost }) => {
+    const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+    const togglePopover = () => {
+      setIsPopoverOpen(!isPopoverOpen);
+    };
+
+    const popoverBody = (
+      <div
+        style={{
+          backgroundColor: "white",
+          borderRadius: "10px",
+          padding: "10px",
+        }}
+      >
+        <button
+          style={{ display: "block", marginBottom: "10px" }}
+          onClick={() => {
+            /* 채널 수정 로직 */
+          }}
+        >
+          채널 수정
+        </button>
+        <button
+          style={{ display: "block" }}
+          onClick={() => {
+            /* 채널 삭제 로직 */
+          }}
+        >
+          채널 삭제
+        </button>
+      </div>
+    );
+
+    return (
+      <div className="channelCard">
+        <div className="channelCard-imageContainer">
+          <img
+            src={`https://dm51j1y1p1ekp.cloudfront.net/channel-background/${channel.backgroundImgSearchName}`}
+            alt={channel.name}
+            className="channelCard-image"
+          />
+        </div>
+        <div className="channelCard-content">
+          <p className="channelCard-title">{channel.name}</p>
+          {isHost && (
+            <div>
+              <Popover
+                isOpen={isPopoverOpen}
+                body={popoverBody}
+                place="above"
+                tipSize={0.01} // 작은 팁 사이즈로 팝오버가 버튼 위에 위치하도록 합니다
+                onOuterAction={togglePopover}
+              >
+                <img
+                  src="/dots-three-vertical.png"
+                  alt="Menu"
+                  className="channelCard-menuIcon"
+                  onClick={togglePopover}
+                />
+              </Popover>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const Member = ({ member }) => {
+    return (
+      <div className="member">
+        <img src={member.image} alt={member.name} className="memberImage" />
+        <p>{member.name}</p>
+      </div>
+    );
+  };
+
+  const Collapsible = ({ title, children }) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+      <div className="collapsible-server">
+        <div className="collapsibleHeader" onClick={() => setIsOpen(!isOpen)}>
+          {title}
+          <img
+            src={isOpen ? "/nav arrow up.png" : "/nav arrow down.png"}
+            alt="Toggle"
+            className="collapsibleIcon"
+          />
+        </div>
+        {isOpen && <div className="collapsibleBody">{children}</div>}
+      </div>
+    );
+  };
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
@@ -117,27 +180,6 @@ const Serverpage = () => {
     fetchChannels();
     // Fetch online and offline members here...
   }, []);
-
-  //서버 이름
-  useEffect(() => {
-    const fetchServerName = async () => {
-      try {
-        const response = await axios.get(
-          `https://i9d208.p.ssafy.io/api/servers/${seq}`
-        );
-        const serverInfo = response.data.server;
-
-        setServerInfo(serverInfo);
-        setServerName(serverInfo.name);
-        // 사용자가 호스트인지 확인
-        setIsHost(serverInfo.hostSeq === userSeq);
-      } catch (error) {
-        console.error("Error fetching server name:", error);
-      }
-    };
-
-    fetchServerName();
-  }, [seq]);
 
   const fetchChannels = async () => {
     try {
@@ -206,12 +248,12 @@ const Serverpage = () => {
     <div className="mainbox">
       <div className="innermain">
         <ServerOptions
-          profileImage={profileImage}
+          profileImage={profileImageUrl}
           profileNickname={profileNickname}
         />
         <hr className="serverOptionsLine_main" />
         <div className="backAndServerNameContainer">
-        <img
+          <img
             className="backArrowIcon"
             src="/backarrow.png"
             alt="Go Back"
@@ -219,14 +261,14 @@ const Serverpage = () => {
           />
           <h1 className="channelServerNameText">{serverName}</h1>
           {/* 서버 호스트일 경우에만 수정 및 삭제 메뉴 표시 */}
-        {isHost && (
-          <img
-            className="serverMenuIcon"
-            src="/serverEdit.png"
-            alt="Menu"
-            onClick={handleServerMenuClick}
-          />
-        )}
+          {isHost && (
+            <img
+              className="serverMenuIcon"
+              src="/serverEdit.png"
+              alt="Menu"
+              onClick={handleServerMenuClick}
+            />
+          )}
         </div>
         <div className="channelNameText">
           채널 목록
@@ -307,7 +349,7 @@ const Serverpage = () => {
           <Slider {...settings}>
             {channels.map((channel) => (
               <div key={channel.seq}>
-                <ChannelCard channel={channel} />
+                <ChannelCard channel={channel} isHost={isHost} />
               </div>
             ))}
           </Slider>

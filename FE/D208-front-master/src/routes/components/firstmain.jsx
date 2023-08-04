@@ -10,6 +10,8 @@ const FirstMain = () => {
   // const [profileNickname, setProfileNickname] = useState("기본 닉네임");
   const profileNickname = useSelector((state) => state.user.nickname)
   const profileImageURL = useSelector((state) => state.user.profile);
+  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImage}`;
+
 
   useEffect(() => {
     // 만약 redux에서 프로필 이미지가 null이면 기본 이미지로 설정
@@ -25,7 +27,7 @@ const FirstMain = () => {
     <div className="mainbox">
       <div className="innerfirstmain">
         <ServerOptions
-          profileImage={profileImage}
+          profileImage={profileImageUrl}
           profileNickname={profileNickname}
         />
 

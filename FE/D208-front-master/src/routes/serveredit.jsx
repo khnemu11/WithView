@@ -21,6 +21,8 @@ const ServerEdit = () => {
   const [imageToCrop, setImageToCrop] = useState(null);
   const cropperRef = useRef(null);
   const profileImageURL = useSelector((state) => state.user.profile);
+  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImage}`;
+
   const { isHost } = useLocation().state || {};
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -141,18 +143,15 @@ const ServerEdit = () => {
   };
 
   const confirmDeleteServer = () => {
-    const formData = new FormData();
-    formData.append("userSeq", hostSeqRef.current);
-    formData.append("serverSeq", seq);
-
+    
     // 서버 삭제 API 주소
-    const serverDeleteAPI = `https://i9d208.p.ssafy.io/api/servers`;
+    const serverDeleteAPI = `https://i9d208.p.ssafy.io/api/servers?serverSeq=${seq}&userSeq=${hostSeqRef.current}`;
 
     // 서버로 삭제 요청 보내기
     axios
-      .delete(serverDeleteAPI, formData, {
+      .delete(serverDeleteAPI, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/x-www-form-urlencoded",
         },
       })
       .then((response) => {
@@ -190,7 +189,7 @@ const ServerEdit = () => {
           </div>
         )}
         <ServerOptions
-          profileImage={profileImage}
+          profileImage={profileImageUrl}
           profileNickname={profileNickname}
         />
 

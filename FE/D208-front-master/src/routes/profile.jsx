@@ -21,6 +21,7 @@ const Profile = () => {
   const [profilePasswordCheck, setProfilePasswordCheck] = useState("");
   const [profileLeaveCheck, setProfileLeaveCheck] = useState("");
   const [profileImage, setProfileImage] = useState("/프사.png");
+  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImage}`;
 
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const [imageToCrop, setImageToCrop] = useState(null);
@@ -235,7 +236,7 @@ const Profile = () => {
     <div className="mainbox">
       <div className="innermain">
         <ServerOptions
-          profileImage={profileImage}
+          profileImage={profileImageUrl}
           profileNickname={profileNickname}
         />
 
@@ -285,7 +286,7 @@ const Profile = () => {
           <div className="column is-3">
             <div className="is-flex is-flex-direction-column is-align-items-center">
               <img
-                src={profileImage}
+                src={profileImageUrl}
                 className="profile-side-image"
                 alt="Profile"
               />
