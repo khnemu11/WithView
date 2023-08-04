@@ -78,7 +78,7 @@ public class LoginController {
 	}
 
 	@GetMapping("/cookie")
-	public ResponseEntity<Map<String, Object>> testCookie(@CookieValue("RefreshCookie") Cookie cookie) {
+	public ResponseEntity<Map<String, Object>> testCookie(@CookieValue("RefreshToken") Cookie cookie) {
 		log.info("LoginController - testCookie: http only cookie 확인");
 		Map<String, Object> resultMap = new HashMap<>();
 		HttpStatus status = HttpStatus.OK;
