@@ -137,7 +137,7 @@ export default function GroupChat() {
   //영상 : 이용자의 아이디
 
   // let session; //현재 채널 이름(오픈비두에선 채팅방 단위를 'session'이라고 부름)
-  let videoContainer = document.querySelector("#video-container"); //오픈비두로 받은 영상을 담은 컨테이너
+  // let videoContainer = document.querySelector("#video-container"); //오픈비두로 받은 영상을 담은 컨테이너
   let port = 9091; //백엔드 포트 번호
   let domain = "localhost"; //도메인 주소
   let APPLICATION_SERVER_URL = `http://${domain}:${port}/`;
@@ -150,8 +150,8 @@ export default function GroupChat() {
   let sessionScreen = useRef(null);
   let socket = useRef(null);
   let camPublisherRef = useRef(null);
-  let sharePublisherRef = useRef(null);
-  let screensharing = false;
+  // let sharePublisherRef = useRef(null);
+  let screensharing = useRef(false);
   let CamOV = useRef(null); //오픈비두 변수
   let ScreenOV = useRef(null); //오픈비두 변수
 
@@ -451,9 +451,10 @@ export default function GroupChat() {
       console.log("공유 세션 온");
       if (event.stream.typeOfVideo == "SCREEN") {
         // Subscribe to the Stream to receive it. HTML video will be appended to element with 'container-screens' id
+        console.log("진행상태 확인 1");
         var subscriberScreen = sessionScreen.subscribe(
           event.stream,
-          "sharingScreen"
+          "sharingscreen"
         );
         // When the HTML video has been appended to DOM...
         subscriberScreen.on("videoElementCreated", (event) => {
@@ -550,18 +551,20 @@ export default function GroupChat() {
   }
 
   function publishScreenShare() {
+    console.log("공유 버튼 눌림");
     console.log(ScreenOV.current);
     // --- 9.1) To create a publisherScreen set the property 'videoSource' to 'screen'
-    var publisherScreen = ScreenOV.current.initPublisher("sharingScreen", {
+    var publisherScreen = ScreenOV.current.initPublisher("sharingscreen", {
       videoSource: "screen",
-      // audioSource: "false",
+      audioSource: null,
     });
     console.log(publisherScreen);
 
     // --- 9.2) Publish the screen share stream only after the user grants permission to the browser
-    publisherScreen.once("accessAllowed", (event) => {
-      document.getElementById("buttonScreenShare").style.visibility = "hidden";
-      screensharing = true;
+    publisherScreen.once("accessAllowed", () => {
+      console.log("혹시 ?");
+      // document.getElementById("buttonScreenShare").style.visibility = "hidden";
+      screensharing.current = true;
       // If the user closes the shared window or stops sharing it, unpublish the stream
       publisherScreen.stream
         .getMediaStream()
@@ -571,19 +574,21 @@ export default function GroupChat() {
           sessionScreen.unpublish(publisherScreen);
           document.getElementById("buttonScreenShare").style.visibility =
             "visible";
-          screensharing = false;
+          screensharing.current = false;
         });
       sessionScreen.publish(publisherScreen);
     });
+    console.log("중간 점검");
 
     publisherScreen.on("videoElementCreated", function (event) {
       appendUserData(event.element, sessionScreen.connection);
       event.element["muted"] = true;
     });
 
-    publisherScreen.once("accessDenied", (event) => {
+    publisherScreen.once("accessDenied", () => {
       console.error("Screen Share: Access Denied");
     });
+    console.log("마지막");
   }
 
   //오픈비두 예제함수
@@ -602,7 +607,7 @@ export default function GroupChat() {
     // Back to 'Join session' page
     document.getElementById("join").style.display = "block";
     document.getElementById("session").style.display = "none";
-    screensharing = false;
+    screensharing.current = false;
   }
 
   //오픈비두 예제함수
@@ -1130,7 +1135,7 @@ export default function GroupChat() {
                 <video autoPlay playsInline={true}></video>
               </div>
               <div id="video-container" className="col-md-6"></div>
-              <div id="sharingScreen" className="sharing-Screen"></div>
+              <div id="sharingscreen" className="sharing-Screen"></div>
             </div>
           </div>
         </div>
