@@ -63,6 +63,7 @@ public class LoginController {
 					.sameSite("None")
 					.httpOnly(false)
 					.secure(true)
+					.maxAge(60)
 					.build();
 				response.addHeader("Set-Cookie", cookie.toString());
 				log.info("LoginController: 로그인 성공");
