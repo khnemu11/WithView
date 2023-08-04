@@ -54,7 +54,7 @@ public class InviteController {
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 	@PostMapping("")
-	public ResponseEntity<?> insertInviteCode(@RequestParam(name ="severSeq") long serverSeq,@RequestParam(name ="userSeq") long userSeq, HttpSession session) {
+	public ResponseEntity<?> insertInviteCode(@RequestParam(name ="severSeq") Long serverSeq,@RequestParam(name ="userSeq") Long userSeq, HttpSession session) {
 		log.info("===== 서버 초대 링크 생성 시작 =====");
 		JSONObject result = new JSONObject();
 		try{

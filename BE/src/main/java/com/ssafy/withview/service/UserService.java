@@ -48,20 +48,20 @@ public class UserService {
 	/**
 	 * 아이디 중복 검사
 	 * @param id (검사할 id)
-	 * @return boolean (true: 중복, false: 중복x)
+	 * @return Boolean (true: 중복, false: 중복x)
 	 */
 	@Transactional
-	public boolean checkDuplicateId(String id) {
+	public Boolean checkDuplicateId(String id) {
 		return userRepository.existsById(id);
 	}
 
 	/**
 	 * 이메일 중복 검사
 	 * @param email (검사할 email)
-	 * @return boolean (true: 중복, false: 중복x)
+	 * @return Boolean (true: 중복, false: 중복x)
 	 */
 	@Transactional
-	public boolean checkDuplicateEmail(String email) {
+	public Boolean checkDuplicateEmail(String email) {
 		return userRepository.existsByEmail(email);
 	}
 }

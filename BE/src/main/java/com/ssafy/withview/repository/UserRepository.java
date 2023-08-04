@@ -10,11 +10,11 @@ import com.ssafy.withview.entity.UserEntity;
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
-	public UserEntity findBySeq(long seq);
+	public UserEntity findBySeq(Long seq);
 
 	Optional<UserEntity> findById(String id);
 
-	boolean existsById(String id);
+	Boolean existsById(String id);
 
-	boolean existsByEmail(String email);
+	Boolean existsByEmail(String email);
 }

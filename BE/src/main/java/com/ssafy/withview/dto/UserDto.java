@@ -16,7 +16,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDto {
-	private long seq;
+	private Long seq;
 	private String id;
 	private String nickname;
 	private String realName;

@@ -18,10 +18,10 @@ import java.util.List;
 public class ServerEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long seq;
+	private Long seq;
 	private String name;
-	private int limitChannel;
-	private long hostSeq;
+	private Integer limitChannel;
+	private Long hostSeq;
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
 
@@ -36,7 +36,7 @@ public class ServerEntity {
 
 
 	@Builder
-	public ServerEntity(String name, int limitChannel, long hostSeq, String backgroundImgSearchName, String backgroundImgOriginalName) {
+	public ServerEntity(String name, Integer limitChannel, Long hostSeq, String backgroundImgSearchName, String backgroundImgOriginalName) {
 		this.name = name;
 		this.limitChannel = limitChannel;
 		this.hostSeq = hostSeq;

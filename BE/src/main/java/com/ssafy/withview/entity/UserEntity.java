@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 public class UserEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long seq;
+	private Long seq;
 	private String id;
 	private String email;
 	private String nickname;
