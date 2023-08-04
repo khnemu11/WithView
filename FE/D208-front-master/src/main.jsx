@@ -11,6 +11,7 @@ import Login from "./routes/login";
 import Signup from "./routes/signup";
 import "./css/main.css"; // Import the CSS file
 import GroupChat from "./routes/groupchat";
+import GroupChattemp from "./routes/groupchattemp";
 import FullScreen from "./routes/fullscreen";
 import Profile from "./routes/profile";
 import ServerPlus from "./routes/serverplus";
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
   {
     path: "/groupchat",
     element: <GroupChat />,
+  },
+  {
+    path: "/groupchattemp",
+    element: <GroupChattemp />,
   },
   {
     path: "/login",
