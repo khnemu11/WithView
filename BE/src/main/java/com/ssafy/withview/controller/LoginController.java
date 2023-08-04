@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,11 +47,11 @@ public class LoginController {
 		try {
 			Authentication authentication = loginService.login(loginDto);
 			if (authentication != null) {
-				// JWT 정보
+				// JWT
 				JwtDto jwtDto = jwtService.generateToken(authentication);
 				log.info("AccessToken: {}", jwtDto.getAccessToken());
 				log.info("RefreshToken: {}", jwtDto.getRefreshToken());
-				resultMap.put("JWT", jwtDto);
+				resultMap.put("AccessToken", jwtDto.getAccessToken());
 				// seq, nickname, profileImgSearchName 정보
 				UserDto userDto = loginService.getUserInfo(loginDto);
 				log.info("UserInfo: {}", userDto);
@@ -72,6 +74,16 @@ public class LoginController {
 			resultMap.put("message", e.getMessage());
 			status = HttpStatus.ACCEPTED;
 		}
+		return new ResponseEntity<>(resultMap, status);
+	}
+
+	@GetMapping("/cookie")
+	public ResponseEntity<Map<String, Object>> testCookie(@CookieValue("RefreshCookie") Cookie cookie) {
+		log.info("LoginController - testCookie: http only cookie 확인");
+		Map<String, Object> resultMap = new HashMap<>();
+		HttpStatus status = HttpStatus.OK;
+		resultMap.put("success", true);
+		resultMap.put("cookie", cookie);
 		return new ResponseEntity<>(resultMap, status);
 	}
 
