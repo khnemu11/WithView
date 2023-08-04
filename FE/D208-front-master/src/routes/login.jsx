@@ -6,7 +6,6 @@ import "../css/Login.css";
 import axios from "axios";
 import withview from "../assets/withview.png";
 import { setUser } from "../redux/actions/userActions";
-import { Button } from 'react-bootstrap';
 
 
 

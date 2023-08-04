@@ -7,9 +7,9 @@ import "cropperjs/dist/cropper.css";
 import ServerOptions from "./components/serveroptions";
 import { useSelector } from "react-redux";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
-const ServerPlus = () => {
+const ServerEdit = () => {
   const profileNickname = useSelector((state) => state.user.nickname);
   const [profileImage, setProfileImage] = useState("null");
   const [serverImage, setServerImage] = useState("/withView.png");
@@ -21,8 +21,32 @@ const ServerPlus = () => {
   const [imageToCrop, setImageToCrop] = useState(null);
   const cropperRef = useRef(null);
   const profileImageURL = useSelector((state) => state.user.profile);
+  const { isHost } = useLocation().state || {};
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const navigate = useNavigate();
+  const { seq } = useParams();
+  const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] =
+    useState(false);
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    navigate(-1); // 뒤로 가기
+  };
+
+  const openDeleteConfirmModal = () => {
+    setIsDeleteConfirmModalOpen(true);
+  };
+
+  const closeDeleteConfirmModal = () => {
+    setIsDeleteConfirmModalOpen(false);
+  };
+
+  useEffect(() => {
+    if (!isHost) {
+      setIsModalOpen(true);
+    }
+  }, [isHost]);
 
   useEffect(() => {
     // 만약 redux에서 프로필 이미지가 null이면 기본 이미지로 설정
@@ -46,33 +70,34 @@ const ServerPlus = () => {
     return new Blob([uint8Array], { type: "image/png" });
   }
 
-  const handleServerCreateButtonClick = () => {
+  const handleServerEditButtonClick = () => {
     const formData = new FormData();
-    formData.append("hostSeq", hostSeqRef.current);
+    formData.append("userSeq", hostSeqRef.current);
     formData.append("name", serverName);
     formData.append("file", editedImage);
+    formData.append("seq", seq);
 
-    // 서버 생성 API 주소
-    const serverCreateAPI = "https://i9d208.p.ssafy.io/api/servers";
+    // 서버 편집 API 주소
+    const serverEditAPI = `https://i9d208.p.ssafy.io/api/servers/${seq}`;
 
-    // 서버로 생성 요청 보내기
+    // 서버로 편집 요청 보내기
     axios
-      .post(serverCreateAPI, formData, {
+      .post(serverEditAPI, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       })
       .then((response) => {
-        // 서버 생성 성공 처리
+        // 서버 편집 성공 처리
         console.log(editedImage);
-        console.log("서버 생성 성공:", response.data);
+        console.log("서버 편집 성공:", response.data);
         // ... (추가적인 처리 로직)
         const serverSeq = response.data.server.seq;
         navigate(`/server/${serverSeq}`);
       })
       .catch((error) => {
-        // 서버 생성 실패 처리
-        console.error("서버 생성 실패:", error);
+        // 서버 편집 실패 처리
+        console.error("서버 편집 실패:", error);
         // ... (에러 처리 로직)
       });
   };
@@ -115,9 +140,55 @@ const ServerPlus = () => {
     setIsCropModalOpen(false); // 모달 닫기
   };
 
+  const confirmDeleteServer = () => {
+    const formData = new FormData();
+    formData.append("userSeq", hostSeqRef.current);
+    formData.append("serverSeq", seq);
+
+    // 서버 삭제 API 주소
+    const serverDeleteAPI = `https://i9d208.p.ssafy.io/api/servers`;
+
+    // 서버로 삭제 요청 보내기
+    axios
+      .delete(serverDeleteAPI, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((response) => {
+        // 서버 삭제 성공 처리
+        console.log("서버 삭제 성공:", response.data);
+        // 메인 페이지로 이동
+        navigate("/mainpage");
+      })
+      .catch((error) => {
+        // 서버 삭제 실패 처리
+        console.error("서버 삭제 실패:", error);
+        // ... (에러 처리 로직)
+      });
+    // 삭제가 성공적으로 완료된 후에 모달을 닫습니다.
+    setIsDeleteConfirmModalOpen(false);
+  };
+
   return (
     <div className="mainbox">
       <div className="innermain">
+        {isModalOpen && (
+          <div className="modal is-active">
+            <div className="modal-background"></div>
+            <div className="modal-content">
+              <h3 className="title">권한이 없습니다.</h3>
+              <button className="button" onClick={closeModal}>
+                확인
+              </button>
+            </div>
+            <button
+              className="modal-close is-large"
+              aria-label="close"
+              onClick={closeModal}
+            ></button>
+          </div>
+        )}
         <ServerOptions
           profileImage={profileImage}
           profileNickname={profileNickname}
@@ -125,7 +196,34 @@ const ServerPlus = () => {
 
         <hr className="serverOptionsLine_profile" />
 
-        <div className="serverCreate_text">서버 만들기</div>
+        <div className="serverCreate_text">
+          서버 편집하기
+          <img
+            src="/delete.png"
+            className="server-delete-button"
+            alt="Delete"
+            onClick={openDeleteConfirmModal}
+          />
+        </div>
+        {isDeleteConfirmModalOpen && (
+          <div className="modal is-active">
+            <div className="modal-background"></div>
+            <div className="modal-content">
+              <h3 className="title">정말로 서버를 삭제하시겠습니까?</h3>
+              <button className="button" onClick={confirmDeleteServer}>
+                삭제
+              </button>
+              <button className="button" onClick={closeDeleteConfirmModal}>
+                취소
+              </button>
+            </div>
+            <button
+              className="modal-close is-large"
+              aria-label="close"
+              onClick={closeDeleteConfirmModal}
+            ></button>
+          </div>
+        )}
         <label htmlFor="imageUpload-server">
           <img
             src={editedImageShow || "/uploadimage.png"}
@@ -154,10 +252,10 @@ const ServerPlus = () => {
           <button
             className="button mt-2 has-text-white serverplus-ok-button"
             onClick={() =>
-              handleServerCreateButtonClick(hostSeqRef, serverName, editedImage)
+              handleServerEditButtonClick(hostSeqRef, serverName, editedImage)
             }
           >
-            생성하기
+            확인
           </button>
         </div>
         {isCropModalOpen && (
@@ -199,4 +297,4 @@ const ServerPlus = () => {
   );
 };
 
-export default ServerPlus;
+export default ServerEdit;

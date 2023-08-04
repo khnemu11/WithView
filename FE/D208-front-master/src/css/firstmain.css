@@ -1,3 +1,8 @@
+html{
+  overflow-y: hidden;
+
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -69,7 +74,7 @@ body {
 
 .profile-bar-image{
   width: 100%;
-  max-width: 60px;
+  max-width: 55px;
   margin-right: 10px;
   border-radius: 50%;
 }

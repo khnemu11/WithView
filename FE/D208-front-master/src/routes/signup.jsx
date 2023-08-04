@@ -3,10 +3,6 @@ import { useNavigate } from "react-router-dom";
 import "../css/Signup.css";
 import axios from "axios";
 
-import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
-import Modal from "react-bootstrap/Modal";
-
 export default function Signup() {
   const [email, setEmail] = useState("");
   const [password1, setPassword1] = useState("");
