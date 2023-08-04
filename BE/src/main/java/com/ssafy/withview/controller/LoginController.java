@@ -59,7 +59,7 @@ public class LoginController {
 				// Cookie 생성
 				Cookie cookie = new Cookie("RefreshToken", jwtDto.getRefreshToken());
 				cookie.setSecure(true);
-				cookie.setHttpOnly(true);
+				// cookie.setHttpOnly(true);
 				cookie.setPath("/");
 				response.addCookie(cookie);
 				log.info("LoginController: 로그인 성공");
