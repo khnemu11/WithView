@@ -128,7 +128,7 @@ export default function Signup() {
     e.preventDefault();
     axios({
       method: "GET",
-      url: `${url}/users/email/validate?email=${email}`,
+      url: `${url}/users/email/validate?email=${email}&var=1`,
     })
       .then((res) => {
         console.log(res.data);

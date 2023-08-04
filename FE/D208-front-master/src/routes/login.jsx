@@ -1,39 +1,37 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useCookies } from "react-cookie";
+// import { useCookies } from "react-cookie";
 import { setToken } from "../redux/actions/tokenActions";
 import "../css/Login.css";
 import axios from "axios";
 import withview from "../assets/withview.png";
 import { setUser } from "../redux/actions/userActions";
-
-
+axios.defaults.withCredentials = true;
 
 export default function Login() {
   const [Id, setId] = useState("");
   const [password, setPassword] = useState("");
-  const [cookies, setCookie] = useCookies(""); // 쿠키 훅 
+  // const [cookies, setCookie] = useCookies(""); // 쿠키 훅
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const url = "https://i9d208.p.ssafy.io/api";
-  
+
   // redux 저장 테스트용
   const checktoken = useSelector((state) => state.token);
   const userInfotest = useSelector((state) => state.user);
   useEffect(() => {
     console.log(checktoken); // 토큰 값이 변경될 때마다 출력...
     console.log(userInfotest); // 토큰 값이 변경될 때마다 출력...
-  }, [checktoken,userInfotest]);
+  }, [checktoken, userInfotest]);
   //
-
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
       checkLogin();
     }
   };
-  
+
   function checkLogin() {
     axios({
       method: "POST",
@@ -44,20 +42,31 @@ export default function Login() {
         if (res.data.success) {
           console.log("토큰 받아라");
           const accessToken = res.data.JWT.accessToken;
-          const refreshToken = res.data.JWT.refreshToken;
-          const userInfo = {seq : res.data.UserInfo.seq, nickname : res.data.UserInfo.nickname, profile : res.data.UserInfo.profileImgSearchName}
+          // const refreshToken = res.data.JWT.refreshToken;
+          const userInfo = {
+            seq: res.data.UserInfo.seq,
+            nickname: res.data.UserInfo.nickname,
+            profile: res.data.UserInfo.profileImgSearchName,
+          };
 
           console.log(res.data);
           // 토큰을 Redux로 저장
           dispatch(setToken(accessToken));
           dispatch(setUser(userInfo));
           // refreshToken 저장하기
-          setCookie("refreshToken", refreshToken, {
-            path: "/", // 쿠키 경로
-            expires: new Date(Date.now() + 3600000), // 현재 시간 + 1시간 (1시간 뒤에 쿠키 만료)
-            httpOnly: true, // 클라이언트 스크립트에서 쿠키에 접근하지 못하도록 설정
-          });
+          // console.log(cookies)
           // 로비화면으로 이동
+          axios({
+            method: "GET",
+            url: `${url}/login/cookie`,
+          })
+            .then((res) => {
+              console.log(res.data);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+
           navigate("/mainpage");
         } else {
           alert("로그인 실패!!");
@@ -139,15 +148,23 @@ export default function Login() {
 
           <div className="login_findes">
             <div style={{ marginRight: "30px" }}>
-              <a onClick={()=>{
-                navigate("/findid")
-              }}>아이디 찾기</a>
+              <a
+                onClick={() => {
+                  navigate("/findid");
+                }}
+              >
+                아이디 찾기
+              </a>
             </div>
             |
             <div style={{ marginLeft: "30px" }}>
-              <a onClick={()=>{
-                navigate("/findpassword")
-              }}>비밀번호 찾기</a>
+              <a
+                onClick={() => {
+                  navigate("/findpassword");
+                }}
+              >
+                비밀번호 찾기
+              </a>
             </div>
           </div>
         </div>
