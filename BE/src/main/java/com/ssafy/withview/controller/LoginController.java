@@ -68,6 +68,7 @@ public class LoginController {
 					.maxAge(60 * 5)
 					.build();
 				response.addHeader("Set-Cookie", cookie.toString());
+				log.info("Cookie 생성 완료");
 				log.info("LoginController: 로그인 성공");
 				resultMap.put("success", true);
 				status = HttpStatus.CREATED;
