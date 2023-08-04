@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -15,7 +16,8 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-@Entity(name = "login")
+@Entity
+@Table(name = "login")
 public class LoginEntity {
 
 	@Id
@@ -39,5 +41,9 @@ public class LoginEntity {
 			return Arrays.asList(this.roles.split(","));
 		}
 		return new ArrayList<>();
+	}
+
+	public void updatePassword(String password) {
+		this.password = password;
 	}
 }
