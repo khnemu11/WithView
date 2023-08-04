@@ -61,7 +61,7 @@ public class LoginController {
 				// Cookie 생성
 				ResponseCookie cookie = ResponseCookie.from("RefreshToken", jwtDto.getRefreshToken())
 					.path("/")
-					.domain("https:/localhost")
+					// .domain("localhost")
 					.sameSite("None")
 					.httpOnly(true)
 					.secure(true)
