@@ -17,7 +17,7 @@ import javax.persistence.*;
 public class CanvasEntity {
 	@Id
 	private String id;
-	private long channelSeq;
+	private Long channelSeq;
 	private String canvas;
 
 	public static CanvasDto toDto(CanvasEntity entity){
@@ -31,7 +31,7 @@ public class CanvasEntity {
 		this.canvas = canvasDto.getCanvas();
 	}
 	@Builder
-	public CanvasEntity(long channelSeq,String canvas) {
+	public CanvasEntity(Long channelSeq,String canvas) {
 		this.channelSeq = channelSeq;
 		this.canvas = canvas;
 	}

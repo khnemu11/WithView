@@ -34,7 +34,7 @@ public class CanvasServiceImpl implements CanvasService{
 
 	@Transactional
 	@Override
-	public void deleteCanvasByChannelSeq(long channelSeq) {
+	public void deleteCanvasByChannelSeq(Long channelSeq) {
 		List<CanvasEntity> canvasEntityList = canvasRepository.findByChannelSeq(channelSeq);
 		CanvasEntity canvasEntity = canvasEntityList.get(0);
 
@@ -42,7 +42,7 @@ public class CanvasServiceImpl implements CanvasService{
 	}
 
 	@Override
-	public CanvasDto findCanvasByChannelSeq(long channelSeq) {
+	public CanvasDto findCanvasByChannelSeq(Long channelSeq) {
 		List<CanvasEntity> canvasEntityList = canvasRepository.findByChannelSeq(channelSeq);
 
 		return CanvasEntity.toDto(canvasEntityList.get(0));
