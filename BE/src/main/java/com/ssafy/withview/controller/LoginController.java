@@ -47,7 +47,7 @@ public class LoginController {
 		try {
 			Authentication authentication = loginService.login(loginDto);
 			if (authentication != null) {
-				// JWT
+				// JWT 발급
 				JwtDto jwtDto = jwtService.generateToken(authentication);
 				log.info("AccessToken: {}", jwtDto.getAccessToken());
 				log.info("RefreshToken: {}", jwtDto.getRefreshToken());
