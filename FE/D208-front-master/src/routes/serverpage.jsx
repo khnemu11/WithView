@@ -42,6 +42,8 @@ const Serverpage = () => {
   const { seq } = useParams();
   const navigate = useNavigate();
 
+  const [editingChannel, setEditingChannel] = useState(null);
+
   //서버 이름
   useEffect(() => {
     const fetchServerName = async () => {
@@ -78,9 +80,7 @@ const Serverpage = () => {
       >
         <button
           style={{ display: "block", marginBottom: "10px" }}
-          onClick={() => {
-            /* 채널 수정 로직 */
-          }}
+          onClick={() => handleEditChannelClick(channel)}
         >
           채널 수정
         </button>
@@ -221,8 +221,9 @@ const Serverpage = () => {
 
         if (response.status === 200) {
           // 채널 생성 후 바로 채널 목록을 다시 불러옵니다.
-          fetchChannels();
+          await fetchChannels();
           setIsModalOpen(false);
+          resetModal();
         }
       } catch (error) {
         console.error("Error creating channel:", error);
@@ -242,6 +243,59 @@ const Serverpage = () => {
     speed: 500,
     slidesToShow: 3,
     slidesToScroll: 3,
+  };
+  //모달 리셋
+  const resetModal = () => {
+    setChannelName("");
+    setCroppedImage(null);
+    setIsModalOpen(false);
+    setEditingChannel(null);
+  };
+
+  //채널 수정' 버튼이 눌렸을 때 setEditingChannel를 사용해 수정하려는 채널의 정보를 설정
+  const handleEditChannelClick = (channel) => {
+    setChannelName(channel.name);
+    setCroppedImage(null);
+    setEditingChannel(channel);
+    setIsModalOpen(true);
+  };
+
+  const editChannel = async () => {
+    const cropper = cropperRef.current.cropper;
+    const croppedCanvas = cropper.getCroppedCanvas();
+
+    croppedCanvas.toBlob(async (blob) => {
+      const formData = new FormData();
+      const file = new File([blob], "newFile.png", { type: blob.type });
+
+      formData.append("file", file);
+      formData.append("name", channelName);
+
+      for (let entry of formData.entries()) {
+        console.log(entry);
+      }
+
+      try {
+        const response = await axios.post(
+          `https://i9d208.p.ssafy.io/api/servers/${seq}/channels/${editingChannel.seq}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          await fetchChannels();
+          setIsModalOpen(false);
+          setEditingChannel(null);
+          resetModal();
+        }
+      } catch (error) {
+        console.error("Error editing channel:", error);
+      }
+    });
   };
 
   return (
@@ -281,12 +335,12 @@ const Serverpage = () => {
         </div>
         <Modal
           isOpen={isModalOpen}
-          onRequestClose={() => setIsModalOpen(false)}
+          onRequestClose={resetModal}
           className="channelPlusModal"
           overlayClassName="cPMOverlay"
         >
           <button
-            onClick={() => setIsModalOpen(false)}
+            onClick={resetModal}
             className="closeModalButton"
           >
             <img src="/backarrow.png" alt="Close modal" />
@@ -339,9 +393,9 @@ const Serverpage = () => {
             />
             <button
               className="channel-apply-button has-text-white"
-              onClick={createChannel}
+              onClick={editingChannel ? editChannel : createChannel}
             >
-              만들기
+              {editingChannel ? "수정" : "만들기"}
             </button>
           </div>
         </Modal>
