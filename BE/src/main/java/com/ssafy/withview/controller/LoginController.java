@@ -3,10 +3,12 @@ package com.ssafy.withview.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,9 +32,14 @@ public class LoginController {
 	private final LoginService loginService;
 	private final JwtService jwtService;
 
+	/**
+	 * 로그인
+	 * @param loginDto (로그인 하려는 id, password)
+	 * @return ResponseEntity (true / false, 상태코드, JWT, UserInfo)
+	 */
 	@PostMapping("/login")
-	public ResponseEntity<Map<String, Object>> login(@RequestBody LoginDto loginDto) {
-		log.info("LoginController: 로그인 진행");
+	public ResponseEntity<Map<String, Object>> login(@RequestBody LoginDto loginDto, HttpServletResponse response) {
+		log.info("LoginController - login: 로그인 진행");
 		Map<String, Object> resultMap = new HashMap<>();
 		HttpStatus status = null;
 		try {
@@ -47,6 +54,12 @@ public class LoginController {
 				UserDto userDto = loginService.getUserInfo(loginDto);
 				log.info("UserInfo: {}", userDto);
 				resultMap.put("UserInfo", userDto);
+				// Cookie 생성
+				Cookie cookie = new Cookie("RefreshToken", jwtDto.getRefreshToken());
+				cookie.setSecure(true);
+				cookie.setHttpOnly(true);
+				cookie.setPath("/");
+				response.addCookie(cookie);
 				log.info("LoginController: 로그인 성공");
 				resultMap.put("success", true);
 				status = HttpStatus.CREATED;
@@ -54,13 +67,21 @@ public class LoginController {
 		} catch (Exception e) {
 			log.error("LoginController: 로그인 실패 {}", e.getMessage());
 			resultMap.put("success", false);
+			resultMap.put("message", e.getMessage());
 			status = HttpStatus.ACCEPTED;
 		}
 		return new ResponseEntity<>(resultMap, status);
 	}
 
+	/**
+	 * 로그아웃
+	 * @param userDto (Long seq: 로그아웃 하려는 유저 pk 값)
+	 * @return ResponseEntity (true / false, 상태코드)
+	 */
 	@PostMapping("/logout")
-	public ResponseEntity<Map<String, Object>> logout(@PathVariable Long seq) {
+	public ResponseEntity<Map<String, Object>> logout(@RequestBody UserDto userDto) {
+		log.info("LoginController - logout: 로그아웃 진행");
+		log.info("seq: {}", userDto.getSeq());
 		Map<String, Object> resultMap = new HashMap<>();
 		HttpStatus status = HttpStatus.OK;
 		resultMap.put("success", true);
