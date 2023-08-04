@@ -7,6 +7,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -57,11 +58,13 @@ public class LoginController {
 				log.info("UserInfo: {}", userDto);
 				resultMap.put("UserInfo", userDto);
 				// Cookie 생성
-				Cookie cookie = new Cookie("RefreshToken", jwtDto.getRefreshToken());
-				cookie.setSecure(true);
-				// cookie.setHttpOnly(true);
-				cookie.setPath("/");
-				response.addCookie(cookie);
+				ResponseCookie cookie = ResponseCookie.from("RefreshToken", jwtDto.getRefreshToken())
+					.path("/")
+					.sameSite("None")
+					.httpOnly(false)
+					.secure(true)
+					.build();
+				response.addHeader("Set-Cookie", cookie.toString());
 				log.info("LoginController: 로그인 성공");
 				resultMap.put("success", true);
 				status = HttpStatus.CREATED;
