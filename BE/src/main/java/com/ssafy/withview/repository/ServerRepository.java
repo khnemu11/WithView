@@ -6,6 +6,6 @@ import com.ssafy.withview.entity.ServerEntity;
 
 @Repository
 public interface ServerRepository extends JpaRepository<ServerEntity,Long> {
-	public ServerEntity findBySeq(long serverSeq);
+	public ServerEntity findBySeq(Long serverSeq);
 	// public ChannelEntity findChannel(String channelName);
 }

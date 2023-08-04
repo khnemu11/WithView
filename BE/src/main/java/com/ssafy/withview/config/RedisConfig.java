@@ -13,7 +13,7 @@ public class RedisConfig {
 	private String host;
 
 	@Value("${spring.redis.port}")
-	private int port;
+	private Integer port;
 
 	@Bean
 	public RedisConnectionFactory redisConnectionFactory() {

@@ -19,7 +19,7 @@ public class CanvasController {
 	private final CanvasService canvasService;
 
 	@GetMapping("/{channelSeq}")
-	public ResponseEntity<?> findCanvas(@PathVariable(name = "channelSeq")long channelSeq) {
+	public ResponseEntity<?> findCanvas(@PathVariable(name = "channelSeq")Long channelSeq) {
 		JSONObject jsonObject = new JSONObject();
 		CanvasDto canvasDto;
 		try{
@@ -53,7 +53,7 @@ public class CanvasController {
 	}
 
 	@PostMapping("/{channelSeq}")
-	public ResponseEntity<?> updateCanvas(@PathVariable(name="channelSeq")long channelSeq, @RequestBody CanvasDto canvasDto) {
+	public ResponseEntity<?> updateCanvas(@PathVariable(name="channelSeq")Long channelSeq, @RequestBody CanvasDto canvasDto) {
 		JSONObject jsonObject = new JSONObject();
 		try{
 			canvasService.updateCanvas(canvasDto);
