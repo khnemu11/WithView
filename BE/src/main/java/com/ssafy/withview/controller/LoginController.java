@@ -62,7 +62,7 @@ public class LoginController {
 				ResponseCookie cookie = ResponseCookie.from("RefreshToken", jwtDto.getRefreshToken())
 					.path("/")
 					.sameSite("None")
-					.httpOnly(true)
+					.httpOnly(false)
 					.secure(true)
 					.maxAge(60)
 					.build();
