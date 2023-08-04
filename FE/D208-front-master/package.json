@@ -18,10 +18,7 @@
     "konva": "^9.2.0",
     "openvidu-browser": "^2.28.0",
     "react": "^18.2.0",
-<<<<<<< HEAD
-=======
     "react-cookie": "^4.1.1",
->>>>>>> 86eb0f81894e6eed47974aed7415a18dce9b78af
     "react-cropper": "^2.3.3",
     "react-dom": "^18.2.0",
     "react-konva": "^18.2.10",
