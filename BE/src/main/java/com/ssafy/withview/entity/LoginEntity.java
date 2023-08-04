@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -15,19 +16,20 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-@Entity(name = "login")
+@Entity
+@Table(name = "login")
 public class LoginEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long seq;
+	private Long seq;
 	private String id;
 	private String password;
 	private String roles;
-	private long user_seq;
+	private Long user_seq;
 
 	@Builder
-	public LoginEntity(String id, String password, String roles, long user_seq) {
+	public LoginEntity(String id, String password, String roles, Long user_seq) {
 		this.id = id;
 		this.password = password;
 		this.roles = roles;
@@ -39,5 +41,9 @@ public class LoginEntity {
 			return Arrays.asList(this.roles.split(","));
 		}
 		return new ArrayList<>();
+	}
+
+	public void updatePassword(String password) {
+		this.password = password;
 	}
 }

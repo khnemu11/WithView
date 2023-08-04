@@ -42,11 +42,12 @@ public class LoginService {
 	@Transactional
 	public UserDto getUserInfo(LoginDto loginDto) {
 		log.info("LoginService - getUserInfo 실행");
-		log.info("id: {}", loginDto.getId());
+		
 		UserEntity userEntity = userRepository.findById(loginDto.getId())
-			.orElseThrow(() -> new RuntimeException("일치하는 회원 정보가 없습니다."));
+			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
+
 		return UserDto.builder()
-			.id(userEntity.getId())
+			.seq(userEntity.getSeq())
 			.nickname(userEntity.getNickname())
 			.profileImgSearchName(userEntity.getProfileImgSearchName())
 			.build();

@@ -1,10 +1,6 @@
 package com.ssafy.withview.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import com.ssafy.withview.dto.ChannelDto;
 
@@ -28,29 +24,32 @@ public class ChannelEntity {
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
 
-	public static ChannelDto toDto(ChannelEntity entity) {
-		return ChannelDto.builder()
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="server_seq")
+	private ServerEntity serverEntity;
+
+	public static ChannelDto toDto(ChannelEntity entity){
+		return ChannelDto.builder().seq(entity.getSeq())
 			.name(entity.getName())
 			.limitPeople(entity.getLimitPeople())
-			.serverSeq(entity.getServerSeq())
+			.serverSeq(entity.getServerEntity().getSeq())
 			.backgroundImgOriginalName(entity.getBackgroundImgOriginalName())
 			.backgroundImgSearchName(entity.getBackgroundImgSearchName())
 			.build();
 	}
 
-	public void update(ChannelDto channelDtoDto) {
-		this.backgroundImgSearchName = channelDtoDto.getBackgroundImgOriginalName();
-		this.backgroundImgOriginalName = channelDtoDto.getBackgroundImgOriginalName();
-		this.name = channelDtoDto.getName();
+	public void update(ChannelDto channelDto){
+		this.backgroundImgSearchName = channelDto.getBackgroundImgSearchName();
+		this.backgroundImgOriginalName = channelDto.getBackgroundImgOriginalName();
+		this.name = channelDto.getName();
 	}
 
 	@Builder
-	public ChannelEntity(String name, int limitPeople, int serverSeq, String backgroundImgOriginalName,
-		String backgroundImgSearchName) {
+	public ChannelEntity(String name, int limitPeople,String backgroundImgOriginalName, String backgroundImgSearchName,ServerEntity serverEntity) {
 		this.name = name;
 		this.limitPeople = limitPeople;
-		this.serverSeq = serverSeq;
 		this.backgroundImgOriginalName = backgroundImgOriginalName;
 		this.backgroundImgSearchName = backgroundImgSearchName;
+		this.serverEntity = serverEntity;
 	}
 }

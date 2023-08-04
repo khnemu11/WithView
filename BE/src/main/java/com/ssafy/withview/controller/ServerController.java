@@ -1,268 +1,222 @@
 package com.ssafy.withview.controller;
 
-import java.util.List;
+import com.ssafy.withview.dto.ServerDto;
+import com.ssafy.withview.dto.UserDto;
+import com.ssafy.withview.service.FavoriteService;
+import com.ssafy.withview.service.ServerService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ssafy.withview.dto.ChannelDto;
-import com.ssafy.withview.dto.ServerDto;
-import com.ssafy.withview.dto.UserDto;
-import com.ssafy.withview.service.ChannelService;
-import com.ssafy.withview.service.ServerService;
-
-import lombok.RequiredArgsConstructor;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/servers")
 @RequiredArgsConstructor
+@Slf4j
 public class ServerController {
 	private final ServerService serverService;
-	private final ChannelService channelService;
+	private final FavoriteService favoriteService;
 
 	@Value(value = "${CLOUD_FRONT_URL}")
 	private String CLOUD_FRONT_URL;
 
-	@PostMapping("/{serverSeq}/channels")
-	public ResponseEntity<?> insertChannel(@PathVariable long serverSeq, @ModelAttribute ChannelDto channelDto,
-		@RequestParam(name = "file") MultipartFile multipartFile) {
-		JSONObject result = new JSONObject();
-		try {
-			channelService.insertChannel(channelDto, multipartFile);
-			result.put("success", true);
-		} catch (Exception e) {
-			e.printStackTrace();
-
-			result.put("success", false);
-			result.put("msg", "채널 생성 중 오류가 발생했습니다!");
-			return new ResponseEntity<JSONObject>(result, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
-	}
-
-	//	@GetMapping("/{serverSeq}/channels/find-channel-by-user")
-	//	public ResponseEntity findAllChannelsByUser(@PathVariable long serverSeq, @ModelAttribute(name = "userSeq") ChannelDto channelDto){
-	//		JSONObject result = new JSONObject();
-	//		try {
-	//			serverService.insertChannel(channelDto);
-	//		}catch (Exception e){
-	//			e.printStackTrace();
-	//
-	//			result.put("success",false);
-	//			result.put("msg","채널 생성 중 오류가 발생했습니다.");
-	//			return new ResponseEntity<JSONObject>(result,HttpStatus.INTERNAL_SERVER_ERROR);
-	//		}
-	//		return new ResponseEntity<JSONObject>(result,HttpStatus.OK);
-	//	}
 	@GetMapping("/{serverSeq}")
 	public ResponseEntity<?> findServerBySeq(@PathVariable long serverSeq) {
+		log.info("서버 탐색 시작");
 		JSONObject result = new JSONObject();
-		try {
+		try{
 			ServerDto serverDto = serverService.findServerBySeq(serverSeq);
-
-			result.put("success", true);
-			result.put("server", serverDto);
-		} catch (Exception e) {
+			log.info("찾은 서버 "+ serverDto);
+			result.put("success",true);
+			result.put("server",serverDto);
+			result.put("imgUriPrefix",CLOUD_FRONT_URL+"server-background/");
+		}catch (Exception e){
 			e.printStackTrace();
 			result = new JSONObject();
-			result.put("succuess", false);
-			result.put("msg", serverSeq + "서버 찾기를 실패했습니다.");
-			return new ResponseEntity<JSONObject>(result, HttpStatus.INTERNAL_SERVER_ERROR);
+			result.put("success",false);
+			result.put("msg",serverSeq+"서버 찾기를 실패했습니다.");
+			return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
-	}
-
-	@GetMapping("/{serverSeq}/channels")
-	public ResponseEntity<?> addChannel(@PathVariable long serverSeq, @ModelAttribute ChannelDto channelDto
-		, @RequestParam(name = "file", required = false) MultipartFile multipartFile) {
-		System.out.println("====== 채널 추가 시작 ======");
-		JSONObject result = new JSONObject();
-		try {
-			channelDto = channelService.insertChannel(channelDto, multipartFile);
-		} catch (Exception e) {
-			e.printStackTrace();
-			result.put("success", false);
-			result.put("msg", "서버 추가를 실패했습니다.");
-			return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
-		}
-
-		result.put("success", true);
-		result.put("server", channelDto);
-		result.put("imgUrl", CLOUD_FRONT_URL + "server-background/" + channelDto.getBackgroundImgSearchName());
-		result.put("msg", "서버 추가를 성공했습니다.");
-		System.out.println("====== 채널 추가 끝 ======");
-		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
+		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 
 	@GetMapping("")
 	public ResponseEntity<?> findAllServers() {
+		log.info("모든 서버 찾기");
 		JSONObject result = new JSONObject();
-		try {
+		try{
 			List<ServerDto> serverDtoList = serverService.findAllServer();
-
-			result.put("success", true);
-			result.put("server", serverDtoList);
-		} catch (Exception e) {
+			result.put("success",true);
+			result.put("servers",serverDtoList);
+			result.put("imgUriPrefix",CLOUD_FRONT_URL+"server-background/");
+		}catch (Exception e){
 			e.printStackTrace();
 			result = new JSONObject();
-			result.put("succuess", false);
-			result.put("msg", "서버 찾기를 실패했습니다.");
-			return new ResponseEntity<JSONObject>(result, HttpStatus.INTERNAL_SERVER_ERROR);
+			result.put("success",false);
+			result.put("msg","서버 찾기를 실패했습니다.");
+			return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
+		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
-
 	@GetMapping("/{serverSeq}/users")
 	public ResponseEntity<?> findAllUsersInServer(@PathVariable(name = "serverSeq") long serverSeq) {
 		JSONObject result = new JSONObject();
-		try {
+		try{
 			List<UserDto> userDtoList = serverService.findAllUsersByServerSeq(serverSeq);
-			result.put("success", true);
-			result.put("users", userDtoList);
-		} catch (Exception e) {
+			result.put("success",true);
+			result.put("users",userDtoList);
+		}catch (Exception e){
 			e.printStackTrace();
 			result = new JSONObject();
-			result.put("succuess", false);
-			result.put("msg", "서버 참가자 목록 불러오기를 실패했습니다.");
-			return new ResponseEntity<JSONObject>(result, HttpStatus.INTERNAL_SERVER_ERROR);
+			result.put("success",false);
+			result.put("msg","서버 참가자 목록 불러오기를 실패했습니다.");
+			return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
+		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
-
 	@GetMapping("/find-server-by-user")
 	public ResponseEntity<?> findServerByUser(@RequestParam("userSeq") long userSeq) {
 		JSONObject result = new JSONObject();
-		try {
+		try{
 			List<ServerDto> serverDtoList = serverService.findAllServerByUserSeq(userSeq);
-			result.put("success", true);
-			result.put("servers", serverDtoList);
-			result.put("imgUriPrefix", CLOUD_FRONT_URL + "server-background/");
-		} catch (Exception e) {
+			List<ServerDto> favoriteDtoList = favoriteService.findAllFavoriteByUserSeq(userSeq);
+			Set<Long> favoriteSet = new HashSet<>();
+
+			for(ServerDto favorite : favoriteDtoList){
+				favoriteSet.add(favorite.getSeq());
+			}
+			for(int i=0;i<serverDtoList.size();i++){
+				if(!favoriteSet.contains(serverDtoList.get(i).getSeq())){
+					continue;
+				}
+				serverDtoList.get(i).setFavorite(true);
+			}
+
+
+			result.put("success",true);
+			result.put("servers",serverDtoList);
+			result.put("imgUriPrefix",CLOUD_FRONT_URL+"server-background/");
+		}catch (Exception e){
 			e.printStackTrace();
 			result = new JSONObject();
-			result.put("success", false);
-			return new ResponseEntity<JSONObject>(result, HttpStatus.INTERNAL_SERVER_ERROR);
+			result.put("success",false);
+			return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
+		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
-
 	@PostMapping("")
-	public ResponseEntity<?> addServer(@ModelAttribute ServerDto serverDto,
-		@RequestParam(name = "file", required = false) MultipartFile multipartFile) {
-		System.out.println("====== 서버 추가 시작 ======");
+	public ResponseEntity<?> insertServer(@ModelAttribute ServerDto serverDto,@RequestParam(name = "file",required = false) MultipartFile multipartFile) {
+		log.info("====== 서버 추가 시작 ======");
+		log.info("====== 입력 서버 정보 ======");
+		log.info(serverDto.toString());
+		log.info("====== 입력 파일 정보 ======");
+		log.info(" "+multipartFile);
 		JSONObject result = new JSONObject();
-		try {
-			serverDto = serverService.insertServer(serverDto, multipartFile);
-			serverService.enterServer(serverDto.getSeq(), serverDto.getHostSeq());
-		} catch (Exception e) {
+		try{
+			serverDto = serverService.insertServer(serverDto,multipartFile);
+			log.info("생성한 서버"+serverDto);
+			serverService.enterServer(serverDto.getSeq(),serverDto.getHostSeq());
+		}catch (Exception e){
 			e.printStackTrace();
-			result.put("success", false);
-			result.put("msg", "서버 추가를 실패했습니다.");
-			return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
+			result.put("success",false);
+			result.put("msg",e.getMessage());
+			return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
-		result.put("success", true);
-		result.put("server", serverDto);
-		result.put("imgUrl", CLOUD_FRONT_URL + "server-background/" + serverDto.getBackgroundImgSearchName());
-		result.put("msg", "서버 추가를 성공했습니다.");
-		System.out.println("====== 서버 추가 끝 ======");
-		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
+		result.put("success",true);
+		result.put("server",serverDto);
+		result.put("imgUrl",CLOUD_FRONT_URL+"server-background/"+serverDto.getBackgroundImgSearchName());
+		result.put("msg","서버 추가를 성공했습니다.");
+		log.info("====== 서버 추가 끝 ======");
+		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
-
 	@PostMapping("/enter")
-	public ResponseEntity<?> enterServer(@RequestParam(name = "serverSeq") long serverSeq,
-		@RequestParam(name = "userSeq") long userSeq) {
-		System.out.println("====== 서버 입장 시작 ======");
-		System.out.println("서버 seq" + serverSeq);
-		System.out.println("유저 seq" + userSeq);
+	public ResponseEntity<?> enterServer(@RequestParam(name="serverSeq")long serverSeq,@RequestParam(name="userSeq")long userSeq) {
+		log.info("====== 서버 입장 시작 ======");
+		log.info("서버 seq" + serverSeq);
+		log.info("유저 seq" + userSeq);
 		JSONObject result = new JSONObject();
-		try {
+		try{
 			// #1 - 버킷 생성
-			serverService.enterServer(serverSeq, userSeq);
-		} catch (Exception e) {
+			serverService.enterServer(serverSeq,userSeq);
+		}catch (Exception e){
 			e.printStackTrace();
-			result.put("success", false);
-			result.put("msg", "서버 입장을 실패했습니다.");
-			return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
+			result.put("success",false);
+			result.put("msg",e.getMessage());
+			return new ResponseEntity<>(result, HttpStatus.OK);
 		}
 
-		result.put("success", true);
-		result.put("msg", "서버 입장울 성공했습니다.");
-		System.out.println("====== 서버 추가 끝 ======");
-		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
+		result.put("success",true);
+		result.put("msg","서버 입장울 성공했습니다.");
+		log.info("====== 서버 추가 끝 ======");
+		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
-
 	@DeleteMapping("/leave")
-	public ResponseEntity<?> leaveServer(@RequestParam(name = "serverSeq") long serverSeq,
-		@RequestParam(name = "userSeq") long userSeq) {
-		System.out.println("====== 서버 퇴장 시작 ======");
+	public ResponseEntity<?> leaveServer(@RequestParam(name="serverSeq")long serverSeq,@RequestParam(name="userSeq")long userSeq) {
+		log.info("====== 서버 퇴장 시작 ======");
 		JSONObject result = new JSONObject();
-		try {
+		try{
 			// #1 - 버킷 생성
-			serverService.leaveServer(serverSeq, userSeq);
-		} catch (Exception e) {
+			serverService.leaveServer(serverSeq,userSeq);
+		}catch (Exception e){
 			e.printStackTrace();
-			result.put("success", false);
-			result.put("msg", "서버 퇴장을 실패했습니다.");
-			return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
+			result.put("success",false);
+			result.put("msg",e.getMessage());
+			return new ResponseEntity<>(result, HttpStatus.OK);
 		}
 
-		result.put("success", true);
-		result.put("msg", "서버 퇴장을 성공했습니다.");
-		System.out.println("====== 서버 퇴장 끝 ======");
-		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
+		result.put("success",true);
+		result.put("msg","서버 퇴장을 성공했습니다.");
+		log.info("====== 서버 퇴장 끝 ======");
+		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
-
-	@PutMapping("")
-	public ResponseEntity<?> updateServer(@ModelAttribute ServerDto serverDto,
-		@RequestParam(name = "file", required = false) MultipartFile multipartFile) {
-		System.out.println("====== 서버 변경 시작 ======");
+	@PostMapping("/{serverSeq}")
+	public ResponseEntity<?> updateServer(@PathVariable(name = "serverSeq") long serverSeq,@ModelAttribute ServerDto serverDto, @RequestParam(name = "file", required = false) MultipartFile multipartFile) {
+		log.info("====== 서버 변경 시작 ======");
 		JSONObject result = new JSONObject();
-		try {
-			serverDto = serverService.updateServer(serverDto, multipartFile);
-		} catch (Exception e) {
+		try{
+			serverDto = serverService.updateServer(serverDto,multipartFile);
+
+			result.put("success",true);
+			result.put("server",serverDto);
+			result.put("msg","서버 수정을 성공했습니다.");
+			result.put("imgUrl",CLOUD_FRONT_URL+"server-background/"+serverDto.getBackgroundImgSearchName());
+
+		}catch (Exception e){
 			e.printStackTrace();
-			result.put("success", false);
-			result.put("msg", "서버 변경 중 오류가 발생했습니다.");
-			return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
+			result.put("success",false);
+			result.put("msg",e.getMessage());
+			return new ResponseEntity<>(result, HttpStatus.OK);
 		}
-
-		result.put("success", true);
-		result.put("server", serverDto);
-		result.put("msg", "서버 추가를 성공했습니다.");
-		result.put("imgUrl", CLOUD_FRONT_URL + "server-background/" + serverDto.getBackgroundImgSearchName());
-
-		System.out.println("====== 서버 변경 끝 ======");
-		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
+		log.info("====== 서버 변경 끝 ======");
+		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
-
 	@DeleteMapping("")
-	public ResponseEntity<?> deleteServer(@RequestParam(name = "serverSeq") long serverSeq,
-		@RequestParam(name = "userSeq") long userSeq) {
-		System.out.println("====== 서버 삭제 시작 ======");
-		JSONObject result = new JSONObject();    //결과 json 변수
-		try {
-			serverService.deleteServer(serverSeq, userSeq);
-		} catch (Exception e) {
+	public ResponseEntity<?> deleteServer(@RequestParam(name="serverSeq") long serverSeq,
+										  @RequestParam(name="userSeq") long userSeq) {
+		log.info("====== 서버 삭제 시작 ======");
+		JSONObject result = new JSONObject();	//결과 json 변수
+		try{
+			serverService.deleteServer(serverSeq,userSeq);
+			result.put("success",true);
+			result.put("msg","서버 삭제를 성공했습니다.");
+		}catch (Exception e){
 			e.printStackTrace();
-			result.put("success", false);
-			result.put("msg", e.getMessage());
-			return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
+			result.put("success",false);
+			result.put("msg",e.getMessage());
+			return new ResponseEntity<>(result, HttpStatus.OK);
 		}
 
-		System.out.println("====== 서버 삭제 끝 ======");
-		return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
+		log.info("====== 서버 삭제 끝 ======");
+		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 }

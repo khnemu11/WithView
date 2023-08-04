@@ -3,13 +3,13 @@ package com.ssafy.withview.service;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,11 +17,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.ssafy.withview.dto.ChannelDto;
 import com.ssafy.withview.dto.ServerDto;
 import com.ssafy.withview.dto.UserDto;
-import com.ssafy.withview.entity.ChannelEntity;
 import com.ssafy.withview.entity.ServerEntity;
 import com.ssafy.withview.entity.UserEntity;
 import com.ssafy.withview.entity.UserServerEntity;
-import com.ssafy.withview.repository.ChannelRepository;
 import com.ssafy.withview.repository.ServerRepository;
 import com.ssafy.withview.repository.UserRepository;
 import com.ssafy.withview.repository.UserServerRepository;
@@ -32,10 +30,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ServerServiceImpl implements ServerService {
 	private final ServerRepository serverRepository;
-	private final ChannelRepository channelRepository;
 	private final UserServerRepository userServerRepository;
 	private final UserRepository userRepository;
-	private final ResourceLoader resourceLoader;
 	private final AmazonS3 s3client;
 
 	@Value(value = "${cloud.aws.s3.bucket}")
@@ -44,15 +40,16 @@ public class ServerServiceImpl implements ServerService {
 	@Value(value = "${DEFAULT_IMG}")
 	private String DEFAULT_IMG;
 
-	@Override
-	public List<ChannelDto> findAllChannelsByServerSeq(int seq) {
-		List<ChannelEntity> entityList = channelRepository.findAllByServerSeq(seq);
-		return entityList.stream().map(ChannelEntity::toDto).collect(Collectors.toList());
-	}
+	@Value(value = "${NAVER_CLIENT_ID}")
+	private String NAVER_CLIENT_ID;
+
+	@Value(value = "${NAVER_SECRET_KEY}")
+	private String NAVER_SECRET_KEY;
+
+	private String hostUrl = "https://i9d208.p.ssafy.io:9091/";
 
 	@Override
 	public ChannelDto findChannelByName(String channelName) {
-
 		return null;
 	}
 
@@ -61,48 +58,44 @@ public class ServerServiceImpl implements ServerService {
 	public ServerDto insertServer(ServerDto serverDto, MultipartFile multipartFile) throws Exception {
 		ServerDto result;
 		try {
-			if (!s3client.doesBucketExist(bucketName)) {
-				s3client.createBucket(bucketName);
-			}
-			String originalName = "";
-			File backgroundImgFile;
-			String backgroundImgSearchName = "";
-			UUID uuid = UUID.randomUUID();
-			String extend = "";
-			//사진이 없는경우 로고 사진으로 대체
-			if (multipartFile == null) {
-				originalName = DEFAULT_IMG;
-			}
-			//사진이 있으면 해당 사진을 배경화면으로
-			else {
-				originalName = multipartFile.getOriginalFilename();
-			}
-
-			extend = originalName.substring(originalName.lastIndexOf('.'));
-			// #2 - 원본 파일 이름 저장
-			serverDto.setBackgroundImgOriginalName(originalName);
-
-			// #3 - 저장용 랜점 파일 이름 저장
-			backgroundImgSearchName = uuid.toString() + extend;
-
-			// #4 - 파일 임시 저장
-			//파일이 있으면 임시 파일 저장
 			if (multipartFile != null) {
-				backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),
-					backgroundImgSearchName);
-				multipartFile.transferTo(backgroundImgFile);
-			} else {
-				backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),
-					originalName);
+				System.out.println("이미지 저장 시작");
+				if (!s3client.doesBucketExist(bucketName)) {
+					s3client.createBucket(bucketName);
+				}
+				String originalName = "";
+				File backgroundImgFile;
+				String backgroundImgSearchName = "";
+				UUID uuid = UUID.randomUUID();
+				String extend = "";
+				//사진이 없는경우 로고 사진으로 대체
+				if (multipartFile == null) {
+					originalName = DEFAULT_IMG;
+				}
+				//사진이 있으면 해당 사진을 배경화면으로
+				else {
+					originalName = multipartFile.getOriginalFilename();
+				}
+				System.out.println("원본 파일 이름 : " + originalName);
+				extend = originalName.substring(originalName.lastIndexOf('.'));
+				// #2 - 원본 파일 이름 저장
+				serverDto.setBackgroundImgOriginalName(originalName);
+
+				// #3 - 저장용 랜덤 파일 이름 저장
+				backgroundImgSearchName = uuid.toString() + extend;
+				backgroundImgFile = File.createTempFile(uuid.toString(), extend);
+				FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), backgroundImgFile);
+
+				// #5 - 이미지 서버 저장
+				s3client.putObject(bucketName, "server-background/" + backgroundImgSearchName, backgroundImgFile);
+				// #6 - DB 저장
+				serverDto.setBackgroundImgSearchName(uuid.toString() + extend);
 			}
-			// #5 - 이미지 서버 저장
-			s3client.putObject(bucketName, "server-background/" + backgroundImgSearchName, backgroundImgFile);
-			// #6 - DB 저장
-			serverDto.setBackgroundImgSearchName(uuid.toString() + extend);
+
 			ServerEntity serverEntity = ServerDto.toEntity(serverDto);
 			result = ServerEntity.toDto(serverRepository.save(serverEntity));
 		} catch (Exception e) {
-			throw new Exception("서버 생성 중 오류가 발생했습니다.");
+			throw new Exception(e.getMessage());
 		}
 
 		return result;
@@ -129,20 +122,22 @@ public class ServerServiceImpl implements ServerService {
 			String extend = originalName.substring(originalName.lastIndexOf('.'));
 			UUID uuid = UUID.randomUUID();
 			String backgroundImgSearchName = uuid.toString() + extend;
-
 			// #4 - 파일 임시 저장
-			File backgroundImgFile = new File(resourceLoader.getResource("classpath:/img/").getFile().getAbsolutePath(),
-				backgroundImgSearchName);
-			multipartFile.transferTo(backgroundImgFile);
+			backgroundImgSearchName = uuid.toString() + extend;
+			File backgroundImgFile = File.createTempFile(uuid.toString(), extend);
+			FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), backgroundImgFile);
 
-			// #5 - 이미지 서버 저장
+			// #5 - 기존 이미지 삭제
+			s3client.deleteObject(bucketName, "server-background/" + serverEntity.getBackgroundImgSearchName());
+
+			// #6 - 이미지 서버 저장
 			s3client.putObject(bucketName, "server-background/" + backgroundImgSearchName, backgroundImgFile);
 
-			// #6 - DB 저장
+			// #7 - DB 저장
 			serverDto.setBackgroundImgSearchName(uuid.toString() + extend);
 			backgroundImgFile.delete();    //기존 임시 저장용 파일 삭제
 		}
-
+		System.out.println(serverDto);
 		serverEntity.update(serverDto);
 
 		return ServerEntity.toDto(serverEntity);
@@ -150,14 +145,14 @@ public class ServerServiceImpl implements ServerService {
 
 	@Override
 	public ServerDto findServerBySeq(long serverSeq) {
-
 		return ServerEntity.toDto(serverRepository.findBySeq(serverSeq));
 	}
 
 	@Override
 	public List<ServerDto> findAllServerByUserSeq(long userSeq) {
 		List<ServerDto> userServerDtoList = new ArrayList<>();
-		UserEntity userEntity = userRepository.findBySeq(userSeq);
+		UserEntity userEntity = userRepository.findBySeq(userSeq)
+			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
 		List<UserServerEntity> userServerEntityList = userServerRepository.findAllServerByUserEntity(userEntity);
 
 		for (UserServerEntity userServerEntity : userServerEntityList) {
@@ -213,9 +208,16 @@ public class ServerServiceImpl implements ServerService {
 	@Override
 	public void enterServer(long serverSeq, long userSeq) throws Exception {
 		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
-		UserEntity userEntity = userRepository.findBySeq(userSeq);
-		if (serverEntity == null || userEntity == null) {
-			throw new Exception("서버 혹은 유저가 없습니다.");
+
+		if (serverEntity == null) {
+			throw new Exception("해당 서버가 없습니다.");
+		}
+
+		UserEntity userEntity = userRepository.findBySeq(userSeq)
+			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
+
+		if (userEntity == null) {
+			throw new Exception("해당 유저가 없습니다.");
 		}
 
 		UserServerEntity userServerEntity = userServerRepository.findByServerEntityAndUserEntity(serverEntity,
@@ -236,7 +238,8 @@ public class ServerServiceImpl implements ServerService {
 	@Override
 	public void leaveServer(long serverSeq, long userSeq) throws Exception {
 		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
-		UserEntity userEntity = userRepository.findBySeq(userSeq);
+		UserEntity userEntity = userRepository.findBySeq(userSeq)
+			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
 
 		if (serverEntity == null || userEntity == null) {
 			throw new Exception("서버 혹은 유저가 없습니다.");
@@ -250,5 +253,41 @@ public class ServerServiceImpl implements ServerService {
 		}
 
 		userServerRepository.delete(userServerEntity);
+	}
+
+	@Override
+	public String insertInviteCode(long serverSeq, long userSeq) throws Exception {
+		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
+		if (serverEntity == null) {
+			throw new Exception("대상 서버가 존재하지 않습니다.");
+		}
+
+		UserEntity userEntity = userRepository.findBySeq(userSeq)
+			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
+
+		if (userEntity == null) {
+			throw new Exception("대상 유저가 존재하지 않습니다.");
+		}
+
+		UserServerEntity userServerEntity = userServerRepository.findByServerEntityAndUserEntity(serverEntity,
+			userEntity);
+
+		if (userServerEntity == null) {
+			throw new Exception("가입하지 않아 초대링크를 생성할 수 없습니다.");
+		}
+
+		int leftLimit = 48; // numeral '0'
+		int rightLimit = 122; // letter 'z'
+		int targetStringLength = 10;
+
+		Random random = new Random();
+
+		String generatedString = random.ints(leftLimit, rightLimit + 1)
+			.filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+			.limit(targetStringLength)
+			.collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+			.toString();
+
+		return generatedString;
 	}
 }
