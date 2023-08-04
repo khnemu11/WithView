@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import com.ssafy.withview.dto.ChatMessageDto;
 import com.ssafy.withview.service.ChatService;
@@ -22,5 +23,10 @@ public class ChatController {
 		message.setSendTime(LocalDate.now());
 		// Websocket 에 발행된 메시지를 redis로 발행 (publish)
 		chatService.sendChatMessage(message);
+	}
+
+	@GetMapping("/chat/view")
+	public String chatView(ChatMessageDto message) {
+		return "chat";
 	}
 }

@@ -5,8 +5,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import com.ssafy.withview.dto.ChannelDto;
 import com.ssafy.withview.dto.ChannelValueDto;
@@ -24,8 +26,19 @@ public class WebSocketSubscribeController {
 	private final WebSocketSubscribeService webSocketSubscribeService;
 	private final ChannelServiceImpl channelService;
 
-	@MessageMapping("/server/enter")
-	public void enterServerWebSocket(Long serverSeq) {
+	// @MessageMapping("/server/test")
+	// public void enterServerWebSocketTest(Long serverSeq) {
+	// 	List<ChannelValueDto> channelValueDtos = getChannelValueDtos(serverSeq);
+	// 	webSocketSubscribeService.sendChannelValue(channelValueDtos);
+	// }
+
+	@MessageMapping("/server/{serverSeq}/enter")
+	public void enterServerWebSocket(@DestinationVariable(value = "serverSeq") Long serverSeq) {
+		webSocketSubscribeService.enterChannel(1L, 8L);
+		webSocketSubscribeService.enterChannel(20L, 8L);
+		webSocketSubscribeService.enterChannel(21L, 9L);
+		webSocketSubscribeService.enterChannel(22L, 9L);
+		webSocketSubscribeService.enterChannel(23L, 8L);
 		List<ChannelValueDto> channelValueDtos = getChannelValueDtos(serverSeq);
 		webSocketSubscribeService.sendChannelValue(channelValueDtos);
 	}
