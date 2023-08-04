@@ -7,10 +7,6 @@ import "../css/Login.css";
 import axios from "axios";
 import withview from "../assets/withview.png";
 import { setUser } from "../redux/actions/userActions";
-<<<<<<< HEAD
-=======
-
->>>>>>> 86eb0f81894e6eed47974aed7415a18dce9b78af
 
 
 
