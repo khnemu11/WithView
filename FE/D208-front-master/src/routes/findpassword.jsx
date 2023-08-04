@@ -104,7 +104,11 @@ export default function FindPassword() {
             >
               <a>뒤로가기</a>
             </div>
-            | <div><a>비밀번호 찾기</a></div>
+            | <div
+              onClick={() => {
+                navigate("/findid");
+              }}
+            ><a>아이디 찾기</a></div>
           </div>
         </div>
       </div>
