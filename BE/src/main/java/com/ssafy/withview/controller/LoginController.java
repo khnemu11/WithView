@@ -65,7 +65,7 @@ public class LoginController {
 					.sameSite("None")
 					.httpOnly(true)
 					.secure(true)
-					.maxAge(60 * 5)
+					// .maxAge(60 * 5)
 					.build();
 				response.addHeader("Set-Cookie", cookie.toString());
 				log.info("Cookie 생성 완료, 로그인 브랜치가 맞는가?");
