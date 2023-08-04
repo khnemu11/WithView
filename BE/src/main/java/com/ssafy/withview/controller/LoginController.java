@@ -52,7 +52,8 @@ public class LoginController {
 				JwtDto jwtDto = jwtService.generateToken(authentication);
 				log.info("AccessToken: {}", jwtDto.getAccessToken());
 				log.info("RefreshToken: {}", jwtDto.getRefreshToken());
-				resultMap.put("AccessToken", jwtDto.getAccessToken());
+				// resultMap.put("AccessToken", jwtDto.getAccessToken());
+				resultMap.put("JWT", jwtDto);
 				// seq, nickname, profileImgSearchName 정보
 				UserDto userDto = loginService.getUserInfo(loginDto);
 				log.info("UserInfo: {}", userDto);
@@ -60,7 +61,7 @@ public class LoginController {
 				// Cookie 생성
 				ResponseCookie cookie = ResponseCookie.from("RefreshToken", jwtDto.getRefreshToken())
 					.path("/")
-					.sameSite("Strict")
+					.sameSite("None")
 					.httpOnly(false)
 					.secure(true)
 					.maxAge(60)
