@@ -41,7 +41,7 @@ public class LoginController {
 	public ResponseEntity<Map<String, Object>> login(@RequestBody LoginDto loginDto, HttpServletResponse response) {
 		log.info("LoginController - login: 로그인 진행");
 		Map<String, Object> resultMap = new HashMap<>();
-		HttpStatus status = null;
+		HttpStatus status;
 		try {
 			Authentication authentication = loginService.login(loginDto);
 			if (authentication != null) {
@@ -63,6 +63,8 @@ public class LoginController {
 				log.info("LoginController: 로그인 성공");
 				resultMap.put("success", true);
 				status = HttpStatus.CREATED;
+			} else {
+				throw new RuntimeException("로그인 실패");
 			}
 		} catch (Exception e) {
 			log.error("LoginController: 로그인 실패 {}", e.getMessage());
