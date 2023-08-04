@@ -20,7 +20,6 @@ public class WebSocketSubscribeRepository {
 	 */
 
 	private static final String ENTER_CHAT_CHANNEL = "ENTER_CHAT_CHANNEL";
-	private static final String SERVER_CHANNEL_USER_VALUE = "SERVER_CHANNEL_USER_VALUE_";
 
 	@Resource(name = "redisTemplate")
 	private HashOperations<String, Long, Long> hashOpsUserEnterChatChannelInfo;
@@ -33,9 +32,10 @@ public class WebSocketSubscribeRepository {
 		return channelSeq;
 	}
 
-	public void userUnsubscribeChatRoom(Long userSeq, Long channelSeq) {
+	public Long userUnsubscribeChatRoom(Long userSeq, Long channelSeq) {
 		hashOpsUserEnterChatChannelInfo.delete(ENTER_CHAT_CHANNEL, userSeq);
 		setOpsChatRoomUserValue.remove(channelSeq, userSeq);
+		return channelSeq;
 	}
 
 	public Long getUserChatRoom(Long userSeq) {
@@ -45,8 +45,4 @@ public class WebSocketSubscribeRepository {
 	public Set<Long> getChatRoomMembers(Long channelSeq) {
 		return setOpsChatRoomUserValue.members(channelSeq);
 	}
-
-	// public ChannelValueDto getServerChannelValue(Long serverSeq) {
-	//
-	// }
 }

@@ -1,7 +1,5 @@
 package com.ssafy.withview.config.handler;
 
-import java.util.Optional;
-
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -31,8 +29,8 @@ public class StompHandler implements ChannelInterceptor {
 	public Message<?> preSend(Message<?> message, MessageChannel channel) {
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 		if (StompCommand.CONNECT == accessor.getCommand()) {
-			Long userSeq = Long.valueOf(Optional.ofNullable(accessor.getFirstNativeHeader("userseq")).orElse("0L"));
-			Long serverSeq = Long.valueOf(Optional.ofNullable(accessor.getFirstNativeHeader("serverseq")).orElse("0L"));
+			// Long userSeq = Long.valueOf(Optional.ofNullable(accessor.getFirstNativeHeader("userseq")).orElse("0L"));
+			// Long serverSeq = Long.valueOf(Optional.ofNullable(accessor.getFirstNativeHeader("serverseq")).orElse("0L"));
 			// Long userSeq = Long.valueOf(Optional.ofNullable(accessor.getFirstNativeHeader("userseq")).orElse("0L"));
 			// String id = Optional.ofNullable(accessor.getFirstNativeHeader("id")).orElse("");
 			// String serverSeq = Optional.ofNullable(accessor.getFirstNativeHeader("serverseq")).orElse("");

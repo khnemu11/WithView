@@ -61,7 +61,7 @@ public class RedisConfig {
 
 	@Bean
 	public MessageListenerAdapter chatRoomListenerAdapter(RedisSubscriber subscriber) {
-		return new MessageListenerAdapter(subscriber);
+		return new MessageListenerAdapter(subscriber, "sendMessage");
 	}
 
 	@Bean

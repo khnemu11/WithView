@@ -5,9 +5,7 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 
 import com.ssafy.withview.constant.RoomType;
-import com.ssafy.withview.dto.ChannelValueDto;
 import com.ssafy.withview.dto.ChatMessageDto;
-import com.ssafy.withview.repository.WebSocketSubscribeRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,9 +14,7 @@ import lombok.RequiredArgsConstructor;
 public class ChatService {
 
 	private final ChannelTopic chatRoomChannelTopic;
-	private final ChannelTopic channelValueChannelTopic;
 	private final RedisTemplate redisTemplate;
-	private final WebSocketSubscribeRepository webSocketSubscribeRepository;
 
 	/**
 	 * destination 정보에서 roomId 추출
@@ -40,9 +36,5 @@ public class ChatService {
 		// chatMessage.setUserCount(channelChatRepository.getUserCount(chatMessage.getUserSeq()));
 
 		redisTemplate.convertAndSend(chatRoomChannelTopic.getTopic(), chatMessage);
-	}
-
-	public void sendChannelValue(ChannelValueDto channelValue) {
-		redisTemplate.convertAndSend(channelValueChannelTopic.getTopic(), channelValue);
 	}
 }

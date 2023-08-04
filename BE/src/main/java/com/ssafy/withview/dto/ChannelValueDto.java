@@ -1,5 +1,6 @@
 package com.ssafy.withview.dto;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,8 +11,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class ChannelValueDto {
+public class ChannelValueDto implements Serializable {
+
+	private static final long serialVersionUID = 649467897701384729L;
 
 	private Long serverSeq;
-	private Map<ChatRoomDto, Set<Long>> channelValue;
+	private Map<Long, Set<Long>> channelValue;
 }
