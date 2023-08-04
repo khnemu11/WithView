@@ -1,11 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import Cropper from "react-cropper";
+import axios from "axios";
 import "cropperjs/dist/cropper.css";
 import "../css/mainpage.css"; // CSS 파일 임포트
 import "../css/profile.css";
 import "../css/firstmain.css";
 import ServerOptions from "./components/serveroptions";
 import { useSelector } from "react-redux";
+import { clearToken } from "../redux/actions/tokenActions";
+import { clearUser } from "../redux/actions/userActions";
 
 const Profile = () => {
   const [view, setView] = useState("profile"); // view 상태를 선언하고 기본값을 'profile'로 설정합니다.
@@ -23,6 +26,7 @@ const Profile = () => {
   const [imageToCrop, setImageToCrop] = useState(null);
   const cropperRef = useRef(null);
   const profileImageURL = useSelector((state) => state.user.profile);
+  const url = "https://i9d208.p.ssafy.io/api";
 
   useEffect(() => {
     // 만약 redux에서 프로필 이미지가 null이면 기본 이미지로 설정
@@ -33,6 +37,24 @@ const Profile = () => {
     }
   }, [profileImageURL]);
 
+  const checkLogout = (e) => {
+    e.preventDefault()
+    axios({
+      method : 'POST',
+      url : `${url}/login/logout`
+    })
+    .then((res) => {
+      console.log(res.data)
+      if(res.data.success){
+        clearToken()
+        clearUser()
+      }
+    })
+    .catch((err)=>{
+      console.log(err)
+      alert('로그인 실패!')
+    })
+  } 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -252,7 +274,10 @@ const Profile = () => {
                 회원탈퇴
               </p>
             </div>
-            <button className="button mt-4 has-text-white logout-button">
+            <button 
+              className="button mt-4 has-text-white logout-button"
+              onClick={checkLogout}
+            >
               로그아웃
             </button>
           </div>

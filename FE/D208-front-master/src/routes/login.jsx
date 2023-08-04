@@ -1,18 +1,20 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { useCookies } from "react-cookie";
 import { setToken } from "../redux/actions/tokenActions";
 import "../css/Login.css";
 import axios from "axios";
 import withview from "../assets/withview.png";
 import { setUser } from "../redux/actions/userActions";
-import { Button } from 'react-bootstrap';
+
 
 
 
 export default function Login() {
   const [Id, setId] = useState("");
   const [password, setPassword] = useState("");
+  const [cookies, setCookie] = useCookies(""); // 쿠키 훅 
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const url = "https://i9d208.p.ssafy.io/api";
@@ -32,7 +34,7 @@ export default function Login() {
       checkLogin();
     }
   };
-
+  
   function checkLogin() {
     axios({
       method: "POST",
@@ -50,7 +52,12 @@ export default function Login() {
           // 토큰을 Redux로 저장
           dispatch(setToken(accessToken));
           dispatch(setUser(userInfo));
-          sessionStorage.setItem("refreshToken", refreshToken);
+          // refreshToken 저장하기
+          setCookie("refreshToken", refreshToken, {
+            path: "/", // 쿠키 경로
+            expires: new Date(Date.now() + 3600000), // 현재 시간 + 1시간 (1시간 뒤에 쿠키 만료)
+            httpOnly: true, // 클라이언트 스크립트에서 쿠키에 접근하지 못하도록 설정
+          });
           // 로비화면으로 이동
           navigate("/mainpage");
         } else {
@@ -76,7 +83,7 @@ export default function Login() {
 
               <div>
                 <label className="label login_label">
-                  이메일을 입력해주세요 !
+                  아이디를 입력해주세요 !
                 </label>
                 <input
                   type="text"
@@ -113,14 +120,14 @@ export default function Login() {
           </div>
 
           <div className="login_buttons">
-            <Button
+            <button
               className="button login_button"
               style={{ width: "55%", marginRight: "10px" }}
               onClick={checkLogin}
             >
               로그인
-            </Button>
-            <Button
+            </button>
+            <button
               className="button login_button"
               onClick={() => {
                 navigate("/signup");
@@ -128,7 +135,7 @@ export default function Login() {
               style={{ width: "25%", marginRight: "35px" }}
             >
               회원가입
-            </Button>
+            </button>
           </div>
 
           <div className="login_findes">
