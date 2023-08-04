@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { useCookies } from "react-cookie";
 import { setToken } from "../redux/actions/tokenActions";
 import "../css/Login.css";
 import axios from "axios";
@@ -13,6 +14,7 @@ import { setUser } from "../redux/actions/userActions";
 export default function Login() {
   const [Id, setId] = useState("");
   const [password, setPassword] = useState("");
+  const [cookies, setCookie] = useCookies(""); // 쿠키 훅 
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const url = "https://i9d208.p.ssafy.io/api";
@@ -32,34 +34,7 @@ export default function Login() {
       checkLogin();
     }
   };
-
-  function setSessionCookie(name, value) {
-    // 쿠키 만료 시간을 현재 시간으로부터 1시간으로 설정합니다. (세션 쿠키로 만들기 위해 시간을 지정하지 않습니다.)
-    const expires = new Date(Date.now() + 3600000).toUTCString();
   
-    // 쿠키를 생성합니다.
-    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
-  }
-  
-  function getSessionCookie(name) {
-    // 쿠키를 읽어옵니다.
-    const cookies = document.cookie.split(";").map(cookie => cookie.trim());
-    for (const cookie of cookies) {
-      if (cookie.startsWith(`${name}=`)) {
-        return decodeURIComponent(cookie.substring(name.length + 1));
-      }
-    }
-    return null;
-  }
-
-  function deleteSessionCookie(name) {
-    // 쿠키를 삭제하려면 쿠키 만료 시간을 현재 시간으로 설정합니다.
-    const expires = new Date(0).toUTCString();
-    document.cookie = `${name}=; expires=${expires}; path=/`;
-  }
-
-  
-
   function checkLogin() {
     axios({
       method: "POST",
@@ -78,7 +53,11 @@ export default function Login() {
           dispatch(setToken(accessToken));
           dispatch(setUser(userInfo));
           // refreshToken 저장하기
-          setSessionCookie("refreshToken", refreshToken);
+          setCookie("refreshToken", refreshToken, {
+            path: "/", // 쿠키 경로
+            expires: new Date(Date.now() + 3600000), // 현재 시간 + 1시간 (1시간 뒤에 쿠키 만료)
+            httpOnly: true, // 클라이언트 스크립트에서 쿠키에 접근하지 못하도록 설정
+          });
           // 로비화면으로 이동
           navigate("/mainpage");
         } else {
