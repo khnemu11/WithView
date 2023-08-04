@@ -20,6 +20,7 @@
   }
 
 .searchContainer {
+    display: flex;
     border: 1px solid #3077AA;
     border-radius: 5px;
     padding: 3px;
@@ -32,13 +33,20 @@
     height: 100%;
     border: none;
     outline: none;
+    padding-left: 5px;
   }
   
   .searchIcon {
     width: 20px;
     height: 20px;
     cursor: pointer;
-    padding-top: 3px;
+  }
+  .serverSearchText{
+    font-size: medium;
+    font-weight: bold;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    margin-left: 5px;
   }
 
   .lefttextlayer {
@@ -168,7 +176,7 @@
   top: 190px;
   left: 55%;
   right: 10%;
-  padding: 20px;
+  padding: 10px;
   border: 1px solid #ccc;
   background: #fff;
   overflow: auto;

@@ -18,6 +18,9 @@ import Serverpage from "./routes/serverpage";
 import MainController from "./routes/maincontroller";
 import Mainpage from "./routes/components/mainpage";
 import ServerEnter from "./routes/serverenter";
+import FindId from "./routes/findid";
+import FindPassword from "./routes/findpassword";
+import ServerEdit from "./routes/serveredit";
 
 const router = createBrowserRouter([
   {
@@ -57,17 +60,29 @@ const router = createBrowserRouter([
     element: <ServerPlus />,
   },
   {
-    path: "/server",
+    path: "/server/:seq",
     element: <Serverpage />,
   },
   {
-    path:'/mainpagecheck',
-    element:<Mainpage/>,
+    path: "/mainpagecheck",
+    element: <Mainpage />,
   },
   {
-    path:'/serverenter',
-    element:<ServerEnter/>,
-  }
+    path: "/serverenter/",
+    element: <ServerEnter />,
+  },
+  {
+    path: "/findid",
+    element: <FindId />,
+  },
+  {
+    path: "/findpassword",
+    element: <FindPassword />,
+  },
+  {
+    path: "/server/:seq/edit",
+    element: <ServerEdit/>
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(

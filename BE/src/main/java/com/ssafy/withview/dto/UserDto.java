@@ -1,7 +1,5 @@
 package com.ssafy.withview.dto;
 
-import java.time.LocalDate;
-
 import com.ssafy.withview.entity.UserEntity;
 
 import lombok.AllArgsConstructor;
@@ -13,20 +11,16 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class UserDto {
 	private Long seq;
 	private String id;
 	private String nickname;
-	private String realName;
-	private String telephone;
-	private String address;
 	private String email;
 	private String profileImgSearchName;
 	private String profileImgOriginalName;
-	private LocalDate createTime;
-	private LocalDate deleteTime;
+	private String profileMsg;
 
 	public static UserEntity toEntity(UserDto userDto) {
 		if (userDto == null) {
@@ -35,14 +29,10 @@ public class UserDto {
 		return UserEntity.builder()
 			.id(userDto.getId())
 			.nickname(userDto.getNickname())
-			.realName(userDto.getRealName())
-			.telephone(userDto.getTelephone())
-			.address(userDto.getAddress())
 			.email(userDto.getEmail())
 			.profileImgSearchName(userDto.getProfileImgSearchName())
 			.profileImgOriginalName(userDto.getProfileImgOriginalName())
-			.createTime(userDto.getCreateTime())
-			.deleteTime(userDto.getDeleteTime())
+			.profileMsg(userDto.getProfileMsg())
 			.build();
 	}
 }
