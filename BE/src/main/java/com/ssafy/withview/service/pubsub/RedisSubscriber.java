@@ -27,8 +27,7 @@ public class RedisSubscriber {
 			// ChatMessageDTO 객체로 매핑
 			ChatMessageDto chatMessage = objectMapper.readValue(publishMessage, ChatMessageDto.class);
 			// 채팅방을 구독한 클라이언트에게 메시지 발송
-			messagingTemplate.convertAndSend(
-				"/api/sub/chat/" + chatMessage.getRoomType() + "/" + chatMessage.getSeq(),
+			messagingTemplate.convertAndSend("/api/sub/chat/" + chatMessage.getRoomType() + "/" + chatMessage.getSeq(),
 				chatMessage);
 		} catch (Exception e) {
 			log.error("Exception {}", e);
@@ -38,12 +37,12 @@ public class RedisSubscriber {
 	public void sendChannelValue(String publishMessage) {
 		System.out.println("subscriber 들어오니?");
 		try {
-			ChannelValueDto channelValueDto = objectMapper.readValue(publishMessage, ChannelValueDto.class);
-			System.out.println(channelValueDto.getServerSeq());
-			System.out.println("여기는 try 안이에요~");
-			messagingTemplate.convertAndSend(
-				"/api/sub/server/" + channelValueDto.getServerSeq(),
-				channelValueDto);
+			// System.out.println(publishMessage);
+			ChannelValueDto channelValue = objectMapper.readValue(publishMessage, ChannelValueDto.class);
+			// System.out.println(channelValue.getServerSeq());
+			// System.out.println("여기는 try 안이에요~");
+			log.info("{}번 서버 인원 변경 전송", channelValue.getServerSeq());
+			messagingTemplate.convertAndSend("/api/sub/server/" + channelValue.getServerSeq(), channelValue);
 		} catch (Exception e) {
 			log.error("Exception {}", e);
 		}

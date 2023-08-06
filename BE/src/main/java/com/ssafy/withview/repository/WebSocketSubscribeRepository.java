@@ -1,5 +1,8 @@
 package com.ssafy.withview.repository;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import javax.annotation.Resource;
 
 import org.springframework.data.redis.core.HashOperations;
@@ -21,32 +24,31 @@ public class WebSocketSubscribeRepository {
 	private static final String ENTER_CHAT_CHANNEL = "ENTER_CHAT_CHANNEL";
 
 	@Resource(name = "redisTemplate")
-	private HashOperations<String, Long, Long> hashOpsUserEnterChatChannelInfo;
+	private HashOperations<String, String, String> hashOpsUserEnterChatChannelInfo;
 	@Resource(name = "redisTemplate")
-	private SetOperations<String, Long> setOpsChatRoomUserValue;
+	private SetOperations<String, String> setOpsChatRoomMemberValue;
 	@Resource(name = "redisTemplate")
 	private ValueOperations<String, String> valOpsRoomUserValue;
 
 	public Long userSubscribeChatRoom(Long userSeq, Long channelSeq) {
-		// hashOpsUserEnterChatChannelInfo.put(ENTER_CHAT_CHANNEL, userSeq, channelSeq);
-		// setOpsChatRoomUserValue.add(String.valueOf(channelSeq), userSeq);
-		hashOpsUserEnterChatChannelInfo.put(ENTER_CHAT_CHANNEL, userSeq, channelSeq);
-		valOpsRoomUserValue.set(String.valueOf(channelSeq), String.valueOf(userSeq));
+		hashOpsUserEnterChatChannelInfo.put(ENTER_CHAT_CHANNEL, String.valueOf(userSeq), String.valueOf(channelSeq));
+		setOpsChatRoomMemberValue.add(String.valueOf(channelSeq), String.valueOf(userSeq));
 		return channelSeq;
 	}
 
 	public Long userUnsubscribeChatRoom(Long userSeq, Long channelSeq) {
-		hashOpsUserEnterChatChannelInfo.delete(ENTER_CHAT_CHANNEL, userSeq);
-		setOpsChatRoomUserValue.remove(String.valueOf(channelSeq), userSeq);
+		hashOpsUserEnterChatChannelInfo.delete(ENTER_CHAT_CHANNEL, String.valueOf(userSeq));
+		setOpsChatRoomMemberValue.remove(String.valueOf(channelSeq), String.valueOf(userSeq));
 		return channelSeq;
 	}
 
 	public Long getUserChatRoom(Long userSeq) {
-		return hashOpsUserEnterChatChannelInfo.get(ENTER_CHAT_CHANNEL, userSeq);
+		return Long.parseLong(hashOpsUserEnterChatChannelInfo.get(ENTER_CHAT_CHANNEL, String.valueOf(userSeq)));
 	}
 
-	public Long getChatRoomMembers(Long channelSeq) {
-		// return setOpsChatRoomUserValue.members(String.valueOf(channelSeq));
-		return Long.valueOf(valOpsRoomUserValue.get(String.valueOf(channelSeq)));
+	public Set<Long> getChatRoomMembers(Long channelSeq) {
+		return setOpsChatRoomMemberValue.members(String.valueOf(channelSeq)).stream()
+			.map(Long::parseLong)
+			.collect(Collectors.toSet());
 	}
 }

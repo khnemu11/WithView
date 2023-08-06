@@ -9,7 +9,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import com.ssafy.withview.service.pubsub.RedisSubscriber;
@@ -54,8 +53,16 @@ public class RedisConfig {
 	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
 		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
 		redisTemplate.setConnectionFactory(connectionFactory);
+		// redisTemplate.setKeySerializer(new StringRedisSerializer());
+		// redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class));
+		// redisTemplate.setConnectionFactory(redisConnectionFactory());
+		// redisTemplate.setEnableTransactionSupport(true);
+
 		redisTemplate.setKeySerializer(new StringRedisSerializer());
-		redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class));
+		redisTemplate.setValueSerializer(new StringRedisSerializer());
+
+		redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+		redisTemplate.setHashValueSerializer(new StringRedisSerializer());
 		return redisTemplate;
 	}
 

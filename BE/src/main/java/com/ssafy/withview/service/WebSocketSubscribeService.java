@@ -1,10 +1,11 @@
 package com.ssafy.withview.service;
 
+import java.util.Set;
+
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 
-import com.ssafy.withview.dto.ChannelValueDto;
 import com.ssafy.withview.repository.ChannelRepository;
 import com.ssafy.withview.repository.WebSocketSubscribeRepository;
 
@@ -27,7 +28,7 @@ public class WebSocketSubscribeService {
 		return webSocketSubscribeRepository.userUnsubscribeChatRoom(userSeq, channelSeq);
 	}
 
-	public Long getChannelValue(Long channelSeq) {
+	public Set<Long> getChannelMemberValue(Long channelSeq) {
 		// Set<Long> chatRoomMembers = webSocketSubscribeRepository.getChatRoomMembers(channelSeq);
 		// HashMap<Long, Set<Long>> map = new HashMap<>();
 		// map.put(channelSeq, chatRoomMembers);
@@ -38,8 +39,8 @@ public class WebSocketSubscribeService {
 	/**
 	 * 채팅방에 메시지 발송
 	 */
-	public void sendChannelValue(ChannelValueDto channelValue) {
+	public void sendChannelValue(String channelValueJson) {
 		System.out.println("안녕~");
-		redisTemplate.convertAndSend(channelValueChannelTopic.getTopic(), channelValue);
+		redisTemplate.convertAndSend(channelValueChannelTopic.getTopic(), channelValueJson);
 	}
 }
