@@ -36,7 +36,7 @@
         console.log("연결 버튼 클릭");
         socket = new SockJS('/api/ws-stomp');
         stomp = Stomp.over(socket);
-        stomp.connect({}, onConnected, onError);
+        stomp.connect({"userSeq":23}, onConnected, onError);
     });
 
     document.querySelector("#sub-btn").addEventListener("click", function () {
@@ -53,22 +53,22 @@
 
     document.querySelector("#enter-btn1").addEventListener("click", function () {
         console.log("입장1 버튼 클릭");
-        stomp.send(`/api/pub/channel/9/16/enter`, {}, JSON.stringify({"userseq": 23}));
+        stomp.send(`/api/pub/channel/9/16/enter`, {}, JSON.stringify({"userSeq": 23}));
     })
 
     document.querySelector("#enter-btn2").addEventListener("click", function () {
         console.log("입장2 버튼 클릭");
-        stomp.send(`/api/pub/channel/9/16/enter`, {}, JSON.stringify({"userseq": 24}));
+        stomp.send(`/api/pub/channel/9/16/enter`, {}, JSON.stringify({"userSeq": 24}));
     })
 
     document.querySelector("#leave-btn1").addEventListener("click", function () {
         console.log("퇴장1 버튼 클릭");
-        stomp.send(`/api/pub/channel/9/16/leave`, {}, JSON.stringify({"userseq": 23}));
+        stomp.send(`/api/pub/channel/9/16/leave`, {}, JSON.stringify({"userSeq": 23}));
     })
 
     document.querySelector("#leave-btn2").addEventListener("click", function () {
         console.log("퇴장2 버튼 클릭");
-        stomp.send(`/api/pub/channel/9/16/leave`, {}, JSON.stringify({"userseq": 24}));
+        stomp.send(`/api/pub/channel/9/16/leave`, {}, JSON.stringify({"userSeq": 24}));
     })
 </script>
 </body>

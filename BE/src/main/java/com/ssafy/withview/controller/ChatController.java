@@ -1,12 +1,13 @@
 package com.ssafy.withview.controller;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
+import com.ssafy.withview.dto.FriendsChatMessageDto;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import com.ssafy.withview.dto.ChatMessageDto;
+import com.ssafy.withview.dto.ChannelChatMessageDto;
 import com.ssafy.withview.service.ChatService;
 
 import lombok.RequiredArgsConstructor;
@@ -19,14 +20,20 @@ public class ChatController {
 
 	// websocket "/api/pub/chat/channel/message"로 들어오는 메시징을 처리한다.
 	@MessageMapping("/chat/channel/message")
-	public void chatMessage(ChatMessageDto message) {
-		message.setSendTime(LocalDate.now());
-		// Websocket 에 발행된 메시지를 redis로 발행 (publish)
-		chatService.sendChatMessage(message);
+	public void channelChatMessage(ChannelChatMessageDto message) {
+		message.setSendTime(LocalDateTime.now());
+		chatService.sendChannelChatMessage(message);
+	}
+
+	// websocket "/api/pub/chat/friends/message"로 들어오는 메시징을 처리한다.
+	@MessageMapping("/chat/friends/message")
+	public void friendsChatMessage(FriendsChatMessageDto message) {
+		message.setSendTime(LocalDateTime.now());
+		chatService.sendFriendsChatMessage(message);
 	}
 
 	@GetMapping("/chat/view")
-	public String chatView(ChatMessageDto message) {
+	public String chatView(ChannelChatMessageDto message) {
 		return "chat";
 	}
 }

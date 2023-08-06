@@ -13,34 +13,29 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class WebSocketSubscribeService {
+public class ChannelValueService {
 
 	private final ChannelTopic channelValueChannelTopic;
 	private final RedisTemplate redisTemplate;
 	private final WebSocketSubscribeRepository webSocketSubscribeRepository;
 	private final ChannelRepository channelRepository;
 
-	public Long enterChannel(Long userSeq, Long channelSeq) {
-		return webSocketSubscribeRepository.userSubscribeChatRoom(userSeq, channelSeq);
+	public Long enterChannel(Long userSeq, Long channelSeq, Long serverSeq) {
+		return webSocketSubscribeRepository.userSubscribeChannelChat(userSeq, channelSeq, serverSeq);
 	}
 
 	public Long leaveChannel(Long userSeq, Long channelSeq) {
-		return webSocketSubscribeRepository.userUnsubscribeChatRoom(userSeq, channelSeq);
+		return webSocketSubscribeRepository.userUnsubscribeChannelChat(userSeq, channelSeq);
 	}
 
 	public Set<Long> getChannelMemberValue(Long channelSeq) {
-		// Set<Long> chatRoomMembers = webSocketSubscribeRepository.getChatRoomMembers(channelSeq);
-		// HashMap<Long, Set<Long>> map = new HashMap<>();
-		// map.put(channelSeq, chatRoomMembers);
-		return webSocketSubscribeRepository.getChatRoomMembers(channelSeq);
-		// return map;
+		return webSocketSubscribeRepository.getChannelMembers(channelSeq);
 	}
 
 	/**
 	 * 채팅방에 메시지 발송
 	 */
 	public void sendChannelValue(String channelValueJson) {
-		System.out.println("안녕~");
 		redisTemplate.convertAndSend(channelValueChannelTopic.getTopic(), channelValueJson);
 	}
 }

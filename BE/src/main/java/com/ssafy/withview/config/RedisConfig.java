@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
@@ -16,63 +17,74 @@ import com.ssafy.withview.service.pubsub.RedisSubscriber;
 @Configuration
 public class RedisConfig {
 
-	@Value("${spring.redis.host}")
-	private String host;
+    @Value("${spring.redis.host}")
+    private String host;
 
-	@Value("${spring.redis.port}")
-	private Integer port;
+    @Value("${spring.redis.port}")
+    private Integer port;
 
-	@Bean
-	public RedisConnectionFactory redisConnectionFactory() {
-		return new LettuceConnectionFactory(host, port);
-	}
+    @Bean
+    public RedisConnectionFactory redisConnectionFactory() {
+        return new LettuceConnectionFactory(host, port);
+    }
 
-	@Bean
-	public ChannelTopic chatRoomChannelTopic() {
-		return new ChannelTopic("chatroom");
-	}
+    @Bean
+    public ChannelTopic channelChattingTopic() {
+        return new ChannelTopic("channelChating");
+    }
 
-	@Bean
-	public ChannelTopic channelValueChannelTopic() {
-		return new ChannelTopic("channelValue");
-	}
+    @Bean
+    public ChannelTopic channelValueChannelTopic() {
+        return new ChannelTopic("channelValue");
+    }
 
-	// redis pub/sub 메시지를 처리하는 listener 설정
-	@Bean
-	public RedisMessageListenerContainer redisMessageListener(RedisConnectionFactory connectionFactory,
-		MessageListenerAdapter chatRoomListenerAdapter, MessageListenerAdapter channelValueListenerAdapter,
-		ChannelTopic chatRoomChannelTopic, ChannelTopic channelValueChannelTopic) {
-		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-		container.setConnectionFactory(connectionFactory);
-		container.addMessageListener(chatRoomListenerAdapter, chatRoomChannelTopic);
-		container.addMessageListener(channelValueListenerAdapter, channelValueChannelTopic);
-		return container;
-	}
+    @Bean
+    public ChannelTopic friendsChattingTopic() {
+        return new ChannelTopic("friendsChatting");
+    }
 
-	@Bean
-	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
-		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-		redisTemplate.setConnectionFactory(connectionFactory);
-		// redisTemplate.setKeySerializer(new StringRedisSerializer());
-		// redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class));
-		// redisTemplate.setConnectionFactory(redisConnectionFactory());
-		// redisTemplate.setEnableTransactionSupport(true);
+    @Bean
+    public MessageListenerAdapter channelChattingListenerAdapter(RedisSubscriber subscriber) {
+        return new MessageListenerAdapter(subscriber, "sendChannelMessage");
+    }
 
-		redisTemplate.setKeySerializer(new StringRedisSerializer());
-		redisTemplate.setValueSerializer(new StringRedisSerializer());
+    @Bean
+    public MessageListenerAdapter friendsChattingListenerAdapter(RedisSubscriber subscriber) {
+        return new MessageListenerAdapter(subscriber, "sendFriendsMessage");
+    }
 
-		redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-		redisTemplate.setHashValueSerializer(new StringRedisSerializer());
-		return redisTemplate;
-	}
+    @Bean
+    public MessageListenerAdapter channelValueListenerAdapter(RedisSubscriber subscriber) {
+        return new MessageListenerAdapter(subscriber, "sendChannelValue");
+    }
 
-	@Bean
-	public MessageListenerAdapter chatRoomListenerAdapter(RedisSubscriber subscriber) {
-		return new MessageListenerAdapter(subscriber, "sendMessage");
-	}
+    // redis pub/sub 메시지를 처리하는 listener 설정
+    @Bean
+    public RedisMessageListenerContainer redisMessageListener(RedisConnectionFactory connectionFactory,
+                                                              MessageListenerAdapter channelChattingListenerAdapter, MessageListenerAdapter channelValueListenerAdapter, MessageListenerAdapter friendsChattingListenerAdapter,
+                                                              ChannelTopic channelChattingTopic, ChannelTopic channelValueChannelTopic, ChannelTopic friendsChattingTopic) {
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        container.addMessageListener(channelChattingListenerAdapter, channelChattingTopic);
+        container.addMessageListener(friendsChattingListenerAdapter, friendsChattingTopic);
+        container.addMessageListener(channelValueListenerAdapter, channelValueChannelTopic);
+        return container;
+    }
 
-	@Bean
-	public MessageListenerAdapter channelValueListenerAdapter(RedisSubscriber subscriber) {
-		return new MessageListenerAdapter(subscriber, "sendChannelValue");
-	}
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(connectionFactory);
+        // redisTemplate.setKeySerializer(new StringRedisSerializer());
+        // redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class));
+        // redisTemplate.setConnectionFactory(redisConnectionFactory());
+        // redisTemplate.setEnableTransactionSupport(true);
+
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
+
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashValueSerializer(new StringRedisSerializer());
+        return redisTemplate;
+    }
 }
