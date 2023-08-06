@@ -1,7 +1,10 @@
 package com.ssafy.withview.config;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -15,9 +18,9 @@ import com.ssafy.withview.service.JwtService;
 
 import lombok.RequiredArgsConstructor;
 
-// @Configuration
-// @EnableWebSecurity
-// @EnableGlobalMethodSecurity(securedEnabled = true)
+@Configuration
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(securedEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -35,7 +38,7 @@ public class SecurityConfig {
 		// 시큐리티는 기본적으로 세션을 사용
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and()
-			// httpBasic -> Bearer(Authorizatoin key의 value에 id, pw를 암호화한 토큰을 들고 요청)
+			// httpBasic -> Bearer(Authorization key 의 value 에 id, pw를 암호화한 토큰을 들고 요청)
 			.formLogin().disable()
 			.httpBasic().disable();
 
@@ -47,8 +50,9 @@ public class SecurityConfig {
 			.addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
 
 		http.authorizeRequests()
-			.antMatchers("/api/login").permitAll()
+			.antMatchers("/api/login/login").permitAll()
 			.antMatchers("/api/users").permitAll()
+			.antMatchers("/api/login/cookie").permitAll()
 			.anyRequest().authenticated();
 
 		return http.build();
