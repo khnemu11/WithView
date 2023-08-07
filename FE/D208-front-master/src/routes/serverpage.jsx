@@ -24,8 +24,7 @@ const Serverpage = () => {
 
   const [channels, setChannels] = useState([]);
 
-  const [onlineMembers, setOnlineMembers] = useState([]);
-  const [offlineMembers, setOfflineMembers] = useState([]);
+  const [serverMembers, setServerMembers] = useState([]);
   const profileImageURL = useSelector((state) => state.user.profile);
   const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImage}`;
 
@@ -409,20 +408,14 @@ const Serverpage = () => {
           </Slider>
         </div>
         <div className="channelNameText">맴버 목록</div>
-        <Collapsible title="온라인">
-          <div className="membersContainer">
-            {onlineMembers.map((member) => (
+         {/* Scrollable Area */}
+         <div className="scrollable-area">
+          <div className="grid-container">
+          {serverMembers.map((member) => (
               <Member key={member.id} member={member} />
             ))}
           </div>
-        </Collapsible>
-        <Collapsible title="오프라인">
-          <div className="membersContainer">
-            {offlineMembers.map((member) => (
-              <Member key={member.id} member={member} />
-            ))}
-          </div>
-        </Collapsible>
+        </div>
       </div>
     </div>
   );
