@@ -1,4 +1,4 @@
-package com.ssafy.withview.config.jwt;
+package com.ssafy.withview.filter;
 
 import java.io.IOException;
 
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ssafy.withview.exception.ErrorCode;
+import com.ssafy.withview.constant.ErrorCode;
 
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
