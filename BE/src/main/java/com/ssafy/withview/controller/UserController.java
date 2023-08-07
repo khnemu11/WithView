@@ -293,7 +293,7 @@ public class UserController {
 			resultMap.put("success", false);
 			resultMap.put("message", e.getMessage());
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
-			log.error("[Error] 프로필 수정 실패: ", e.getMessage());
+			log.error("[Error] 프로필 수정 실패: {}", e.getMessage());
 		}
 		return new ResponseEntity<>(resultMap, status);
 	}
@@ -347,13 +347,16 @@ public class UserController {
 	/**
 	 * 마이페이지 - 비밀번호 변경
 	 *
-	 * @param seq      (변경할 유저 pk 값)
-	 * @param password (변경할 비밀번호)
+	 * @param seq            (변경할 유저 pk 값)
+	 * @param passwordMap    (변경할 비밀번호)
+	 * @param var            (1: 비밀번호 찾기, 2: 마이페이지 - 비밀번호 변경)
 	 * @return ResponseEntity(true / false, 상태코드)
 	 */
 	@PutMapping("/{seq}/password")
 	public ResponseEntity<Map<String, Object>> updatePassword(@PathVariable(value = "seq") Long seq,
-		@RequestParam(value = "password") String password, HttpServletRequest request) {
+		@RequestBody Map<String, String> passwordMap,
+		@RequestParam(value = "var") String var,
+		HttpServletRequest request) {
 		log.debug("UserController - updatePassword: 비밀번호 변경");
 		Map<String, Object> resultMap = new HashMap<>();
 		HttpStatus status;
@@ -361,10 +364,15 @@ public class UserController {
 			String accessToken = jwtService.resolveAccessToken(request.getHeader("Authorization"));
 			log.debug("AccessToken: {}", accessToken);
 			LoginDto loginDto = jwtService.getLoginInfo(accessToken);
-			if (loginDto.getUserSeq() != seq) {
+			if (!var.equals("1") && !var.equals("2")) {
 				throw new BadRequestException("BAD_REQUEST");
 			}
-			userService.updatePassword(seq, password);
+			if (var.equals("2")) {
+				if (loginDto.getUserSeq() != seq) {
+					throw new BadRequestException("BAD_REQUEST");
+				}
+			}
+			userService.updatePassword(seq, passwordMap.get("password"));
 			resultMap.put("success", true);
 			status = HttpStatus.OK;
 			log.debug("비밀번호 변경 완료. seq: {}", seq);
