@@ -361,13 +361,13 @@ public class UserController {
 		Map<String, Object> resultMap = new HashMap<>();
 		HttpStatus status;
 		try {
-			String accessToken = jwtService.resolveAccessToken(request.getHeader("Authorization"));
-			log.debug("AccessToken: {}", accessToken);
-			LoginDto loginDto = jwtService.getLoginInfo(accessToken);
 			if (!var.equals("1") && !var.equals("2")) {
 				throw new BadRequestException("BAD_REQUEST");
 			}
 			if (var.equals("2")) {
+				String accessToken = jwtService.resolveAccessToken(request.getHeader("Authorization"));
+				log.debug("AccessToken: {}", accessToken);
+				LoginDto loginDto = jwtService.getLoginInfo(accessToken);
 				if (loginDto.getUserSeq() != seq) {
 					throw new BadRequestException("BAD_REQUEST");
 				}
