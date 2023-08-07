@@ -3,7 +3,7 @@ package com.ssafy.withview.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ssafy.withview.config.jwt.Role;
+import com.ssafy.withview.constant.Role;
 import com.ssafy.withview.dto.UserDto;
 import com.ssafy.withview.entity.LoginEntity;
 import com.ssafy.withview.entity.UserEntity;

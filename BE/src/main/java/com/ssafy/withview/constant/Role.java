@@ -1,4 +1,4 @@
-package com.ssafy.withview.config.jwt;
+package com.ssafy.withview.constant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

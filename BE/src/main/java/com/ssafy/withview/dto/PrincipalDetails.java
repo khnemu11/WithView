@@ -1,4 +1,4 @@
-package com.ssafy.withview.config.auth;
+package com.ssafy.withview.dto;
 
 import java.util.ArrayList;
 import java.util.Collection;

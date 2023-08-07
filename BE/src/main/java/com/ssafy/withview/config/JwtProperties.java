@@ -1,4 +1,4 @@
-package com.ssafy.withview.config.jwt;
+package com.ssafy.withview.config;
 
 public interface JwtProperties {
 	String SECRET_KEY = "S09P12D208JwtSecretKeyS09P12D208JwtSecretKeyS09P12D208JwtSecretKeyS09P12D208JwtSecretKeyCrazySSAFYMonsterSecurityByHc5514";

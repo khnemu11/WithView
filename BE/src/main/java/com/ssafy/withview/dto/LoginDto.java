@@ -1,6 +1,6 @@
 package com.ssafy.withview.dto;
 
-import com.ssafy.withview.config.jwt.Role;
+import com.ssafy.withview.constant.Role;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
