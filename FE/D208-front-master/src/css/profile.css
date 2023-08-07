@@ -14,7 +14,7 @@
     background-color: #CAECFF;
     margin-top: 12px;
     border-bottom-left-radius: 18px;
-    max-height: 92.5%;
+    max-height: 525px;
   }
 
   .column-left .left-column-image {
@@ -172,7 +172,7 @@
 
 .modal-background{
   background-color: rgba(0,0,0,0.3);
-  z-index: 1; 
+  z-index: 0; 
 }
 
 .modal-content-profile-image {

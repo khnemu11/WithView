@@ -3,17 +3,13 @@ import { useNavigate } from "react-router-dom";
 import "../css/Signup.css";
 import axios from "axios";
 
-import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
-import Modal from "react-bootstrap/Modal";
-
 export default function Signup() {
   const [email, setEmail] = useState("");
   const [password1, setPassword1] = useState("");
   const [Id, setId] = useState("");
   const [password2, setPassword2] = useState("");
   const [nickname, setNickname] = useState("");
-  const [code,setCode] = useState("");
+  const [code, setCode] = useState("");
 
   const [checkPass, setCheckPass] = useState(false);
   const [checkID, setCheckID] = useState(false);
@@ -22,6 +18,8 @@ export default function Signup() {
   const [checkNickname, setCheckNickname] = useState(false);
 
   const [idLabel, setIdLabel] = useState("아이디");
+  const [emailLabel, setEmailLabel] = useState("이메일");
+  const [emailLabelColor, setEmailLabelColor] = useState({ color: "#80C4FF" });
   const [passwordLabel, setPasswordLabel] = useState("비밀번호");
   const [passwordLabel2, setPasswordLabel2] = useState("비밀번호 확인");
   const [nicknameLabel, setNicknameLabel] = useState("닉네임");
@@ -38,58 +36,59 @@ export default function Signup() {
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const [buttonDisabled2, setButtonDisabled2] = useState(false);
   const [buttonDisabled3, setButtonDisabled3] = useState(false);
-
-  const [show, setShow] = useState(false);
-
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const [isModalActive, setIsModalActive] = useState(false);
 
   useEffect(() => {
     // 페이지 진입 시 페이지 전환 애니메이션 클래스 추가...
-    document
-      .querySelector(".signup_signup")
-      .classList.remove("signup_transition-enter-active");
-    document
-      .querySelector(".signup_signup")
-      .classList.add("signup_transition-enter");
-    // 페이지 진입 시 활성화 애니메이션 클래스 추가
-
-    // 애니메이션이 끝난 후에 활성화 애니메이션 클래스 제거
-    setTimeout(() => {
-      document
-        .querySelector(".signup_signup")
-        .classList.remove("signup_transition-enter");
-      document
-        .querySelector(".signup_signup")
-        .classList.add("signup_transition-enter-active");
-    }, 100); // 애니메이션 시간과 일치하는 시간으로 설정 (0.3초)
+    const signupElement = document.querySelector(".signup_signup")
+    
+    if (signupElement) {
+      signupElement.classList.remove("signup_transition-enter-active")
+      signupElement.classList.add("signup_transition-enter");
+      setTimeout(() => {
+        signupElement.classList.remove("signup_transition-enter");
+        signupElement.classList.add("signup_transition-enter-active");
+      }, 100); // 애니메이션 시간과 일치하는 시간으로 설정 (0.1초)
+    }
   }, []);
 
   useEffect(() => {
     // 아이디 필드가 변경되었을 때 실행되는 함수
     if (Id === "" || idLabel === "아이디를 다시한번 확인해주세요!") {
       setButtonDisabled(true); // 아이디 빈칸 또는 유효성 검사 실패 시 버튼 비활성화
-      
-    }
-    else if (checkID) {
-      setIdLabel("중복 확인 완료!")
+    } else if (checkID) {
+      setIdLabel("중복 확인 완료!");
       setIdLabelColor({ color: "lightgreen" });
-    }
-    else {
+    } else {
       setButtonDisabled(false); // 그 외의 경우 버튼 활성화
     }
-
   }, [Id, idLabel, checkID]);
 
   useEffect(() => {
-    if(checkEmail){
-      setButtonDisabled3(false)
-      setCheckEmail(false)
+    if (checkEmail) {
+      setButtonDisabled3(false);
+      setCheckEmail(false);
     }
   }, [email]);
 
   useEffect(() => {
-    if (!checkPass || !checkPass2 || !checkNickname || !checkEmail || !checkID) {
+    if (checkEmail) {
+      setEmailLabel("이메일 인증 완료!");
+      setEmailLabelColor({ color: "lightgreen" });
+    } else {
+      setEmailLabel("이메일");
+      setEmailLabelColor({ color: "#80C4FF" });
+    }
+  }, [checkEmail]);
+
+  useEffect(() => {
+    if (
+      !checkPass ||
+      !checkPass2 ||
+      !checkNickname ||
+      !checkEmail ||
+      !checkID
+    ) {
       setButtonDisabled2(true);
     } else {
       setButtonDisabled2(false);
@@ -116,6 +115,12 @@ export default function Signup() {
     }
   }, [password1, password2]);
 
+  useEffect(() => {
+    if (!isModalActive) {
+      setCode("");
+    }
+  }, [isModalActive]);
+
   const navigate = useNavigate();
   const url = "https://i9d208.p.ssafy.io/api";
 
@@ -123,47 +128,53 @@ export default function Signup() {
     e.preventDefault();
     axios({
       method: "GET",
-      url: `${url}/users/email/validate?email=${email}`,
+      url: `${url}/users/email/validate?email=${email}&var=1`,
     })
-    .then((res) => {
-      console.log(res.data);
-      handleShow();
-    })
-    .catch((err) => {
-      console.log(err);
-      if (err.response && err.response.status === 409){
-        alert("이 Email로 가입한 계정이 존재합니다!!")
-      }
-    });
+      .then((res) => {
+        console.log(res.data);
+        setIsModalActive(true);
+      })
+      .catch((err) => {
+        console.log(err);
+        if (err.response && err.response.status === 409) {
+          alert("이 Email로 가입한 계정이 존재합니다!");
+        }
+        else{
+          alert("올바른 이메일 형식이 아닙니다!")
+        }
+      });
   };
 
   const authenticateCode = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     axios({
-      method : 'GET',
-      url : `${url}/users/email/authenticate?email=${email}&code=${code}`
+      method: "GET",
+      url: `${url}/users/email/authenticate?email=${email}&code=${code}`,
     })
-    .then((res)=>{
-      console.log(res.data)
-      alert('인증완료!!')
-      setCheckEmail(true)
-      setButtonDisabled3(true)
-      handleClose()
-    })
-    .catch((err)=>{
-      console.log(err)
-    })
-  }
+      .then((res) => {
+        console.log(res.data);
+        alert("인증완료!!");
+        setCheckEmail(true);
+        setButtonDisabled3(true);
+        setIsModalActive(false);
+      })
+      .catch((err) => {
+        alert("인증에 실패하셨습니다!");
+        setIsModalActive(false);
+        console.log(err);
+      });
+  };
 
   const checkSignUp = (e) => {
     e.preventDefault();
     axios({
       method: "POST",
       url: `${url}/users`,
-      data: { id : Id, email : email, password : password1, nickname : nickname },
+      data: { id: Id, email: email, password: password1, nickname: nickname },
     })
       .then((res) => {
         console.log(res.data);
+        alert("회원가입 완료!");
         navigate("/login");
       })
       .catch((err) => {
@@ -185,11 +196,10 @@ export default function Signup() {
       })
       .catch((err) => {
         console.log(err);
-        if (err.response && err.response.status === 409){
-          setIdLabel("이미 존재하는 id입니다!!")
+        if (err.response && err.response.status === 409) {
+          setIdLabel("이미 존재하는 id입니다!!");
           setIdLabelColor({ color: "red" });
         }
-        
       });
   };
 
@@ -199,7 +209,12 @@ export default function Signup() {
         <div className="signup_titleWrap">
           <div className="signup_hello">환영합니다 !</div>
           <div className="signup_inputwrap">
-            <form className="signup_form" action="#">
+            <form
+              className="signup_form"
+              onSubmit={(e) => {
+                e.preventDefault();
+              }}
+            >
               <div style={{ width: "85%" }}>
                 <label className="label signup_label" style={idLabelColor}>
                   {idLabel}
@@ -223,12 +238,11 @@ export default function Signup() {
                       ) {
                         setIdLabel("아이디를 다시한번 확인해주세요!");
                         setIdLabelColor({ color: "red" });
-                        setCheckID(false)
-                      }
-                      else {
+                        setCheckID(false);
+                      } else {
                         setIdLabel("중복 확인 가능!");
                         setIdLabelColor({ color: "#80C4FF" });
-                        setCheckID(false)
+                        setCheckID(false);
                       }
                     }}
                   />
@@ -243,7 +257,9 @@ export default function Signup() {
               </div>
 
               <div style={{ width: "85%" }}>
-                <label className="label signup_label">이메일</label>
+                <label className="label signup_label" style={emailLabelColor}>
+                  {emailLabel}
+                </label>
 
                 <div className="signup_inputs_div">
                   <input
@@ -254,43 +270,69 @@ export default function Signup() {
                       setEmail(e.target.value);
                     }}
                   />
-                  <Button
-                    className="signup_inputs_buttons"
+                  <button
+                    className="button is-info signup_inputs_buttons"
                     onClick={validateMail}
-                    disabled = {buttonDisabled3}
+                    disabled={buttonDisabled3}
                   >
                     인증메일발송
-                  </Button>
+                  </button>
+                  <div
+                    className={`modal ${isModalActive ? "is-active" : ""}`}
+                    id="myModal"
+                  >
+                    <div
+                      className={`modal-background ${
+                        isModalActive ? "is-active" : ""
+                      }`}
+                      onClick={() => {
+                        setIsModalActive(false);
+                      }} // 모달 배경 클릭 시 모달 닫기
+                    ></div>
+                    <div className="modal-card">
+                      <header className="modal-card-head">
+                        <p className="modal-card-title">
+                          인증번호를 입력해주세요.
+                        </p>
+                        <button
+                          className="delete"
+                          aria-label="close"
+                          onClick={() => {
+                            setIsModalActive(false);
+                          }} // 모달 닫기 버튼 클릭 시 setIsModalActive(false) 호출
+                        ></button>
+                      </header>
 
-                  <Modal show={show} onHide={handleClose}>
-                    <Modal.Header closeButton>
-                      <Modal.Title>인증번호를 발송했어요!</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                      <Form>
-                        <Form.Group
-                          className="mb-3"
-                          controlId="exampleForm.ControlInput1"
+                      <section className="modal-card-body">
+                        <input
+                          type="text"
+                          className="input"
+                          value={code}
+                          onChange={(e) => {
+                            setCode(e.target.value);
+                          }}
+                        />
+                      </section>
+
+                      <footer className="modal-card-foot">
+                        <button
+                          className="button is-info"
+                          onClick={authenticateCode}
                         >
-                          <Form.Label>인증번호</Form.Label>
-                          <Form.Control
-                            type="number"
-                            placeholder="인증번호를 입력해주세요!"
-                            autoFocus
-                            onChange={(e)=>{setCode(e.target.value)}}
-                          />
-                        </Form.Group>
-                      </Form>
-                    </Modal.Body>
-                    <Modal.Footer>
-                      <Button variant="secondary" onClick={handleClose}>
-                        뒤로가기
-                      </Button>
-                      <Button variant="primary" onClick={authenticateCode}>
-                        인증
-                      </Button>
-                    </Modal.Footer>
-                  </Modal>
+                          인증 확인
+                        </button>
+
+                        <button
+                          className="button"
+                          onClick={() => {
+                            setIsModalActive(false);
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </footer>
+                    </div>
+                  </div>
                 </div>
               </div>
 

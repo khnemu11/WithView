@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect  } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "../css/mainpage.css"; // CSS 파일 임포트
 import "../css/firstmain.css";
 import "../css/serverplus.css";
@@ -7,6 +7,7 @@ import "cropperjs/dist/cropper.css";
 import ServerOptions from "./components/serveroptions";
 import { useSelector } from "react-redux";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const ServerPlus = () => {
   const profileNickname = useSelector((state) => state.user.nickname);
@@ -20,6 +21,10 @@ const ServerPlus = () => {
   const [imageToCrop, setImageToCrop] = useState(null);
   const cropperRef = useRef(null);
   const profileImageURL = useSelector((state) => state.user.profile);
+  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImage}`;
+
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     // 만약 redux에서 프로필 이미지가 null이면 기본 이미지로 설정
@@ -35,43 +40,44 @@ const ServerPlus = () => {
     const byteString = atob(base64String.split(",")[1]);
     const arrayBuffer = new ArrayBuffer(byteString.length);
     const uint8Array = new Uint8Array(arrayBuffer);
-  
+
     for (let i = 0; i < byteString.length; i++) {
       uint8Array[i] = byteString.charCodeAt(i);
     }
-  
+
     return new Blob([uint8Array], { type: "image/png" });
   }
 
-  
-const handleServerCreateButtonClick = () => {
-  const formData = new FormData();
-  formData.append("hostSeq", hostSeqRef.current);
-  formData.append("name", serverName);
-  formData.append("file", editedImage);
+  const handleServerCreateButtonClick = () => {
+    const formData = new FormData();
+    formData.append("hostSeq", hostSeqRef.current);
+    formData.append("name", serverName);
+    formData.append("file", editedImage);
 
-  // 서버 생성 API 주소
-  const serverCreateAPI = "https://i9d208.p.ssafy.io/api/servers";
+    // 서버 생성 API 주소
+    const serverCreateAPI = "https://i9d208.p.ssafy.io/api/servers";
 
-  // 서버로 생성 요청 보내기
-  axios
-    .post(serverCreateAPI, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    })
-    .then((response) => {
-      // 서버 생성 성공 처리
-      console.log(editedImage)
-      console.log("서버 생성 성공:", response.data);
-      // ... (추가적인 처리 로직)
-    })
-    .catch((error) => {
-      // 서버 생성 실패 처리
-      console.error("서버 생성 실패:", error);
-      // ... (에러 처리 로직)
-    });
-};
+    // 서버로 생성 요청 보내기
+    axios
+      .post(serverCreateAPI, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((response) => {
+        // 서버 생성 성공 처리
+        console.log(editedImage);
+        console.log("서버 생성 성공:", response.data);
+        // ... (추가적인 처리 로직)
+        const serverSeq = response.data.server.seq;
+        navigate(`/server/${serverSeq}`);
+      })
+      .catch((error) => {
+        // 서버 생성 실패 처리
+        console.error("서버 생성 실패:", error);
+        // ... (에러 처리 로직)
+      });
+  };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -92,20 +98,22 @@ const handleServerCreateButtonClick = () => {
       width: 300,
       height: 300,
     });
-  
+
     // 캔버스에서 Base64로 변환된 PNG 이미지 가져오기
     const croppedImageDataURL = croppedCanvas.toDataURL("image/png");
-  
+
     // Base64를 Blob 객체로 변환
     const blob = base64ToBlob(croppedImageDataURL);
-  
+
     // Blob 객체를 File 객체로 변환 (파일 이름은 "croppedSeverImage.png"로 설정)
-    const file = new File([blob], "croppedSeverImage.png", { type: "image/png" });
-  
+    const file = new File([blob], "croppedSeverImage.png", {
+      type: "image/png",
+    });
+
     // File 객체를 editedImage에 설정
     setEditedImage(file);
     setEditedImageShow(croppedImageDataURL);
-  
+
     setIsCropModalOpen(false); // 모달 닫기
   };
 
@@ -113,7 +121,7 @@ const handleServerCreateButtonClick = () => {
     <div className="mainbox">
       <div className="innermain">
         <ServerOptions
-          profileImage={profileImage}
+          profileImage={profileImageUrl}
           profileNickname={profileNickname}
         />
 

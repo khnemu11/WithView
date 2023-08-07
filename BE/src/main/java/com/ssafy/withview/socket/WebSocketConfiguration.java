@@ -7,12 +7,13 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 
 @Configuration
 @EnableWebSocket
-public class WebSocketConfiguration implements WebSocketConfigurer{
+public class WebSocketConfiguration implements WebSocketConfigurer {
 	private final SocketHandler socketHandler;
 
 	public WebSocketConfiguration(SocketHandler socketHandler) {
 		this.socketHandler = socketHandler;
 	}
+
 	@Override
 	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
 		registry.addHandler(socketHandler, "/api/socket")

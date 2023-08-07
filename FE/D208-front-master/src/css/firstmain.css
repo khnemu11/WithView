@@ -1,4 +1,15 @@
+@font-face {
+  font-family: "MyFont";
+  src: url("../public/font/NanumGothic.ttf") format("truetype"); /* 폰트 경로 지정 */
+  /* 여러 개의 형식 지원 시 다른 폰트 형식도 추가할 수 있습니다. */
+}
+
+html {
+  overflow-y: hidden;
+}
+
 body {
+  font-family: "MyFont";
   margin: 0;
   padding: 0;
   height: 100vh; /* 뷰포트 높이에 맞게 설정 */
@@ -44,13 +55,13 @@ body {
 
 .serverOptionsLine {
   width: 100%;
-  border-bottom: 1px solid #3077AA;
+  border-bottom: 1px solid #3077aa;
   margin-top: 7px;
   margin-bottom: 30px; /* 서버 옵션 라인과 컨텐츠 사이 간격 조정 */
 }
 .serverOptionsLine_main {
   width: 100%;
-  border-bottom: 1px solid #3077AA;
+  border-bottom: 1px solid #3077aa;
   margin-top: 7px;
   margin-bottom: 10px; /* 서버 옵션 라인과 컨텐츠 사이 간격 조정 */
 }
@@ -67,20 +78,20 @@ body {
   margin-right: 15px;
 }
 
-.profile-bar-image{
+.profile-bar-image {
   width: 100%;
-  max-width: 60px;
+  max-width: 55px;
   margin-right: 10px;
   border-radius: 50%;
 }
-.profileNameTop{
+.profileNameTop {
   margin-top: 15px;
   font-size: large;
 }
 
-.userplusImage{
+.userplusImage {
   width: 95px;
-  margin: 0 120px 10px; 
+  margin: 0 120px 10px;
 }
 .serverplusImage {
   width: 80px;
@@ -92,7 +103,6 @@ body {
   margin-top: 10px;
   white-space: nowrap;
 }
-
 
 .ml-auto {
   margin-left: auto;

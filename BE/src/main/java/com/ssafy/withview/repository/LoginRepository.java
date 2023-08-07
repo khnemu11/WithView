@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.ssafy.withview.entity.LoginEntity;
 
-public interface LoginRepository extends JpaRepository<LoginEntity, Integer> {
-	Optional<LoginEntity> findById(String id);
+public interface LoginRepository extends JpaRepository<LoginEntity, Long> {
+
+	Optional<LoginEntity> findByUserSeq(Long userSeq);
 }

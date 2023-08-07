@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface CanvasRepository extends MongoRepository<CanvasEntity,String> {
-    public List<CanvasEntity> findByChannelSeq(long channelSeq);
+    public List<CanvasEntity> findByChannelSeq(Long channelSeq);
 }

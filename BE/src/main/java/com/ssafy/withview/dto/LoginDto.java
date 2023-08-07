@@ -1,5 +1,7 @@
 package com.ssafy.withview.dto;
 
+import com.ssafy.withview.constant.Role;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,5 +16,6 @@ import lombok.Setter;
 public class LoginDto {
 	private String id;
 	private String password;
-	private String roles;
+	private Role roles;
+	private Long userSeq;
 }
