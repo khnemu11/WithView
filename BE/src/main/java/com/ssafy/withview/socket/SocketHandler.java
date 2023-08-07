@@ -1,12 +1,9 @@
 package com.ssafy.withview.socket;
 
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
