@@ -7,23 +7,23 @@ import withview from "../assets/withview.png";
 
 export default function FindId() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
+  const [isModalActive, setIsModalActive] = useState(false);
+  
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const url = "https://i9d208.p.ssafy.io/api";
 
-  
   function checkFindEmail() {
     axios({
       method: "GET",
-      url: `${url}/validate/email-id`,
-      data: { eamil : email },
+      url: `${url}/users/email/validate?email=${email}&var=2`,
     })
       .then((res) => {
+        console.log(res.data);
         if (res.data.success) {
+          alert("이메일로 인증번호를 전송했습니다!!");
           console.log("이메일 전송 완료");
-          
-          console.log(res.data);
         } else {
           alert("이메일 전송 실패");
           setEmail("");
@@ -32,9 +32,30 @@ export default function FindId() {
       .catch((err) => {
         console.log(err);
         alert("다시 입력해 주세요.");
-        setEmail("")
+        setEmail("");
       });
   }
+
+  const authenticateCode = (e) => {
+    e.preventDefault();
+    axios({
+      method: "GET",
+      url: `${url}/users/email/authenticate?email=${email}&code=${code}&var=2`,
+    })
+      .then((res) => {
+        console.log(res.data);
+        alert("인증완료!!");
+        setIsModalActive(true)
+      })
+      .catch((err) => {
+        if (err.response && err.response.status === 401) {
+          alert("인증번호를 다시 확인해주세요");
+        } else {
+          alert("error");
+        }
+        console.log(err);
+      });
+  };
 
   return (
     <div className="findid_first">
@@ -55,19 +76,23 @@ export default function FindId() {
           <div className="findid_inputs">
             <div style={{ width: "85%" }}>
               <label className="label findid_label">
-                메일 주소 입력좀 ㅅㅂ
+                제발 메일 주소 입력좀 
               </label>
               <div className="findid_input_button">
-                <input className="input findid_input" 
-                   type="email" 
-                   onChange={(e)=>{
-                    console.log(e.target.value)
-                    setEmail(e.target.value)
-                   }}
+                <input
+                  className="input findid_input"
+                  type="email"
+                  onChange={(e) => {
+                    console.log(e.target.value);
+                    setEmail(e.target.value);
+                  }}
                 />
-                <button className="button findid_button"
-                    onClick={checkFindEmail}
-                >인증메일전송</button>
+                <button
+                  className="button findid_button"
+                  onClick={checkFindEmail}
+                >
+                  인증메일전송
+                </button>
               </div>
             </div>
 
@@ -76,8 +101,66 @@ export default function FindId() {
                 이메일로 발송된 인증번호를 입력해주세요
               </label>
               <div className="findid_input_button">
-                <input className="input findid_input" />
-                <button className="button findid_button">인증번호입력</button>
+                <input
+                  className="input findid_input"
+                  onChange={(e) => {
+                    setCode(e.target.value);
+                  }}
+                />
+                <button
+                  className="button findid_button"
+                  onClick={authenticateCode}
+                >
+                  인증번호입력
+                </button>
+              </div>
+
+              <div
+                className={`modal ${isModalActive ? "is-active" : ""}`}
+                id="myModal"
+              >
+                <div
+                  className={`modal-background ${
+                    isModalActive ? "is-active" : ""
+                  }`}
+                  onClick={() => {
+                    setIsModalActive(false);
+                  }} // 모달 배경 클릭 시 모달 닫기
+                ></div>
+                <div className="modal-card">
+                  <header className="modal-card-head">
+                    <p className="modal-card-title">가입하신 아이디 입니다.</p>
+                    <button
+                      className="delete"
+                      aria-label="close"
+                      onClick={() => {
+                        setIsModalActive(false);
+                      }} // 모달 닫기 버튼 클릭 시 setIsModalActive(false) 호출
+                    ></button>
+                  </header>
+
+                  <section className="modal-card-body">
+                    <p>{maskedId}</p>
+                  </section>
+
+                  <footer className="modal-card-foot">
+                    {/* <button
+                      className="button is-info"
+                      onClick={authenticateCode}
+                    >
+                      인증 확인
+                    </button> */}
+
+                    <button
+                      className="button"
+                      onClick={() => {
+                        setIsModalActive(false);
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </footer>
+                </div>
               </div>
             </div>
           </div>
@@ -90,11 +173,14 @@ export default function FindId() {
             >
               <a>뒤로가기</a>
             </div>
-            | <div
-              onClick={()=>{
-                navigate("/findpassword")
+            |{" "}
+            <div
+              onClick={() => {
+                navigate("/findpassword");
               }}
-              ><a>비밀번호 찾기</a></div>
+            >
+              <a>비밀번호 찾기</a>
+            </div>
           </div>
         </div>
       </div>

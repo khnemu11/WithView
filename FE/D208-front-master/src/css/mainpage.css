@@ -72,13 +72,15 @@
     width:100%;
   }
 
-  .slick-list{
+  .sliderChannelContainer .slick-list{
     width: 100%;
-    max-height: 200px;
+    padding-bottom: 5px;
+  }
+  .sliderContainer .slick-list{
+    height: 26vh;
   }
 
   .custom-card-height {
-    height: 168px;
     max-width: 400px; /* 카드의 최대 너비를 500px로 설정 */
     margin: 0 auto; /* 중앙에 카드를 정렬 */
   }
