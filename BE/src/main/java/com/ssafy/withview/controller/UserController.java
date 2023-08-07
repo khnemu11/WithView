@@ -164,11 +164,11 @@ public class UserController {
 	 *
 	 * @param email (인증 받을 이메일)
 	 * @param code  (이메일로 발송된 인증 코드)
-	 * @param var   (var == 2, 아이디 찾기)
-	 * @return ResponseEntity(true / false, 상태코드, var 2 일 때 마스킹 된 아이디 알려준다.)
+	 * @param var   (2: 아이디 찾기, 3: 비밀번호 찾기)
+	 * @return ResponseEntity(true / false, 상태코드, 마스킹 된 아이디 or seq)
 	 * @throws InvalidVerificationCodeException 인증코드가 일치하지 않을 때
 	 * @throws IllegalArgumentException         email 로 조회되는 회원정보가 없을 때
-	 * @throws BadRequestException              매개변수 불일치 (var 값이 2가 아닐 때)
+	 * @throws BadRequestException              매개변수 불일치 (var 값이 2,3이 아닐 때)
 	 */
 
 	@GetMapping("/email/authenticate")
@@ -187,7 +187,12 @@ public class UserController {
 				resultMap.put("id", maskedId);
 				log.debug("마스킹 된 id: {}", maskedId);
 			}
-			if (var != null && !var.equals("2")) {
+			if (var != null && var.equals("3")) {
+				UserDto userDto = userService.getSeqByEmail(email);
+				resultMap.put("seq", userDto.getSeq());
+				log.debug("비밀번호를 변경 할 회원 seq: {}", userDto);
+			}
+			if (var != null && !var.equals("2") && !var.equals("3")) {
 				throw new BadRequestException("BAD_REQUEST");
 			}
 			resultMap.put("success", true);

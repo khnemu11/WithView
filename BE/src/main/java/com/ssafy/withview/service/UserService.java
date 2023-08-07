@@ -122,6 +122,22 @@ public class UserService {
 	}
 
 	/**
+	 * email 을 이용해 유저 정보를 가져온다.
+	 * @param email (유저 email)
+	 * @return UserDto (유저 pk 값)
+	 */
+	public UserDto getSeqByEmail(String email) {
+		log.debug("UserService - getSeqByEmail 실행");
+
+		UserEntity userEntity = userRepository.findByEmail(email)
+			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
+
+		return UserDto.builder()
+			.seq(userEntity.getSeq())
+			.build();
+	}
+
+	/**
 	 * 프로필 이미지 및 상태 메시지 가져오기
 	 *
 	 * @param seq (확인할 유저 pk 값)
