@@ -13,7 +13,6 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
 	public WebSocketConfiguration(SocketHandler socketHandler) {
 		this.socketHandler = socketHandler;
 	}
-
 	@Override
 	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
 		registry.addHandler(socketHandler, "/api/socket")
