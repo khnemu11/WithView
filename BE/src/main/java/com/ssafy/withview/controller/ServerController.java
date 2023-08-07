@@ -98,7 +98,7 @@ public class ServerController {
 				if(!favoriteSet.contains(serverDtoList.get(i).getSeq())){
 					continue;
 				}
-				serverDtoList.get(i).setFavorite(true);
+				serverDtoList.get(i).setIsFavorite(true);
 			}
 
 

@@ -16,13 +16,13 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 public class ServerDto {
-	private long seq;
+	private Long seq;
 	private String name;
-	private int limitChannel;
-	private long hostSeq;
+	private Integer limitChannel;
+	private Long hostSeq;
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
-	private boolean isFavorite;
+	private Boolean isFavorite;
 
 	public static ServerEntity toEntity(ServerDto serverDto){
 		if(serverDto == null){
