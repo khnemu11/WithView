@@ -9,7 +9,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 </head>
-<body>
 <h3> 채팅 페이지</h3>
 <button type="button" id="conn-btn">연결</button>
 <button type="button" id="sub-btn">구독</button>
@@ -17,6 +16,10 @@
 <button type="button" id="enter-btn2">입장2</button>
 <button type="button" id="leave-btn1">퇴장1</button>
 <button type="button" id="leave-btn2">퇴장2</button>
+<button type="button" id="chat-sub-btn">채팅 구독</button>
+<input id="chat">
+<button type="button" id="chat-btn">채팅보내기</button>
+</body>
 <script>
     let socket;
     let stomp;
@@ -36,7 +39,7 @@
         console.log("연결 버튼 클릭");
         socket = new SockJS('/api/ws-stomp');
         stomp = Stomp.over(socket);
-        stomp.connect({"userSeq":23}, onConnected, onError);
+        stomp.connect({"userSeq": 23}, onConnected, onError);
     });
 
     document.querySelector("#sub-btn").addEventListener("click", function () {
@@ -70,6 +73,32 @@
         console.log("퇴장2 버튼 클릭");
         stomp.send(`/api/pub/channel/9/16/leave`, {}, JSON.stringify({"userSeq": 24}));
     })
+
+    document.querySelector("#chat-sub-btn").addEventListener("click", function () {
+        console.log("채팅 구독 버튼 클릭");
+        stomp.subscribe(`/api/sub/chat/channel/16`, function (msg) {
+            console.log("넘어온 메시지");
+            console.log(msg);
+            let data = JSON.parse(msg.body);
+            console.log("데이터");
+            console.log(data);
+        });
+    })
+
+    document.querySelector("#chat-btn").addEventListener("click", function () {
+        console.log("채팅 전송");
+        let element = document.querySelector("#chat").value;
+        console.log("element :" + element);
+        stomp.send(`/api/pub/chat/channel/message`, {}, JSON.stringify({
+            "userSeq": 23,
+            "channelSeq": 16,
+            "message": element
+        }));
+    })
+    //	private String message;
+    // private Long channelSeq;
+    // private Long userSeq;
+    // private LocalDateTime sendTime;
 </script>
 </body>
 </html>

@@ -1,16 +1,15 @@
 package com.ssafy.withview.service;
 
-import com.ssafy.withview.dto.FriendsChatMessageDto;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 
-import com.ssafy.withview.dto.ChannelChatMessageDto;
-
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class ChatService {
 
 	private final ChannelTopic channelChattingTopic;
@@ -20,11 +19,11 @@ public class ChatService {
 	/**
 	 * 채팅방에 메시지 발송
 	 */
-	public void sendChannelChatMessage(ChannelChatMessageDto chatMessage) {
+	public void sendChannelChatMessage(String chatMessage) {
 		redisTemplate.convertAndSend(channelChattingTopic.getTopic(), chatMessage);
 	}
 
-	public void sendFriendsChatMessage(FriendsChatMessageDto chatMessage) {
+	public void sendFriendsChatMessage(String chatMessage) {
 		redisTemplate.convertAndSend(friendsChattingTopic.getTopic(), chatMessage);
 	}
 }

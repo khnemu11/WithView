@@ -1,11 +1,15 @@
 package com.ssafy.withview.service;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 
+import com.ssafy.withview.dto.ChannelValueDto;
+import com.ssafy.withview.entity.ChannelEntity;
 import com.ssafy.withview.repository.ChannelRepository;
 import com.ssafy.withview.repository.WebSocketSubscribeRepository;
 
@@ -30,6 +34,18 @@ public class ChannelValueService {
 
 	public Set<Long> getChannelMemberValue(Long channelSeq) {
 		return webSocketSubscribeRepository.getChannelMembers(channelSeq);
+	}
+
+	public ChannelValueDto getChannelValueDto(Long serverSeq) {
+		List<ChannelEntity> channels = channelRepository.findByServerEntitySeq(serverSeq);
+		ChannelValueDto channelValueDto = new ChannelValueDto(serverSeq);
+		channelValueDto.setChannelMember(new HashMap<>());
+		for (ChannelEntity channel : channels) {
+			Long channelSeq = channel.getSeq();
+			Set<Long> channelMemberValue = getChannelMemberValue(channelSeq);
+			channelValueDto.getChannelMember().put(channelSeq, channelMemberValue);
+		}
+		return channelValueDto;
 	}
 
 	/**

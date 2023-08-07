@@ -2,18 +2,20 @@ package com.ssafy.withview.controller;
 
 import java.time.LocalDateTime;
 
-import com.ssafy.withview.dto.FriendsChatMessageDto;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import com.ssafy.withview.dto.ChannelChatMessageDto;
+import com.ssafy.withview.dto.FriendsChatMessageDto;
 import com.ssafy.withview.service.ChatService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Controller
+@Slf4j
 public class ChatController {
 
 	private final ChatService chatService;
@@ -22,14 +24,14 @@ public class ChatController {
 	@MessageMapping("/chat/channel/message")
 	public void channelChatMessage(ChannelChatMessageDto message) {
 		message.setSendTime(LocalDateTime.now());
-		chatService.sendChannelChatMessage(message);
+		chatService.sendChannelChatMessage(message.toJson());
 	}
 
 	// websocket "/api/pub/chat/friends/message"로 들어오는 메시징을 처리한다.
 	@MessageMapping("/chat/friends/message")
 	public void friendsChatMessage(FriendsChatMessageDto message) {
 		message.setSendTime(LocalDateTime.now());
-		chatService.sendFriendsChatMessage(message);
+		chatService.sendFriendsChatMessage(message.toJson());
 	}
 
 	@GetMapping("/chat/view")
