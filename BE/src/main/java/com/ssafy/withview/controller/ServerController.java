@@ -94,11 +94,13 @@ public class ServerController {
 			for(ServerDto favorite : favoriteDtoList){
 				favoriteSet.add(favorite.getSeq());
 			}
+
 			for(int i=0;i<serverDtoList.size();i++){
 				if(!favoriteSet.contains(serverDtoList.get(i).getSeq())){
-					continue;
+					serverDtoList.get(i).setIsFavorite(false);
+				}else {
+					serverDtoList.get(i).setIsFavorite(true);
 				}
-				serverDtoList.get(i).setIsFavorite(true);
 			}
 
 
