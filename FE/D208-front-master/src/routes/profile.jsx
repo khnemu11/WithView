@@ -6,7 +6,8 @@ import "../css/mainpage.css"; // CSS 파일 임포트
 import "../css/profile.css";
 import "../css/firstmain.css";
 import ServerOptions from "./components/serveroptions";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { clearToken } from "../redux/actions/tokenActions";
 import { clearUser } from "../redux/actions/userActions";
 
@@ -17,12 +18,14 @@ const Profile = () => {
   const [tempProfileMessage, setTempProfileMessage] = useState("");
   const [tempProfileNickname, setTempProfileNickname] = useState("");
   const profileNickname = useSelector((state) => state.user.nickname)
+  const userPk = useSelector((state)=>state.user.seq)
   const [profilePassword, setProfilePassword] = useState("");
   const [profilePasswordCheck, setProfilePasswordCheck] = useState("");
   const [profileLeaveCheck, setProfileLeaveCheck] = useState("");
   const [profileImage, setProfileImage] = useState("/프사.png");
   const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImage}`;
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const [imageToCrop, setImageToCrop] = useState(null);
   const cropperRef = useRef(null);
@@ -42,18 +45,21 @@ const Profile = () => {
     e.preventDefault()
     axios({
       method : 'POST',
-      url : `${url}/login/logout`
+      url : `${url}/login/logout`,
+      data : {seq : userPk},
     })
     .then((res) => {
       console.log(res.data)
       if(res.data.success){
-        clearToken()
-        clearUser()
+        alert("로그아웃 되었습니다.")
+        dispatch(clearToken())
+        dispatch(clearUser())
+        navigate('/login')
       }
     })
     .catch((err)=>{
       console.log(err)
-      alert('로그인 실패!')
+      alert('로그아웃 실패!')
     })
   } 
   const handleImageUpload = (e) => {
@@ -341,3 +347,4 @@ const Profile = () => {
 };
 
 export default Profile;
+
