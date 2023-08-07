@@ -177,7 +177,7 @@ public class ServerServiceImpl implements ServerService {
 
 	@Transactional
 	@Override
-	public void deleteServer(Long serverSeq,Long userSeq) throws Exception{
+	public void deleteServer(Long serverSeq, Long userSeq) throws Exception {
 		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
 
 		if (serverEntity == null) {
@@ -236,7 +236,7 @@ public class ServerServiceImpl implements ServerService {
 
 	@Transactional
 	@Override
-	public void leaveServer(Long serverSeq, Long userSeq) throws Exception{
+	public void leaveServer(Long serverSeq, Long userSeq) throws Exception {
 		ServerEntity serverEntity = serverRepository.findBySeq(serverSeq);
 		UserEntity userEntity = userRepository.findBySeq(userSeq)
 			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));

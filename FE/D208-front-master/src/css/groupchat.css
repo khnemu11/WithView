@@ -309,10 +309,10 @@ button {
   border-radius: 0.8rem;
 }
 
-/* .cam-dev-block {
+.cam-dev-block {
   height: 0;
   display: none;
-} */
+}
 
 .sharingScreen {
   height: 300px;

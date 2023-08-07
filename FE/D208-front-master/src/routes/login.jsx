@@ -48,7 +48,8 @@ export default function Login() {
       .then((res) => {
         if (res.data.success) {
           console.log("토큰 받아라");
-          const accessToken = res.data.JWT.accessToken;
+          console.log(res.data);
+          const accessToken = res.data.AccessToken.accessToken;
           // const refreshToken = res.data.JWT.refreshToken;
           const userInfo = {
             seq: res.data.UserInfo.seq,
@@ -56,7 +57,6 @@ export default function Login() {
             profile: res.data.UserInfo.profileImgSearchName,
           };
 
-          console.log(res.data);
           // 토큰을 Redux로 저장
           dispatch(setToken(accessToken));
           dispatch(setUser(userInfo));
