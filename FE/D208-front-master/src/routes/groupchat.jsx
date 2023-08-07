@@ -5,9 +5,9 @@ import { OpenVidu } from "openvidu-browser";
 import SockJS from "sockjs-client";
 import man from "../assets/man.jpg";
 import micon from "../assets/micon.png";
-// import micoff from "../assets/micoff.png";
+import micoff from "../assets/micoff.png";
 import volon from "../assets/volon.png";
-// import voloff from "../assets/voloff.png";
+import voloff from "../assets/voloff.png";
 import camon from "../assets/camon.png";
 import camoff from "../assets/camoff.png";
 import settings from "../assets/gear.png";
@@ -20,6 +20,7 @@ import room2 from "../assets/room2.jpg";
 import pool from "../assets/pool.png";
 import "../css/groupchat.css";
 import axios from "axios";
+import $ from "jquery";
 
 export default function GroupChat() {
   const [backClicked, setbackClicked] = useState(false);
@@ -36,6 +37,11 @@ export default function GroupChat() {
   const [acc_chClicked, setacc_chClicked] = useState(false);
   const [acc_ch_name, setacc_ch_name] = useState();
   const [isCameraOn, setIsCameraOn] = useState(true);
+  const [isMicOn, setIsMicOn] = useState(true);
+  const [isSpkOn, setIsSpkOn] = useState(true);
+  const [subscriber, setSubscriber] = useState(null);
+  const [publisher, setPublisher] = useState(null);
+
   function backSettings() {
     setbackClicked((prevbackClicked) => !prevbackClicked);
     setprofileClicked(false);
@@ -51,48 +57,52 @@ export default function GroupChat() {
 
   function micSettings() {
     setmicClicked((prevmicClicked) => !prevmicClicked);
+    if (publisher) {
+      const audioEnabled = !isMicOn;
+      publisher.publishAudio(audioEnabled);
+      setIsMicOn(audioEnabled);
+    }
     setprofileClicked(false);
-    setvolClicked(false);
   }
 
   function volSettings() {
     setvolClicked((prevvolClicked) => !prevvolClicked);
-    setmicClicked(false);
+    if (subscriber) {
+      const audioEnabled = !isSpkOn;
+      subscriber.subscribeToAudio(audioEnabled);
+      setIsSpkOn(audioEnabled);
+    }
     setprofileClicked(false);
   }
 
   function camSettings() {
     setcamClicked((prevcamClicked) => !prevcamClicked);
     if (camPublisherRef.current) {
-      console.log(camPublisherRef.current);
-      console.log(camPublisherRef.current.stream);
       const isCameraOn = !camPublisherRef.current.stream.videoActive;
       camPublisherRef.current.publishVideo(isCameraOn);
       setIsCameraOn(isCameraOn);
-      let myCam; // 변수를 선언한 후, for 루프 내에서 할당
-      for (var i = 0; i < stage.current.children[1].children.length; i++) {
-        console.log(
-          stage.current.children[1].children[i].getAttr("id") + " vs " + userId
-        );
-        if (stage.current.children[1].children[i].getAttr("id") == userId) {
-          myCam = stage.current.children[1].children[i];
-          break;
-        }
-      }
-      if (isCameraOn === true) {
-        myCam.show();
-        console.log(myCam);
-        console.log(userId);
-        console.log(stage.current.children[1]);
-      } else {
-        myCam.hide();
-        console.log(myCam);
-        console.log(userId);
-        console.log(stage.current.children[1]);
-      }
+
+      // let myCam; // 변수를 선언한 후, for 루프 내에서 할당
+      // let myCamID = document.getElementById("userName").value;
+      // for (var i = 0; i < stage.current.children[1].children.length; i++) {
+      //   console.log(
+      //     stage.current.children[1].children[i].getAttr("id") + " vs " + myCamID
+      //   );
+      //   if (stage.current.children[1].children[i].getAttr("id") == myCamID) {
+      //     myCam = stage.current.children[1].children[i];
+      //     break;
+      //   }
+      // }
+      // if (isCameraOn === true) {
+      //   myCam.show();
+      //   console.log(stage.current.children[1]);
+      // } else {
+      //   myCam.hide();
+      //   console.log(stage.current.children[1]);
+      // }
+      // console.log(myCam);
+      // changeCanvas(myCam);
     }
-    setmicClicked(false);
-    setvolClicked(false);
     setprofileClicked(false);
   }
 
@@ -161,6 +171,7 @@ export default function GroupChat() {
   let videoContainer = document.querySelector("#video-container"); //오픈비두로 받은 영상을 담은 컨테이너
   let port = 9091; //백엔드 포트 번호
   let domain = "localhost"; //도메인 주소
+  // let domain = "i9d208.p.ssafy.io"; //도메인 주소
   let APPLICATION_SERVER_URL = `http://${domain}:${port}/`;
   let userId; //유저 아이디
   let remoteBGLayer = new Konva.Layer(); //소켓에 저장된 비디오 레이어(최초 접속시 한번 사용)
@@ -339,6 +350,7 @@ export default function GroupChat() {
 
   //켄버스에 변경 내용을 저장하는 함수
   function loadCanvasChange(data) {
+    console.log(data);
     let object = Konva.Node.create(data); //변경된 오브젝트
     let objectId = object.getAttr("id");
     console.log("소캣에서 넘어온 객체 아이디");
@@ -405,6 +417,7 @@ export default function GroupChat() {
       //영상 위치 변경
       else {
         target[0].setAttrs(object.getAttrs());
+        console.log(object);
       }
     }
   }
@@ -431,6 +444,7 @@ export default function GroupChat() {
     //참가한 채널 명을 url로 구분하도록 커스터마이징함
     socket.current = new SockJS(
       `http://${domain}:${port}/socket?channelId=${mySessionId}`,
+      // `https://i9d208.p.ssafy.io:9091/socket?channelId=${mySessionId}`,
       null,
       { transports: ["websocket", "xhr-streaming", "xhr-polling"] }
     );
@@ -464,6 +478,7 @@ export default function GroupChat() {
           appendUserData(event.element, subscriber.stream.connection);
           addVideoInCanvas(event.element, subscriber.stream.connection);
         });
+        setSubscriber(subscriber);
       }
     });
 
@@ -528,6 +543,7 @@ export default function GroupChat() {
           console.log("cam");
           console.log(publisher);
           camPublisherRef.current = publisher;
+          setPublisher(publisher);
 
           // --- 7) Specify the actions when events take place in our publisher ---
           // When our HTML video has been added to DOM...
@@ -584,7 +600,7 @@ export default function GroupChat() {
     console.log(publisherScreen);
 
     // --- 9.2) Publish the screen share stream only after the user grants permission to the browser
-    publisherScreen.once("accessAllowed", (event) => {
+    publisherScreen.once("accessAllowed", () => {
       screensharing = true;
       // If the user closes the shared window or stops sharing it, unpublish the stream
       publisherScreen.stream
@@ -605,7 +621,7 @@ export default function GroupChat() {
       event.element["muted"] = true;
     });
 
-    publisherScreen.once("accessDenied", (event) => {
+    publisherScreen.once("accessDenied", () => {
       console.error("Screen Share: Access Denied");
     });
   }
@@ -748,6 +764,7 @@ export default function GroupChat() {
 
     //비디오 영상 초기 디자인
     var video;
+    // var baseImg;
     console.log("connectionId");
     console.log(connectionId);
     console.log("layer");
@@ -779,7 +796,20 @@ export default function GroupChat() {
         draggable: true,
         id: connectionId, //수정하면 안됨!!
         cornerRadius: 150,
+        visible: true,
+        fill: man,
       });
+
+      // baseImg = new Konva.Image({
+      //   x: 10,
+      //   y: 10,
+      //   width: 300,
+      //   height: 300,
+      //   image: man,
+      //   draggable: true,
+      //   cornerRadius: 150,
+      //   visible: true,
+      // });
     }
 
     //채녈에 참가한 사람의 영상이 아닌 경우(참가자)
@@ -793,7 +823,21 @@ export default function GroupChat() {
         draggable: true,
         id: connectionId, //수정하면 안됨!!
         cornerRadius: 150,
+        visible: true,
+        fill: man,
       });
+
+      // baseImg = new Konva.Image({
+      //   x: remoteVideo[0].getAttr("x"),
+      //   y: remoteVideo[0].getAttr("y"),
+      //   width: remoteVideo[0].getAttr("width"),
+      //   height: remoteVideo[0].getAttr("height"),
+      //   image: man,
+      //   draggable: true,
+      //   id: connectionId, //수정하면 안됨!!
+      //   cornerRadius: 150,
+      //   visible: true,
+      // });
     }
 
     //비디오 크기 및 회전을 도와주는 객체
@@ -805,6 +849,23 @@ export default function GroupChat() {
 
     animation.start();
 
+    // 드래그 범위 제한 함수 정의
+    function limitDragBounds(pos) {
+      var newX = Math.max(
+        0,
+        Math.min(stage.current.width() - video.width(), pos.x)
+      );
+      var newY = Math.max(
+        0,
+        Math.min(stage.current.height() - video.height(), pos.y)
+      );
+      return { x: newX, y: newY };
+    }
+
+    // 드래그 범위 제한 함수를 객체에 연결
+    video.dragBoundFunc(limitDragBounds);
+
+    // video.add(baseImg);
     layer.add(tr);
     layer.add(video);
     console.log("점프");
@@ -830,6 +891,7 @@ export default function GroupChat() {
 
   //캔버스의 내용 변경을 감지했을 때 캔버스 데이터를 JSON으로 소켓통신하는 함수
   function changeCanvas(element) {
+    console.log(element);
     console.log("element 변경됨!");
     console.log(element.toJSON());
     let jsonData = {};
@@ -949,6 +1011,7 @@ export default function GroupChat() {
         height: 118,
         id: "img-jjapageti.jpg",
         draggable: true,
+        visible: true,
       });
 
       var tr = new Konva.Transformer();
@@ -965,6 +1028,26 @@ export default function GroupChat() {
         changeCanvas(papago);
       });
 
+      // 드래그 범위 제한 함수 정의
+      function limitDragBounds(pos) {
+        var newX = Math.max(
+          0,
+          Math.min(stage.current.width() - papago.width(), pos.x)
+        );
+        var newY = Math.max(
+          0,
+          Math.min(stage.current.height() - papago.height(), pos.y)
+        );
+        return { x: newX, y: newY };
+      }
+
+      // 드래그 범위 제한 함수를 객체에 연결
+      papago.dragBoundFunc(limitDragBounds);
+
+      // 우클릭 이벤트 핸들러 등록
+      papago.on("contextmenu", function (e) {
+        handleContextMenu(e, layer); // 클로저를 이용하여 레이어를 전달
+      });
       layer.add(tr);
       layer.add(papago);
 
@@ -972,6 +1055,23 @@ export default function GroupChat() {
       changeCanvas(papago);
       console.log(papago);
     };
+  }
+
+  // 우클릭 이벤트 처리 함수
+  function handleContextMenu(e, layer) {
+    e.evt.preventDefault();
+    var elementId = e.target.id();
+
+    // 요소 아이디로 요소를 지웁니다.
+    var elementToRemove = layer.findOne("#" + elementId);
+    if (elementToRemove) {
+      console.log(e.target);
+      console.log(e.target.id);
+      e.target.id = e.target.id + "del";
+      elementToRemove.remove();
+      stage.current.draw();
+    }
+    changeCanvas(e.target);
   }
 
   function addScreenInCanvas(videoElement, connection) {
@@ -1018,6 +1118,7 @@ export default function GroupChat() {
         image: videoElement,
         draggable: true,
         id: connectionId, //수정하면 안됨!!
+        visible: true,
       });
     }
 
@@ -1031,6 +1132,7 @@ export default function GroupChat() {
         image: videoElement,
         draggable: true,
         id: connectionId, //수정하면 안됨!!
+        visible: true,
       });
     }
 
@@ -1042,6 +1144,22 @@ export default function GroupChat() {
     var animation = new Konva.Animation(function () {}, layer);
 
     animation.start();
+
+    // 드래그 범위 제한 함수 정의
+    function limitDragBounds(pos) {
+      var newX = Math.max(
+        0,
+        Math.min(stage.current.width() - video.width(), pos.x)
+      );
+      var newY = Math.max(
+        0,
+        Math.min(stage.current.height() - video.height(), pos.y)
+      );
+      return { x: newX, y: newY };
+    }
+
+    // 드래그 범위 제한 함수를 객체에 연결
+    video.dragBoundFunc(limitDragBounds);
 
     layer.add(tr);
     layer.add(video);
@@ -1100,6 +1218,11 @@ export default function GroupChat() {
           <div id="channel-screen"></div>
           <div id="shared-screen"></div>
           <div className="cam-dev-block">
+            <div id="menu">
+              <div>
+                <button id="delete-button">Delete</button>
+              </div>
+            </div>
             <div id="session">
               <div id="session-header">
                 <h1 id="session-title"></h1>
@@ -1306,11 +1429,11 @@ export default function GroupChat() {
                 id="mic"
                 onClick={micSettings}
               >
-                <img src={micon} alt="" />
+                <img src={micClicked ? micoff : micon} alt="" />
                 {/* 마이크 조절 팝오버 */}
-                <div className={micClicked ? "a-mic-control" : "mic-control"}>
+                {/* <div className={micClicked ? "a-mic-control" : "mic-control"}>
                   마이크 조절을 넣자
-                </div>
+                </div> */}
               </button>
               {/* 볼륨조절 */}
               <button
@@ -1318,11 +1441,11 @@ export default function GroupChat() {
                 id="vol"
                 onClick={volSettings}
               >
-                <img src={volon} alt="" />
+                <img src={volClicked ? voloff : volon} alt="" />
                 {/* 볼륨조절 팝오버 */}
-                <div className={volClicked ? "a-vol-control" : "vol-control"}>
+                {/* <div className={volClicked ? "a-vol-control" : "vol-control"}>
                   볼륨조절을 넣자
-                </div>
+                </div> */}
               </button>
               {/* 카메라 온/오프 */}
               <button
