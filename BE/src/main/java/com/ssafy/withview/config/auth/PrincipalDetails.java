@@ -6,6 +6,7 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.ssafy.withview.entity.LoginEntity;
@@ -20,13 +21,11 @@ public class PrincipalDetails implements UserDetails {
 	private final LoginEntity loginEntity;
 
 	private static final Logger logger = LoggerFactory.getLogger(PrincipalDetails.class);
-	
+
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		Collection<GrantedAuthority> auths = new ArrayList<>();
-		loginEntity.getRoleList().forEach(r -> {
-			auths.add(() -> r);
-		});
+		auths.add(new SimpleGrantedAuthority(loginEntity.getRoles().toString()));
 		return auths;
 	}
 
@@ -37,7 +36,7 @@ public class PrincipalDetails implements UserDetails {
 
 	@Override
 	public String getUsername() {
-		return loginEntity.getId();
+		return String.valueOf(loginEntity.getUserSeq());
 	}
 
 	@Override
