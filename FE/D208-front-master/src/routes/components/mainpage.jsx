@@ -17,6 +17,7 @@ const Mainpage = () => {
   const [profileImage, setProfileImage] = useState(null);
   const profileNickname = useSelector((state) => state.user.nickname);
   const profileImageURL = useSelector((state) => state.user.profile);
+  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImage}`;
   const userSeq = useSelector((state) => state.user.seq);
 
   const [joinserverData, setJoinServerData] = useState([]);
@@ -176,7 +177,7 @@ const Mainpage = () => {
     <div className="mainbox">
       <div className="innermain">
         <ServerOptions
-          profileImage={profileImage}
+          profileImage={profileImageUrl}
           profileNickname={profileNickname}
         />
         <hr className="serverOptionsLine_main" />

@@ -10,7 +10,7 @@ import javax.persistence.*;
 public class UserServerEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long seq;
+	private Long seq;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="user_seq")

@@ -7,14 +7,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 public class ServerDto {
 	private Long seq;
 	private String name;
@@ -22,10 +20,10 @@ public class ServerDto {
 	private Long hostSeq;
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
-	private boolean isFavorite;
+	private Boolean favorite;
 
-	public static ServerEntity toEntity(ServerDto serverDto){
-		if(serverDto == null){
+	public static ServerEntity toEntity(ServerDto serverDto) {
+		if (serverDto == null) {
 			return null;
 		}
 		return ServerEntity.builder()

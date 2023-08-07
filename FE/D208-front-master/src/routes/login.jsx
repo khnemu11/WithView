@@ -1,31 +1,37 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+// import { useCookies } from "react-cookie";
 import { setToken } from "../redux/actions/tokenActions";
+import { clearToken } from "../redux/actions/tokenActions";
+import { clearUser } from "../redux/actions/userActions";
 import "../css/Login.css";
 import axios from "axios";
 import withview from "../assets/withview.png";
 import { setUser } from "../redux/actions/userActions";
-import { Button } from 'react-bootstrap';
-
-
+axios.defaults.withCredentials = true;
 
 export default function Login() {
   const [Id, setId] = useState("");
   const [password, setPassword] = useState("");
+  // const [cookies, setCookie] = useCookies(""); // 쿠키 훅
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const url = "https://i9d208.p.ssafy.io/api";
-  
-  // redux 저장 테스트용
-  const checktoken = useSelector((state) => state.token);
-  const userInfotest = useSelector((state) => state.user);
-  useEffect(() => {
-    console.log(checktoken); // 토큰 값이 변경될 때마다 출력...
-    console.log(userInfotest); // 토큰 값이 변경될 때마다 출력...
-  }, [checktoken,userInfotest]);
-  //
 
+  // redux 저장 테스트용
+  // const checktoken = useSelector((state) => state.token);
+  // const userInfotest = useSelector((state) => state.user);
+  // useEffect(() => {
+  //   console.log(checktoken); // 토큰 값이 변경될 때마다 출력...
+  //   console.log(userInfotest); // 토큰 값이 변경될 때마다 출력...
+  // }, []);
+
+  // useEffect(() => {
+  //   dispatch(clearToken())
+  //   dispatch(clearUser())
+  // },[]);
+  
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
@@ -42,16 +48,32 @@ export default function Login() {
       .then((res) => {
         if (res.data.success) {
           console.log("토큰 받아라");
-          const accessToken = res.data.JWT.accessToken;
-          const refreshToken = res.data.JWT.refreshToken;
-          const userInfo = {seq : res.data.UserInfo.seq, nickname : res.data.UserInfo.nickname, profile : res.data.UserInfo.profileImgSearchName}
-
           console.log(res.data);
+          const accessToken = res.data.AccessToken.accessToken;
+          // const refreshToken = res.data.JWT.refreshToken;
+          const userInfo = {
+            seq: res.data.UserInfo.seq,
+            nickname: res.data.UserInfo.nickname,
+            profile: res.data.UserInfo.profileImgSearchName,
+          };
+
           // 토큰을 Redux로 저장
           dispatch(setToken(accessToken));
           dispatch(setUser(userInfo));
-          sessionStorage.setItem("refreshToken", refreshToken);
+          // refreshToken 저장하기
+          // console.log(cookies)
           // 로비화면으로 이동
+          axios({
+            method: "GET",
+            url: `${url}/login/cookie`,
+          })
+            .then((res) => {
+              console.log(res.data);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+
           navigate("/mainpage");
         } else {
           alert("로그인 실패!!");
@@ -76,7 +98,7 @@ export default function Login() {
 
               <div>
                 <label className="label login_label">
-                  이메일을 입력해주세요 !
+                  아이디를 입력해주세요 !
                 </label>
                 <input
                   type="text"
@@ -113,14 +135,14 @@ export default function Login() {
           </div>
 
           <div className="login_buttons">
-            <Button
+            <button
               className="button login_button"
               style={{ width: "55%", marginRight: "10px" }}
               onClick={checkLogin}
             >
               로그인
-            </Button>
-            <Button
+            </button>
+            <button
               className="button login_button"
               onClick={() => {
                 navigate("/signup");
@@ -128,20 +150,28 @@ export default function Login() {
               style={{ width: "25%", marginRight: "35px" }}
             >
               회원가입
-            </Button>
+            </button>
           </div>
 
           <div className="login_findes">
             <div style={{ marginRight: "30px" }}>
-              <a onClick={()=>{
-                navigate("/findid")
-              }}>아이디 찾기</a>
+              <a
+                onClick={() => {
+                  navigate("/findid");
+                }}
+              >
+                아이디 찾기
+              </a>
             </div>
             |
             <div style={{ marginLeft: "30px" }}>
-              <a onClick={()=>{
-                navigate("/findpassword")
-              }}>비밀번호 찾기</a>
+              <a
+                onClick={() => {
+                  navigate("/findpassword");
+                }}
+              >
+                비밀번호 찾기
+              </a>
             </div>
           </div>
         </div>
