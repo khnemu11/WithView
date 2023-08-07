@@ -74,10 +74,10 @@
 
   .sliderChannelContainer .slick-list{
     width: 100%;
-    padding-bottom: 5px;
+    padding-bottom: 15px;
   }
   .sliderContainer .slick-list{
-    height: 26vh;
+    padding-bottom: 15px;
   }
 
   .custom-card-height {
