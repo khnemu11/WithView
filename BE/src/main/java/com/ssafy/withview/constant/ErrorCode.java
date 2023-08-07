@@ -1,4 +1,4 @@
-package com.ssafy.withview.exception;
+package com.ssafy.withview.constant;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 

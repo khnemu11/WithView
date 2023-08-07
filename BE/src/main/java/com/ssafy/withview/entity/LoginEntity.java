@@ -9,7 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.ssafy.withview.config.jwt.Role;
+import com.ssafy.withview.constant.Role;
 
 import lombok.Builder;
 import lombok.Getter;

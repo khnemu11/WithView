@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ssafy.withview.config.jwt.Role;
+import com.ssafy.withview.constant.Role;
 import com.ssafy.withview.dto.AccessTokenDto;
 import com.ssafy.withview.dto.LoginDto;
 import com.ssafy.withview.dto.UserDto;

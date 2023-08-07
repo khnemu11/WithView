@@ -1,10 +1,11 @@
-package com.ssafy.withview.config.auth;
+package com.ssafy.withview.service;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.ssafy.withview.dto.PrincipalDetails;
 import com.ssafy.withview.entity.LoginEntity;
 import com.ssafy.withview.repository.LoginRepository;
 

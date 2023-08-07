@@ -1,4 +1,4 @@
-package com.ssafy.withview.config.jwt;
+package com.ssafy.withview.interceptor;
 
 import java.io.IOException;
 
@@ -11,7 +11,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ssafy.withview.exception.ErrorCode;
+import com.ssafy.withview.constant.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

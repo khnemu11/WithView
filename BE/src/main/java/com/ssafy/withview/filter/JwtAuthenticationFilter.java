@@ -1,4 +1,4 @@
-package com.ssafy.withview.config.jwt;
+package com.ssafy.withview.filter;
 
 import java.io.IOException;
 
@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.ssafy.withview.config.JwtProperties;
 import com.ssafy.withview.dto.AccessTokenDto;
 import com.ssafy.withview.dto.LoginDto;
 import com.ssafy.withview.service.JwtService;

@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.ssafy.withview.config.jwt.Role;
+import com.ssafy.withview.constant.Role;
 import com.ssafy.withview.dto.JoinDto;
 import com.ssafy.withview.dto.UserDto;
 import com.ssafy.withview.entity.LoginEntity;
