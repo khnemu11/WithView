@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 // import { useCookies } from "react-cookie";
 import { setToken } from "../redux/actions/tokenActions";
+import { clearToken } from "../redux/actions/tokenActions";
+import { clearUser } from "../redux/actions/userActions";
 import "../css/Login.css";
 import axios from "axios";
 import withview from "../assets/withview.png";
@@ -18,13 +20,18 @@ export default function Login() {
   const url = "https://i9d208.p.ssafy.io/api";
 
   // redux 저장 테스트용
-  const checktoken = useSelector((state) => state.token);
-  const userInfotest = useSelector((state) => state.user);
-  useEffect(() => {
-    console.log(checktoken); // 토큰 값이 변경될 때마다 출력...
-    console.log(userInfotest); // 토큰 값이 변경될 때마다 출력...
-  }, [checktoken, userInfotest]);
-  //
+  // const checktoken = useSelector((state) => state.token);
+  // const userInfotest = useSelector((state) => state.user);
+  // useEffect(() => {
+  //   console.log(checktoken); // 토큰 값이 변경될 때마다 출력...
+  //   console.log(userInfotest); // 토큰 값이 변경될 때마다 출력...
+  // }, []);
+
+  // useEffect(() => {
+  //   dispatch(clearToken())
+  //   dispatch(clearUser())
+  // },[]);
+  
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
