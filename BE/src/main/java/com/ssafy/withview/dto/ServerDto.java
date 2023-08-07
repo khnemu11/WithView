@@ -16,10 +16,10 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 public class ServerDto {
-	private long seq;
+	private Long seq;
 	private String name;
-	private int limitChannel=5;
-	private long hostSeq;
+	private Integer limitChannel=5;
+	private Long hostSeq;
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
 	private boolean isFavorite;
