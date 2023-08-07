@@ -18,7 +18,7 @@ import lombok.ToString;
 public class ServerDto {
 	private Long seq;
 	private String name;
-	private Integer limitChannel;
+	private Integer limitChannel=5;
 	private Long hostSeq;
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
