@@ -12,7 +12,7 @@ import javax.persistence.*;
 
 @Getter
 @ToString
-@Document("canvas")
+@Document("canvas" )
 @NoArgsConstructor
 public class CanvasEntity {
 	@Id

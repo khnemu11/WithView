@@ -58,4 +58,14 @@ public class RedisSubscriber {
 			log.error("Exception {}", e);
 		}
 	}
+
+	public void sendCanvas(String publishMessage) {
+		try {
+			ChannelValueDto channelValue = objectMapper.readValue(publishMessage, ChannelValueDto.class);
+			log.info("{}번 서버 인원 변경 전송", channelValue.getServerSeq());
+			messagingTemplate.convertAndSend("/api/sub/canvas/" + channelValue.getServerSeq(), channelValue);
+		} catch (Exception e) {
+			log.error("Exception {}", e);
+		}
+	}
 }

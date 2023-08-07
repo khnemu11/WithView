@@ -20,4 +20,5 @@ public interface ServerService {
 	public void enterServer(Long serverSeq, Long userSeq) throws Exception;
 	public void leaveServer(Long serverSeq, Long userSeq) throws Exception;
 	public String insertInviteCode(Long serverSeq, Long userSeq) throws Exception;
+	public ServerDto validateInviteCode(String inviteCode) throws Exception;
 }
