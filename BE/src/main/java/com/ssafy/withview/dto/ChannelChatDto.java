@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.ssafy.withview.entity.ChannelChatEntity;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -14,14 +15,23 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class FriendsChatMessageDto implements Serializable {
+public class ChannelChatDto implements Serializable {
 
-	private static final long serialVersionUID = 64946611254512L;
+	private static final long serialVersionUID = 64946284924512L;
 
 	private String message;
-	private Long friendsChatSeq;
-	private Long sendUserSeq;
+	private Long channelSeq;
+	private Long userSeq;
 	private LocalDateTime sendTime;
+
+	public static ChannelChatEntity toEntity(ChannelChatDto dto) {
+		return ChannelChatEntity.builder()
+			.channelSeq(dto.getChannelSeq())
+			.userSeq(dto.getUserSeq())
+			.message(dto.getMessage())
+			.sendTime(dto.getSendTime())
+			.build();
+	}
 
 	public String toJson() {
 		String json = null;

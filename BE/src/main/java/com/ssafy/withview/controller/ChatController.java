@@ -2,13 +2,15 @@ package com.ssafy.withview.controller;
 
 import java.time.LocalDateTime;
 
+import com.ssafy.withview.dto.FriendsChatDto;
+import com.ssafy.withview.service.ChannelChatService;
+import com.ssafy.withview.service.FriendsChatService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import com.ssafy.withview.dto.ChannelChatMessageDto;
-import com.ssafy.withview.dto.FriendsChatMessageDto;
-import com.ssafy.withview.service.ChatService;
+import com.ssafy.withview.dto.ChannelChatDto;
+import com.ssafy.withview.service.ChatPublisher;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,24 +20,28 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ChatController {
 
-	private final ChatService chatService;
+	private final ChatPublisher chatPublisher;
+	private final ChannelChatService channelChatService;
+	private final FriendsChatService friendsChatService;
 
 	// websocket "/api/pub/chat/channel/message"로 들어오는 메시징을 처리한다.
 	@MessageMapping("/chat/channel/message")
-	public void channelChatMessage(ChannelChatMessageDto message) {
+	public void channelChatMessage(ChannelChatDto message) {
 		message.setSendTime(LocalDateTime.now());
-		chatService.sendChannelChatMessage(message.toJson());
+		channelChatService.insertChannelChat(message);
+		chatPublisher.sendChannelChatMessage(message.toJson());
 	}
 
 	// websocket "/api/pub/chat/friends/message"로 들어오는 메시징을 처리한다.
 	@MessageMapping("/chat/friends/message")
-	public void friendsChatMessage(FriendsChatMessageDto message) {
+	public void friendsChatMessage(FriendsChatDto message) {
 		message.setSendTime(LocalDateTime.now());
-		chatService.sendFriendsChatMessage(message.toJson());
+		friendsChatService.insertFriendsChat(message);
+		chatPublisher.sendFriendsChatMessage(message.toJson());
 	}
 
 	@GetMapping("/chat/view")
-	public String chatView(ChannelChatMessageDto message) {
+	public String chatView(ChannelChatDto message) {
 		return "chat";
 	}
 }

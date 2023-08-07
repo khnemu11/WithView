@@ -1,12 +1,12 @@
 package com.ssafy.withview.service.pubsub;
 
+import com.ssafy.withview.dto.FriendsChatDto;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ssafy.withview.dto.ChannelChatMessageDto;
+import com.ssafy.withview.dto.ChannelChatDto;
 import com.ssafy.withview.dto.ChannelValueDto;
-import com.ssafy.withview.dto.FriendsChatMessageDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +25,8 @@ public class RedisSubscriber {
 	 */
 	public void sendChannelMessage(String publishMessage) {
 		try {
-			// ChatMessageDTO 객체로 매핑
-			ChannelChatMessageDto chatMessage = objectMapper.readValue(publishMessage, ChannelChatMessageDto.class);
+			// ChannelChatDTO 객체로 매핑
+			ChannelChatDto chatMessage = objectMapper.readValue(publishMessage, ChannelChatDto.class);
 			log.info("{}번 채널 채팅 전송, 전송자 {}, 내용 {}", chatMessage.getChannelSeq(), chatMessage.getUserSeq(),
 				chatMessage.getMessage());
 			messagingTemplate.convertAndSend("/api/sub/chat/channel/" + chatMessage.getChannelSeq(),
@@ -38,9 +38,9 @@ public class RedisSubscriber {
 
 	public void sendFriendsMessage(String publishMessage) {
 		try {
-			// ChatMessageDTO 객체로 매핑
-			FriendsChatMessageDto chatMessage = objectMapper.readValue(publishMessage, FriendsChatMessageDto.class);
-			log.info("{}번 친구 채팅 전송, 전송자 {}, 내용 {}", chatMessage.getFriendsChatSeq(), chatMessage.getSendUserSeq(),
+			// FriendsChatDTO 객체로 매핑
+			FriendsChatDto chatMessage = objectMapper.readValue(publishMessage, FriendsChatDto.class);
+			log.info("{}번 친구 채팅 전송, 전송자 {}, 내용 {}", chatMessage.getFriendsChatSeq(), chatMessage.getUserSeq(),
 				chatMessage.getMessage());
 			messagingTemplate.convertAndSend("/api/sub/chat/friends/" + chatMessage.getFriendsChatSeq(),
 				chatMessage);

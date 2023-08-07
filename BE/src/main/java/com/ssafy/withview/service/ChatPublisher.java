@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class ChatService {
+public class ChatPublisher {
 
 	private final ChannelTopic channelChattingTopic;
 	private final ChannelTopic friendsChattingTopic;

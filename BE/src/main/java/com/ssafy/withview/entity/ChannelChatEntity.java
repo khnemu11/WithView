@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.ssafy.withview.dto.ChannelChatMessageDto;
+import com.ssafy.withview.dto.ChannelChatDto;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -22,8 +22,8 @@ public class ChannelChatEntity {
 	private Long userSeq;
 	private LocalDateTime sendTime;
 
-	public static ChannelChatMessageDto toDto(ChannelChatEntity entity) {
-		return ChannelChatMessageDto.builder()
+	public static ChannelChatDto toDto(ChannelChatEntity entity) {
+		return ChannelChatDto.builder()
 			.channelSeq(entity.getChannelSeq())
 			.userSeq(entity.getUserSeq())
 			.message(entity.getMessage())
