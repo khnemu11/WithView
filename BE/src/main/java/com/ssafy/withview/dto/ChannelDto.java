@@ -15,9 +15,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ChannelDto {
 	private Long seq;
-	private String name;
-	private Integer limitPeople;
-	private Long serverSeq;
+	String name;
+	Integer limitPeople=10;
+	Long serverSeq;
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
 
