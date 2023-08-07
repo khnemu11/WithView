@@ -19,8 +19,8 @@ import org.springframework.util.StringUtils;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.ssafy.withview.config.jwt.JwtProperties;
-import com.ssafy.withview.config.jwt.Role;
+import com.ssafy.withview.config.JwtProperties;
+import com.ssafy.withview.constant.Role;
 import com.ssafy.withview.dto.AccessTokenDto;
 import com.ssafy.withview.dto.LoginDto;
 import com.ssafy.withview.entity.LoginEntity;

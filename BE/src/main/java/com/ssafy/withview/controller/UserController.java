@@ -244,7 +244,7 @@ public class UserController {
 			resultMap.put("success", false);
 			resultMap.put("message", e.getMessage());
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
-			log.error("[Error] 프로필 정보 조회 실패: ", e.getMessage());
+			log.error("[Error] 프로필 정보 조회 실패: {}", e.getMessage());
 		}
 		return new ResponseEntity<>(resultMap, status);
 	}
