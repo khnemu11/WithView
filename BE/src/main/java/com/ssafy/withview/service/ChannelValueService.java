@@ -54,4 +54,12 @@ public class ChannelValueService {
 	public void sendChannelValue(String channelValueJson) {
 		redisTemplate.convertAndSend(channelValueChannelTopic.getTopic(), channelValueJson);
 	}
+
+	public String userConnectSetSession(String simpSessionId, Long userSeq) {
+		return webSocketSubscribeRepository.userConnectSetSession(simpSessionId, userSeq);
+	}
+
+	public Long userDisconnect(String simpSessionId) {
+		return webSocketSubscribeRepository.userDisconnect(simpSessionId);
+	}
 }
