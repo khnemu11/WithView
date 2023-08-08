@@ -52,7 +52,9 @@ public class SecurityConfig {
 		http.authorizeRequests()
 			.antMatchers("/api/login/login").permitAll()
 			.antMatchers("/api/users").permitAll()
-			.antMatchers("/api/login/cookie").permitAll()
+			.antMatchers("/api/login/check-id").permitAll()
+			.antMatchers("/api/login/email/validate").permitAll()
+			.antMatchers("/api/login/email/authenticate").permitAll()
 			.anyRequest().authenticated();
 
 		return http.build();
