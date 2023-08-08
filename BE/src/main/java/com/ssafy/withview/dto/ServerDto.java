@@ -1,5 +1,8 @@
 package com.ssafy.withview.dto;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ssafy.withview.entity.ServerEntity;
 
 import lombok.AllArgsConstructor;
@@ -37,4 +40,13 @@ public class ServerDto {
 			.build();
 	}
 
+	public String toJson() {
+		String json = null;
+		try {
+			json = new ObjectMapper().writeValueAsString(this);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException(e);
+		}
+		return json;
+	}
 }
