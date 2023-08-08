@@ -3,14 +3,11 @@ package com.ssafy.withview.controller;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -108,22 +105,6 @@ public class LoginController {
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
 			log.error("[Error] 로그아웃 실패: {}", e.getMessage());
 		}
-		return new ResponseEntity<>(resultMap, status);
-	}
-
-	/**
-	 * cookie 테스트 (삭제 예정)
-	 *
-	 * @param cookie (http only, secure Cookie)
-	 * @return ResponseEntity (true / false, 상태코드, cookie)
-	 */
-	@GetMapping("/cookie")
-	public ResponseEntity<Map<String, Object>> testCookie(@CookieValue("RefreshToken") Cookie cookie) {
-		log.debug("LoginController - testCookie: http only cookie 확인");
-		Map<String, Object> resultMap = new HashMap<>();
-		HttpStatus status = HttpStatus.OK;
-		resultMap.put("success", true);
-		resultMap.put("cookie", cookie);
 		return new ResponseEntity<>(resultMap, status);
 	}
 }
