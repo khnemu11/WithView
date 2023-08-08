@@ -23,13 +23,13 @@ const Profile = () => {
   const [profilePasswordCheck, setProfilePasswordCheck] = useState("");
   const [profileLeaveCheck, setProfileLeaveCheck] = useState("");
   const [profileImage, setProfileImage] = useState("/프사.png");
-  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImage}`;
+  const profileImageURL = useSelector((state) => state.user.profile);
+  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImageURL}`;
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const [imageToCrop, setImageToCrop] = useState(null);
   const cropperRef = useRef(null);
-  const profileImageURL = useSelector((state) => state.user.profile);
   const url = "https://i9d208.p.ssafy.io/api";
 
   useEffect(() => {
@@ -37,7 +37,7 @@ const Profile = () => {
     if (profileImageURL === null) {
       setProfileImage("/withView2.png");
     } else {
-      setProfileImage(profileImageURL);
+      setProfileImage(profileImageUrl);
     }
   }, [profileImageURL]);
 
@@ -242,7 +242,7 @@ const Profile = () => {
     <div className="mainbox">
       <div className="innermain">
         <ServerOptions
-          profileImage={profileImageUrl}
+          profileImage={profileImage}
           profileNickname={profileNickname}
         />
 
@@ -292,7 +292,7 @@ const Profile = () => {
           <div className="column is-3">
             <div className="is-flex is-flex-direction-column is-align-items-center">
               <img
-                src={profileImageUrl}
+                src={profileImage}
                 className="profile-side-image"
                 alt="Profile"
               />

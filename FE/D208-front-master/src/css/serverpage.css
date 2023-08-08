@@ -177,3 +177,33 @@
 .channelCard-menuIcon{
   cursor: pointer;
 }
+
+.serverMembers img{
+  max-height: 8vh;
+}
+
+.profilePopover img{
+  max-height: 15vh;
+}
+
+.inviteLinkModal {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 350px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  align-items: center;
+  align-content: center;
+}
+.inviteLinkModal button{
+  margin-top: 25px;
+}
+.inviteLinkModal:focus {
+  outline: none;
+}

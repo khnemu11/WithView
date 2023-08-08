@@ -64,7 +64,7 @@ const router = createBrowserRouter([
         element: <Mainpage />,
       },
       {
-        path: "/serverenter/",
+        path: "/serverenter/:inviteLink",
         element: <ServerEnter />,
       },
       {
