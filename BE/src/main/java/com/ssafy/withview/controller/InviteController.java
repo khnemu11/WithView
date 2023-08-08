@@ -34,7 +34,7 @@ public class InviteController {
 		log.info("===== 서버 초대 링크 접속 시작 =====");
 		JSONObject result = new JSONObject();
 		try{
-			ServerDto serverDto = (ServerDto)session.getAttribute(code);
+			ServerDto serverDto = serverService.validateInviteCode(code);
 
 			if(serverDto == null){
 				result.put("success",false);
@@ -54,19 +54,15 @@ public class InviteController {
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 	@PostMapping("")
-	public ResponseEntity<?> insertInviteCode(@RequestParam(name ="severSeq") Long serverSeq,@RequestParam(name ="userSeq") Long userSeq, HttpSession session) {
+	public ResponseEntity<?> insertInviteCode(@RequestParam(name ="serverSeq") Long serverSeq,@RequestParam(name ="userSeq") Long userSeq, HttpSession session) {
 		log.info("===== 서버 초대 링크 생성 시작 =====");
 		JSONObject result = new JSONObject();
 		try{
 			String inviteCode = serverService.insertInviteCode(serverSeq,userSeq);
 			ServerDto serverDto = serverService.findServerBySeq(serverSeq);
-
 			log.info("초대 코드 "+ inviteCode);
-			String url = FRONT_URL +"serverenter/"+inviteCode;
-			session.setAttribute(inviteCode,serverDto);
-
 			result.put("success",true);
-			result.put("link",url);
+			result.put("link",inviteCode);
 		}catch (Exception e){
 			e.printStackTrace();
 			result = new JSONObject();

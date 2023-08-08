@@ -170,9 +170,9 @@ export default function GroupChat() {
   // let session; //현재 채널 이름(오픈비두에선 채팅방 단위를 'session'이라고 부름)
   let videoContainer = document.querySelector("#video-container"); //오픈비두로 받은 영상을 담은 컨테이너
   let port = 9091; //백엔드 포트 번호
-  let domain = "localhost"; //도메인 주소
-  // let domain = "i9d208.p.ssafy.io"; //도메인 주소
-  let APPLICATION_SERVER_URL = `http://${domain}:${port}/`;
+  // let domain = "localhost"; //도메인 주소
+  let domain = "i9d208.p.ssafy.io"; //도메인 주소
+  let APPLICATION_SERVER_URL = `https://${domain}/`;
   let userId; //유저 아이디
   let remoteBGLayer = new Konva.Layer(); //소켓에 저장된 비디오 레이어(최초 접속시 한번 사용)
   let remoteVideoLayer = new Konva.Layer(); //소켓에 저장된 비디오 레이어(최초 접속시 한번 사용)
@@ -310,6 +310,49 @@ export default function GroupChat() {
           images[i].on("transformend", function () {
             changeCanvas(images[i]);
           });
+
+          let currentShape;
+          var menuNode = document.getElementById("delete-img-menu");
+
+          document
+            .getElementById("delete-button")
+            .addEventListener("click", () => {
+              currentShape.destroy();
+              changeCanvas(currentShape);
+            });
+
+          window.addEventListener("click", () => {
+            // hide menu
+            menuNode.style.display = "none";
+          });
+
+          // 우클릭 이벤트 핸들러 등록
+          images[i].on("contextmenu", function (e) {
+            e.evt.preventDefault();
+            console.log("우클릭 입력");
+            if (e.target === stage.current) {
+              // if we are on empty place of the stage we will do nothing
+              return;
+            }
+            currentShape = e.target;
+            menuNode.style.display = "initial";
+            menuNode.style.zIndex = "1";
+            console.log(menuNode);
+            var containerRect = stage.current
+              .container()
+              .getBoundingClientRect();
+            menuNode.style.top =
+              containerRect.top +
+              stage.current.getPointerPosition().y +
+              4 +
+              "px";
+            menuNode.style.left =
+              containerRect.left +
+              stage.current.getPointerPosition().x +
+              4 +
+              "px";
+          });
+
           console.log(stage.current);
 
           stage.current.children[2].add(tr);
@@ -388,7 +431,42 @@ export default function GroupChat() {
         object.on("transformend", function () {
           changeCanvas(object);
         });
+        let currentShape;
+        var menuNode = document.getElementById("delete-img-menu");
 
+        document
+          .getElementById("delete-button")
+          .addEventListener("click", () => {
+            currentShape.destroy();
+            changeCanvas(currentShape);
+          });
+
+        window.addEventListener("click", () => {
+          // hide menu
+          menuNode.style.display = "none";
+        });
+
+        // 우클릭 이벤트 핸들러 등록
+        object.on("contextmenu", function (e) {
+          e.evt.preventDefault();
+          console.log("우클릭 입력");
+          if (e.target === stage.current) {
+            // if we are on empty place of the stage we will do nothing
+            return;
+          }
+          currentShape = e.target;
+          menuNode.style.display = "initial";
+          menuNode.style.zIndex = "1";
+          console.log(menuNode);
+          var containerRect = stage.current.container().getBoundingClientRect();
+          menuNode.style.top =
+            containerRect.top + stage.current.getPointerPosition().y + 4 + "px";
+          menuNode.style.left =
+            containerRect.left +
+            stage.current.getPointerPosition().x +
+            4 +
+            "px";
+        });
         stage.current.children[2].add(tr);
         stage.current.children[2].add(object);
       }
@@ -443,7 +521,7 @@ export default function GroupChat() {
 
     //참가한 채널 명을 url로 구분하도록 커스터마이징함
     socket.current = new SockJS(
-      `http://${domain}:${port}/socket?channelId=${mySessionId}`,
+      `https://${domain}/api/socket?channelId=${mySessionId}`,
       // `https://i9d208.p.ssafy.io:9091/socket?channelId=${mySessionId}`,
       null,
       { transports: ["websocket", "xhr-streaming", "xhr-polling"] }
@@ -1044,10 +1122,38 @@ export default function GroupChat() {
       // 드래그 범위 제한 함수를 객체에 연결
       papago.dragBoundFunc(limitDragBounds);
 
+      let currentShape;
+      var menuNode = document.getElementById("delete-img-menu");
+
+      document.getElementById("delete-button").addEventListener("click", () => {
+        currentShape.destroy();
+        changeCanvas(currentShape);
+      });
+
+      window.addEventListener("click", () => {
+        // hide menu
+        menuNode.style.display = "none";
+      });
+
       // 우클릭 이벤트 핸들러 등록
       papago.on("contextmenu", function (e) {
-        handleContextMenu(e, layer); // 클로저를 이용하여 레이어를 전달
+        e.evt.preventDefault();
+        console.log("우클릭 입력");
+        if (e.target === stage.current) {
+          // if we are on empty place of the stage we will do nothing
+          return;
+        }
+        currentShape = e.target;
+        menuNode.style.display = "initial";
+        menuNode.style.zIndex = "1";
+        console.log(menuNode);
+        var containerRect = stage.current.container().getBoundingClientRect();
+        menuNode.style.top =
+          containerRect.top + stage.current.getPointerPosition().y + 4 + "px";
+        menuNode.style.left =
+          containerRect.left + stage.current.getPointerPosition().x + 4 + "px";
       });
+
       layer.add(tr);
       layer.add(papago);
 
@@ -1055,23 +1161,6 @@ export default function GroupChat() {
       changeCanvas(papago);
       console.log(papago);
     };
-  }
-
-  // 우클릭 이벤트 처리 함수
-  function handleContextMenu(e, layer) {
-    e.evt.preventDefault();
-    var elementId = e.target.id();
-
-    // 요소 아이디로 요소를 지웁니다.
-    var elementToRemove = layer.findOne("#" + elementId);
-    if (elementToRemove) {
-      console.log(e.target);
-      console.log(e.target.id);
-      e.target.id = e.target.id + "del";
-      elementToRemove.remove();
-      stage.current.draw();
-    }
-    changeCanvas(e.target);
   }
 
   function addScreenInCanvas(videoElement, connection) {
@@ -1214,15 +1303,15 @@ export default function GroupChat() {
               </form>
             </div>
           </div>
+          <div id="delete-img-menu">
+            <div>
+              <button id="delete-button">Delete</button>
+            </div>
+          </div>
 
           <div id="channel-screen"></div>
           <div id="shared-screen"></div>
           <div className="cam-dev-block">
-            <div id="menu">
-              <div>
-                <button id="delete-button">Delete</button>
-              </div>
-            </div>
             <div id="session">
               <div id="session-header">
                 <h1 id="session-title"></h1>

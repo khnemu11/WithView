@@ -503,3 +503,12 @@ button {
 #backs-menu-on {
   transition-duration: 0.3s;
 }
+
+#delete-img-menu {
+  display: none;
+  position: absolute;
+  width: 60px;
+  background-color: white;
+  box-shadow: 0 0 5px grey;
+  border-radius: 3px;
+}

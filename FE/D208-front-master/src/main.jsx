@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider,Outlet} from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react"; // Redux Persist를 사용하기 위한 컴포넌트
 import { store, persistor } from "./redux/store";
@@ -9,7 +9,7 @@ import Login from "./routes/login";
 import Signup from "./routes/signup";
 import "./css/main.css"; // Import the CSS file
 import GroupChat from "./routes/groupchat";
-import GroupChattemp from "./routes/groupchattemp";
+// import GroupChattemp from "./routes/groupchattemp";
 import FullScreen from "./routes/fullscreen";
 import Profile from "./routes/profile";
 import ServerPlus from "./routes/serverplus";
@@ -25,11 +25,13 @@ import PrivateRoute from "./routes/privateroute";
 const router = createBrowserRouter([
   {
     path: "/",
-    element : (<PrivateRoute>
-      <Outlet />
-    </PrivateRoute>),
-    
-    children : [
+    element: (
+      <PrivateRoute>
+        <Outlet />
+      </PrivateRoute>
+    ),
+
+    children: [
       {
         path: "contacts/:contactId",
         element: <Hello />,
@@ -38,7 +40,7 @@ const router = createBrowserRouter([
         path: "/groupchat",
         element: <GroupChat />,
       },
-     
+
       {
         path: "/mainpage",
         element: <MainController />,
@@ -69,7 +71,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/server/:seq/edit",
-        element: <ServerEdit/>
+        element: <ServerEdit />,
       },
       {
         path: "/login",
@@ -87,9 +89,8 @@ const router = createBrowserRouter([
         path: "/findpassword",
         element: <FindPassword />,
       },
-    ]
+    ],
   },
-  
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(

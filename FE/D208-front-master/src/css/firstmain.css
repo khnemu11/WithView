@@ -1,9 +1,15 @@
-html{
-  overflow-y: hidden;
+@font-face {
+  font-family: "MyFont";
+  src: url("../../public/font/NanumGothic.ttf") format("truetype"); /* 폰트 경로 지정 */
+  /* 여러 개의 형식 지원 시 다른 폰트 형식도 추가할 수 있습니다. */
+}
 
+html {
+  overflow-y: hidden;
 }
 
 body {
+  font-family: "MyFont";
   margin: 0;
   padding: 0;
   height: 100vh; /* 뷰포트 높이에 맞게 설정 */
@@ -78,7 +84,7 @@ body {
   margin-right: 10px;
   border-radius: 50%;
 }
-.profileNameTop{
+.profileNameTop {
   margin-top: 15px;
   font-size: large;
 }
