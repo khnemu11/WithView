@@ -99,6 +99,7 @@ public class ChannelServiceImpl implements ChannelService{
 					.serverEntity(serverEntity)
 					.backgroundImgSearchName(channelDto.getBackgroundImgSearchName())
 					.backgroundImgOriginalName(channelDto.getBackgroundImgOriginalName())
+					.limitPeople(channelDto.getLimitPeople())
 					.build();
 
 			result = ChannelEntity.toDto(channelRepository.save(channelEntity));
