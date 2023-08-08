@@ -21,6 +21,7 @@ import FindId from "./routes/findid";
 import FindPassword from "./routes/findpassword";
 import ServerEdit from "./routes/serveredit";
 import PrivateRoute from "./routes/privateroute";
+import FriendList from "./routes/friendlist";
 
 const router = createBrowserRouter([
   {
@@ -88,6 +89,10 @@ const router = createBrowserRouter([
       {
         path: "/findpassword",
         element: <FindPassword />,
+      },
+      {
+        path:"/friendlist",
+        element: <FriendList/>,
       },
     ],
   },

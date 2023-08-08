@@ -74,7 +74,14 @@ const Serverpage = () => {
 
     const popoverBody = (
       <div className="profilePopover">
-        <img src={profileImageUrl} alt="profile" />
+        <img
+          src={profileImageUrl}
+          alt="profile"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "/withView2.png";
+          }}
+        />
         <h2>{member.nickname}</h2>
         <p>{member.profileMsg}</p>
       </div>
@@ -83,7 +90,14 @@ const Serverpage = () => {
     return (
       <div onClick={togglePopover}>
         <Popover isOpen={isPopoverOpen} body={popoverBody} preferPlace="above">
-          <img src={profileImageUrl} alt="member-profile" />
+          <img
+            src={profileImageUrl}
+            alt="profile"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = "/withView2.png";
+            }}
+          />
         </Popover>
       </div>
     );
@@ -329,31 +343,31 @@ const Serverpage = () => {
 
   // 서버 초대 API
   const createInviteLink = async () => {
-  try {
-    const formData = new FormData();
-    formData.append("userSeq", userSeq);
-    formData.append("serverSeq", seq);
+    try {
+      const formData = new FormData();
+      formData.append("userSeq", userSeq);
+      formData.append("serverSeq", seq);
 
-    const response = await axios.post(
-      "https://i9d208.p.ssafy.io/api/invite",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      const response = await axios.post(
+        "https://i9d208.p.ssafy.io/api/invite",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        const inviteLink = response.data.link;
+        setInviteLink(inviteLink);
+        copyToClipboard(inviteLink);
+        setInviteLinkModalOpen(true);
       }
-    );
-
-    if (response.status === 200) {
-      const inviteLink = response.data.link;
-      setInviteLink(inviteLink);
-      copyToClipboard(inviteLink);
-      setInviteLinkModalOpen(true);
+    } catch (error) {
+      console.error("Error creating invite link:", error);
     }
-  } catch (error) {
-    console.error("Error creating invite link:", error);
-  }
-};
+  };
 
   return (
     <div className="mainbox">
