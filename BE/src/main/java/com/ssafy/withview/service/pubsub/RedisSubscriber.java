@@ -58,4 +58,12 @@ public class RedisSubscriber {
 			log.error("Exception {}", e);
 		}
 	}
+
+	public void sendFriendsChatRoomsInfo(String publishMessage) {
+		try {
+
+		} catch (Exception e) {
+			log.error("Exception {}", e);
+		}
+	}
 }

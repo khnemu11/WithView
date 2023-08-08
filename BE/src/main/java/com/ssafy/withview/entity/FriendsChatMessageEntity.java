@@ -19,23 +19,27 @@ public class FriendsChatMessageEntity {
 	@Indexed
 	private Long friendsChatRoomSeq;
 	private String message;
-	private Long userSeq;
+	private Long fromUserSeq;
+	private Long toUserSeq;
 	private LocalDateTime sendTime;
 
 	public static FriendsChatDto toDto(FriendsChatMessageEntity entity) {
 		return FriendsChatDto.builder()
 			.friendsChatRoomSeq(entity.getFriendsChatRoomSeq())
-			.userSeq(entity.getUserSeq())
+			.fromUserSeq(entity.getFromUserSeq())
+			.toUserSeq(entity.getToUserSeq())
 			.message(entity.getMessage())
 			.sendTime(entity.getSendTime())
 			.build();
 	}
 
 	@Builder
-	public FriendsChatMessageEntity(Long friendsChatRoomSeq, String message, Long userSeq, LocalDateTime sendTime) {
+	public FriendsChatMessageEntity(Long friendsChatRoomSeq, String message, Long fromUserSeq, Long toUserSeq,
+		LocalDateTime sendTime) {
 		this.friendsChatRoomSeq = friendsChatRoomSeq;
 		this.message = message;
-		this.userSeq = userSeq;
+		this.fromUserSeq = fromUserSeq;
+		this.toUserSeq = toUserSeq;
 		this.sendTime = sendTime;
 	}
 }
