@@ -23,6 +23,7 @@ import ServerEdit from "./routes/serveredit";
 import PrivateRoute from "./routes/privateroute";
 import FriendList from "./routes/friendlist";
 
+import { AxiosInterceptor } from "./routes/axiosinstance";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -102,7 +103,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <RouterProvider router={router} />
+        <AxiosInterceptor>
+
+          <RouterProvider router={router} />
+        </AxiosInterceptor>
       </PersistGate>
     </Provider>
   </React.StrictMode>
