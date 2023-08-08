@@ -6,62 +6,148 @@ import "../css/mainpage.css"; // CSS 파일 임포트
 import "../css/profile.css";
 import "../css/firstmain.css";
 import ServerOptions from "./components/serveroptions";
+import axiosInstance from "./axiosinstance";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { clearToken } from "../redux/actions/tokenActions";
-import { clearUser } from "../redux/actions/userActions";
-
+import { clearToken, setToken } from "../redux/actions/tokenActions";
+import { clearUser, setUser } from "../redux/actions/userActions";
+import { data } from "jquery";
+axios.defaults.withCredentials = true;
 const Profile = () => {
   const [view, setView] = useState("profile"); // view 상태를 선언하고 기본값을 'profile'로 설정합니다.
   const [profileMessage, setProfileMessage] =
     useState("이것은 상태 메세지입니다."); // 상태 메시지를 위한 상태를 생성합니다.
   const [tempProfileMessage, setTempProfileMessage] = useState("");
   const [tempProfileNickname, setTempProfileNickname] = useState("");
-  const profileNickname = useSelector((state) => state.user.nickname)
-  const userPk = useSelector((state)=>state.user.seq)
+  const profileNickname = useSelector((state) => state.user.nickname);
+  const userPk = useSelector((state) => state.user.seq);
+  const token = useSelector((state) => state.token);
   const [profilePassword, setProfilePassword] = useState("");
   const [profilePasswordCheck, setProfilePasswordCheck] = useState("");
   const [profileLeaveCheck, setProfileLeaveCheck] = useState("");
   const [profileImage, setProfileImage] = useState("/프사.png");
-  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImage}`;
+  const profileImageURL = useSelector((state) => state.user.profile);
+  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImageURL}`;
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const [imageToCrop, setImageToCrop] = useState(null);
   const cropperRef = useRef(null);
-  const profileImageURL = useSelector((state) => state.user.profile);
+  const [editedImage, setEditedImage] = useState(null);
+  const [editedImageShow, setEditedImageShow] = useState(null);
   const url = "https://i9d208.p.ssafy.io/api";
+  
+  useEffect(()=>{
+    axiosInstance({
+      headers : {
+        "Authorization" : `Bearer ${token}`
+      },
+      method : "GET",
+      url : `/users/${userPk}`
+    })
+    .then((res)=>{
+      setProfileMessage(res.data.UserInfo.profileMsg)
+    })
+    .catch(()=>{
+      // console.log(err)
+    })
+  },[profileMessage])
 
   useEffect(() => {
     // 만약 redux에서 프로필 이미지가 null이면 기본 이미지로 설정
     if (profileImageURL === null) {
       setProfileImage("/withView2.png");
     } else {
-      setProfileImage(profileImageURL);
+      setProfileImage(profileImageUrl);
     }
   }, [profileImageURL]);
 
+  // Base64 -> Blob
+  function base64ToBlob(base64String) {
+    const byteString = atob(base64String.split(",")[1]);
+    const arrayBuffer = new ArrayBuffer(byteString.length);
+    const uint8Array = new Uint8Array(arrayBuffer);
+
+    for (let i = 0; i < byteString.length; i++) {
+      uint8Array[i] = byteString.charCodeAt(i);
+    }
+
+    return new Blob([uint8Array], { type: "image/png" });
+  }
+
+  
   const checkLogout = (e) => {
+    e.preventDefault();
+    axiosInstance({
+      headers : {
+        "Authorization" : `Bearer ${token}`
+      },
+      method: "POST",
+      url: `/login/logout`,
+      data: { seq: userPk },
+    })
+      .then((res) => {
+        console.log(res.data);
+        if (res.data.success) {
+          alert("로그아웃 되었습니다.");
+          dispatch(clearToken());
+          dispatch(clearUser());
+          navigate("/login");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        alert("로그아웃 실패!");
+      });
+  };
+
+  const withdrawal = (e) => {
+    e.preventDefault();
+    axiosInstance({
+      method: "DELETE",
+      url: `/users/${userPk}`,
+    })
+      .then((res) => {
+        console.log(res.data);
+        dispatch(clearToken());
+        dispatch(clearUser());
+        navigate("/login");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+  const handleModifyPassword = (e)=>{
     e.preventDefault()
-    axios({
-      method : 'POST',
-      url : `${url}/login/logout`,
-      data : {seq : userPk},
-    })
-    .then((res) => {
-      console.log(res.data)
-      if(res.data.success){
-        alert("로그아웃 되었습니다.")
-        dispatch(clearToken())
-        dispatch(clearUser())
-        navigate('/login')
-      }
-    })
-    .catch((err)=>{
-      console.log(err)
-      alert('로그아웃 실패!')
-    })
-  } 
+    if (profilePassword.includes(" ") ||
+    !/^(?=.*[a-zA-Z])(?=.*[!@#$%^&*()\-_=+[\]{};:'",.<>/?\\|~`])[a-zA-Z\d!@#$%^&*()\-_=+[\]{};:'",.<>/?\\|~`]{8,16}$/.test(
+      profilePassword
+    ) || profilePassword !== profilePasswordCheck){
+
+      alert("비밀번호를 다시 입력해주세요!")
+    }
+    else {
+      axiosInstance({
+        headers: {
+          "Authorization" : `Bearer ${token}`
+        },
+        method : "PUT",
+        url : `/users/${userPk}/password?var=2`,
+        data : {password : profilePassword}
+      })
+      .then((res)=>{
+        console.log(res.data)
+        alert("비밀번호 변경 완료!")
+        setProfilePassword("")
+        setProfilePasswordCheck("")
+      })
+      .catch((err)=>{
+        console.log(err)
+        
+      })
+    }
+  }
+
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -73,17 +159,26 @@ const Profile = () => {
       reader.readAsDataURL(file);
     }
   };
+
   const handleCropImage = () => {
     const imageElement = cropperRef?.current;
     const cropper = imageElement?.cropper;
-    setProfileImage(
-      cropper
-        .getCroppedCanvas({
-          width: 300,
-          height: 300,
-        })
-        .toDataURL()
-    );
+    
+    const croppedImageDataURL = cropper
+      .getCroppedCanvas({
+        width: 300,
+        height: 300,
+      })
+      .toDataURL("image/png");
+
+    const blob = base64ToBlob(croppedImageDataURL);
+
+    const file = new File([blob], "croppedServerImage.png", {
+      type: "image/png",
+    });
+
+    setEditedImageShow(croppedImageDataURL);
+    setEditedImage(file);
     setIsCropModalOpen(false); // 모달 닫기
   };
 
@@ -93,19 +188,65 @@ const Profile = () => {
   };
 
   const handleConfirmMessageButtonClick = () => {
-    // '확인' 버튼 클릭 시, 임시 상태를 실제 상태로 업데이트
-    setProfileMessage(tempProfileMessage);
-    setTempProfileMessage(""); // 필요하다면 임시 상태 초기화
+    // axios요청해서 이미지랑 상태메세지 서버에 보낸다음 받아와서 리덕스 유저정보 업데이트
+    axiosInstance({
+      headers: {
+        "Content-Type": "multipart/form-data",
+        "Authorization" : `Bearer ${token}`
+      },
+      method : "POST",
+      url : `/users/${userPk}`,
+      data : {file : editedImage, profileMsg : tempProfileMessage}
+    })
+    .then((res)=>{
+      console.log(res.data)
+      const userInfo = {
+        seq: userPk,
+        nickname: profileNickname,
+        profile: res.data.UserInfo.profileImgSearchName,
+      };
+      setProfileMessage(res.data.UserInfo.profileMsg)
+      dispatch(setUser(userInfo))
+      alert('프로필 변경 완료!')
+    })
+    .catch((err)=>{
+      console.log(err)
+    })
   };
 
-  const handleConfirmNicknameButtonClick = () => {
-    // '확인' 버튼 클릭 시, 임시 상태를 실제 상태로 업데이트
-    setProfileNickname(tempProfileNickname);
-    setTempProfileMessage(""); // 필요하다면 임시 상태 초기화
+  const handleConfirmNicknameButtonClick = (e) => {
+    e.preventDefault()
+    if(tempProfileNickname.includes(" ") ||
+    !/^[\u3131-\u318E\uAC00-\uD7A3a-zA-Z\d]{2,6}$/.test(
+      tempProfileNickname
+    )){
+      alert("닉네임을 다시 입력해 주세요!")
+      setTempProfileNickname("")
+    }
+    else {
+      axiosInstance({
+        method : "PUT",
+        url : `/users/${userPk}/nickname?nickname=${tempProfileNickname}`
+      })
+      .then((res)=>{
+        console.log(res.data)
+        const userInfo = {
+          seq: userPk,
+          nickname: res.data.UserInfo.nickname,
+          profile: profileImageURL,
+        };
+        dispatch(setUser(userInfo))
+        alert('닉네임 변경 완료!')
+        setTempProfileNickname("")
+      })
+      .catch((err)=>{
+        console.log(err)
+      })
+    }
   };
 
   const resetInputs = () => {
-    setTempProfileMessage("");
+    // setTempProfileMessage("");
     setTempProfileNickname("");
     setProfilePassword("");
     setProfilePasswordCheck("");
@@ -120,10 +261,11 @@ const Profile = () => {
             <p className="profile-text">새 프로필 사진을 올려주세요!</p>
             <label htmlFor="imageUpload">
               <img
-                src="/uploadimage.png"
+                src={editedImageShow ? editedImageShow : '/uploadimage.png'}
                 className="image-upload"
                 alt="Upload"
               />
+              {/* {profileImage} */}
             </label>
             <input
               id="imageUpload"
@@ -184,7 +326,7 @@ const Profile = () => {
             <div className="input-div">
               <input
                 className="profile-messageInput"
-                type="text"
+                type="password"
                 value={profilePassword}
                 onChange={(e) => setProfilePassword(e.target.value)}
               />
@@ -193,14 +335,16 @@ const Profile = () => {
             <div className="input-div">
               <input
                 className="profile-messageInput"
-                type="text"
+                type="password"
                 value={profilePasswordCheck}
                 onChange={(e) => setProfilePasswordCheck(e.target.value)}
               />
             </div>
             <br></br>
             <div className="button-div">
-              <button className="button mt-2 has-text-white profile-ok-button">
+              <button className="button mt-2 has-text-white profile-ok-button"
+                onClick={handleModifyPassword}
+              >
                 확인
               </button>
             </div>
@@ -221,13 +365,16 @@ const Profile = () => {
             <div className="input-div">
               <input
                 className="profile-messageInputLeave"
-                type="text"
+                type="password"
                 value={profileLeaveCheck}
                 onChange={(e) => setProfileLeaveCheck(e.target.value)}
               />
             </div>
             <div className="button-div">
-              <button className="button mt-2 has-text-white profile-leave-button">
+              <button
+                className="button mt-2 has-text-white profile-leave-button"
+                onClick={withdrawal}
+              >
                 확인
               </button>
             </div>
@@ -242,7 +389,7 @@ const Profile = () => {
     <div className="mainbox">
       <div className="innermain">
         <ServerOptions
-          profileImage={profileImageUrl}
+          profileImage={profileImage}
           profileNickname={profileNickname}
         />
 
@@ -281,7 +428,7 @@ const Profile = () => {
                 회원탈퇴
               </p>
             </div>
-            <button 
+            <button
               className="button mt-4 has-text-white logout-button"
               onClick={checkLogout}
             >
@@ -347,4 +494,3 @@ const Profile = () => {
 };
 
 export default Profile;
-

@@ -21,7 +21,7 @@ import FindId from "./routes/findid";
 import FindPassword from "./routes/findpassword";
 import ServerEdit from "./routes/serveredit";
 import PrivateRoute from "./routes/privateroute";
-
+import { AxiosInterceptor } from "./routes/axiosinstance";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -96,7 +96,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <RouterProvider router={router} />
+        <AxiosInterceptor>
+
+          <RouterProvider router={router} />
+        </AxiosInterceptor>
       </PersistGate>
     </Provider>
   </React.StrictMode>
