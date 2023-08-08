@@ -1,12 +1,12 @@
 package com.ssafy.withview.service.pubsub;
 
-import com.ssafy.withview.dto.FriendsChatDto;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.withview.dto.ChannelChatDto;
 import com.ssafy.withview.dto.ChannelValueDto;
+import com.ssafy.withview.dto.FriendsChatDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,9 +40,9 @@ public class RedisSubscriber {
 		try {
 			// FriendsChatDTO 객체로 매핑
 			FriendsChatDto chatMessage = objectMapper.readValue(publishMessage, FriendsChatDto.class);
-			log.info("{}번 친구 채팅 전송, 전송자 {}, 내용 {}", chatMessage.getFriendsChatSeq(), chatMessage.getUserSeq(),
+			log.info("{}번 친구 채팅 전송, 전송자 {}, 내용 {}", chatMessage.getFriendsChatRoomSeq(), chatMessage.getUserSeq(),
 				chatMessage.getMessage());
-			messagingTemplate.convertAndSend("/api/sub/chat/friends/" + chatMessage.getFriendsChatSeq(),
+			messagingTemplate.convertAndSend("/api/sub/chat/friends/" + chatMessage.getFriendsChatRoomSeq(),
 				chatMessage);
 		} catch (Exception e) {
 			log.error("Exception {}", e);

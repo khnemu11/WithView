@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
-import com.ssafy.withview.dto.UserDto;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.ValueOperations;
@@ -27,7 +26,6 @@ public class WebSocketSubscribeRepository {
 	private static final String ENTER_CHAT_CHANNEL = "ENTER_CHAT_CHANNEL";
 	private static final String USER_CONNECT_SESSION = "USER_CONNECT_SESSION_";
 	private static final String USER_ENTER_SERVER_USERSEQ = "USER_ENTER_SERVER_USERSEQ_";
-	private static final String USER_PROFILE_INFO = "USER_PROFILE_INFO_";
 
 	@Resource(name = "redisTemplate")
 	private HashOperations<String, String, String> hashOpsUserEnterChatChannelInfo;
@@ -37,10 +35,6 @@ public class WebSocketSubscribeRepository {
 	private ValueOperations<String, String> valOpsUserSessionInfo;
 	@Resource(name = "redisTemplate")
 	private ValueOperations<String, String> valOpsUserServerInfoOfNowChannel;
-	@Resource(name = "redisTemplate")
-	private ValueOperations<String, UserDto> valOpsUserProfileInfo;
-	@Resource(name = "redisTemplate")
-	private ValueOperations<String, String> valOpsRoomUserValue;
 
 	public Long userSubscribeChannelChat(Long userSeq, Long channelSeq, Long serverSeq) {
 		valOpsUserServerInfoOfNowChannel.set(USER_ENTER_SERVER_USERSEQ + userSeq, String.valueOf(serverSeq));
@@ -87,13 +81,5 @@ public class WebSocketSubscribeRepository {
 		userUnsubscribeChannelChat(userSeq, channelSeq);
 		valOpsUserSessionInfo.set(USER_CONNECT_SESSION + simpSessionId, "", 1, TimeUnit.MILLISECONDS);
 		return serverSeq;
-	}
-
-	public void setUserInfo(Long userSeq, UserDto userDto) {
-		valOpsUserProfileInfo.set(USER_PROFILE_INFO + userSeq, userDto);
-	}
-
-	public void getUserInfo(Long userSeq) {
-		valOpsUserProfileInfo.get(USER_PROFILE_INFO + userSeq);
 	}
 }

@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.ssafy.withview.entity.ChannelChatEntity;
+import com.ssafy.withview.entity.ChannelChatMessageEntity;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -24,8 +24,8 @@ public class ChannelChatDto implements Serializable {
 	private Long userSeq;
 	private LocalDateTime sendTime;
 
-	public static ChannelChatEntity toEntity(ChannelChatDto dto) {
-		return ChannelChatEntity.builder()
+	public static ChannelChatMessageEntity toEntity(ChannelChatDto dto) {
+		return ChannelChatMessageEntity.builder()
 			.channelSeq(dto.getChannelSeq())
 			.userSeq(dto.getUserSeq())
 			.message(dto.getMessage())

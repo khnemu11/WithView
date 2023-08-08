@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Document("channel_chat")
 @NoArgsConstructor
-public class ChannelChatEntity {
+public class ChannelChatMessageEntity {
 
 	@Indexed
 	private Long channelSeq;
@@ -22,7 +22,7 @@ public class ChannelChatEntity {
 	private Long userSeq;
 	private LocalDateTime sendTime;
 
-	public static ChannelChatDto toDto(ChannelChatEntity entity) {
+	public static ChannelChatDto toDto(ChannelChatMessageEntity entity) {
 		return ChannelChatDto.builder()
 			.channelSeq(entity.getChannelSeq())
 			.userSeq(entity.getUserSeq())
@@ -30,9 +30,9 @@ public class ChannelChatEntity {
 			.sendTime(entity.getSendTime())
 			.build();
 	}
-	
+
 	@Builder
-	public ChannelChatEntity(Long channelSeq, String message, Long userSeq, LocalDateTime sendTime) {
+	public ChannelChatMessageEntity(Long channelSeq, String message, Long userSeq, LocalDateTime sendTime) {
 		this.channelSeq = channelSeq;
 		this.message = message;
 		this.userSeq = userSeq;

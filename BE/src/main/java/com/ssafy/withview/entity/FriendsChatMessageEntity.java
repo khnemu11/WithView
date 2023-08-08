@@ -1,29 +1,30 @@
 package com.ssafy.withview.entity;
 
-import com.ssafy.withview.dto.ChannelChatDto;
-import com.ssafy.withview.dto.FriendsChatDto;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
+
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
+import com.ssafy.withview.dto.FriendsChatDto;
+
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Document("friends_chat")
 @NoArgsConstructor
-public class FriendsChatEntity {
+public class FriendsChatMessageEntity {
 
 	@Indexed
-	private Long friendsChatSeq;
+	private Long friendsChatRoomSeq;
 	private String message;
 	private Long userSeq;
 	private LocalDateTime sendTime;
 
-	public static FriendsChatDto toDto(FriendsChatEntity entity) {
+	public static FriendsChatDto toDto(FriendsChatMessageEntity entity) {
 		return FriendsChatDto.builder()
-			.friendsChatSeq(entity.getFriendsChatSeq())
+			.friendsChatRoomSeq(entity.getFriendsChatRoomSeq())
 			.userSeq(entity.getUserSeq())
 			.message(entity.getMessage())
 			.sendTime(entity.getSendTime())
@@ -31,8 +32,8 @@ public class FriendsChatEntity {
 	}
 
 	@Builder
-	public FriendsChatEntity(Long friendsChatSeq, String message, Long userSeq, LocalDateTime sendTime) {
-		this.friendsChatSeq = friendsChatSeq;
+	public FriendsChatMessageEntity(Long friendsChatRoomSeq, String message, Long userSeq, LocalDateTime sendTime) {
+		this.friendsChatRoomSeq = friendsChatRoomSeq;
 		this.message = message;
 		this.userSeq = userSeq;
 		this.sendTime = sendTime;

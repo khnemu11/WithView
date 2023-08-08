@@ -2,15 +2,15 @@ package com.ssafy.withview.controller;
 
 import java.time.LocalDateTime;
 
-import com.ssafy.withview.dto.FriendsChatDto;
-import com.ssafy.withview.service.ChannelChatService;
-import com.ssafy.withview.service.FriendsChatService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import com.ssafy.withview.dto.ChannelChatDto;
+import com.ssafy.withview.dto.FriendsChatDto;
+import com.ssafy.withview.service.ChannelChatService;
 import com.ssafy.withview.service.ChatPublisher;
+import com.ssafy.withview.service.FriendsChatService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
