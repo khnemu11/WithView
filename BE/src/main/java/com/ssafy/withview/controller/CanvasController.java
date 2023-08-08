@@ -35,13 +35,14 @@ public class CanvasController {
 		return new ResponseEntity<>(jsonObject, HttpStatus.OK);
 	}
 
-	@PostMapping("/")
+	@PostMapping("")
 	public ResponseEntity<?> insertCanvas(@RequestBody CanvasDto canvasDto) {
 		JSONObject jsonObject = new JSONObject();
 		System.out.println(canvasDto);
 		try{
 			canvasService.insertCanvas(canvasDto);
 		}catch (Exception e){
+			e.printStackTrace();
 			jsonObject.put("success",false);
 			jsonObject.put("msg",e.getMessage());
 			return new ResponseEntity<>(jsonObject, HttpStatus.INTERNAL_SERVER_ERROR);
