@@ -43,6 +43,11 @@ public class RedisConfig {
 	}
 
 	@Bean
+	public ChannelTopic canvasTopic() {
+		return new ChannelTopic("canvas");
+	}
+
+	@Bean
 	public MessageListenerAdapter channelChattingListenerAdapter(RedisSubscriber subscriber) {
 		return new MessageListenerAdapter(subscriber, "sendChannelMessage");
 	}

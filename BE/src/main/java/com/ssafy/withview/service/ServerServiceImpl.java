@@ -10,10 +10,12 @@ import javax.transaction.Transactional;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.withview.dto.ChannelDto;
 import com.ssafy.withview.dto.ServerDto;
 import com.ssafy.withview.dto.UserDto;
@@ -25,14 +27,17 @@ import com.ssafy.withview.repository.UserRepository;
 import com.ssafy.withview.repository.UserServerRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ServerServiceImpl implements ServerService {
 	private final ServerRepository serverRepository;
 	private final UserServerRepository userServerRepository;
 	private final UserRepository userRepository;
 	private final AmazonS3 s3client;
+	private final RedisTemplate redisTemplate;
 
 	@Value(value = "${cloud.aws.s3.bucket}")
 	private String bucketName;
@@ -40,13 +45,8 @@ public class ServerServiceImpl implements ServerService {
 	@Value(value = "${DEFAULT_IMG}")
 	private String DEFAULT_IMG;
 
-	@Value(value = "${NAVER_CLIENT_ID}")
-	private String NAVER_CLIENT_ID;
-
-	@Value(value = "${NAVER_SECRET_KEY}")
-	private String NAVER_SECRET_KEY;
-
-	private String hostUrl = "https://i9d208.p.ssafy.io:9091/";
+	@Value(value = "${FRONT_URL}")
+	private String FRONT_URL;
 
 	@Override
 	public ChannelDto findChannelByName(String channelName) {
@@ -261,6 +261,8 @@ public class ServerServiceImpl implements ServerService {
 		if (serverEntity == null) {
 			throw new Exception("대상 서버가 존재하지 않습니다.");
 		}
+		ServerDto serverDto = ServerEntity.toDto(serverEntity);
+
 
 		UserEntity userEntity = userRepository.findBySeq(userSeq)
 			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
@@ -288,6 +290,32 @@ public class ServerServiceImpl implements ServerService {
 			.collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
 			.toString();
 
-		return generatedString;
+		String url = FRONT_URL +"serverenter/"+generatedString;
+
+		redisTemplate.opsForValue().set(generatedString,serverDto.toJson());
+
+		return url;
+	}
+
+	@Override
+	public ServerDto validateInviteCode(String inviteCode) throws Exception {
+		log.info("초대 링크 ",inviteCode);
+		String jsonStr = (String)redisTemplate.opsForValue().get(inviteCode);
+		log.info("서버 정보 json ",jsonStr);
+
+
+		if(jsonStr == null){
+			throw new Exception("유효하지 않은 초대코드입니다.");
+		}
+		
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		ServerDto serverDto = objectMapper.readValue(jsonStr,ServerDto.class);
+
+		if(serverDto == null){
+			throw new Exception("서버 dto로 파싱이 실패했습니다.");
+		}
+
+		return serverDto;
 	}
 }
