@@ -141,7 +141,7 @@ public class UserService {
 	 * 프로필 이미지 및 상태 메시지 가져오기
 	 *
 	 * @param seq (확인할 유저 pk 값)
-	 * @return UserDto (확인할 프로필 이미지, 확인할 상태 메시지)
+	 * @return UserDto (확인할 프로필 이미지, 확인할 상태 메시지, 유저 pk 값, 닉네임)
 	 */
 	@Transactional
 	public UserDto getProfile(Long seq) {
@@ -151,6 +151,8 @@ public class UserService {
 			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
 
 		return UserDto.builder()
+			.seq(userEntity.getSeq())
+			.nickname(userEntity.getNickname())
 			.profileImgSearchName(userEntity.getProfileImgSearchName())
 			.profileMsg(userEntity.getProfileMsg())
 			.build();
