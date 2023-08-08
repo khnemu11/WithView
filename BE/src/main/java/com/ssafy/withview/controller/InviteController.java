@@ -34,7 +34,7 @@ public class InviteController {
 		log.info("===== 서버 초대 링크 접속 시작 =====");
 		JSONObject result = new JSONObject();
 		try{
-			ServerDto serverDto = (ServerDto)session.getAttribute(code);
+			ServerDto serverDto = serverService.validateInviteCode(code);
 
 			if(serverDto == null){
 				result.put("success",false);
@@ -60,13 +60,9 @@ public class InviteController {
 		try{
 			String inviteCode = serverService.insertInviteCode(serverSeq,userSeq);
 			ServerDto serverDto = serverService.findServerBySeq(serverSeq);
-
 			log.info("초대 코드 "+ inviteCode);
-			String url = FRONT_URL +"serverenter/"+inviteCode;
-			session.setAttribute(inviteCode,serverDto);
-
 			result.put("success",true);
-			result.put("link",url);
+			result.put("link",inviteCode);
 		}catch (Exception e){
 			e.printStackTrace();
 			result = new JSONObject();
