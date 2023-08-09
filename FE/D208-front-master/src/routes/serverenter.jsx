@@ -3,7 +3,7 @@ import "../css/serverenter.css";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
-
+import axiosInstance from "./axiosinstance";
 
 
 const ServerEnter = () => {
@@ -15,27 +15,34 @@ const ServerEnter = () => {
  
   const { inviteLink } = useParams(); // 라우터의 파라미터 값을 받아옵니다.
   const navigate = useNavigate(); // 라우터로 이동하기 위한 훅
+  
+  const token = useSelector((state) => state.token);
 
   
 
   useEffect(() => {
     const fetchServerData = async () => {
       try {
-        const response = await axios.get(`https://i9d208.p.ssafy.io/api/invite/${inviteLink}`);
-        
+        const response = await axiosInstance.get(`/invite/${inviteLink}`, {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+  
         const backgroundImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/server-background/${response.data.server.backgroundImgSearchName}`;
-
+  
         setServerImage(backgroundImageUrl);
         setServerName(response.data.server.name);
         setServerSeq(response.data.server.seq);
-        // setServerMembersNumber(response.data.members); // 기존 코드는 주석 처리합니다. 만약 members 데이터도 받아오게 되면 이 부분을 활성화할 수 있습니다.
+        // setServerMembersNumber(response.data.members);
       } catch (error) {
         console.error("Error fetching server data", error);
       }
     };
-
+  
     fetchServerData();
   }, [inviteLink]);
+
 
   const handleJoin = async () => {
     // 서버에 POST 요청을 보냅니다.
@@ -44,7 +51,15 @@ const ServerEnter = () => {
       formData.append('serverSeq', serverSeq); 
       formData.append('userSeq', userSeq); 
 
-      const response = await axios.post('https://i9d208.p.ssafy.io/api/servers/enter', formData);
+      const response = await axiosInstance({
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "multipart/form-data"
+        },
+        method: "POST",
+        url: '/servers/enter',  
+        data: formData
+      });
 
       if (response.data.success) { // 성공적으로 서버에 가입했다면
         navigate(`/server/${serverSeq}`); // 해당 서버 페이지로 이동합니다.
