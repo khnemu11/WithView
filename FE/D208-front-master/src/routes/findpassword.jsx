@@ -9,12 +9,21 @@ export default function FindPassword() {
   const [id, setId] = useState("");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
+  const [seq, setSeq] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [isModalActive, setIsModalActive] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const url = "https://i9d208.p.ssafy.io/api";
+  
+  useEffect(()=> {
+    if(isModalActive === false){
+      setPassword("")
+      setPassword2("")
+    }
+  },[isModalActive])
+
 
   function checkFindEmail() {
     axios({
@@ -36,19 +45,42 @@ export default function FindPassword() {
       });
   }
   function changePassword() {
-    axios({
-      method : "PUT",
-      url : `${url}/users/${seq}/password`
-    })
-  }
+    if (password.includes(" ") ||
+    !/^(?=.*[a-zA-Z])(?=.*[!@#$%^&*()\-_=+[\]{};:'",.<>/?\\|~`])[a-zA-Z\d!@#$%^&*()\-_=+[\]{};:'",.<>/?\\|~`]{8,16}$/.test(
+      password
+    ) || password !== password2){
+
+      alert("비밀번호를 다시 입력해주세요!")
+    }
+    else {
+      
+        axios({
+          method : "PUT",
+          url : `${url}/users/${seq}/password?var=1`,
+          data : {password : password}
+        })
+        .then((res)=>{
+          console.log(res.data)
+          alert("비밀번호 변경이 완료되었습니다!!")
+          navigate('/login')
+        })
+        .catch((err)=>{
+          console.log(err)
+          console.log(password,password2)
+        })
+      }
+    }
+
+
   const authenticateCode = (e) => {
     e.preventDefault();
     axios({
       method: "GET",
-      url: `${url}/users/email/authenticate?email=${email}&code=${code}`,
+      url: `${url}/users/email/authenticate?email=${email}&code=${code}&var=3`,
     })
       .then((res) => {
         console.log(res.data);
+        setSeq(res.data.seq)
         alert("인증완료!!");
         setIsModalActive(true);
       })
@@ -123,6 +155,7 @@ export default function FindPassword() {
               <div className="findpassword_input_button">
                 <input
                   className="input findpassword_input"
+                  value={code}
                   onChange={(e) => {
                     setCode(e.target.value);
                   }}
@@ -149,7 +182,7 @@ export default function FindPassword() {
                 ></div>
                 <div className="modal-card">
                   <header className="modal-card-head">
-                    <p className="modal-card-title">가입하신 아이디 입니다.</p>
+                    <p className="modal-card-title">비밀번호를 변경해주세요!</p>
                     <button
                       className="delete"
                       aria-label="close"
@@ -160,17 +193,20 @@ export default function FindPassword() {
                   </header>
 
                   <section className="modal-card-body">
+                    <span>비밀번호</span>
                     <input
-                      type="text"
+                      type="password"
                       className="input"
+                      value={password}
                       onChange={(e) => {
                         setPassword(e.target.value)
                       }}
                     />
-
+                    <span>비밀번호 확인</span>
                     <input
-                      type="text"
+                      type="password"
                       className="input"
+                      value={password2}
                       onChange={(e) => {
                         setPassword2(e.target.value)
                       }}

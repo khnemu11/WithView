@@ -3,14 +3,11 @@ package com.ssafy.withview.controller;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,12 +37,13 @@ public class LoginController {
 	 *
 	 * @param loginDto (로그인 하려는 id, password)
 	 * @return ResponseEntity (true / false, 상태코드, AccessToken, UserInfo - pk 값, 닉네임, 프로필 이미지)
+	 * @throws IllegalArgumentException 조회되는 회원정보가 없을 때
 	 */
 	@PostMapping("/login")
 	public ResponseEntity<Map<String, Object>> login(@RequestBody LoginDto loginDto, HttpServletResponse response) {
 		log.debug("LoginController - login: 로그인 진행");
 		Map<String, Object> resultMap = new HashMap<>();
-		HttpStatus status;
+		HttpStatus status = HttpStatus.CREATED;
 		try {
 			// 로그인 유저 정보
 			UserDto userDto = loginService.getUserInfo(loginDto.getId());
@@ -64,15 +62,17 @@ public class LoginController {
 				resultMap.put("AccessToken", accessTokenDto);
 				resultMap.put("UserInfo", userDto);
 				resultMap.put("success", true);
-				status = HttpStatus.CREATED;
 				log.info("로그인 성공. seq: {}", userDto.getSeq());
-			} else {
-				throw new RuntimeException("로그인 실패");
 			}
-		} catch (Exception e) {
+		} catch (IllegalArgumentException e) {
 			resultMap.put("success", false);
 			resultMap.put("message", e.getMessage());
 			status = HttpStatus.ACCEPTED;
+			log.info("[Error] 일치하는 회원 정보가 없습니다. seq: {}", e.getMessage());
+		} catch (Exception e) {
+			resultMap.put("success", false);
+			resultMap.put("message", e.getMessage());
+			status = HttpStatus.INTERNAL_SERVER_ERROR;
 			log.error("[Error] 로그인 실패: {}", e.getMessage());
 		}
 		return new ResponseEntity<>(resultMap, status);
@@ -88,6 +88,7 @@ public class LoginController {
 	public ResponseEntity<Map<String, Object>> logout(@RequestBody UserDto userDto, HttpServletResponse response) {
 		log.debug("LoginController - logout: 로그아웃 진행");
 		Map<String, Object> resultMap = new HashMap<>();
+		HttpStatus status;
 		try {
 			log.debug("seq: {}", userDto.getSeq());
 			// Redis 에서 RefreshToken 삭제
@@ -95,31 +96,15 @@ public class LoginController {
 			// Cookie 삭제
 			jwtService.removeCookie("RefreshToken");
 			response.setHeader("Set-Cookie", jwtService.removeCookie("RefreshToken").toString());
+			resultMap.put("success", true);
+			status = HttpStatus.OK;
+			log.info("로그아웃 성공. seq: {}", userDto.getSeq());
 		} catch (Exception e) {
 			resultMap.put("success", false);
 			resultMap.put("message", e.getMessage());
-			HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+			status = HttpStatus.INTERNAL_SERVER_ERROR;
 			log.error("[Error] 로그아웃 실패: {}", e.getMessage());
 		}
-		log.info("로그아웃 성공. seq: {}", userDto.getSeq());
-		resultMap.put("success", true);
-		HttpStatus status = HttpStatus.OK;
-		return new ResponseEntity<>(resultMap, status);
-	}
-
-	/**
-	 * cookie 테스트 (삭제 예정)
-	 *
-	 * @param cookie (http only, secure Cookie)
-	 * @return ResponseEntity (true / false, 상태코드, cookie)
-	 */
-	@GetMapping("/cookie")
-	public ResponseEntity<Map<String, Object>> testCookie(@CookieValue("RefreshToken") Cookie cookie) {
-		log.debug("LoginController - testCookie: http only cookie 확인");
-		Map<String, Object> resultMap = new HashMap<>();
-		HttpStatus status = HttpStatus.OK;
-		resultMap.put("success", true);
-		resultMap.put("cookie", cookie);
 		return new ResponseEntity<>(resultMap, status);
 	}
 }
