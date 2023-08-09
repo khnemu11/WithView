@@ -19,17 +19,17 @@ public class PresetEntity {
 	@Id
 	private String id;
 	private Long userSeq;
-	private String stage;
 	private String presetName;
 	private String presetImgSearchName;
+	private String stage;
 	@CreationTimestamp
 	private LocalDateTime registerTime;
 
 	@Builder
-	public PresetEntity(Long userSeq, String stage, String presetName, String presetImgSearchName) {
+	public PresetEntity(Long userSeq, String presetName, String presetImgSearchName, String stage) {
 		this.userSeq = userSeq;
-		this.stage = stage;
 		this.presetName = presetName;
 		this.presetImgSearchName = presetImgSearchName;
+		this.stage = stage;
 	}
 }

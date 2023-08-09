@@ -17,8 +17,8 @@ import lombok.Setter;
 public class PresetDto {
 	private Long id;
 	private Long userSeq;
-	private String stage;
 	private String presetName;
 	private String presetImgSearchName;
+	private String stage;
 	private LocalDateTime registerTime;
 }

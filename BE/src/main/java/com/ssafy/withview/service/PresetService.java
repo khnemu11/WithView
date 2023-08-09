@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.ssafy.withview.dto.PresetDto;
 import com.ssafy.withview.entity.PresetEntity;
 import com.ssafy.withview.repository.PresetRepository;
 
@@ -33,10 +32,14 @@ public class PresetService {
 	/**
 	 * 프리셋 저장 (정보: Mongo DB 저장, 이미지 파일: Amazon S3 저장)
 	 *
-	 * @param presetDto (유저 pk, 프리셋 이름, 프리셋 이미지, 프리셋 정보)
+	 * @param userSeq (유저 pk 값)
+	 * @param presetName (프리셋 이름)
+	 * @param stage (프리셋 stage 정보)
+	 * @param file (프리셋 png 이미지)
 	 */
 	@Transactional
-	public void savePreset(PresetDto presetDto, MultipartFile multipartFile) throws IOException {
+	public void savePreset(Long userSeq, String presetName, String stage, MultipartFile file) throws
+		IOException {
 		log.debug("PresetService - savePreset 실행");
 
 		// Amazon S3 이미지 저장
@@ -44,24 +47,24 @@ public class PresetService {
 			s3client.createBucket(bucketName);
 		}
 
-		String originalName = multipartFile.getOriginalFilename();
+		String originalName = file.getOriginalFilename();
 		UUID uuid = UUID.randomUUID();
 
 		String extend = originalName.substring(originalName.lastIndexOf('.'));
 		String searchName = uuid + extend;
 
 		File presetImgFile = File.createTempFile(uuid.toString(), extend);
-		FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), presetImgFile);
+		FileUtils.copyInputStreamToFile(file.getInputStream(), presetImgFile);
 
 		s3client.putObject(bucketName, "preset/" + searchName, presetImgFile);
 		log.debug("Amazon S3 Bucket: 이미지 저장 완료");
 
 		presetRepository.save(
 			PresetEntity.builder()
-				.userSeq(presetDto.getUserSeq())
-				.presetName(presetDto.getPresetName())
+				.userSeq(userSeq)
+				.presetName(presetName)
 				.presetImgSearchName(searchName)
-				.stage(presetDto.getStage())
+				.stage(stage)
 				.build());
 	}
 
