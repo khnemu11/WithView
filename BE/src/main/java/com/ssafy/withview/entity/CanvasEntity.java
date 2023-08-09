@@ -18,21 +18,29 @@ public class CanvasEntity {
 	@Id
 	private String id;
 	private Long channelSeq;
-	private String canvas;
+	private String background;
+	private String image;
+	private String video;
 
 	public static CanvasDto toDto(CanvasEntity entity){
 		return CanvasDto.builder()
 				.id(entity.getId())
-				.canvas(entity.getCanvas())
+				.background(entity.getBackground())
 				.channelSeq(entity.getChannelSeq())
+				.image(entity.getImage())
+				.video(entity.getVideo())
 				.build();
 	}
 	public void update(CanvasDto canvasDto){
-		this.canvas = canvasDto.getCanvas();
+		this.background = canvasDto.getBackground();
+		this.image = canvasDto.getImage();
+		this.video = canvasDto.getVideo();
 	}
 	@Builder
-	public CanvasEntity(Long channelSeq,String canvas) {
+	public CanvasEntity(Long channelSeq,String background, String image,String video) {
 		this.channelSeq = channelSeq;
-		this.canvas = canvas;
+		this.image = image;
+		this.background = background;
+		this.video = video;
 	}
 }
