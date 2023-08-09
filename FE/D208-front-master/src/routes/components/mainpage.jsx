@@ -104,8 +104,8 @@ useEffect(() => {
 
   const handleFavoriteToggle = async (serverSeq, isFavorite) => {
     try {
-      const url = `/users/1/favorites/`;
-      const url2 = `/users/1/favorites?`;
+      const url = `/users/${userSeq}/favorites/`;
+      const url2 = `/users/${userSeq}/favorites?`;
 
       const formData = new FormData();
       formData.append("userSeq", userSeq);
