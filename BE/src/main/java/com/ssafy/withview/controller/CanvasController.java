@@ -10,6 +10,7 @@ import org.json.simple.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/canvas")
@@ -22,6 +23,9 @@ public class CanvasController {
 	public ResponseEntity<?> findCanvas(@PathVariable(name = "channelSeq")Long channelSeq) {
 		JSONObject jsonObject = new JSONObject();
 		CanvasDto canvasDto;
+
+		log.info("==== 기존 캔버스 검색 시작 ====");
+
 		try{
 			canvasDto = canvasService.findCanvasByChannelSeq(channelSeq);
 		}catch (Exception e){
@@ -30,18 +34,20 @@ public class CanvasController {
 			return new ResponseEntity<>(jsonObject, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		jsonObject.put("success",true);
+		log.info(canvasDto.toString());
 		jsonObject.put("canvas",canvasDto);
 
 		return new ResponseEntity<>(jsonObject, HttpStatus.OK);
 	}
 
-	@PostMapping("/")
+	@PostMapping("")
 	public ResponseEntity<?> insertCanvas(@RequestBody CanvasDto canvasDto) {
 		JSONObject jsonObject = new JSONObject();
 		System.out.println(canvasDto);
 		try{
 			canvasService.insertCanvas(canvasDto);
 		}catch (Exception e){
+			e.printStackTrace();
 			jsonObject.put("success",false);
 			jsonObject.put("msg",e.getMessage());
 			return new ResponseEntity<>(jsonObject, HttpStatus.INTERNAL_SERVER_ERROR);

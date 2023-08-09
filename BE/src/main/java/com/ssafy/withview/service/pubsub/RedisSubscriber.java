@@ -4,6 +4,8 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ssafy.withview.dto.CanvasDto;
+import com.ssafy.withview.dto.CanvasMessageDto;
 import com.ssafy.withview.dto.ChannelChatMessageDto;
 import com.ssafy.withview.dto.ChannelValueDto;
 import com.ssafy.withview.dto.FriendsChatMessageDto;
@@ -61,9 +63,10 @@ public class RedisSubscriber {
 
 	public void sendCanvas(String publishMessage) {
 		try {
-			ChannelValueDto channelValue = objectMapper.readValue(publishMessage, ChannelValueDto.class);
-			log.info("{}번 서버 인원 변경 전송", channelValue.getServerSeq());
-			messagingTemplate.convertAndSend("/api/sub/canvas/" + channelValue.getServerSeq(), channelValue);
+			log.info("캔버스 변경 감지 : ");
+			CanvasMessageDto canvasMessageDto = objectMapper.readValue(publishMessage, CanvasMessageDto.class);
+			log.info("변경된 캔버스 정보 전송", publishMessage);
+			messagingTemplate.convertAndSend("/api/sub/canvas/channel/" + canvasMessageDto.getChannelSeq(), publishMessage);
 		} catch (Exception e) {
 			log.error("Exception {}", e);
 		}
