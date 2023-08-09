@@ -15,9 +15,28 @@ import sticker from "../assets/sticker.png";
 import chat from "../assets/chat.png";
 import back from "../assets/back.png";
 import exit from "../assets/exit.png";
+import plane from "../assets/plane.png";
+import plus from "../assets/plus.png";
+import x from "../assets/x.png";
 // import room from "../assets/room.png";
 import room2 from "../assets/room2.jpg";
 import pool from "../assets/pool.png";
+import smile from "../assets/imo/smile.png";
+import love from "../assets/imo/love.png";
+import normal from "../assets/imo/normal.png";
+import sad from "../assets/imo/sad.png";
+import sick from "../assets/imo/sick.png";
+import anger from "../assets/imo/anger.png";
+import sleep from "../assets/imo/sleep.png";
+import think from "../assets/imo/think.png";
+import vomit from "../assets/imo/vomit.png";
+import baby from "../assets/imo/baby.png";
+import upset from "../assets/imo/upset.png";
+import yummy from "../assets/imo/yummy.png";
+import maelong from "../assets/imo/maelong.png";
+import ghost from "../assets/imo/ghost.png";
+import santa from "../assets/imo/santa.png";
+import dino from "../assets/imo/dino.png";
 import "../css/groupchat.css";
 import axios from "axios";
 import StompJs from 'stompjs';
@@ -44,6 +63,18 @@ export default function GroupChat() {
   const [subscriber, setSubscriber] = useState(null);
   const [publisher, setPublisher] = useState(null);
   const userSeq = useSelector((state)=>state.user.seq)
+  const [stickerAndBg, setstickerAndBg] = useState(false);
+  const [fullscreen, setFullscreen] = useState(true);
+  const [inputText, setInputText] = useState("");
+  const [chatLog, setChatLog] = useState([]);
+
+  function fullscreenSettings() {
+    setFullscreen((prevfullscreen) => !prevfullscreen);
+    console.log(fullscreen);
+    setsettingsClicked(false);
+    setstickerClicked(false);
+    setchatClicked(false);
+  }
 
   function backSettings() {
     setbackClicked((prevbackClicked) => !prevbackClicked);
@@ -123,6 +154,7 @@ export default function GroupChat() {
 
   function stickermenuSettings() {
     setstickermenuClicked((prevstickermenuClicked) => !prevstickermenuClicked);
+    setstickerAndBg((prevstickerAndBg) => !prevstickerAndBg);
   }
 
   function chatSettings() {
@@ -166,9 +198,19 @@ export default function GroupChat() {
       });
   };
 
+  const fullscreenInputChange = (event) => {
+    setInputText(event.target.value);
+  };
+
+  const handleTempButtonClick = () => {
+    setChatLog((prevChatLog) => [...prevChatLog, inputText]);
+    setInputText(""); // 입력 후 인풋 초기화
+  };
+
   //konva 오브젝트 아이디 룰
   //이미지 : img-로 시작
   //영상 : 이용자의 아이디
+
   // let session; //현재 채널 이름(오픈비두에선 채팅방 단위를 'session'이라고 부름)
   let videoContainer = document.querySelector("#video-container"); //오픈비두로 받은 영상을 담은 컨테이너
   let port = 9091; //백엔드 포트 번호
@@ -257,7 +299,7 @@ export default function GroupChat() {
   function addBackImage(imageUrl) {
     console.log("이미지 url");
     console.log(imageUrl);
-    
+
     const backObj = new Image();
     backObj.onload = function () {
       const backgroundImage = new Konva.Image({
@@ -270,10 +312,11 @@ export default function GroupChat() {
       stage.current.children[0].removeChildren(); // 모든 자식 제거
       stage.current.children[0].add(backgroundImage);
       stage.current.children[0].draw(); // 배경 레이어 다시 그리기
-      
+
       console.log("이미지 로드!");
+
       console.log(session.current);
-      
+
       changeCanvas(backgroundImage,"update");
     };
     backObj.src = 'https://dm51j1y1p1ekp.cloudfront.net/channel-background/' + imageUrl;
@@ -310,7 +353,8 @@ export default function GroupChat() {
         //이미지 변수 생성
         let imageObj = new Image();
         let imageName = objectId.substring(4); //img- 제거한 나머지를 이름으로 설정
-        imageObj.src = "https://dm51j1y1p1ekp.cloudfront.net/" + imageName;
+        imageObj.src =
+          "https://dm51j1y1p1ekp.cloudfront.net/sticker/" + imageName;
 
         //로딩돠면
         imageObj.onload = function () {
@@ -326,7 +370,42 @@ export default function GroupChat() {
         object.on("transformend", function () {
           changeCanvas(object,"updete");
         });
+        let currentShape;
+        var menuNode = document.getElementById("delete-img-menu");
 
+        document
+          .getElementById("delete-button")
+          .addEventListener("click", () => {
+            currentShape.destroy();
+            changeCanvas(currentShape);
+          });
+
+        window.addEventListener("click", () => {
+          // hide menu
+          menuNode.style.display = "none";
+        });
+
+        // 우클릭 이벤트 핸들러 등록
+        object.on("contextmenu", function (e) {
+          e.evt.preventDefault();
+          console.log("우클릭 입력");
+          if (e.target === stage.current) {
+            // if we are on empty place of the stage we will do nothing
+            return;
+          }
+          currentShape = e.target;
+          menuNode.style.display = "initial";
+          menuNode.style.zIndex = "1";
+          console.log(menuNode);
+          var containerRect = stage.current.container().getBoundingClientRect();
+          menuNode.style.top =
+            containerRect.top + stage.current.getPointerPosition().y + 4 + "px";
+          menuNode.style.left =
+            containerRect.left +
+            stage.current.getPointerPosition().x +
+            4 +
+            "px";
+        });
         stage.current.children[2].add(tr);
         stage.current.children[2].add(object);
       }
@@ -336,10 +415,10 @@ export default function GroupChat() {
         //배경 변수 생성
         let backObj = new Image();
         let imageName = objectId.substring(3);; // 임시 어차피 바꿔야함
- 
+
         console.log("배경 이미지 이름");
         console.log(imageName);
-        
+
         backObj.src =
         "https://dm51j1y1p1ekp.cloudfront.net/channel-background/" +
         imageName;
@@ -413,7 +492,7 @@ export default function GroupChat() {
   //채널에 들어오면 sessionId와 userName(유저 아이디)를 통해 채널에 들어가는 로직이 들어가 있는 함수
   //제일 중요함
   /* OPENVIDU METHODS */
-  async function joinSession(event) {
+  function joinSession(event) {
     console.log("join !");
     event.preventDefault();
     let mySessionId = document.getElementById("sessionId").value;
@@ -422,7 +501,7 @@ export default function GroupChat() {
     //참가한 채널 명을 url로 구분하도록 커스터마이징함
     console.log("캔버스 로드");
 
-    let apiCall =  await axios.get('http://localhost:9091/api/canvas/12')
+    let apiCall =  async () => await axios.get('http://localhost:9091/api/canvas/12')
     .then(response=>{
       console.log("받은 데이터");
       console.log(response);
@@ -433,7 +512,7 @@ export default function GroupChat() {
         console.log("서버에 있는 배경 레이어");
         remoteBGLayer = Konva.Node.create(data.background);
         console.log(remoteBGLayer);
-        
+
         let backgroundObj = remoteBGLayer.children[0];
         console.log(backgroundObj);
              //이미지 변수 생성
@@ -499,7 +578,7 @@ export default function GroupChat() {
       console.log("에러 발생");
       console.log(err);
     })
-     
+
     let url =  `https://${domain}/api/socket?channelId=${mySessionId}`;
     console.log("소켓 url : "+url);
     console.log("user seq : "+userSeq);
@@ -801,7 +880,7 @@ export default function GroupChat() {
     jsonData["image"] = stage.current.children[2];
     jsonData["type"] = "update";
     jsonData["channel"] = session.current.sessionId;
-    
+
     let stompData = {};
     stompData["background"] = stage.current.children[0];
     stompData["video"] = stage.current.children[1];
@@ -809,8 +888,8 @@ export default function GroupChat() {
     stompData["type"] = "update";
     stompData["channelSeq"] = channelSeq.current;
     stompData["userSeq"] = userSeq;
-    
-    
+
+
     console.log(jsonData);
     console.log(JSON.stringify(jsonData));
 
@@ -965,7 +1044,7 @@ export default function GroupChat() {
     stompData["channelSeq"] = channelSeq.current;
     stompData["userSeq"] = userSeq;
     stompData["object"] = element.toJSON();
-    
+
 
     stomp.current.send('/api/pub/canvas/channel/'+ channelSeq.current, {}, JSON.stringify(stompData));
   }
@@ -1047,9 +1126,8 @@ export default function GroupChat() {
   //버튼을 누르면 이미지가 생성되는 함수
   function stickertemp(name) {
     console.log("click");
-
     var imageObj = new Image();
-    imageObj.src = "https://dm51j1y1p1ekp.cloudfront.net/jjapageti.jpg";
+    imageObj.src = `https://dm51j1y1p1ekp.cloudfront.net/sticker/${name}.png`;
     console.log("이미지 객체");
     console.log(imageObj);
     var papago; //이미지 객체
@@ -1066,12 +1144,13 @@ export default function GroupChat() {
         image: imageObj,
         width: 106,
         height: 118,
-        id: "img-jjapageti.jpg",
+        id: `img-${name}.png`,
         draggable: true,
         visible: true,
       });
 
       var tr = new Konva.Transformer();
+
       // tr.nodes([papago]);
 
       //이미지를 움직이면 캔버스 변경사항을 다른사람에게 전송
@@ -1102,7 +1181,21 @@ export default function GroupChat() {
 
       // 우클릭 이벤트 핸들러 등록
       papago.on("contextmenu", function (e) {
-        handleContextMenu(e, layer); // 클로저를 이용하여 레이어를 전달
+        e.evt.preventDefault();
+        console.log("우클릭 입력");
+        if (e.target === stage.current) {
+          // if we are on empty place of the stage we will do nothing
+          return;
+        }
+        let currentShape = e.target;
+        menuNode.style.display = "initial";
+        menuNode.style.zIndex = "1";
+        console.log(menuNode);
+        var containerRect = stage.current.container().getBoundingClientRect();
+        menuNode.style.top =
+          containerRect.top + stage.current.getPointerPosition().y + 4 + "px";
+        menuNode.style.left =
+          containerRect.left + stage.current.getPointerPosition().x + 4 + "px";
       });
       layer.add(tr);
       layer.add(papago);
@@ -1235,6 +1328,12 @@ export default function GroupChat() {
     video.on("transformend", function () {
       changeCanvas(video,"update");
     });
+
+    video.on("contextmenu", function () {
+      video.width = window.innerWidth;
+      video.height = window.innerHeight;
+      changeCanvas(video);
+    });
   }
 
   return (
@@ -1271,15 +1370,15 @@ export default function GroupChat() {
               </form>
             </div>
           </div>
+          <div id="delete-img-menu">
+            <div>
+              <button id="delete-button">Delete</button>
+            </div>
+          </div>
 
           <div id="channel-screen"></div>
           <div id="shared-screen"></div>
           <div className="cam-dev-block">
-            <div id="menu">
-              <div>
-                <button id="delete-button">Delete</button>
-              </div>
-            </div>
             <div id="session">
               <div id="session-header">
                 <h1 id="session-title"></h1>
@@ -1300,10 +1399,21 @@ export default function GroupChat() {
           </div>
         </div>
         {/* exit버튼 */}
-        <div className="groupchat-exit">
+        <div
+          className={fullscreen ? "groupchat-exit" : "groupchat-exit-hidden"}
+        >
           <Link to="/">
             <img src={exit} alt="" onClick={leaveSession} />
           </Link>
+        </div>
+        {/* 전체화면 종료 */}
+        <div>
+          <img
+            src={x}
+            alt="엑스"
+            onClick={fullscreenSettings}
+            className={fullscreen ? "fullscreen-x-hidden" : "fullscreen-x"}
+          />
         </div>
         {/* 좌측에서 나올 메뉴들 */}
         <div>
@@ -1391,45 +1501,242 @@ export default function GroupChat() {
                   <div className="accordion-content"></div>
                 </div>
               </div>
-            </ul>
+            </div>
           </div>
           {/* 스티커와 배경화면 */}
           <div
             className={stickerClicked ? "side-menu-div-on" : "side-menu-div"}
           >
             <div id="sticker-and-backimg">
-              <button onClick={stickermenuSettings}>스티커</button>
+              <span
+                className={stickerAndBg ? "stk-bg-selecter" : ""}
+                onClick={stickermenuSettings}
+              >
+                스티커
+              </span>
               <p>|</p>
-              <button onClick={stickermenuSettings}>배경화면</button>
+              <span
+                className={stickerAndBg ? "" : "stk-bg-selecter"}
+                onClick={stickermenuSettings}
+              >
+                배경화면
+              </span>
             </div>
-            <ul id={stickermenuClicked ? "stivker-menu-on" : "stivker-menu"}>
-              <button onClick={()=>stickertemp("japagetii")}>짜파게티</button>
-              <li>스티커도 임시임시</li>
-              <li>스티커도 임시임시</li>
-              <li>스티커도 임시임시</li>
-              <li>스티커도 임시임시</li>
-            </ul>
-            <ul id={stickermenuClicked ? "back-menu" : "back-menu-on"}>
-              <button onClick={() => addBackImageClick("room2.jpg")}>회의실</button>
-              <button onClick={() => addBackImageClick("pool.png")}>수영장</button>
-              <li>회의실</li>
-              <li>수영장</li>
-            </ul>
+            <div
+              className={
+                stickermenuClicked ? "sticker-menu-on" : "sticker-menu"
+              }
+            >
+              <div>
+                <img
+                  id="smile"
+                  className="house-sticker"
+                  src={smile}
+                  onClick={() => stickertemp("smile")}
+                ></img>
+                <img
+                  id="love"
+                  className="house-sticker"
+                  src={love}
+                  onClick={() => stickertemp("love")}
+                ></img>
+                <img
+                  id="normal"
+                  className="house-sticker"
+                  src={normal}
+                  onClick={() => stickertemp("normal")}
+                ></img>
+                <img
+                  id="sad"
+                  className="house-sticker"
+                  src={sad}
+                  onClick={() => stickertemp("sad")}
+                ></img>
+                <img
+                  id="sick"
+                  className="house-sticker"
+                  src={sick}
+                  onClick={() => stickertemp("sick")}
+                ></img>
+                <img
+                  id="anger"
+                  className="house-sticker"
+                  src={anger}
+                  onClick={() => stickertemp("anger")}
+                ></img>
+                <img
+                  id="sleep"
+                  className="house-sticker"
+                  src={sleep}
+                  onClick={() => stickertemp("sleep")}
+                ></img>
+                <img
+                  id="think"
+                  className="house-sticker"
+                  src={think}
+                  onClick={() => stickertemp("think")}
+                ></img>
+                <img
+                  id="vomit"
+                  className="house-sticker"
+                  src={vomit}
+                  onClick={() => stickertemp("vomit")}
+                ></img>
+                <img
+                  id="baby"
+                  className="house-sticker"
+                  src={baby}
+                  onClick={() => stickertemp("baby")}
+                ></img>
+                <img
+                  id="upset"
+                  className="house-sticker"
+                  src={upset}
+                  onClick={() => stickertemp("upset")}
+                ></img>
+                <img
+                  id="yummy"
+                  className="house-sticker"
+                  src={yummy}
+                  onClick={() => stickertemp("yummy")}
+                ></img>
+                <img
+                  id="maelong"
+                  className="house-sticker"
+                  src={maelong}
+                  onClick={() => stickertemp("maelong")}
+                ></img>
+                <img
+                  id="ghost"
+                  className="house-sticker"
+                  src={ghost}
+                  onClick={() => stickertemp("ghost")}
+                ></img>
+                <img
+                  id="santa"
+                  className="house-sticker"
+                  src={santa}
+                  onClick={() => stickertemp("santa")}
+                ></img>
+                <img
+                  id="dino"
+                  className="house-sticker"
+                  src={dino}
+                  onClick={() => stickertemp("dino")}
+                ></img>
+              </div>
+              <hr />
+              <p className="user-bg">사용자 지정 스티커</p>
+              <div className="sticker-upload">
+                <img
+                  src="/uploadimage.png"
+                  alt="Upload"
+                  className="sticker-preview"
+                />
+                <div className="file has-name is-right">
+                  <label className="file-label">
+                    <input className="file-input" type="file" name="resume" />
+                    <span className="file-cta">
+                      <span className="file-label">등록하기</span>
+                    </span>
+                    <span className="file-name">
+                      Screen Shot 2017-07-29 at 15.54.25.png
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div id={stickermenuClicked ? "back-menu" : "back-menu-on"}>
+              <div className="house-image">
+                <img src={room2} onClick={() => addBackImageClick(room2)}></img>
+                <div className="bg-tag">회의실</div>
+                <img src={pool} onClick={() => addBackImageClick(pool)}></img>
+                <div className="bg-tag">수영장</div>
+              </div>
+              <hr />
+              <p className="user-bg">사용자 지정 배경화면</p>
+              <div className="sticker-upload">
+                <img
+                  src="/uploadimage.png"
+                  alt="Upload"
+                  className="sticker-preview"
+                />
+                <div className="file has-name is-right">
+                  <label className="file-label">
+                    <input className="file-input" type="file" name="resume" />
+                    <span className="file-cta">
+                      <span className="file-label">등록하기</span>
+                    </span>
+                    <span className="file-name">
+                      Screen Shot 2017-07-29 at 15.54.25.png
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
           {/* 채팅 */}
           <div className={chatClicked ? "side-menu-div-on" : "side-menu-div"}>
-            <ul>
-              <li>재미있는 채팅. 지저분한 코드</li>
-              <li>재미있는 채팅. 지저분한 코드</li>
-              <li>재미있는 채팅. 지저분한 코드</li>
-              <li>재미있는 채팅. 지저분한 코드</li>
-              <li>재미있는 채팅. 지저분한 코드</li>
-              <li>재미있는 채팅. 지저분한 코드</li>
-            </ul>
+            <div className="chat-menu-div">
+              <div className="groupchat-log-div">
+                <ul>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                  <li>재미있는 채팅. 지저분한 코드</li>
+                </ul>
+              </div>
+              <div className="chat-input-div">
+                <img src={plus} alt="이모티콘" className="add-imo" />
+                <input
+                  type="text"
+                  name=""
+                  id=""
+                  className="chat-input-kan"
+                  placeholder="메세지 보내기 !"
+                />
+                <img src={plane} alt="비행기" className="send-message-plane" />
+              </div>
+            </div>
           </div>
         </div>
         {/* 하단 컨트롤 전체 */}
-        <div className="underbar-container">
+        <div
+          className={
+            fullscreen ? "underbar-container" : "underbar-container-hidden"
+          }
+        >
           {/* 좌측 메뉴 버튼 */}
           <div className="left-menu-container">
             {/* 좌측메뉴 숨기기 버튼 */}
@@ -1519,8 +1826,8 @@ export default function GroupChat() {
             {/* 새로운 1대1 메세지 */}
             <button
               className="underbar button is-rounded"
-              id={msgClicked ? "new-message" : "a-new-message"}
-              onClick={msgSettings}
+              // id={msgClicked ? "new-message" : "a-new-message"}
+              onClick={fullscreenSettings}
             >
               <img src={man} alt="" className="user" />
               <div>
@@ -1552,6 +1859,38 @@ export default function GroupChat() {
               <img src={chat} alt="" />
             </button>
           </div>
+        </div>
+        {/* 채팅창 */}
+        <div
+          className={fullscreen ? "fullscreen-chat-hidden" : "fullscreen-chat"}
+        >
+          <div
+            className={
+              fullscreen ? "fullscreen-chatlog-hidden" : "fullscreen-chatlog"
+            }
+          >
+            {/* 채팅 로그 출력 */}
+            {chatLog.map((message, index) => (
+              <div key={index}>{message}</div>
+            ))}
+          </div>
+          {/* 임시 인풋 */}
+          <div>
+            <input
+              type="text"
+              value={inputText}
+              onChange={fullscreenInputChange}
+              className="chat-input-kan"
+              placeholder="메세지 보내기 !"
+            />
+            <button onClick={handleTempButtonClick}>temp</button>
+          </div>
+        </div>
+        {/* 얼굴 */}
+        <div
+          className={fullscreen ? "fullscreen-face-hidden" : "fullscreen-face"}
+        >
+          <h1>얼굴들</h1>
         </div>
       </div>
     </>
