@@ -15,7 +15,7 @@ import sticker from "../assets/sticker.png";
 import chat from "../assets/chat.png";
 import back from "../assets/back.png";
 import exit from "../assets/exit.png";
-import plane from "../assets/plane.png";
+import plane from "../assets/Plane.png";
 import plus from "../assets/plus.png";
 import x from "../assets/x.png";
 // import room from "../assets/room.png";
@@ -501,7 +501,7 @@ export default function GroupChat() {
     //참가한 채널 명을 url로 구분하도록 커스터마이징함
     console.log("캔버스 로드");
 
-    let apiCall = async() =>  await axios.get('http://localhost:9091/api/canvas/12')
+    let apiCall =  async () => await axios.get('http://localhost:9091/api/canvas/12')
     .then(response=>{
       console.log("받은 데이터");
       console.log(response);
@@ -1187,7 +1187,7 @@ export default function GroupChat() {
           // if we are on empty place of the stage we will do nothing
           return;
         }
-        currentShape = e.target;
+        let currentShape = e.target;
         menuNode.style.display = "initial";
         menuNode.style.zIndex = "1";
         console.log(menuNode);
