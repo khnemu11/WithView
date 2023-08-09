@@ -117,4 +117,27 @@ public class LoginController {
 		}
 		return new ResponseEntity<>(resultMap, status);
 	}
+
+	/**
+	 * 로그아웃 (기존 pc 로그아웃)
+	 */
+	@PostMapping("/logout2")
+	public ResponseEntity<Map<String, Object>> logout2(@RequestBody UserDto userDto) {
+		log.debug("LoginController - logout2: 기존 pc 로그아웃 진행");
+		Map<String, Object> resultMap = new HashMap<>();
+		HttpStatus status;
+		try {
+			log.debug("seq: {}", userDto.getSeq());
+			jwtService.removeRefreshToken(userDto.getSeq()); // Redis 에서 RefreshToken 삭제
+			resultMap.put("success", true);
+			status = HttpStatus.OK;
+			log.info("로그아웃 성공. seq: {}", userDto.getSeq());
+		} catch (Exception e) {
+			resultMap.put("success", false);
+			resultMap.put("message", e.getMessage());
+			status = HttpStatus.INTERNAL_SERVER_ERROR;
+			log.error("[Error] 로그아웃 실패: {}", e.getMessage());
+		}
+		return new ResponseEntity<>(resultMap, status);
+	}
 }
