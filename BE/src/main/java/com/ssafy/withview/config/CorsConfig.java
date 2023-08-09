@@ -18,6 +18,8 @@ public class CorsConfig {
 		config.addAllowedOrigin("https://i9D208.p.ssafy.io");
 		config.addAllowedHeader("*");
 		config.addAllowedMethod("*");
+		config.addExposedHeader("Grant-Type");
+		config.addExposedHeader("New-Access-Token");
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", config);

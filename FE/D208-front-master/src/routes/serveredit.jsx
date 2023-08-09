@@ -21,7 +21,7 @@ const ServerEdit = () => {
   const [imageToCrop, setImageToCrop] = useState(null);
   const cropperRef = useRef(null);
   const profileImageURL = useSelector((state) => state.user.profile);
-  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImage}`;
+  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImageURL}`;
 
   const { isHost } = useLocation().state || {};
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -55,7 +55,7 @@ const ServerEdit = () => {
     if (profileImageURL === null) {
       setProfileImage("/withView2.png");
     } else {
-      setProfileImage(profileImageURL);
+      setProfileImage(profileImageUrl);
     }
   }, [profileImageURL]);
 
@@ -189,7 +189,7 @@ const ServerEdit = () => {
           </div>
         )}
         <ServerOptions
-          profileImage={profileImageUrl}
+          profileImage={profileImage}
           profileNickname={profileNickname}
         />
 

@@ -29,10 +29,6 @@ const MainController = () => {
       });
   }, [userSeq]);
 
-  if (isLoading) {
-    return <div>Loading...</div>; //  로딩 스피너 또는 스켈레톤을 사용할 수 있습니다
-  }
-
   return hasJoinedServer ? <Mainpage /> : <FirstMain />;
 };
 

@@ -8,6 +8,7 @@ import withview from "../assets/withview.png";
 export default function FindId() {
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
+  const [maskedId, setMaskedId] = useState("");
   const [isModalActive, setIsModalActive] = useState(false);
   
   const navigate = useNavigate();
@@ -44,8 +45,10 @@ export default function FindId() {
     })
       .then((res) => {
         console.log(res.data);
+        setMaskedId(res.data.id)
         alert("인증완료!!");
         setIsModalActive(true)
+        
       })
       .catch((err) => {
         if (err.response && err.response.status === 401) {
@@ -140,7 +143,7 @@ export default function FindId() {
                   </header>
 
                   <section className="modal-card-body">
-                    <p>{maskedId}</p>
+                    <h4 className="title">아이디 : {maskedId}</h4>
                   </section>
 
                   <footer className="modal-card-foot">
