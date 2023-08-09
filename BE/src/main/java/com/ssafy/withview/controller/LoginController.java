@@ -120,14 +120,17 @@ public class LoginController {
 
 	/**
 	 * 로그아웃 (기존 pc 로그아웃)
+	 * @param loginDto (로그인 id)
+	 * @return ResponseEntity (true / false, 상태코드)
 	 */
 	@PostMapping("/logout2")
-	public ResponseEntity<Map<String, Object>> logout2(@RequestBody UserDto userDto) {
+	public ResponseEntity<Map<String, Object>> logout2(@RequestBody LoginDto loginDto) {
 		log.debug("LoginController - logout2: 기존 pc 로그아웃 진행");
 		Map<String, Object> resultMap = new HashMap<>();
 		HttpStatus status;
 		try {
-			log.debug("seq: {}", userDto.getSeq());
+			log.debug("id: {}", loginDto.getId());
+			UserDto userDto = loginService.getUserInfo(loginDto.getId());
 			jwtService.removeRefreshToken(userDto.getSeq()); // Redis 에서 RefreshToken 삭제
 			resultMap.put("success", true);
 			status = HttpStatus.OK;
