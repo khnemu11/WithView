@@ -6,7 +6,8 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.withview.dto.ChannelChatDto;
 import com.ssafy.withview.dto.ChannelValueDto;
-import com.ssafy.withview.dto.FriendsChatDto;
+import com.ssafy.withview.dto.FriendsChatMessageDto;
+import com.ssafy.withview.dto.FriendsChatRoomsUserInfoForPubSendDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,9 +40,9 @@ public class RedisSubscriber {
 	public void sendFriendsMessage(String publishMessage) {
 		try {
 			// FriendsChatDTO 객체로 매핑
-			FriendsChatDto chatMessage = objectMapper.readValue(publishMessage, FriendsChatDto.class);
-			log.info("{}번 친구 채팅 전송, 전송자 {}, 내용 {}", chatMessage.getFriendsChatRoomSeq(), chatMessage.getUserSeq(),
-				chatMessage.getMessage());
+			FriendsChatMessageDto chatMessage = objectMapper.readValue(publishMessage, FriendsChatMessageDto.class);
+			// log.info("{}번 친구 채팅 전송, 전송자 {}, 내용 {}", chatMessage.getFriendsChatRoomSeq(), chatMessage.getUserSeq(),
+			// 	chatMessage.getMessage());
 			messagingTemplate.convertAndSend("/api/sub/chat/friends/" + chatMessage.getFriendsChatRoomSeq(),
 				chatMessage);
 		} catch (Exception e) {
@@ -61,7 +62,11 @@ public class RedisSubscriber {
 
 	public void sendFriendsChatRoomsInfo(String publishMessage) {
 		try {
-
+			FriendsChatRoomsUserInfoForPubSendDto friendsChatRoomsUserInfoForPubSendDto = objectMapper.readValue(
+				publishMessage,
+				FriendsChatRoomsUserInfoForPubSendDto.class);
+			messagingTemplate.convertAndSend(
+				"/api/sub/chat/friends/chatroominfo/" + friendsChatRoomsUserInfoForPubSendDto.getUserSeq());
 		} catch (Exception e) {
 			log.error("Exception {}", e);
 		}

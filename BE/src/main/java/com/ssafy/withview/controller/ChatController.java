@@ -1,17 +1,26 @@
 package com.ssafy.withview.controller;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import com.ssafy.withview.dto.ChannelChatDto;
-import com.ssafy.withview.dto.FriendsChatDto;
+import com.ssafy.withview.dto.FriendsChatMessageDto;
+import com.ssafy.withview.dto.FriendsChatRoomsSeqDto;
+import com.ssafy.withview.dto.FriendsChatRoomsUserInfoDto;
+import com.ssafy.withview.dto.FriendsChatRoomsUserInfoForPubSendDto;
+import com.ssafy.withview.dto.UserSeqDto;
 import com.ssafy.withview.repository.WebSocketSubscribeRepository;
 import com.ssafy.withview.service.ChannelChatService;
 import com.ssafy.withview.service.ChatPublisher;
+import com.ssafy.withview.service.FriendsChatRoomService;
 import com.ssafy.withview.service.FriendsChatService;
+import com.ssafy.withview.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +34,8 @@ public class ChatController {
 	private final ChannelChatService channelChatService;
 	private final FriendsChatService friendsChatService;
 	private final WebSocketSubscribeRepository webSocketSubscribeRepository;
+	private final FriendsChatRoomService friendsChatRoomService;
+	private final UserService userService;
 
 	// websocket "/api/pub/chat/channel/message"로 들어오는 메시징을 처리한다.
 	@MessageMapping("/chat/channel/message")
@@ -36,11 +47,40 @@ public class ChatController {
 
 	// websocket "/api/pub/chat/friends/message"로 들어오는 메시징을 처리한다.
 	@MessageMapping("/chat/friends/message")
-	public void friendsChatMessage(FriendsChatDto message) {
+	public void friendsChatMessage(FriendsChatMessageDto message) {
 		message.setSendTime(LocalDateTime.now());
 		webSocketSubscribeRepository.addFriendsChatUnreadCount(message.getFriendsChatRoomSeq(), message.getToUserSeq());
 		friendsChatService.insertFriendsChat(message);
 		chatPublisher.sendFriendsChatMessage(message.toJson());
+	}
+
+	@MessageMapping("/chat/friends/chatroominfo")
+	public void friendsChatRoomInfo(UserSeqDto userSeqDto) {
+		Long userSeq = userSeqDto.getUserSeq();
+		List<FriendsChatRoomsSeqDto> friendsChatRoomsByPartnerSeq = friendsChatRoomService.findFriendsChatRoomsByPartnerSeq(
+			userSeq);
+		List<FriendsChatRoomsUserInfoDto> friendsChatRoomsUserInfoDtos = friendsChatRoomsByPartnerSeq.stream()
+			.map(dto -> FriendsChatRoomsUserInfoDto.builder()
+				.chatRoomSeq(dto.getChatRoomSeq())
+				.userDto(userService.getProfile(dto.getPartnerSeq()))
+				.friendsChatMessageDto(friendsChatService.getLastFriendsChatMessage(dto.getChatRoomSeq()))
+				.build())
+			.collect(Collectors.toList());
+		Collections.sort(friendsChatRoomsUserInfoDtos, (a, b) -> {
+			LocalDateTime sendTimeA = a.getFriendsChatMessageDto().getSendTime();
+			LocalDateTime sendTimeB = b.getFriendsChatMessageDto().getSendTime();
+			return sendTimeB.compareTo(sendTimeA);
+		});
+		FriendsChatRoomsUserInfoForPubSendDto pubSendDto = FriendsChatRoomsUserInfoForPubSendDto.builder()
+			.userSeq(userSeq)
+			.friendsChatRoomsUserInfoDtos(friendsChatRoomsUserInfoDtos)
+			.build();
+		chatPublisher.sendFriendsChatRoomInfo(pubSendDto.toJson());
+	}
+
+	@MessageMapping("/chat/friends/unread")
+	public void friendsChatUnreadCount(UserSeqDto userSeqDto) {
+		Long userSeq = userSeqDto.getUserSeq();
 	}
 
 	@GetMapping("/chat/view")

@@ -8,7 +8,7 @@ import javax.transaction.Transactional;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import com.ssafy.withview.dto.FriendsChatDto;
+import com.ssafy.withview.dto.FriendsChatMessageDto;
 import com.ssafy.withview.entity.FriendsChatMessageEntity;
 import com.ssafy.withview.repository.FriendsChatMessageRepository;
 
@@ -22,17 +22,27 @@ public class FriendsChatService {
 
 	private final FriendsChatMessageRepository friendsChatMessageRepository;
 
-	public List<FriendsChatDto> getFriendsChatMessagesByPage(Long friendsChatSeq, int page, int cnt) {
-		return friendsChatMessageRepository.findByFriendsChatSeqOrderBySendTimeDesc(
-				friendsChatSeq, PageRequest.of(cnt * (page - 1), cnt * page))
+	public List<FriendsChatMessageDto> getFriendsChatMessagesByPage(Long friendsChatSeq, int page) {
+		return friendsChatMessageRepository.findByFriendsChatRoomSeqOrderBySendTimeDesc(friendsChatSeq,
+				PageRequest.of(100 * (page - 1), 100 * page))
 			.stream()
 			.map(FriendsChatMessageEntity::toDto)
 			.collect(Collectors.toList());
 	}
 
+	public FriendsChatMessageDto getLastFriendsChatMessage(Long friendsChatSeq) {
+		return FriendsChatMessageEntity.toDto(
+			friendsChatMessageRepository.findTopByFriendsChatRoomSeqOrderBySendTimeDesc(friendsChatSeq));
+	}
+
+	public Long getUnreadFriendsChatMessageCount(Long friendsChatSeq, Long userSeq, Long lastReadMessageSeq) {
+		Long lastSeq = friendsChatMessageRepository.findTopByFriendsChatRoomSeqOrderBySendTimeDesc(friendsChatSeq)
+			.getMessageSeq();
+	}
+
 	@Transactional
-	public void insertFriendsChat(FriendsChatDto chat) {
-		FriendsChatMessageEntity entity = FriendsChatDto.toEntity(chat);
+	public void insertFriendsChat(FriendsChatMessageDto chat) {
+		FriendsChatMessageEntity entity = FriendsChatMessageDto.toEntity(chat);
 		friendsChatMessageRepository.save(entity);
 	}
 }

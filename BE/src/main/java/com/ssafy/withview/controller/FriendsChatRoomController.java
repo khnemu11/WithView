@@ -1,19 +1,12 @@
 package com.ssafy.withview.controller;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.json.simple.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ssafy.withview.dto.FriendsChatRoomsSeqDto;
-import com.ssafy.withview.dto.FriendsChatRoomsUserInfoDto;
 import com.ssafy.withview.service.FriendsChatRoomService;
 import com.ssafy.withview.service.UserService;
 
@@ -47,27 +40,27 @@ public class FriendsChatRoomController {
 	}
 
 	// 이거 웹소켓으로 바꾸기
-	@GetMapping
-	public ResponseEntity<?> findFriendsChatRooms(@RequestParam("userSeq") Long userSeq) {
-		JSONObject result = new JSONObject();
-		try {
-			List<FriendsChatRoomsSeqDto> friendsChatRoomsByPartnerSeq = friendsChatRoomService.findFriendsChatRoomsByPartnerSeq(
-				userSeq);
-			List<FriendsChatRoomsUserInfoDto> friendsChatRoomsUserInfoDtos = friendsChatRoomsByPartnerSeq.stream()
-				.map(room -> FriendsChatRoomsUserInfoDto.builder()
-					.chatRoomSeq(room.getChatRoomSeq())
-					.userDto(userService.getProfile(room.getUserSeq()))
-					.build())
-				.collect(Collectors.toList());
-			result.put("chats", friendsChatRoomsUserInfoDtos);
-			result.put("success", true);
-		} catch (Exception e) {
-			e.printStackTrace();
-			result = new JSONObject();
-			result.put("success", false);
-			result.put("msg", e.getMessage());
-			return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		return new ResponseEntity<>(result, HttpStatus.OK);
-	}
+	// @GetMapping
+	// public ResponseEntity<?> findFriendsChatRooms(@RequestParam("userSeq") Long userSeq) {
+	// 	JSONObject result = new JSONObject();
+	// 	try {
+	// 		List<FriendsChatRoomsSeqDto> friendsChatRoomsByPartnerSeq = friendsChatRoomService.findFriendsChatRoomsByPartnerSeq(
+	// 			userSeq);
+	// 		List<FriendsChatRoomsUserInfoDto> friendsChatRoomsUserInfoDtos = friendsChatRoomsByPartnerSeq.stream()
+	// 			.map(room -> FriendsChatRoomsUserInfoDto.builder()
+	// 				.chatRoomSeq(room.getChatRoomSeq())
+	// 				.userDto(userService.getProfile(room.getUserSeq()))
+	// 				.build())
+	// 			.collect(Collectors.toList());
+	// 		result.put("chats", friendsChatRoomsUserInfoDtos);
+	// 		result.put("success", true);
+	// 	} catch (Exception e) {
+	// 		e.printStackTrace();
+	// 		result = new JSONObject();
+	// 		result.put("success", false);
+	// 		result.put("msg", e.getMessage());
+	// 		return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
+	// 	}
+	// 	return new ResponseEntity<>(result, HttpStatus.OK);
+	// }
 }

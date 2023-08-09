@@ -28,10 +28,13 @@ public class FriendsChatRoomUserInfoEntity {
 	private FriendsChatRoomEntity friendsChatRoomEntity;
 
 	private Long userSeq;
+	private Long lastReadMessageSeq;
 
 	@Builder
-	public FriendsChatRoomUserInfoEntity(FriendsChatRoomEntity friendsChatRoomEntity, Long userSeq) {
+	public FriendsChatRoomUserInfoEntity(FriendsChatRoomEntity friendsChatRoomEntity, Long userSeq,
+		Long lastReadMessageSeq) {
 		this.friendsChatRoomEntity = friendsChatRoomEntity;
 		this.userSeq = userSeq;
+		this.lastReadMessageSeq = lastReadMessageSeq;
 	}
 }

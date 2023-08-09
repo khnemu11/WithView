@@ -14,6 +14,7 @@ public class ChatPublisher {
 
 	private final ChannelTopic channelChattingTopic;
 	private final ChannelTopic friendsChattingTopic;
+	private final ChannelTopic friendsChatRoomsInfoTopic;
 	private final RedisTemplate redisTemplate;
 
 	/**
@@ -25,5 +26,9 @@ public class ChatPublisher {
 
 	public void sendFriendsChatMessage(String chatMessage) {
 		redisTemplate.convertAndSend(friendsChattingTopic.getTopic(), chatMessage);
+	}
+
+	public void sendFriendsChatRoomInfo(String chatRoomInfo) {
+		redisTemplate.convertAndSend(friendsChatRoomsInfoTopic.getTopic(), chatRoomInfo);
 	}
 }

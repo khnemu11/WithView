@@ -15,22 +15,24 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class FriendsChatDto implements Serializable {
+public class FriendsChatMessageDto implements Serializable {
 
 	private static final long serialVersionUID = 64946611254512L;
 
 	private Long friendsChatRoomSeq;
+	private String message;
+	private Long messageSeq;
 	private Long fromUserSeq;
 	private Long toUserSeq;
-	private String message;
 	private LocalDateTime sendTime;
 
-	public static FriendsChatMessageEntity toEntity(FriendsChatDto dto) {
+	public static FriendsChatMessageEntity toEntity(FriendsChatMessageDto dto) {
 		return FriendsChatMessageEntity.builder()
 			.friendsChatRoomSeq(dto.getFriendsChatRoomSeq())
+			.message(dto.getMessage())
+			.messageSeq(dto.getMessageSeq())
 			.fromUserSeq(dto.getFromUserSeq())
 			.toUserSeq(dto.getToUserSeq())
-			.message(dto.getMessage())
 			.sendTime(dto.getSendTime())
 			.build();
 	}
