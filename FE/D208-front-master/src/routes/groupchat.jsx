@@ -15,7 +15,7 @@ import sticker from "../assets/sticker.png";
 import chat from "../assets/chat.png";
 import back from "../assets/back.png";
 import exit from "../assets/exit.png";
-import plane from "../assets/plane.png";
+import plane from "../assets/Plane.png";
 import plus from "../assets/plus.png";
 import x from "../assets/x.png";
 // import room from "../assets/room.png";
