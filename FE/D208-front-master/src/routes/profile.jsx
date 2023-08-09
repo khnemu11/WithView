@@ -48,8 +48,8 @@ const Profile = () => {
     .then((res)=>{
       setProfileMessage(res.data.UserInfo.profileMsg)
     })
-    .catch(()=>{
-      // console.log(err)
+    .catch((err)=>{
+      console.log(err)
     })
   },[profileMessage])
 
@@ -225,6 +225,9 @@ const Profile = () => {
     }
     else {
       axiosInstance({
+        headers: {
+          "Authorization" : `Bearer ${token}`
+        },
         method : "PUT",
         url : `/users/${userPk}/nickname?nickname=${tempProfileNickname}`
       })
