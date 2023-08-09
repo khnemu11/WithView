@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.ssafy.withview.dto.ServerDto;
@@ -32,6 +33,7 @@ public class StickerEntity {
 	private String writer;
 	private String originalName;
 	private String searchName;
+	@ColumnDefault("0")
 	private Integer count;
 	@CreationTimestamp
 	private LocalDateTime createTime;

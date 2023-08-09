@@ -2,11 +2,15 @@ package com.ssafy.withview.entity;
 
 import javax.persistence.*;
 
+import org.hibernate.annotations.ColumnDefault;
+
+import com.mongodb.lang.Nullable;
 import com.ssafy.withview.dto.ChannelDto;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.ToString;
 
 @Getter
@@ -19,6 +23,7 @@ public class ChannelEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long seq;
 	private String name;
+	@ColumnDefault("10")
 	private Integer limitPeople;
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
