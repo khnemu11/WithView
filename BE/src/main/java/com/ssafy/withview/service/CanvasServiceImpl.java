@@ -60,6 +60,8 @@ public class CanvasServiceImpl implements CanvasService{
 		
 		log.info(canvasEntityList.get(0).toString());
 
+		log.info(canvasEntityList.get(0).toString());
+
 		return CanvasEntity.toDto(canvasEntityList.get(0));
 	}
 

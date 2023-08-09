@@ -18,12 +18,13 @@ import lombok.ToString;
 public class ChannelDto {
 	private Long seq;
 	private String name;
-	private Integer limitPeople=10;
+	@Builder.Default
+	private Integer limitPeople = 10;
 	private Long serverSeq;
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
 
-	public static ChannelEntity toEntity(ChannelDto dto){
+	public static ChannelEntity toEntity(ChannelDto dto) {
 		return ChannelEntity.builder()
 			.name(dto.getName())
 			.limitPeople(dto.getLimitPeople())
