@@ -44,11 +44,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			}
 			// AccessToken 이 정상이지만, 만료가 되었다면 RefreshToken 검사
 			else {
+				// Cookie 에 RefreshToken 있는지 확인
 				String refreshToken = "";
-				for (int i = 0; i < request.getCookies().length; i++) {
-					if (request.getCookies()[i].getName().equals("RefreshToken")) {
-						refreshToken = request.getCookies()[i].getValue();
+				try {
+					for (int i = 0; i < request.getCookies().length; i++) {
+						if (request.getCookies()[i].getName().equals("RefreshToken")) {
+							refreshToken = request.getCookies()[i].getValue();
+						}
 					}
+				} catch (Exception e) {
+					throw new JwtException("EXPIRED_REFRESH_TOKEN");
 				}
 				// RefreshToken 이 정상인지 확인
 				if (jwtService.isValidToken(refreshToken)) {
