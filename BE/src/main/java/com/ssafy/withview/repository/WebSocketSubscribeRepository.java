@@ -26,15 +26,11 @@ public class WebSocketSubscribeRepository {
 	private static final String ENTER_CHAT_CHANNEL = "ENTER_CHAT_CHANNEL";
 	private static final String USER_CONNECT_SESSION = "USER_CONNECT_SESSION_";
 	private static final String USER_ENTER_SERVER_USERSEQ = "USER_ENTER_SERVER_USERSEQ_";
-	private static final String FRIENDS_CHAT_ROOM_SEQ = "FRIENDS_CHAT_FROM_SEQ_";
-	private static final String FRIENDS_CHAT_USER_SEQ = "_FRIENDS_CHAT_USER_SEQ_";
 
 	@Resource(name = "redisTemplate")
 	private HashOperations<String, String, String> hashOpsUserEnterChatChannelInfo;
 	@Resource(name = "redisTemplate")
 	private SetOperations<String, String> setOpsChatRoomMemberValue;
-	@Resource(name = "redisTemplate")
-	private ValueOperations<String, String> valOpsUserUnreadFriendsChatCount;
 	@Resource(name = "redisTemplate")
 	private ValueOperations<String, String> valOpsUserSessionInfo;
 	@Resource(name = "redisTemplate")
@@ -85,27 +81,5 @@ public class WebSocketSubscribeRepository {
 		userUnsubscribeChannelChat(userSeq, channelSeq);
 		valOpsUserSessionInfo.set(USER_CONNECT_SESSION + simpSessionId, "", 1, TimeUnit.MILLISECONDS);
 		return serverSeq;
-	}
-
-	public Long addFriendsChatUnreadCount(Long chatRoomSeq, Long userSeq) {
-		if (valOpsUserUnreadFriendsChatCount.get(FRIENDS_CHAT_ROOM_SEQ + chatRoomSeq + FRIENDS_CHAT_USER_SEQ + userSeq)
-			== null) {
-			valOpsUserUnreadFriendsChatCount.set(FRIENDS_CHAT_ROOM_SEQ + chatRoomSeq + FRIENDS_CHAT_USER_SEQ + userSeq,
-				"1",
-				24 * 365 * 10, TimeUnit.HOURS);
-		}
-		return valOpsUserUnreadFriendsChatCount.increment(
-			FRIENDS_CHAT_ROOM_SEQ + chatRoomSeq + FRIENDS_CHAT_USER_SEQ + userSeq);
-	}
-
-	public void setFiendsChatUnreadCountZero(Long chatRoomSeq, Long userSeq) {
-		valOpsUserUnreadFriendsChatCount.set(FRIENDS_CHAT_ROOM_SEQ + chatRoomSeq + FRIENDS_CHAT_USER_SEQ + userSeq, "0",
-			24 * 365 * 10, TimeUnit.HOURS);
-	}
-
-	public Long getFriendsChatUnreadCount(Long chatRoomSeq, Long userSeq) {
-		return Long.parseLong(Optional.ofNullable(
-				valOpsUserUnreadFriendsChatCount.get(FRIENDS_CHAT_ROOM_SEQ + chatRoomSeq + FRIENDS_CHAT_USER_SEQ + userSeq))
-			.orElse("0"));
 	}
 }

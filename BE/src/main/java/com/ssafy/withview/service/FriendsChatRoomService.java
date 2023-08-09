@@ -60,4 +60,8 @@ public class FriendsChatRoomService {
 			})
 			.collect(Collectors.toList());
 	}
+
+	// public Long findLastReadChatMessageFromChatRoom(Long userSeq, Long friendsChatRoomSeq) {
+	//
+	// }
 }

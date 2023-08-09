@@ -1,7 +1,6 @@
 package com.ssafy.withview.controller;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,7 +48,6 @@ public class ChatController {
 	@MessageMapping("/chat/friends/message")
 	public void friendsChatMessage(FriendsChatMessageDto message) {
 		message.setSendTime(LocalDateTime.now());
-		webSocketSubscribeRepository.addFriendsChatUnreadCount(message.getFriendsChatRoomSeq(), message.getToUserSeq());
 		friendsChatService.insertFriendsChat(message);
 		chatPublisher.sendFriendsChatMessage(message.toJson());
 	}
@@ -59,28 +57,37 @@ public class ChatController {
 		Long userSeq = userSeqDto.getUserSeq();
 		List<FriendsChatRoomsSeqDto> friendsChatRoomsByPartnerSeq = friendsChatRoomService.findFriendsChatRoomsByPartnerSeq(
 			userSeq);
+
 		List<FriendsChatRoomsUserInfoDto> friendsChatRoomsUserInfoDtos = friendsChatRoomsByPartnerSeq.stream()
-			.map(dto -> FriendsChatRoomsUserInfoDto.builder()
-				.chatRoomSeq(dto.getChatRoomSeq())
-				.userDto(userService.getProfile(dto.getPartnerSeq()))
-				.friendsChatMessageDto(friendsChatService.getLastFriendsChatMessage(dto.getChatRoomSeq()))
-				.build())
+			.map(dto -> {
+				FriendsChatMessageDto lastFriendsChatMessage = friendsChatService.getLastFriendsChatMessage(
+					dto.getChatRoomSeq());
+
+				Long lastFriendsChatMessageSeq = lastFriendsChatMessage.getMessageSeq();
+				Long unreadCount = friendsChatService.getUnreadFriendsChatMessageCount(
+					dto.getChatRoomSeq(), userSeq,
+					lastFriendsChatMessageSeq);
+
+				return FriendsChatRoomsUserInfoDto.builder()
+					.chatRoomSeq(dto.getChatRoomSeq())
+					.userDto(userService.getProfile(dto.getPartnerSeq()))
+					.friendsChatMessageDto(lastFriendsChatMessage)
+					.unread(unreadCount)
+					.build();
+			})
 			.collect(Collectors.toList());
-		Collections.sort(friendsChatRoomsUserInfoDtos, (a, b) -> {
+
+		friendsChatRoomsUserInfoDtos.sort((a, b) -> {
 			LocalDateTime sendTimeA = a.getFriendsChatMessageDto().getSendTime();
 			LocalDateTime sendTimeB = b.getFriendsChatMessageDto().getSendTime();
 			return sendTimeB.compareTo(sendTimeA);
 		});
+
 		FriendsChatRoomsUserInfoForPubSendDto pubSendDto = FriendsChatRoomsUserInfoForPubSendDto.builder()
 			.userSeq(userSeq)
 			.friendsChatRoomsUserInfoDtos(friendsChatRoomsUserInfoDtos)
 			.build();
 		chatPublisher.sendFriendsChatRoomInfo(pubSendDto.toJson());
-	}
-
-	@MessageMapping("/chat/friends/unread")
-	public void friendsChatUnreadCount(UserSeqDto userSeqDto) {
-		Long userSeq = userSeqDto.getUserSeq();
 	}
 
 	@GetMapping("/chat/view")

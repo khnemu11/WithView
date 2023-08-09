@@ -1,6 +1,7 @@
 package com.ssafy.withview.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.ssafy.withview.dto.FriendsChatMessageDto;
 import com.ssafy.withview.entity.FriendsChatMessageEntity;
 import com.ssafy.withview.repository.FriendsChatMessageRepository;
+import com.ssafy.withview.repository.FriendsChatRoomUserInfoRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +23,10 @@ import lombok.extern.slf4j.Slf4j;
 public class FriendsChatService {
 
 	private final FriendsChatMessageRepository friendsChatMessageRepository;
+	private final FriendsChatRoomUserInfoRepository friendsChatRoomUserInfoRepository;
 
-	public List<FriendsChatMessageDto> getFriendsChatMessagesByPage(Long friendsChatSeq, int page) {
-		return friendsChatMessageRepository.findByFriendsChatRoomSeqOrderBySendTimeDesc(friendsChatSeq,
+	public List<FriendsChatMessageDto> getFriendsChatMessagesByPage(Long friendsChatRoomSeq, int page) {
+		return friendsChatMessageRepository.findByFriendsChatRoomSeqOrderBySendTimeDesc(friendsChatRoomSeq,
 				PageRequest.of(100 * (page - 1), 100 * page))
 			.stream()
 			.map(FriendsChatMessageEntity::toDto)
@@ -35,9 +38,12 @@ public class FriendsChatService {
 			friendsChatMessageRepository.findTopByFriendsChatRoomSeqOrderBySendTimeDesc(friendsChatSeq));
 	}
 
-	public Long getUnreadFriendsChatMessageCount(Long friendsChatSeq, Long userSeq, Long lastReadMessageSeq) {
-		Long lastSeq = friendsChatMessageRepository.findTopByFriendsChatRoomSeqOrderBySendTimeDesc(friendsChatSeq)
-			.getMessageSeq();
+	public Long getUnreadFriendsChatMessageCount(Long friendsChatSeq, Long userSeq, Long lastMessageSeq) {
+		Long lastReadMessageSeq = Optional.ofNullable(
+			friendsChatRoomUserInfoRepository.findTopByFriendsChatRoomEntitySeqAndUserSeq(
+				friendsChatSeq, userSeq).getLastReadMessageSeq()).orElse(0L);
+
+		return lastMessageSeq - lastReadMessageSeq;
 	}
 
 	@Transactional
