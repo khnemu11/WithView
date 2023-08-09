@@ -104,11 +104,12 @@
 }
 
 .image-upload {
-    width: 27%;
-    margin-left: 120px;
+    width: 35%;
+    margin-left: 100px;
     margin-top: 10px;
     margin-bottom: 10px;
     cursor: pointer;
+    border-radius: 50%;
 }
 
 .profile-messageInput {

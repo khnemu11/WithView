@@ -15,7 +15,6 @@ import "cropperjs/dist/cropper.css";
 import Popover from "react-popover";
 import axiosInstance from "./axiosinstance";
 
-
 Modal.setAppElement("#root");
 
 const Serverpage = () => {
@@ -28,7 +27,7 @@ const Serverpage = () => {
 
   const [serverMembers, setServerMembers] = useState([]);
   const profileImageURL = useSelector((state) => state.user.profile);
-  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImage}`;
+  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImageURL}`;
 
   const userSeq = useSelector((state) => state.user.seq);
 
@@ -52,16 +51,13 @@ const Serverpage = () => {
   useEffect(() => {
     const fetchServerName = async () => {
       try {
-        const response = await axiosInstance.get(
-          `/servers/${seq}`, {
-            headers: {
-              "Authorization": `Bearer ${token}`
-            }
-          }
-        );
+        const response = await axiosInstance.get(`/servers/${seq}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const serverInfo = response.data.server;
 
-        setServerInfo(serverInfo);
         setServerName(serverInfo.name);
         // 사용자가 호스트인지 확인
         setIsHost(serverInfo.hostSeq === userSeq);
@@ -71,7 +67,6 @@ const Serverpage = () => {
     };
     fetchServerName();
   }, [seq]);
-
 
   const MemberPopover = ({ member }) => {
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -98,7 +93,12 @@ const Serverpage = () => {
 
     return (
       <div onClick={togglePopover}>
-        <Popover isOpen={isPopoverOpen} body={popoverBody} preferPlace="above">
+        <Popover
+          isOpen={isPopoverOpen}
+          body={popoverBody}
+          preferPlace="above"
+          onOuterAction={togglePopover}
+        >
           <img
             src={profileImageUrl}
             alt="profile"
@@ -116,13 +116,11 @@ const Serverpage = () => {
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const response = await axiosInstance.get(
-          `/servers/${seq}/users`, {
-            headers: {
-              "Authorization": `Bearer ${token}`
-            }
-          }
-        );
+        const response = await axiosInstance.get(`/servers/${seq}/users`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (response.data.success) {
           setServerMembers(response.data.users);
         } else {
@@ -217,7 +215,7 @@ const Serverpage = () => {
     if (profileImageURL === null) {
       setProfileImage("/withView2.png");
     } else {
-      setProfileImage(profileImageURL);
+      setProfileImage(profileImageUrl);
     }
   }, [profileImageURL]);
 
@@ -228,19 +226,17 @@ const Serverpage = () => {
 
   const fetchChannels = async () => {
     try {
-      const response = await axiosInstance.get(
-        `/servers/${seq}/channels`, {
-          headers: {
-            "Authorization": `Bearer ${token}`
-          }
-        }
-      );
+      const response = await axiosInstance.get(`/servers/${seq}/channels`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = response.data;
       setChannels(data.channels);
     } catch (error) {
       console.error("Error fetching channels:", error);
     }
-};
+  };
 
   const createChannel = async () => {
     const cropper = cropperRef.current.cropper;
@@ -263,7 +259,7 @@ const Serverpage = () => {
           formData,
           {
             headers: {
-              "Authorization": `Bearer ${token}`,
+              Authorization: `Bearer ${token}`,
               "Content-Type": "multipart/form-data",
             },
           }
@@ -331,7 +327,7 @@ const Serverpage = () => {
           formData,
           {
             headers: {
-              "Authorization": `Bearer ${token}`,
+              Authorization: `Bearer ${token}`,
               "Content-Type": "multipart/form-data",
             },
           }
@@ -367,16 +363,12 @@ const Serverpage = () => {
       formData.append("userSeq", userSeq);
       formData.append("serverSeq", seq);
 
-      const response = await axiosInstance.post(
-        "/invite",
-        formData,
-        {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axiosInstance.post("/invite", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (response.status === 200) {
         const inviteLink = response.data.link;
@@ -516,13 +508,11 @@ const Serverpage = () => {
           <p> 컨트롤 V로 링크를 전달하세요 !</p>
           <button onClick={() => setInviteLinkModalOpen(false)}>닫기</button>
         </Modal>
-        <div className="scrollable-area">
-          <div className="grid-container">
-            <div className="serverMembers">
-              {serverMembers.map((member) => (
-                <MemberPopover key={member.id} member={member} />
-              ))}
-            </div>
+        <div className="scrollable-area-members">
+          <div className="serverMembers">
+            {serverMembers.map((member) => (
+              <MemberPopover key={member.id} member={member} />
+            ))}
           </div>
         </div>
       </div>

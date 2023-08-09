@@ -7,6 +7,7 @@ import { useEffect } from "react";
 const FriendList = () => {
   const [selectedTab, setSelectedTab] = useState("친구"); // 초기 상태를 '친구'로 설정
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedChat, setSelectedChat] = useState(null);
 
   useEffect(() => {
     document.body.style.backgroundImage = "none";
@@ -124,6 +125,15 @@ const FriendList = () => {
     { id: 1, name: "John Doe", profileImage: null, lastMessage: "안녕하세요!" },
   ];
 
+  const chatMessages = {
+    "John Doe": [
+      { sender: "John Doe", message: "안녕하세요?" },
+      { sender: "Me", message: "안녕하세요!" },
+      // ... 기타 메시지
+    ],
+    // ... 기타 채팅방 메시지
+  };
+
   const [chats, setChats] = useState(chatRooms);
 
   const filteredFriends = friends.filter((friend) =>
@@ -145,6 +155,10 @@ const FriendList = () => {
       const newChat = { ...friend, lastMessage: "" }; // 초기 메시지는 빈 문자열로 설정
       setChats((prevChats) => [...prevChats, newChat]);
     }
+  };
+
+  const handleChatBoxDoubleClick = (chat) => {
+    setSelectedChat(chat.name); // 채팅방 선택 시 해당 채팅방 이름으로 상태 업데이트
   };
 
   return (
@@ -204,20 +218,60 @@ const FriendList = () => {
                 </div>
               ))
             : filteredChatRooms.map((chat) => (
-                <div key={chat.id} className="friend-box">
-                   <img
+                <div
+                  key={chat.id}
+                  className="friend-box"
+                  onDoubleClick={() => handleChatBoxDoubleClick(chat)}
+                >
+                  <img
                     src={chat.profileImage || "/withView2.png"}
                     alt={chat.name}
                     className="friend-profile-image"
                   />
                   <span className="name">{chat.name}</span>
-                  <span className="chat-last-message">
-                    {chat.lastMessage}
-                  </span>
+                  <span className="chat-last-message">{chat.lastMessage}</span>
                 </div>
               ))}
         </div>
-        <div className="friendlist-right-pane">{/* Right Pane Contents */}</div>
+        <div className="friendlist-right-pane">
+          {selectedChat ? (
+            <div className="chat-container">
+              <div className="chat-header">
+                <img
+                  src={
+                    chatMessages[selectedChat][0].sender.profileImage ||
+                    "/withView2.png"
+                  } // 해당 친구의 프로필 이미지를 가져옵니다. 기본 이미지로 설정된 경우 기본 이미지가 나올 것입니다.
+                  alt={selectedChat}
+                  className="chat-profile-image"
+                />
+                <div className="chat-username">{selectedChat}</div>
+              </div>
+              <div className="chat-messages">
+                {chatMessages[selectedChat].map((msg, index) => (
+                  <div
+                    key={index}
+                    className={`message ${
+                      msg.sender === "Me" ? "me" : "other"
+                    }`}
+                  >
+                    <span>{msg.sender}: </span>
+                    <span>{msg.message}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="chat-input">
+                <input type="text" placeholder="메시지 입력..." />
+              </div>
+            </div>
+          ) : (
+            <img
+              src="/withView.png"
+              alt="No chat selected"
+              className="NoChatImg"
+            />
+          )}
+        </div>
       </div>
     </div>
   );
