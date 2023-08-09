@@ -13,6 +13,8 @@ import Modal from "react-modal";
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
 import Popover from "react-popover";
+import axiosInstance from "./axiosinstance";
+
 
 Modal.setAppElement("#root");
 
@@ -37,6 +39,8 @@ const Serverpage = () => {
   const [isHost, setIsHost] = useState(false);
 
   const { seq } = useParams();
+  const token = useSelector((state) => state.token);
+
   const navigate = useNavigate();
 
   const [editingChannel, setEditingChannel] = useState(null);
@@ -48,8 +52,12 @@ const Serverpage = () => {
   useEffect(() => {
     const fetchServerName = async () => {
       try {
-        const response = await axios.get(
-          `https://i9d208.p.ssafy.io/api/servers/${seq}`
+        const response = await axiosInstance.get(
+          `/servers/${seq}`, {
+            headers: {
+              "Authorization": `Bearer ${token}`
+            }
+          }
         );
         const serverInfo = response.data.server;
 
@@ -63,6 +71,7 @@ const Serverpage = () => {
     };
     fetchServerName();
   }, [seq]);
+
 
   const MemberPopover = ({ member }) => {
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -107,8 +116,12 @@ const Serverpage = () => {
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const response = await axios.get(
-          `https://i9d208.p.ssafy.io/api/servers/${seq}/users`
+        const response = await axiosInstance.get(
+          `/servers/${seq}/users`, {
+            headers: {
+              "Authorization": `Bearer ${token}`
+            }
+          }
         );
         if (response.data.success) {
           setServerMembers(response.data.users);
@@ -215,15 +228,19 @@ const Serverpage = () => {
 
   const fetchChannels = async () => {
     try {
-      const response = await axios.get(
-        `https://i9d208.p.ssafy.io/api/servers/${seq}/channels`
+      const response = await axiosInstance.get(
+        `/servers/${seq}/channels`, {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        }
       );
       const data = response.data;
       setChannels(data.channels);
     } catch (error) {
       console.error("Error fetching channels:", error);
     }
-  };
+};
 
   const createChannel = async () => {
     const cropper = cropperRef.current.cropper;
@@ -241,11 +258,12 @@ const Serverpage = () => {
       }
 
       try {
-        const response = await axios.post(
-          `https://i9d208.p.ssafy.io/api/servers/${seq}/channels`,
+        const response = await axiosInstance.post(
+          `/servers/${seq}/channels`,
           formData,
           {
             headers: {
+              "Authorization": `Bearer ${token}`,
               "Content-Type": "multipart/form-data",
             },
           }
@@ -308,11 +326,12 @@ const Serverpage = () => {
       }
 
       try {
-        const response = await axios.post(
-          `https://i9d208.p.ssafy.io/api/servers/${seq}/channels/${editingChannel.seq}`,
+        const response = await axiosInstance.post(
+          `/servers/${seq}/channels/${editingChannel.seq}`,
           formData,
           {
             headers: {
+              "Authorization": `Bearer ${token}`,
               "Content-Type": "multipart/form-data",
             },
           }
@@ -348,11 +367,12 @@ const Serverpage = () => {
       formData.append("userSeq", userSeq);
       formData.append("serverSeq", seq);
 
-      const response = await axios.post(
-        "https://i9d208.p.ssafy.io/api/invite",
+      const response = await axiosInstance.post(
+        "/invite",
         formData,
         {
           headers: {
+            "Authorization": `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         }
