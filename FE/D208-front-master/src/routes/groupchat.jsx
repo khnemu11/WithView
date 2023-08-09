@@ -39,7 +39,9 @@ import santa from "../assets/imo/santa.png";
 import dino from "../assets/imo/dino.png";
 import "../css/groupchat.css";
 import axios from "axios";
+import StompJs from 'stompjs';
 import $ from "jquery";
+import { useSelector } from "react-redux";
 
 export default function GroupChat() {
   const [backClicked, setbackClicked] = useState(false);
@@ -60,6 +62,7 @@ export default function GroupChat() {
   const [isSpkOn, setIsSpkOn] = useState(true);
   const [subscriber, setSubscriber] = useState(null);
   const [publisher, setPublisher] = useState(null);
+  const userSeq = useSelector((state)=>state.user.seq)
   const [stickerAndBg, setstickerAndBg] = useState(false);
   const [fullscreen, setFullscreen] = useState(true);
   const [inputText, setInputText] = useState("");
@@ -210,23 +213,24 @@ export default function GroupChat() {
 
   // let session; //현재 채널 이름(오픈비두에선 채팅방 단위를 'session'이라고 부름)
   let videoContainer = document.querySelector("#video-container"); //오픈비두로 받은 영상을 담은 컨테이너
-  // let port = 9091; //백엔드 포트 번호
-  // let domain = "localhost"; //도메인 주소
-  let domain = "i9d208.p.ssafy.io"; //도메인 주소
-  let APPLICATION_SERVER_URL = `https://${domain}/`;
-  // let APPLICATION_SERVER_URL = `http://${domain}:${port}/`;
+  let port = 9091; //백엔드 포트 번호
+  let domain = "localhost:9091"; //도메인 주소
+  // let domain = "i9d208.p.ssafy.io"; //도메인 주소
+  let APPLICATION_SERVER_URL = `http://${domain}/`;
   let userId; //유저 아이디
   let remoteBGLayer = new Konva.Layer(); //소켓에 저장된 비디오 레이어(최초 접속시 한번 사용)
   let remoteVideoLayer = new Konva.Layer(); //소켓에 저장된 비디오 레이어(최초 접속시 한번 사용)
   let remoteImageLayer = new Konva.Layer(); //소켓에 저장된 이미지 레이어(최초 접속시 한번 사용)
   let stage = useRef(null);
+  let stompSocket = useRef(null);
+  let stomp = useRef(null);
   let session = useRef(null);
   let sessionScreen = useRef(null);
-  let socket = useRef(null);
   let camPublisherRef = useRef(null);
   let screensharing = false;
   let CamOV = useRef(null); //오픈비두 변수
   let ScreenOV = useRef(null); //오픈비두 변수
+  let channelSeq = useRef(null);
 
   useEffect(() => {
     const container = document.getElementById("channel-screen");
@@ -239,7 +243,6 @@ export default function GroupChat() {
         height: document.body.offsetHeight,
       });
     }
-
     // Stage에 대한 추가 작업 수행
     // 배경 레이어 추가
     const backLayer = new Konva.Layer();
@@ -292,132 +295,15 @@ export default function GroupChat() {
     remoteStage.hide();
   }, []);
 
-  // let socket; //소켓 통신 변수
-  //소켓 메시지가 오면 반응하는 메소드
-  //소켓을 통신하는 것들 (채팅, 캔버스 json파일)
-  async function onMessage(message) {
-    console.log("message from socket!");
-    //받은 소켓 메시지를 JSON파일로 파싱
-    let data = JSON.parse(message.data);
-    console.log(data);
-
-    //캔버스 내용이 변경되면 실행
-    if (data.type == "delete") {
-      console.log("스티커 삭제");
-      console.log(data);
-      loadCanvasDelete(data.object);
-    }
-
-    //캔버스 내용이 변경되면 실행
-    if (data.type == "change") {
-      console.log("캔버스 변화");
-      console.log(data);
-      loadCanvasChange(data.object);
-    }
-    //처음 채널에 참가하면 실행
-    else if (data.type == "join") {
-      //배경 레이어 로드
-      if (data.BG != null) {
-        console.log("서버에 있는 배경 레이어");
-        remoteBGLayer = Konva.Node.create(data.BG);
-        console.log(remoteBGLayer);
-      }
-      //비디오 레이어 로드
-      if (data.video != null) {
-        console.log("서버에 있는 비디오 레이어");
-        remoteVideoLayer = Konva.Node.create(data.video);
-        console.log(remoteVideoLayer);
-      }
-      //이미지 레이어 로드
-      if (data.image != null) {
-        console.log("서버에 있는 이미지 레이어");
-        remoteImageLayer = Konva.Node.create(data.image);
-        console.log(remoteImageLayer);
-        let images = remoteImageLayer.find("Image");
-
-        for (let i = 0; i < images.length; i++) {
-          let tr = new Konva.Transformer();
-          // tr.nodes([images[i]]);
-
-          //이미지 변수 생성
-          let imageObj = new Image();
-          let imageName = images[i].getAttr("id").substring(4); //img- 제거한 나머지를 이름으로 설정
-          console.log(imageName);
-          imageObj.src =
-            "https://dm51j1y1p1ekp.cloudfront.net/sticker/" + imageName;
-
-          //로딩돠면
-          imageObj.onload = function () {
-            images[i].setAttr("image", imageObj);
-          };
-
-          //드래그 반응이 끝나면 캔버스 넘기기
-          images[i].on("dragend", function () {
-            changeCanvas(images[i]);
-          });
-
-          //비디오의 모양을 변경하면 캔버스 변경사항을 다른사람에게 전송
-          images[i].on("transformend", function () {
-            changeCanvas(images[i]);
-          });
-
-          let currentShape;
-          var menuNode = document.getElementById("delete-img-menu");
-
-          document
-            .getElementById("delete-button")
-            .addEventListener("click", () => {
-              currentShape.destroy();
-              changeCanvas(currentShape);
-            });
-
-          window.addEventListener("click", () => {
-            // hide menu
-            menuNode.style.display = "none";
-          });
-
-          // 우클릭 이벤트 핸들러 등록
-          images[i].on("contextmenu", function (e) {
-            e.evt.preventDefault();
-            console.log("우클릭 입력");
-            if (e.target === stage.current) {
-              // if we are on empty place of the stage we will do nothing
-              return;
-            }
-            currentShape = e.target;
-            menuNode.style.display = "initial";
-            menuNode.style.zIndex = "1";
-            console.log(menuNode);
-            var containerRect = stage.current
-              .container()
-              .getBoundingClientRect();
-            menuNode.style.top =
-              containerRect.top +
-              stage.current.getPointerPosition().y +
-              4 +
-              "px";
-            menuNode.style.left =
-              containerRect.left +
-              stage.current.getPointerPosition().x +
-              4 +
-              "px";
-          });
-
-          console.log(stage.current);
-
-          stage.current.children[2].add(tr);
-          stage.current.children[2].add(images[i]);
-        }
-      }
-    }
-  }
-
   // 배경에 이미지 추가
   function addBackImage(imageUrl) {
+    console.log("이미지 url");
+    console.log(imageUrl);
+
     const backObj = new Image();
     backObj.onload = function () {
       const backgroundImage = new Konva.Image({
-        id: imageUrl.substring(12),
+        id: 'bg-'+imageUrl,
         image: backObj,
         width: document.body.offsetWidth,
         height: document.body.offsetHeight,
@@ -426,12 +312,14 @@ export default function GroupChat() {
       stage.current.children[0].removeChildren(); // 모든 자식 제거
       stage.current.children[0].add(backgroundImage);
       stage.current.children[0].draw(); // 배경 레이어 다시 그리기
+
       console.log("이미지 로드!");
 
       console.log(session.current);
-      changeCanvas(backgroundImage);
+
+      changeCanvas(backgroundImage,"update");
     };
-    backObj.src = imageUrl;
+    backObj.src = 'https://dm51j1y1p1ekp.cloudfront.net/channel-background/' + imageUrl;
   }
 
   const addBackImageClick = (imageUrl) => {
@@ -475,12 +363,12 @@ export default function GroupChat() {
 
         //드래그 반응이 끝나면 캔버스 넘기기
         object.on("dragend", function () {
-          changeCanvas(object);
+          changeCanvas(object,"updete");
         });
 
         //비디오의 모양을 변경하면 캔버스 변경사항을 다른사람에게 전송
         object.on("transformend", function () {
-          changeCanvas(object);
+          changeCanvas(object,"updete");
         });
         let currentShape;
         var menuNode = document.getElementById("delete-img-menu");
@@ -523,13 +411,17 @@ export default function GroupChat() {
       }
 
       // 배경 삽입
-      else {
+      else if(objectId.indexOf("bg-") != -1){
         //배경 변수 생성
         let backObj = new Image();
-        let imageName = objectId; // 임시 어차피 바꿔야함
+        let imageName = objectId.substring(3);; // 임시 어차피 바꿔야함
+
+        console.log("배경 이미지 이름");
+        console.log(imageName);
+
         backObj.src =
-          "https://dm51j1y1p1ekp.cloudfront.net/channel-background/" +
-          imageName;
+        "https://dm51j1y1p1ekp.cloudfront.net/channel-background/" +
+        imageName;
 
         //로딩돠면
         backObj.onload = function () {
@@ -551,25 +443,6 @@ export default function GroupChat() {
     }
   }
 
-  function loadCanvasDelete(data) {
-    console.log(data);
-    let object = Konva.Node.create(data); //변경된 오브젝트
-    let objectId = object.getAttr("id");
-    console.log("소캣에서 넘어온 객체 아이디");
-    console.log(objectId);
-    console.log(stage.current);
-
-    let target = stage.current.find("#" + objectId); //객체 탐색
-
-    console.log("현재 대상 객체");
-    console.log(target);
-
-    //스티커 삭제
-    // temp
-    target.destroy();
-    changeCanvas(target);
-  }
-
   // 소켓에서 나갔을 때
   function onClose() {
     console.log("소켓 종료");
@@ -579,6 +452,42 @@ export default function GroupChat() {
     console.log("소켓 접속");
   }
 
+  function onConnected() {
+    console.log("소켓 연결 성공");
+
+    stomp.current.subscribe('/api/sub/canvas/channel/'+channelSeq.current, function (msg) {
+      console.log("캔버스 메세지 도착!");
+      console.log(msg);
+      let data = JSON.parse(msg.body);
+
+      if(data.type == 'update'){
+        console.log("캔버스 변화");
+        console.log(data);
+        loadCanvasChange(data.object);
+      }else if(data.type == 'delete'){
+        console.log("요소 삭제")
+        console.log(data);
+        deleteCanvasChange(data.object);
+      }
+      console.log("데이터");
+      console.log(data);
+    });
+  }
+
+  function deleteCanvasChange(data){
+    let objectId = object.getAttr("id");
+    console.log("소캣에서 넘어온 객체 아이디");
+    console.log(objectId);
+    console.log(stage.current);
+
+    let target = stage.current.find("#" + objectId); //객체 탐색
+    target.remove();
+
+  }
+
+  function onError() {
+      console.log("소켓 연결 실패");
+  }
   //오픈비두 기본함수
   //채널에 들어오면 sessionId와 userName(유저 아이디)를 통해 채널에 들어가는 로직이 들어가 있는 함수
   //제일 중요함
@@ -590,15 +499,93 @@ export default function GroupChat() {
     let myUserName = document.getElementById("userName").value;
 
     //참가한 채널 명을 url로 구분하도록 커스터마이징함
-    socket.current = new SockJS(
-      `https://${domain}/api/socket?channelId=${mySessionId}`,
-      // `http://${domain}:${port}/socket?channelId=${mySessionId}`,
-      null,
-      { transports: ["websocket", "xhr-streaming", "xhr-polling"] }
-    );
-    socket.current.onmessage = onMessage;
-    socket.current.onclose = onClose;
-    socket.current.onopen = onOpen;
+    console.log("캔버스 로드");
+
+    let apiCall =  await axios.get('http://localhost:9091/api/canvas/12')
+    .then(response=>{
+      console.log("받은 데이터");
+      console.log(response);
+
+      let data = response.data.canvas;
+
+      if (data.background != null) {
+        console.log("서버에 있는 배경 레이어");
+        remoteBGLayer = Konva.Node.create(data.background);
+        console.log(remoteBGLayer);
+
+        let backgroundObj = remoteBGLayer.children[0];
+        console.log(backgroundObj);
+             //이미지 변수 생성
+        let imageObj = new Image();
+        let imageName = backgroundObj.getAttr("id"); //img- 제거한 나머지를 이름으로 설정
+        console.log(imageName);
+        imageObj.src = "https://dm51j1y1p1ekp.cloudfront.net/channel-background/" + imageName.substring(3);
+
+        //로딩돠면
+        imageObj.onload = function () {
+        backgroundObj.setAttr("image", imageObj);
+        };
+
+        console.log(stage.current);
+
+        stage.current.children[0].add(backgroundObj);
+      }
+      //비디오 레이어 로드
+      if (data.video != null) {
+        console.log("서버에 있는 비디오 레이어");
+        remoteVideoLayer = Konva.Node.create(data.video);
+        console.log(remoteVideoLayer);
+      }
+      //이미지 레이어 로드
+      if (data.image != null) {
+        console.log("서버에 있는 이미지 레이어");
+        remoteImageLayer = Konva.Node.create(data.image);
+        console.log(remoteImageLayer);
+        let images = remoteImageLayer.find("Image");
+
+        for (let i = 0; i < images.length; i++) {
+          let tr = new Konva.Transformer();
+          // tr.nodes([images[i]]);
+
+          //이미지 변수 생성
+          let imageObj = new Image();
+          let imageName = images[i].getAttr("id").substring(4); //img- 제거한 나머지를 이름으로 설정
+          console.log(imageName);
+          imageObj.src = "https://dm51j1y1p1ekp.cloudfront.net/" + imageName;
+
+          //로딩돠면
+          imageObj.onload = function () {
+            images[i].setAttr("image", imageObj);
+          };
+
+          //드래그 반응이 끝나면 캔버스 넘기기
+          images[i].on("dragend", function () {
+            changeCanvas(images[i],"updete");
+          });
+
+          //비디오의 모양을 변경하면 캔버스 변경사항을 다른사람에게 전송
+          images[i].on("transformend", function () {
+            changeCanvas(images[i],"updete");
+          });
+          console.log(stage.current);
+
+          stage.current.children[2].add(tr);
+          stage.current.children[2].add(images[i]);
+        }
+      }
+    })
+    .catch(err=>{
+      console.log("에러 발생");
+      console.log(err);
+    })
+
+    let url =  `https://${domain}/api/socket?channelId=${mySessionId}`;
+    console.log("소켓 url : "+url);
+    console.log("user seq : "+userSeq);
+    channelSeq.current = 12;
+    stompSocket.current = new SockJS('http://localhost:9091/api/ws-stomp');
+    stomp.current = StompJs.over(stompSocket.current);
+    stomp.current.connect({"userSeq": userSeq}, onConnected, onError);
 
     // --- 1) Get an OpenVidu object ---
     CamOV.current = new OpenVidu();
@@ -888,15 +875,25 @@ export default function GroupChat() {
     let jsonData = {};
 
     //stage 저장 및 바뀐 객체 전송
-    jsonData["BG"] = stage.current.children[0];
+    jsonData["background"] = stage.current.children[0];
     jsonData["video"] = stage.current.children[1];
     jsonData["image"] = stage.current.children[2];
     jsonData["type"] = "update";
     jsonData["channel"] = session.current.sessionId;
+
+    let stompData = {};
+    stompData["background"] = stage.current.children[0];
+    stompData["video"] = stage.current.children[1];
+    stompData["image"] = stage.current.children[2];
+    stompData["type"] = "update";
+    stompData["channelSeq"] = channelSeq.current;
+    stompData["userSeq"] = userSeq;
+
+
     console.log(jsonData);
     console.log(JSON.stringify(jsonData));
 
-    socket.current.send(JSON.stringify(jsonData));
+    stomp.current.send('/api/pub/canvas/channel/'+ channelSeq.current, {}, JSON.stringify(stompData));
   }
 
   //캔버스에 영상을 넣는 함수
@@ -1028,37 +1025,28 @@ export default function GroupChat() {
 
     //비디오를 움직이면 캔버스 변경사항을 다른사람에게 전송
     video.on("dragend", function () {
-      changeCanvas(video);
+      changeCanvas(video,"updete");
     });
 
     //비디오의 모양을 변경하면 캔버스 변경사항을 다른사람에게 전송
     video.on("transformend", function () {
-      changeCanvas(video);
+      changeCanvas(video,"updete");
     });
   }
 
   //캔버스의 내용 변경을 감지했을 때 캔버스 데이터를 JSON으로 소켓통신하는 함수
-  function changeCanvas(element) {
-    console.log(element);
-    console.log("element 변경됨!");
-    console.log(element.toJSON());
-    let jsonData = {};
+  function changeCanvas(element,type) {
+    let stompData = {};
+    stompData["background"] = stage.current.children[0];
+    stompData["video"] = stage.current.children[1];
+    stompData["image"] = stage.current.children[2];
+    stompData["type"] = type;
+    stompData["channelSeq"] = channelSeq.current;
+    stompData["userSeq"] = userSeq;
+    stompData["object"] = element.toJSON();
 
-    console.log("현재 채널 정보");
-    console.log(session.current);
-    //stage 저장 및 바뀐 객체 전송
-    jsonData["BG"] = stage.current.children[0]; //배경 레이어
-    jsonData["video"] = stage.current.children[1]; //비디오 레이어
-    jsonData["image"] = stage.current.children[2]; //이미지 레이어
-    jsonData["type"] = "change"; //소캣 메시지 타입
-    jsonData["object"] = element.toJSON(); //변경된 오브젝트
-    jsonData["channel"] = session.current.sessionId; //채널명
 
-    console.log(stage.current.children[0]);
-    console.log(stage.current.children[1]);
-    console.log(stage.current.children[2]);
-    console.log(JSON.stringify(jsonData));
-    socket.current.send(JSON.stringify(jsonData)); //소켓 전송
+    stomp.current.send('/api/pub/canvas/channel/'+ channelSeq.current, {}, JSON.stringify(stompData));
   }
 
   //오픈비두 기본 함수
@@ -1191,19 +1179,6 @@ export default function GroupChat() {
       // 드래그 범위 제한 함수를 객체에 연결
       papago.dragBoundFunc(limitDragBounds);
 
-      let currentShape;
-      var menuNode = document.getElementById("delete-img-menu");
-
-      document.getElementById("delete-button").addEventListener("click", () => {
-        currentShape.destroy();
-        changeCanvas(currentShape);
-      });
-
-      window.addEventListener("click", () => {
-        // hide menu
-        menuNode.style.display = "none";
-      });
-
       // 우클릭 이벤트 핸들러 등록
       papago.on("contextmenu", function (e) {
         e.evt.preventDefault();
@@ -1222,7 +1197,6 @@ export default function GroupChat() {
         menuNode.style.left =
           containerRect.left + stage.current.getPointerPosition().x + 4 + "px";
       });
-
       layer.add(tr);
       layer.add(papago);
 
@@ -1230,6 +1204,24 @@ export default function GroupChat() {
       changeCanvas(papago);
       console.log(papago);
     };
+  }
+
+  // 우클릭 이벤트 처리 함수
+  function handleContextMenu(e, layer) {
+    e.evt.preventDefault();
+    var elementId = e.target.id();
+
+    // 요소 아이디로 요소를 지웁니다.
+    var elementToRemove = layer.findOne("#" + elementId);
+    if (elementToRemove) {
+      console.log(e.target);
+      console.log(e.target.id);
+      e.target.id = e.target.id + "del";
+      elementToRemove.remove();
+      stage.current.draw();
+    }
+
+    changeCanvas(e.target,"delete");
   }
 
   function addScreenInCanvas(videoElement, connection) {
@@ -1329,12 +1321,12 @@ export default function GroupChat() {
 
     //비디오를 움직이면 캔버스 변경사항을 다른사람에게 전송
     video.on("dragend", function () {
-      changeCanvas(video);
+      changeCanvas(video,"update");
     });
 
     //비디오의 모양을 변경하면 캔버스 변경사항을 다른사람에게 전송
     video.on("transformend", function () {
-      changeCanvas(video);
+      changeCanvas(video,"update");
     });
 
     video.on("contextmenu", function () {
@@ -1429,7 +1421,7 @@ export default function GroupChat() {
           <div
             className={settingsClicked ? "side-menu-div-on" : "side-menu-div"}
           >
-            <div className="setting-menu-div">
+            <ul>
               <div className="accordion">
                 <div
                   className={
