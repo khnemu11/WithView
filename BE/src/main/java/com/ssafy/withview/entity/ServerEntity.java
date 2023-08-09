@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.ColumnDefault;
+
 @Getter
 @NoArgsConstructor
 @Entity
@@ -20,6 +22,7 @@ public class ServerEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long seq;
 	private String name;
+	@ColumnDefault("5")
 	private Integer limitChannel;
 	private Long hostSeq;
 	private String backgroundImgSearchName;

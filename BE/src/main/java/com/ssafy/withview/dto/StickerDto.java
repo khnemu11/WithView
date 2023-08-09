@@ -23,7 +23,7 @@ public class StickerDto {
     private String writer;
     private String originalName;
     private String searchName;
-    private Integer count=0;
+    private Integer count;
     private LocalDateTime createTime;
 
     public static StickerEntity toEntity(StickerDto stickerDto){
