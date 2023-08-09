@@ -1187,7 +1187,7 @@ export default function GroupChat() {
           // if we are on empty place of the stage we will do nothing
           return;
         }
-        currentShape = e.target;
+        let currentShape = e.target;
         menuNode.style.display = "initial";
         menuNode.style.zIndex = "1";
         console.log(menuNode);
@@ -1421,7 +1421,7 @@ export default function GroupChat() {
           <div
             className={settingsClicked ? "side-menu-div-on" : "side-menu-div"}
           >
-            <ul>
+            <div>
               <div className="accordion">
                 <div
                   className={
