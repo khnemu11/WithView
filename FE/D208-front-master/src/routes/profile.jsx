@@ -25,7 +25,7 @@ const Profile = () => {
   const [profilePassword, setProfilePassword] = useState("");
   const [profilePasswordCheck, setProfilePasswordCheck] = useState("");
   const [profileLeaveCheck, setProfileLeaveCheck] = useState("");
-  const [profileImage, setProfileImage] = useState("/프사.png");
+  const [profileImage, setProfileImage] = useState(null);
   const profileImageURL = useSelector((state) => state.user.profile);
   const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImageURL}`;
   const dispatch = useDispatch();
