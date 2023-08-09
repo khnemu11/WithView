@@ -415,6 +415,7 @@ public class UserController {
 				throw new BadRequestException("BAD_REQUEST");
 			}
 			userService.withdraw(seq);
+			jwtService.removeRefreshToken(seq);
 			resultMap.put("success", true);
 			status = HttpStatus.OK;
 			log.info("회원탈퇴 완료. seq: {}", seq);
