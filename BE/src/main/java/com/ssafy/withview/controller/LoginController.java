@@ -3,6 +3,7 @@ package com.ssafy.withview.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import com.ssafy.withview.constant.Role;
 import com.ssafy.withview.dto.AccessTokenDto;
 import com.ssafy.withview.dto.LoginDto;
 import com.ssafy.withview.dto.UserDto;
+import com.ssafy.withview.exception.BadRequestException;
 import com.ssafy.withview.service.JwtService;
 import com.ssafy.withview.service.LoginService;
 
@@ -48,6 +50,8 @@ public class LoginController {
 			// 로그인 유저 정보
 			UserDto userDto = loginService.getUserInfo(loginDto.getId());
 			log.debug("UserInfo pk: {}", userDto.getSeq());
+			loginService.checkDuplicateLogin(userDto.getSeq()); // 중복 로그인 방지
+			loginService.hasBeenWithdrawn(userDto.getSeq()); // 탈퇴한 회원 로그인 방지
 			Authentication authentication = jwtService.createAuthentication(userDto.getSeq(), loginDto.getPassword());
 			if (authentication != null) {
 				// AccessToken 발급
@@ -68,7 +72,7 @@ public class LoginController {
 			resultMap.put("success", false);
 			resultMap.put("message", e.getMessage());
 			status = HttpStatus.ACCEPTED;
-			log.info("[Error] 일치하는 회원 정보가 없습니다. seq: {}", e.getMessage());
+			log.info("[Error] {}", e.getMessage());
 		} catch (Exception e) {
 			resultMap.put("success", false);
 			resultMap.put("message", e.getMessage());
@@ -85,12 +89,18 @@ public class LoginController {
 	 * @return ResponseEntity (true / false, 상태코드)
 	 */
 	@PostMapping("/logout")
-	public ResponseEntity<Map<String, Object>> logout(@RequestBody UserDto userDto, HttpServletResponse response) {
+	public ResponseEntity<Map<String, Object>> logout(@RequestBody UserDto userDto, HttpServletRequest request,
+		HttpServletResponse response) {
 		log.debug("LoginController - logout: 로그아웃 진행");
 		Map<String, Object> resultMap = new HashMap<>();
 		HttpStatus status;
 		try {
 			log.debug("seq: {}", userDto.getSeq());
+			String accessToken = jwtService.resolveAccessToken(request.getHeader("Authorization"));
+			LoginDto loginDto = jwtService.getLoginInfo(accessToken);
+			if (loginDto.getUserSeq() != userDto.getSeq()) {
+				throw new BadRequestException("BAD_REQUEST");
+			}
 			// Redis 에서 RefreshToken 삭제
 			jwtService.removeRefreshToken(userDto.getSeq());
 			// Cookie 삭제
