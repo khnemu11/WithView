@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.withview.dto.CanvasDto;
 import com.ssafy.withview.dto.CanvasMessageDto;
-import com.ssafy.withview.dto.ChannelChatMessageDto;
+import com.ssafy.withview.dto.ChannelChatDto;
 import com.ssafy.withview.dto.ChannelValueDto;
 import com.ssafy.withview.dto.FriendsChatMessageDto;
 import com.ssafy.withview.dto.FriendsChatRoomsUserInfoForPubSendDto;
