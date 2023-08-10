@@ -1,17 +1,20 @@
 package com.ssafy.withview.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.json.simple.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.withview.dto.FriendDto;
+import com.ssafy.withview.dto.FriendFollowDto;
 import com.ssafy.withview.dto.UserDto;
 import com.ssafy.withview.service.FriendService;
 import com.ssafy.withview.service.UserService;
@@ -51,7 +54,9 @@ public class FriendController {
 	}
 
 	@PostMapping
-	public ResponseEntity<?> followUser(Long followingUserSeq, Long followedUserSeq) {
+	public ResponseEntity<?> followUser(@ModelAttribute FriendFollowDto friendFollowDto) {
+		Long followingUserSeq = friendFollowDto.getFollowingUserSeq();
+		Long followedUserSeq = friendFollowDto.getFollowedUserSeq();
 		JSONObject result = new JSONObject();
 		try {
 			FriendDto friendDto = friendService.insertFollowUser(followingUserSeq, followedUserSeq);
