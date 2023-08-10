@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +15,6 @@ import com.ssafy.withview.dto.FriendsChatRoomsSeqDto;
 import com.ssafy.withview.dto.FriendsChatRoomsUserInfoDto;
 import com.ssafy.withview.dto.FriendsChatRoomsUserInfoForPubSendDto;
 import com.ssafy.withview.dto.UserSeqDto;
-import com.ssafy.withview.repository.WebSocketSubscribeRepository;
 import com.ssafy.withview.service.ChannelChatService;
 import com.ssafy.withview.service.ChatPublisher;
 import com.ssafy.withview.service.FriendsChatRoomService;
@@ -32,7 +32,6 @@ public class ChatController {
 	private final ChatPublisher chatPublisher;
 	private final ChannelChatService channelChatService;
 	private final FriendsChatService friendsChatService;
-	private final WebSocketSubscribeRepository webSocketSubscribeRepository;
 	private final FriendsChatRoomService friendsChatRoomService;
 	private final UserService userService;
 
@@ -47,6 +46,7 @@ public class ChatController {
 	// websocket "/api/pub/chat/friends/message"로 들어오는 메시징을 처리한다.
 	@MessageMapping("/chat/friends/message")
 	public void friendsChatMessage(FriendsChatMessageDto message) {
+		message.setMessageSeq(friendsChatService.getFriendsChatRoomLastMessageSeq(message.getFriendsChatRoomSeq()));
 		message.setSendTime(LocalDateTime.now());
 		friendsChatService.insertFriendsChat(message);
 		chatPublisher.sendFriendsChatMessage(message.toJson());
@@ -88,6 +88,12 @@ public class ChatController {
 			.friendsChatRoomsUserInfoDtos(friendsChatRoomsUserInfoDtos)
 			.build();
 		chatPublisher.sendFriendsChatRoomInfo(pubSendDto.toJson());
+	}
+
+	@MessageMapping("/chat/friends/{friendsChatRoomSeq}")
+	public void setRecentChatMessageSeq(@DestinationVariable Long friendsChatRoomSeq) {
+		Long lastMessageSeq = friendsChatService.setFriendsChatRoomLastMessageSeq(friendsChatRoomSeq);
+		log.info("{}번 1대1 채팅방 구독 시작, 마지막 메시지 seq: {}", friendsChatRoomSeq, lastMessageSeq);
 	}
 
 	@GetMapping("/chat/view")
