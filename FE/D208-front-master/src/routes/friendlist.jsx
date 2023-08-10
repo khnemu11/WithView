@@ -3,6 +3,7 @@ import "../css/friendlist.css";
 import friendAddIcon from "/friend-add.png";
 import searchIcon from "/searchicon.png";
 import { useEffect } from "react";
+import paperPlaneIcon from "/paper-plane.png";
 
 const FriendList = () => {
   const [selectedTab, setSelectedTab] = useState("친구"); // 초기 상태를 '친구'로 설정
@@ -127,9 +128,10 @@ const FriendList = () => {
 
   const chatMessages = {
     "John Doe": [
-      { sender: "John Doe", message: "안녕하세요?" },
-      { sender: "Me", message: "안녕하세요!" },
-      // ... 기타 메시지
+      { sender: "John Doe", message: "안녕하세요 ?" },
+      { sender: "Me", message: "안녕하세요 !" },
+      { sender: "Me", message: "이것은 예시랍니다 !" },
+      { sender: "John Doe", message: "그렇군요 ?" },
     ],
     // ... 기타 채팅방 메시지
   };
@@ -170,6 +172,7 @@ const FriendList = () => {
         >
           친구
         </button>
+        <div className="friendlist-divider"></div> {/* 세로 줄 요소 추가 */}
         <button
           className={`friendlist-btn ${selectedTab === "채팅" ? "active" : ""}`}
           onClick={() => setSelectedTab("채팅")}
@@ -252,17 +255,22 @@ const FriendList = () => {
                   <div
                     key={index}
                     className={`message ${
-                      msg.sender === "Me" ? "me" : "other"
+                      msg.sender === "Me" ? "me-chat" : "other-chat"
                     }`}
                   >
-                    <span>{msg.sender}: </span>
                     <span>{msg.message}</span>
                   </div>
                 ))}
               </div>
               <div className="chat-input">
-                <input type="text" placeholder="메시지 입력..." />
-              </div>
+    <input type="text" placeholder="메시지 입력..." />
+    <img
+      src={paperPlaneIcon}
+      alt="Send"
+      className="send-icon"
+      // onClick={/* 메시지 전송 함수 */}
+    />
+</div>
             </div>
           ) : (
             <img
