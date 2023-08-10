@@ -13,7 +13,6 @@ import com.ssafy.withview.entity.FriendsChatRoomEntity;
 import com.ssafy.withview.entity.FriendsChatRoomUserInfoEntity;
 import com.ssafy.withview.repository.FriendsChatRoomRepository;
 import com.ssafy.withview.repository.FriendsChatRoomUserInfoRepository;
-import com.ssafy.withview.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +24,6 @@ public class FriendsChatRoomService {
 
 	private final FriendsChatRoomRepository friendsChatRoomRepository;
 	private final FriendsChatRoomUserInfoRepository friendsChatRoomUserInfoRepository;
-	private final UserRepository userRepository;
 
 	@Transactional
 	public Long insertFriendsChatRoom(Long mySeq, Long yourSeq) {
@@ -60,6 +58,7 @@ public class FriendsChatRoomService {
 			})
 			.collect(Collectors.toList());
 	}
+
 
 	// public Long findLastReadChatMessageFromChatRoom(Long userSeq, Long friendsChatRoomSeq) {
 	//

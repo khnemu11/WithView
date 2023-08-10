@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Repository
-public class WebSocketSubscribeRepository {
+public class RedisTemplateRepository {
 
 	/**
 	 * 어떤 유저가 어떤 채널에 참여해있는지 기억하는 값 : HashOperations<String, Long, ChatRoom> hashOpsUserChatRoom
@@ -26,6 +26,7 @@ public class WebSocketSubscribeRepository {
 	private static final String ENTER_CHAT_CHANNEL = "ENTER_CHAT_CHANNEL";
 	private static final String USER_CONNECT_SESSION = "USER_CONNECT_SESSION_";
 	private static final String USER_ENTER_SERVER_USERSEQ = "USER_ENTER_SERVER_USERSEQ_";
+	private static final String FRIENDS_CHAT_ROOM_LAST_MESSAGE_SEQ = "FRIENDS_CHAT_ROOM_LAST_MESSAGE_SEQ_FOR_";
 
 	@Resource(name = "redisTemplate")
 	private HashOperations<String, String, String> hashOpsUserEnterChatChannelInfo;
@@ -35,6 +36,8 @@ public class WebSocketSubscribeRepository {
 	private ValueOperations<String, String> valOpsUserSessionInfo;
 	@Resource(name = "redisTemplate")
 	private ValueOperations<String, String> valOpsUserServerInfoOfNowChannel;
+	@Resource(name = "redisTemplate")
+	private ValueOperations<String, String> valOpsFriendsChatRoomLastMessageSeq;
 
 	public Long userSubscribeChannelChat(Long userSeq, Long channelSeq, Long serverSeq) {
 		valOpsUserServerInfoOfNowChannel.set(USER_ENTER_SERVER_USERSEQ + userSeq, String.valueOf(serverSeq));
@@ -81,5 +84,19 @@ public class WebSocketSubscribeRepository {
 		userUnsubscribeChannelChat(userSeq, channelSeq);
 		valOpsUserSessionInfo.set(USER_CONNECT_SESSION + simpSessionId, "", 1, TimeUnit.MILLISECONDS);
 		return serverSeq;
+	}
+
+	public Long setFriendsChatRoomLastMessageSeq(Long friendsChatRoomSeq, Long lastMessageSeq) {
+		valOpsFriendsChatRoomLastMessageSeq.set(FRIENDS_CHAT_ROOM_LAST_MESSAGE_SEQ + friendsChatRoomSeq, String.valueOf(lastMessageSeq));
+		return lastMessageSeq;
+	}
+
+	public Long getFriendsChatRoomLastMessageSeq(Long friendsChatRoomSeq) {
+		if (valOpsFriendsChatRoomLastMessageSeq.get(FRIENDS_CHAT_ROOM_LAST_MESSAGE_SEQ + friendsChatRoomSeq) == null) {
+			return 1L;
+		}
+		String lastMessageSeq = valOpsFriendsChatRoomLastMessageSeq.get(FRIENDS_CHAT_ROOM_LAST_MESSAGE_SEQ + friendsChatRoomSeq);
+		valOpsFriendsChatRoomLastMessageSeq.increment(FRIENDS_CHAT_ROOM_LAST_MESSAGE_SEQ + friendsChatRoomSeq);
+		return Long.parseLong(lastMessageSeq);
 	}
 }
