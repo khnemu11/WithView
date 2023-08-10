@@ -1,6 +1,7 @@
 package com.ssafy.withview.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.json.simple.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -11,7 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.withview.dto.FriendDto;
+import com.ssafy.withview.dto.UserDto;
 import com.ssafy.withview.service.FriendService;
+import com.ssafy.withview.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 public class FriendController {
 
 	private final FriendService friendService;
+	private final UserService userService;
 
 	@GetMapping
 	public ResponseEntity<?> getFollowingUsers(Long userSeq) {
@@ -30,8 +34,12 @@ public class FriendController {
 		try {
 			List<FriendDto> followingUsers = friendService.getFollowingUsers(userSeq);
 
+			List<UserDto> followingUsersProfile = followingUsers.stream()
+				.map(f -> userService.getProfile(f.getFollowedUserSeq()))
+				.collect(Collectors.toList());
+
 			result.put("success", true);
-			result.put("userList", followingUsers);
+			result.put("userList", followingUsersProfile);
 		} catch (Exception e) {
 			e.printStackTrace();
 			result = new JSONObject();

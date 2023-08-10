@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.withview.dto.FriendsChatMessageDto;
@@ -53,9 +54,8 @@ public class FriendsChatRoomController {
 
 	@GetMapping("/{chatRoomSeq}")
 	public ResponseEntity<?> getFriendsChatMessagesByPage(@PathVariable Long chatRoomSeq,
-		@RequestBody Map<String, Integer> map) {
+		@RequestParam Integer page) {
 
-		Integer page = map.get("page");
 		JSONObject result = new JSONObject();
 		try {
 			List<FriendsChatMessageDto> friendsChatMessagesByPage = friendsChatService.getFriendsChatMessagesByPage(
