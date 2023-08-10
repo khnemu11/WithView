@@ -3,12 +3,15 @@ package com.ssafy.withview.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 
+import com.ssafy.withview.dto.ChannelDto;
 import com.ssafy.withview.dto.ChannelValueDto;
+import com.ssafy.withview.dto.UserDto;
 import com.ssafy.withview.entity.ChannelEntity;
 import com.ssafy.withview.repository.ChannelRepository;
 import com.ssafy.withview.repository.WebSocketSubscribeRepository;
@@ -23,6 +26,7 @@ public class ChannelValueService {
 	private final RedisTemplate redisTemplate;
 	private final WebSocketSubscribeRepository webSocketSubscribeRepository;
 	private final ChannelRepository channelRepository;
+	private final UserService userService;
 
 	public Long enterChannel(Long userSeq, Long channelSeq, Long serverSeq) {
 		return webSocketSubscribeRepository.userSubscribeChannelChat(userSeq, channelSeq, serverSeq);
@@ -37,13 +41,19 @@ public class ChannelValueService {
 	}
 
 	public ChannelValueDto getChannelValueDto(Long serverSeq) {
-		List<ChannelEntity> channels = channelRepository.findByServerEntitySeq(serverSeq);
+		List<ChannelDto> channels = channelRepository.findByServerEntitySeq(serverSeq).stream()
+			.map(ChannelEntity::toDto)
+			.collect(Collectors.toList());
 		ChannelValueDto channelValueDto = new ChannelValueDto(serverSeq);
 		channelValueDto.setChannelMember(new HashMap<>());
-		for (ChannelEntity channel : channels) {
+		for (ChannelDto channel : channels) {
 			Long channelSeq = channel.getSeq();
-			Set<Long> channelMemberValue = getChannelMemberValue(channelSeq);
-			channelValueDto.getChannelMember().put(channelSeq, channelMemberValue);
+
+			Set<UserDto> channelMemberUserDtos = getChannelMemberValue(channelSeq).stream()
+				.map(userService::getProfile)
+				.collect(Collectors.toSet());
+
+			channelValueDto.getChannelMember().put(channelSeq, channelMemberUserDtos);
 		}
 		return channelValueDto;
 	}
@@ -53,5 +63,13 @@ public class ChannelValueService {
 	 */
 	public void sendChannelValue(String channelValueJson) {
 		redisTemplate.convertAndSend(channelValueChannelTopic.getTopic(), channelValueJson);
+	}
+
+	public String userConnectSetSession(String simpSessionId, Long userSeq) {
+		return webSocketSubscribeRepository.userConnectSetSession(simpSessionId, userSeq);
+	}
+
+	public Long userDisconnect(String simpSessionId) {
+		return webSocketSubscribeRepository.userDisconnect(simpSessionId);
 	}
 }

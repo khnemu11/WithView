@@ -48,6 +48,11 @@ public class RedisConfig {
 	}
 
 	@Bean
+	public ChannelTopic friendsChatRoomsInfoTopic() {
+		return new ChannelTopic("friendsChatRoomsInfo");
+	}
+
+	@Bean
 	public MessageListenerAdapter channelChattingListenerAdapter(RedisSubscriber subscriber) {
 		return new MessageListenerAdapter(subscriber, "sendChannelMessage");
 	}
@@ -66,14 +71,20 @@ public class RedisConfig {
 	public MessageListenerAdapter canvasListenerAdapter(RedisSubscriber subscriber) {
 		return new MessageListenerAdapter(subscriber, "sendCanvas");
 	}
+
+	@Bean
+	public MessageListenerAdapter friendsChatRoomsInfoListenerAdapter(RedisSubscriber subscriber) {
+		return new MessageListenerAdapter(subscriber, "sendFriendsChatRoomsInfo");
+	}
+
 	// redis pub/sub 메시지를 처리하는 listener 설정
 	@Bean
 	public RedisMessageListenerContainer redisMessageListener(RedisConnectionFactory connectionFactory,
 		MessageListenerAdapter channelChattingListenerAdapter, MessageListenerAdapter channelValueListenerAdapter,
 		MessageListenerAdapter friendsChattingListenerAdapter, MessageListenerAdapter canvasListenerAdapter,
-		ChannelTopic channelChattingTopic, ChannelTopic channelValueChannelTopic,
-		ChannelTopic friendsChattingTopic, ChannelTopic canvasTopic) {
-
+		MessageListenerAdapter friendsChatRoomsInfoListenerAdapter, ChannelTopic channelChattingTopic,
+		ChannelTopic channelValueChannelTopic, ChannelTopic friendsChattingTopic, ChannelTopic canvasTopic,
+		ChannelTopic friendsChatRoomsInfoTopic) {
 		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
 		container.setConnectionFactory(connectionFactory);
 
@@ -81,6 +92,7 @@ public class RedisConfig {
 		container.addMessageListener(friendsChattingListenerAdapter, friendsChattingTopic);
 		container.addMessageListener(channelValueListenerAdapter, channelValueChannelTopic);
 		container.addMessageListener(canvasListenerAdapter, canvasTopic);
+		container.addMessageListener(friendsChatRoomsInfoListenerAdapter, friendsChatRoomsInfoTopic);
 		return container;
 	}
 
