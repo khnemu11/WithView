@@ -14,7 +14,7 @@ import com.ssafy.withview.dto.ChannelValueDto;
 import com.ssafy.withview.dto.UserDto;
 import com.ssafy.withview.entity.ChannelEntity;
 import com.ssafy.withview.repository.ChannelRepository;
-import com.ssafy.withview.repository.WebSocketSubscribeRepository;
+import com.ssafy.withview.repository.RedisTemplateRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,20 +24,20 @@ public class ChannelValueService {
 
 	private final ChannelTopic channelValueChannelTopic;
 	private final RedisTemplate redisTemplate;
-	private final WebSocketSubscribeRepository webSocketSubscribeRepository;
+	private final RedisTemplateRepository redisTemplateRepository;
 	private final ChannelRepository channelRepository;
 	private final UserService userService;
 
 	public Long enterChannel(Long userSeq, Long channelSeq, Long serverSeq) {
-		return webSocketSubscribeRepository.userSubscribeChannelChat(userSeq, channelSeq, serverSeq);
+		return redisTemplateRepository.userSubscribeChannelChat(userSeq, channelSeq, serverSeq);
 	}
 
 	public Long leaveChannel(Long userSeq, Long channelSeq) {
-		return webSocketSubscribeRepository.userUnsubscribeChannelChat(userSeq, channelSeq);
+		return redisTemplateRepository.userUnsubscribeChannelChat(userSeq, channelSeq);
 	}
 
 	public Set<Long> getChannelMemberValue(Long channelSeq) {
-		return webSocketSubscribeRepository.getChannelMembers(channelSeq);
+		return redisTemplateRepository.getChannelMembers(channelSeq);
 	}
 
 	public ChannelValueDto getChannelValueDto(Long serverSeq) {
@@ -66,10 +66,10 @@ public class ChannelValueService {
 	}
 
 	public String userConnectSetSession(String simpSessionId, Long userSeq) {
-		return webSocketSubscribeRepository.userConnectSetSession(simpSessionId, userSeq);
+		return redisTemplateRepository.userConnectSetSession(simpSessionId, userSeq);
 	}
 
 	public Long userDisconnect(String simpSessionId) {
-		return webSocketSubscribeRepository.userDisconnect(simpSessionId);
+		return redisTemplateRepository.userDisconnect(simpSessionId);
 	}
 }

@@ -80,7 +80,7 @@ public class RedisSubscriber {
 				publishMessage,
 				FriendsChatRoomsUserInfoForPubSendDto.class);
 			messagingTemplate.convertAndSend(
-				"/api/sub/chat/friends/chatroominfo/" + friendsChatRoomsUserInfoForPubSendDto.getUserSeq());
+				"/api/sub/chat/friends/chatroominfo/" + friendsChatRoomsUserInfoForPubSendDto.getUserSeq(), friendsChatRoomsUserInfoForPubSendDto);
 		} catch (Exception e) {
 			log.error("Exception {}", e);
 		}
