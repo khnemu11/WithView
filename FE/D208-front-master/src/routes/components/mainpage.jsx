@@ -9,6 +9,9 @@ import ServerOptions from "./serveroptions";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import axiosInstance from "../axiosinstance";
+
+
 
 Modal.setAppElement("#root");
 
@@ -17,7 +20,7 @@ const Mainpage = () => {
   const [profileImage, setProfileImage] = useState(null);
   const profileNickname = useSelector((state) => state.user.nickname);
   const profileImageURL = useSelector((state) => state.user.profile);
-  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImage}`;
+  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImageURL}`;
   const userSeq = useSelector((state) => state.user.seq);
 
   const [joinserverData, setJoinServerData] = useState([]);
@@ -25,12 +28,15 @@ const Mainpage = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const token = useSelector((state) => state.token);
+
+
   useEffect(() => {
     // 만약 redux에서 프로필 이미지가 null이면 기본 이미지로 설정
     if (profileImageURL === null) {
       setProfileImage("/withView2.png");
     } else {
-      setProfileImage(profileImageURL);
+      setProfileImage(profileImageUrl);
     }
   }, [profileImageURL]);
 
@@ -59,28 +65,33 @@ const Mainpage = () => {
       handleSearchIconClick();
     }
   };
-
-  useEffect(() => {
-    // API를 통해 사용자가 참여한 서버 데이터를 가져오는 함수
-    const fetchJoinedServers = async () => {
-      try {
-        const response = await axios.get(
-          `https://i9d208.p.ssafy.io/api/servers/find-server-by-user?userSeq=${userSeq}`
-        );
-        const data = response.data;
-        setJoinServerData(data.servers);
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    };
+useEffect(() => {
+  // API를 통해 사용자가 참여한 서버 데이터를 가져오는 함수
+  const fetchJoinedServers = async () => {
+    try {
+      const response = await axiosInstance.get(
+        `/servers/find-server-by-user?userSeq=${userSeq}`,
+        {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        }
+      );
+      const data = response.data;
+      console.log(data)
+      setJoinServerData(data.servers);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
 
     fetchJoinedServers();
   }, [userSeq]);
 
   useEffect(() => {
     // joinserverData에서 즐겨찾기된 서버를 필터링하여 설정
-    const favorites = joinserverData.filter((server) => server.favorite);
-    setFavoriteServerData(favorites);
+    const isFavorite = joinserverData.filter((server) => server.isFavorite);
+    setFavoriteServerData(isFavorite);
   }, [joinserverData]);
 
   useEffect(() => {
@@ -91,41 +102,50 @@ const Mainpage = () => {
     setSearchResults(results);
   }, [joinserverData, searchText]);
 
-  const handleFavoriteToggle = async (serverSeq, favorite) => {
+  const handleFavoriteToggle = async (serverSeq, isFavorite) => {
     try {
-      const url = `https://i9d208.p.ssafy.io/api/users/1/favorites/`;
+      const url = `/users/${userSeq}/favorites/`;
+      const url2 = `/users/${userSeq}/favorites?`;
 
       const formData = new FormData();
       formData.append("userSeq", userSeq);
       formData.append("serverSeq", serverSeq);
 
-      if (favorite) {
+      const queryString = new URLSearchParams(formData).toString()
+
+      if (isFavorite) {
         // 이미 즐겨찾기에 추가된 서버이면 삭제 요청 (DELETE)
-        await axios.delete(url, { data: formData });
+        await axiosInstance.delete(url2+queryString, {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
       } else {
         // 즐겨찾기에 추가되지 않은 서버이면 추가 요청 (POST)
-        await axios.post(url, formData);
+        await axiosInstance.post(url, formData, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "multipart/form-data"
+          }
+        });
       }
 
       // 서버의 즐겨찾기 상태가 토글되었으므로 joinserverData 상태를 업데이트합니다.
       setJoinServerData((prevData) =>
         prevData.map((server) =>
-          server.seq === serverSeq ? { ...server, favorite: !favorite } : server
+          server.seq === serverSeq ? { ...server, isFavorite: !isFavorite } : server
         )
       );
     } catch (error) {
       console.error("Error toggling favorite:", error);
     }
-  };
+};
 
   const CardItem = ({
     seq,
     name,
-    limitChannel,
-    hostSeq,
     backgroundImgSearchName,
-    backgroundImgOriginalName,
-    favorite,
+    isFavorite,
   }) => {
     const handleCardClick = () => {
       // 서버 화면으로 이동하는 경로를 설정합니다.
@@ -137,7 +157,7 @@ const Mainpage = () => {
     const handleFavoriteButtonClick = (e) => {
       e.stopPropagation();
       // 즐겨찾기 기능 작동
-      handleFavoriteToggle(seq, favorite);
+      handleFavoriteToggle(seq, isFavorite);
     };
 
     return (
@@ -154,7 +174,7 @@ const Mainpage = () => {
           </figure>
         </div>
         <button className="star-button" onClick={handleFavoriteButtonClick}>
-          <img src={favorite ? "/yellowstar.png" : "/whitestar.png"} />
+          <img src={isFavorite ? "/yellowstar.png" : "/whitestar.png"} />
         </button>
         <Link to={`/server/${seq}`} style={{ textDecoration: "none" }}>
           <header className="card-header">
@@ -177,7 +197,7 @@ const Mainpage = () => {
     <div className="mainbox">
       <div className="innermain">
         <ServerOptions
-          profileImage={profileImageUrl}
+          profileImage={profileImage}
           profileNickname={profileNickname}
         />
         <hr className="serverOptionsLine_main" />
@@ -217,11 +237,9 @@ const Mainpage = () => {
                   <CardItem
                     seq={server.seq}
                     name={server.name}
-                    limitChannel={server.limitChannel}
                     hostSeq={server.hostSeq}
                     backgroundImgSearchName={server.backgroundImgSearchName}
-                    backgroundImgOriginalName={server.backgroundImgOriginalName}
-                    favorite={server.favorite}
+                    isFavorite={server.isFavorite}
                   />
                 </div>
               ))}
@@ -245,11 +263,9 @@ const Mainpage = () => {
                 <CardItem
                   seq={server.seq}
                   name={server.name}
-                  limitChannel={server.limitChannel}
                   hostSeq={server.hostSeq}
                   backgroundImgSearchName={server.backgroundImgSearchName}
-                  backgroundImgOriginalName={server.backgroundImgOriginalName}
-                  favorite={server.favorite}
+                  isFavorite={server.isFavorite}
                 />
               </div>
             ))}
@@ -274,7 +290,7 @@ const Mainpage = () => {
                   hostSeq={server.hostSeq}
                   backgroundImgSearchName={server.backgroundImgSearchName}
                   backgroundImgOriginalName={server.backgroundImgOriginalName}
-                  favorite={server.favorite}
+                  isFavorite={server.isFavorite}
                 />
               </div>
             ))}

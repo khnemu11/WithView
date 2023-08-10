@@ -5,12 +5,14 @@ import ServerOptions from "./serveroptions";
 import { useSelector } from "react-redux";
 
 
+
 const FirstMain = () => {
   const [profileImage, setProfileImage] = useState(null);
   // const [profileNickname, setProfileNickname] = useState("기본 닉네임");
   const profileNickname = useSelector((state) => state.user.nickname)
   const profileImageURL = useSelector((state) => state.user.profile);
-  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImage}`;
+  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImageURL}`;
+
 
 
   useEffect(() => {
@@ -18,7 +20,7 @@ const FirstMain = () => {
     if (profileImageURL === null) {
       setProfileImage("/withView2.png");
     } else {
-      setProfileImage(profileImageURL);
+      setProfileImage(profileImageUrl);
     }
   }, [profileImageURL]);
 
@@ -27,7 +29,7 @@ const FirstMain = () => {
     <div className="mainbox">
       <div className="innerfirstmain">
         <ServerOptions
-          profileImage={profileImageUrl}
+          profileImage={profileImage}
           profileNickname={profileNickname}
         />
 

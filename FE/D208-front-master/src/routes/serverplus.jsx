@@ -8,6 +8,9 @@ import ServerOptions from "./components/serveroptions";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "./axiosinstance";
+
+
 
 const ServerPlus = () => {
   const profileNickname = useSelector((state) => state.user.nickname);
@@ -21,7 +24,9 @@ const ServerPlus = () => {
   const [imageToCrop, setImageToCrop] = useState(null);
   const cropperRef = useRef(null);
   const profileImageURL = useSelector((state) => state.user.profile);
-  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImage}`;
+  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImageURL}`;
+  const token = useSelector((state) => state.token);
+
 
 
   const navigate = useNavigate();
@@ -31,7 +36,7 @@ const ServerPlus = () => {
     if (profileImageURL === null) {
       setProfileImage("/withView2.png");
     } else {
-      setProfileImage(profileImageURL);
+      setProfileImage(profileImageUrl);
     }
   }, [profileImageURL]);
 
@@ -54,14 +59,12 @@ const ServerPlus = () => {
     formData.append("name", serverName);
     formData.append("file", editedImage);
 
-    // 서버 생성 API 주소
-    const serverCreateAPI = "https://i9d208.p.ssafy.io/api/servers";
-
-    // 서버로 생성 요청 보내기
-    axios
-      .post(serverCreateAPI, formData, {
+    // axiosInstance를 사용하므로 기본 URL은 생략 가능
+    axiosInstance
+      .post("/servers", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
+          "Authorization": `Bearer ${token}`
         },
       })
       .then((response) => {
@@ -78,6 +81,7 @@ const ServerPlus = () => {
         // ... (에러 처리 로직)
       });
   };
+
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -121,7 +125,7 @@ const ServerPlus = () => {
     <div className="mainbox">
       <div className="innermain">
         <ServerOptions
-          profileImage={profileImageUrl}
+          profileImage={profileImage}
           profileNickname={profileNickname}
         />
 

@@ -87,6 +87,7 @@ public class RedisConfig {
 		ChannelTopic friendsChatRoomsInfoTopic) {
 		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
 		container.setConnectionFactory(connectionFactory);
+
 		container.addMessageListener(channelChattingListenerAdapter, channelChattingTopic);
 		container.addMessageListener(friendsChattingListenerAdapter, friendsChattingTopic);
 		container.addMessageListener(channelValueListenerAdapter, channelValueChannelTopic);

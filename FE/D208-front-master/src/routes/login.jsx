@@ -63,17 +63,7 @@ export default function Login() {
           // refreshToken 저장하기
           // console.log(cookies)
           // 로비화면으로 이동
-          axios({
-            method: "GET",
-            url: `${url}/login/cookie`,
-          })
-            .then((res) => {
-              console.log(res.data);
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-
+          
           navigate("/mainpage");
         } else {
           alert("로그인 실패!!");

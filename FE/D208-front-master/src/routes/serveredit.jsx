@@ -8,6 +8,7 @@ import ServerOptions from "./components/serveroptions";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
+import axiosInstance from "./axiosinstance";
 
 const ServerEdit = () => {
   const profileNickname = useSelector((state) => state.user.nickname);
@@ -21,11 +22,12 @@ const ServerEdit = () => {
   const [imageToCrop, setImageToCrop] = useState(null);
   const cropperRef = useRef(null);
   const profileImageURL = useSelector((state) => state.user.profile);
-  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImage}`;
+  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImageURL}`;
 
   const { isHost } = useLocation().state || {};
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  
+  const token = useSelector((state) => state.token);
   const navigate = useNavigate();
   const { seq } = useParams();
   const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] =
@@ -55,7 +57,7 @@ const ServerEdit = () => {
     if (profileImageURL === null) {
       setProfileImage("/withView2.png");
     } else {
-      setProfileImage(profileImageURL);
+      setProfileImage(profileImageUrl);
     }
   }, [profileImageURL]);
 
@@ -79,13 +81,11 @@ const ServerEdit = () => {
     formData.append("file", editedImage);
     formData.append("seq", seq);
 
-    // 서버 편집 API 주소
-    const serverEditAPI = `https://i9d208.p.ssafy.io/api/servers/${seq}`;
-
     // 서버로 편집 요청 보내기
-    axios
-      .post(serverEditAPI, formData, {
+    axiosInstance
+      .post(`/servers/${seq}`, formData, {
         headers: {
+          "Authorization": `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       })
@@ -102,7 +102,7 @@ const ServerEdit = () => {
         console.error("서버 편집 실패:", error);
         // ... (에러 처리 로직)
       });
-  };
+};
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -145,12 +145,13 @@ const ServerEdit = () => {
   const confirmDeleteServer = () => {
     
     // 서버 삭제 API 주소
-    const serverDeleteAPI = `https://i9d208.p.ssafy.io/api/servers?serverSeq=${seq}&userSeq=${hostSeqRef.current}`;
+    const serverDeleteAPI = `/servers?serverSeq=${seq}&userSeq=${hostSeqRef.current}`;
 
     // 서버로 삭제 요청 보내기
-    axios
+    axiosInstance
       .delete(serverDeleteAPI, {
         headers: {
+          "Authorization": `Bearer ${token}`,
           "Content-Type": "application/x-www-form-urlencoded",
         },
       })
@@ -165,9 +166,11 @@ const ServerEdit = () => {
         console.error("서버 삭제 실패:", error);
         // ... (에러 처리 로직)
       });
+    
     // 삭제가 성공적으로 완료된 후에 모달을 닫습니다.
     setIsDeleteConfirmModalOpen(false);
-  };
+};
+
 
   return (
     <div className="mainbox">
@@ -189,7 +192,7 @@ const ServerEdit = () => {
           </div>
         )}
         <ServerOptions
-          profileImage={profileImageUrl}
+          profileImage={profileImage}
           profileNickname={profileNickname}
         />
 
