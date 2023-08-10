@@ -6,6 +6,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.ssafy.withview.dto.PresetDto;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,4 +34,16 @@ public class PresetEntity {
 		this.presetImgSearchName = presetImgSearchName;
 		this.stage = stage;
 	}
+
+	public static PresetDto toDto(PresetEntity presetEntity) {
+		return PresetDto.builder()
+			.id(presetEntity.getId())
+			.userSeq(presetEntity.getUserSeq())
+			.presetName(presetEntity.getPresetName())
+			.presetImgSearchName(presetEntity.getPresetImgSearchName())
+			.stage(presetEntity.getStage())
+			.registerTime(presetEntity.getRegisterTime())
+			.build();
+	}
+
 }

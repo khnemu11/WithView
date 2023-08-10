@@ -15,7 +15,7 @@ import lombok.Setter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class PresetDto {
-	private Long id;
+	private String id;
 	private Long userSeq;
 	private String presetName;
 	private String presetImgSearchName;
