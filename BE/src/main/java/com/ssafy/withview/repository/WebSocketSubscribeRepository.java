@@ -35,8 +35,6 @@ public class WebSocketSubscribeRepository {
 	private ValueOperations<String, String> valOpsUserSessionInfo;
 	@Resource(name = "redisTemplate")
 	private ValueOperations<String, String> valOpsUserServerInfoOfNowChannel;
-	@Resource(name = "redisTemplate")
-	private ValueOperations<String, String> valOpsRoomUserValue;
 
 	public Long userSubscribeChannelChat(Long userSeq, Long channelSeq, Long serverSeq) {
 		valOpsUserServerInfoOfNowChannel.set(USER_ENTER_SERVER_USERSEQ + userSeq, String.valueOf(serverSeq));
@@ -65,6 +63,11 @@ public class WebSocketSubscribeRepository {
 			.collect(Collectors.toSet());
 	}
 
+	public Long getUserSubscribeServerInfo(Long userSeq) {
+		return Long.parseLong(
+			Optional.ofNullable(valOpsUserServerInfoOfNowChannel.get(USER_ENTER_SERVER_USERSEQ + userSeq)).orElse("0"));
+	}
+
 	public String userConnectSetSession(String simpSessionId, Long userSeq) {
 		valOpsUserSessionInfo.set(USER_CONNECT_SESSION + simpSessionId, String.valueOf(userSeq));
 		return simpSessionId;
@@ -74,8 +77,7 @@ public class WebSocketSubscribeRepository {
 		Long userSeq = Long.parseLong(
 			Optional.ofNullable(valOpsUserSessionInfo.get(USER_CONNECT_SESSION + simpSessionId)).orElse("0"));
 		Long channelSeq = getUserEnterChannel(userSeq);
-		Long serverSeq = Long.parseLong(
-			Optional.ofNullable(valOpsUserServerInfoOfNowChannel.get(USER_ENTER_SERVER_USERSEQ + userSeq)).orElse("0"));
+		Long serverSeq = getUserSubscribeServerInfo(userSeq);
 		userUnsubscribeChannelChat(userSeq, channelSeq);
 		valOpsUserSessionInfo.set(USER_CONNECT_SESSION + simpSessionId, "", 1, TimeUnit.MILLISECONDS);
 		return serverSeq;
