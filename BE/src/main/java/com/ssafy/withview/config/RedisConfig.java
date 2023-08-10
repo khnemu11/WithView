@@ -43,6 +43,11 @@ public class RedisConfig {
 	}
 
 	@Bean
+	public ChannelTopic canvasTopic() {
+		return new ChannelTopic("canvas");
+	}
+
+	@Bean
 	public ChannelTopic friendsChatRoomsInfoTopic() {
 		return new ChannelTopic("friendsChatRoomsInfo");
 	}
@@ -63,6 +68,11 @@ public class RedisConfig {
 	}
 
 	@Bean
+	public MessageListenerAdapter canvasListenerAdapter(RedisSubscriber subscriber) {
+		return new MessageListenerAdapter(subscriber, "sendCanvas");
+	}
+
+	@Bean
 	public MessageListenerAdapter friendsChatRoomsInfoListenerAdapter(RedisSubscriber subscriber) {
 		return new MessageListenerAdapter(subscriber, "sendFriendsChatRoomsInfo");
 	}
@@ -71,15 +81,16 @@ public class RedisConfig {
 	@Bean
 	public RedisMessageListenerContainer redisMessageListener(RedisConnectionFactory connectionFactory,
 		MessageListenerAdapter channelChattingListenerAdapter, MessageListenerAdapter channelValueListenerAdapter,
-		MessageListenerAdapter friendsChattingListenerAdapter,
+		MessageListenerAdapter friendsChattingListenerAdapter, MessageListenerAdapter canvasListenerAdapter,
 		MessageListenerAdapter friendsChatRoomsInfoListenerAdapter, ChannelTopic channelChattingTopic,
-		ChannelTopic channelValueChannelTopic, ChannelTopic friendsChattingTopic,
+		ChannelTopic channelValueChannelTopic, ChannelTopic friendsChattingTopic, ChannelTopic canvasTopic,
 		ChannelTopic friendsChatRoomsInfoTopic) {
 		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
 		container.setConnectionFactory(connectionFactory);
 		container.addMessageListener(channelChattingListenerAdapter, channelChattingTopic);
 		container.addMessageListener(friendsChattingListenerAdapter, friendsChattingTopic);
 		container.addMessageListener(channelValueListenerAdapter, channelValueChannelTopic);
+		container.addMessageListener(canvasListenerAdapter, canvasTopic);
 		container.addMessageListener(friendsChatRoomsInfoListenerAdapter, friendsChatRoomsInfoTopic);
 		return container;
 	}

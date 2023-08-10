@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.withview.dto.ChannelChatDto;
+import com.ssafy.withview.dto.CanvasMessageDto;
 import com.ssafy.withview.dto.ChannelValueDto;
 import com.ssafy.withview.dto.FriendsChatMessageDto;
 import com.ssafy.withview.dto.FriendsChatRoomsUserInfoForPubSendDto;
@@ -59,6 +60,18 @@ public class RedisSubscriber {
 			log.error("Exception {}", e);
 		}
 	}
+
+	public void sendCanvas(String publishMessage) {
+		try {
+			log.info("캔버스 변경 감지 : ");
+			CanvasMessageDto canvasMessageDto = objectMapper.readValue(publishMessage, CanvasMessageDto.class);
+			log.info("변경된 캔버스 정보 전송", publishMessage);
+			messagingTemplate.convertAndSend("/api/sub/canvas/channel/" + canvasMessageDto.getChannelSeq(), publishMessage);
+		} catch (Exception e) {
+			log.error("Exception {}", e);
+		}
+	}
+
 
 	public void sendFriendsChatRoomsInfo(String publishMessage) {
 		try {
