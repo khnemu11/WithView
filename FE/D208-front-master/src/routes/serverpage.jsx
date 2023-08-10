@@ -13,6 +13,7 @@ import Modal from "react-modal";
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
 import Popover from "react-popover";
+import axiosInstance from "./axiosinstance";
 
 Modal.setAppElement("#root");
 
@@ -26,7 +27,7 @@ const Serverpage = () => {
 
   const [serverMembers, setServerMembers] = useState([]);
   const profileImageURL = useSelector((state) => state.user.profile);
-  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImage}`;
+  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImageURL}`;
 
   const userSeq = useSelector((state) => state.user.seq);
 
@@ -34,25 +35,29 @@ const Serverpage = () => {
   const [channelName, setChannelName] = useState("");
   const [croppedImage, setCroppedImage] = useState(null);
   const cropperRef = useRef(null);
-
-  const [serverInfo, setServerInfo] = useState(null);
   const [isHost, setIsHost] = useState(false);
 
   const { seq } = useParams();
+  const token = useSelector((state) => state.token);
+
   const navigate = useNavigate();
 
   const [editingChannel, setEditingChannel] = useState(null);
+
+  const [inviteLinkModalOpen, setInviteLinkModalOpen] = useState(false);
+  const [inviteLink, setInviteLink] = useState("");
 
   //서버 이름
   useEffect(() => {
     const fetchServerName = async () => {
       try {
-        const response = await axios.get(
-          `https://i9d208.p.ssafy.io/api/servers/${seq}`
-        );
+        const response = await axiosInstance.get(`/servers/${seq}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const serverInfo = response.data.server;
 
-        setServerInfo(serverInfo);
         setServerName(serverInfo.name);
         // 사용자가 호스트인지 확인
         setIsHost(serverInfo.hostSeq === userSeq);
@@ -62,6 +67,72 @@ const Serverpage = () => {
     };
     fetchServerName();
   }, [seq]);
+
+  const MemberPopover = ({ member }) => {
+    const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+    const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${member.profileImgSearchName}`;
+
+    const togglePopover = () => {
+      setIsPopoverOpen(!isPopoverOpen);
+    };
+
+    const popoverBody = (
+      <div className="profilePopover">
+        <img
+          src={profileImageUrl}
+          alt="profile"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "/withView2.png";
+          }}
+        />
+        <h2>{member.nickname}</h2>
+        <p>{member.profileMsg}</p>
+      </div>
+    );
+
+    return (
+      <div onClick={togglePopover}>
+        <Popover
+          isOpen={isPopoverOpen}
+          body={popoverBody}
+          preferPlace="above"
+          onOuterAction={togglePopover}
+        >
+          <img
+            src={profileImageUrl}
+            alt="profile"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = "/withView2.png";
+            }}
+          />
+        </Popover>
+      </div>
+    );
+  };
+
+  // 서버 맴버 목록
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const response = await axiosInstance.get(`/servers/${seq}/users`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.data.success) {
+          setServerMembers(response.data.users);
+        } else {
+          console.error("Failed to fetch members data");
+        }
+      } catch (error) {
+        console.error("Error fetching members data:", error);
+      }
+    };
+
+    fetchMembers();
+  }, [seq]); // seq 값이 변경될 때마다 새로운 요청을 보내도록 설정
 
   const ChannelCard = ({ channel, isHost }) => {
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -128,33 +199,6 @@ const Serverpage = () => {
     );
   };
 
-  const Member = ({ member }) => {
-    return (
-      <div className="member">
-        <img src={member.image} alt={member.name} className="memberImage" />
-        <p>{member.name}</p>
-      </div>
-    );
-  };
-
-  const Collapsible = ({ title, children }) => {
-    const [isOpen, setIsOpen] = useState(false);
-
-    return (
-      <div className="collapsible-server">
-        <div className="collapsibleHeader" onClick={() => setIsOpen(!isOpen)}>
-          {title}
-          <img
-            src={isOpen ? "/nav arrow up.png" : "/nav arrow down.png"}
-            alt="Toggle"
-            className="collapsibleIcon"
-          />
-        </div>
-        {isOpen && <div className="collapsibleBody">{children}</div>}
-      </div>
-    );
-  };
-
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     const reader = new FileReader();
@@ -171,7 +215,7 @@ const Serverpage = () => {
     if (profileImageURL === null) {
       setProfileImage("/withView2.png");
     } else {
-      setProfileImage(profileImageURL);
+      setProfileImage(profileImageUrl);
     }
   }, [profileImageURL]);
 
@@ -182,9 +226,11 @@ const Serverpage = () => {
 
   const fetchChannels = async () => {
     try {
-      const response = await axios.get(
-        `https://i9d208.p.ssafy.io/api/servers/${seq}/channels`
-      );
+      const response = await axiosInstance.get(`/servers/${seq}/channels`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = response.data;
       setChannels(data.channels);
     } catch (error) {
@@ -208,11 +254,12 @@ const Serverpage = () => {
       }
 
       try {
-        const response = await axios.post(
-          `https://i9d208.p.ssafy.io/api/servers/${seq}/channels`,
+        const response = await axiosInstance.post(
+          `/servers/${seq}/channels`,
           formData,
           {
             headers: {
+              Authorization: `Bearer ${token}`,
               "Content-Type": "multipart/form-data",
             },
           }
@@ -275,11 +322,12 @@ const Serverpage = () => {
       }
 
       try {
-        const response = await axios.post(
-          `https://i9d208.p.ssafy.io/api/servers/${seq}/channels/${editingChannel.seq}`,
+        const response = await axiosInstance.post(
+          `/servers/${seq}/channels/${editingChannel.seq}`,
           formData,
           {
             headers: {
+              Authorization: `Bearer ${token}`,
               "Content-Type": "multipart/form-data",
             },
           }
@@ -297,11 +345,47 @@ const Serverpage = () => {
     });
   };
 
+  const copyToClipboard = (text) => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        console.log("Text copied to clipboard");
+      })
+      .catch((err) => {
+        console.error("Could not copy text: ", err);
+      });
+  };
+
+  // 서버 초대 API
+  const createInviteLink = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("userSeq", userSeq);
+      formData.append("serverSeq", seq);
+
+      const response = await axiosInstance.post("/invite", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.status === 200) {
+        const inviteLink = response.data.link;
+        setInviteLink(inviteLink);
+        copyToClipboard(inviteLink);
+        setInviteLinkModalOpen(true);
+      }
+    } catch (error) {
+      console.error("Error creating invite link:", error);
+    }
+  };
+
   return (
     <div className="mainbox">
       <div className="innermain">
         <ServerOptions
-          profileImage={profileImageUrl}
+          profileImage={profileImage}
           profileNickname={profileNickname}
         />
         <hr className="serverOptionsLine_main" />
@@ -338,10 +422,7 @@ const Serverpage = () => {
           className="channelPlusModal"
           overlayClassName="cPMOverlay"
         >
-          <button
-            onClick={resetModal}
-            className="closeModalButton"
-          >
+          <button onClick={resetModal} className="closeModalButton">
             <img src="/backarrow.png" alt="Close modal" />
           </button>
           <div className="modal-content-channelplus-image">
@@ -407,12 +488,30 @@ const Serverpage = () => {
             ))}
           </Slider>
         </div>
-        <div className="channelNameText">맴버 목록</div>
-         {/* Scrollable Area */}
-         <div className="scrollable-area">
-          <div className="grid-container">
-          {serverMembers.map((member) => (
-              <Member key={member.id} member={member} />
+        <div className="channelNameText">
+          맴버 목록
+          <img
+            className="plusIcon"
+            src="/plus.png"
+            alt="Create Channel"
+            onClick={createInviteLink}
+          />
+        </div>
+        {/* 초대 링크 생성 후 보여주는 모달 */}
+        <Modal
+          isOpen={inviteLinkModalOpen}
+          onRequestClose={() => setInviteLinkModalOpen(false)}
+          className="inviteLinkModal"
+          overlayClassName="inviteLinkModalOverlay"
+        >
+          <p>초대 주소가 생성되었습니다 !</p>
+          <p> 컨트롤 V로 링크를 전달하세요 !</p>
+          <button onClick={() => setInviteLinkModalOpen(false)}>닫기</button>
+        </Modal>
+        <div className="scrollable-area-members">
+          <div className="serverMembers">
+            {serverMembers.map((member) => (
+              <MemberPopover key={member.id} member={member} />
             ))}
           </div>
         </div>

@@ -207,7 +207,7 @@ public class JwtService {
 		Claims claims = getClaims(refreshToken);
 
 		RefreshTokenEntity entity = refreshTokenRepository.findById(claims.getAudience())
-			.orElseThrow(() -> new JwtException("EXPIRED_TOKEN"));
+			.orElseThrow(() -> new JwtException("EXPIRED_REFRESH_TOKEN"));
 
 		if (entity.getRefreshToken().equals(refreshToken)) {
 			return true;
@@ -274,6 +274,7 @@ public class JwtService {
 			.path("/")
 			.sameSite("None")
 			.maxAge(0)
+			.secure(true)
 			.build();
 	}
 

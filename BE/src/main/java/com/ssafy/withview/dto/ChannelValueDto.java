@@ -19,7 +19,7 @@ public class ChannelValueDto implements Serializable {
 	private static final long serialVersionUID = 649467897738472912L;
 
 	private Long serverSeq;
-	public Map<Long, Set<Long>> channelMember;
+	private Map<Long, Set<UserDto>> channelMember;
 
 	public ChannelValueDto(Long serverSeq) {
 		this.serverSeq = serverSeq;

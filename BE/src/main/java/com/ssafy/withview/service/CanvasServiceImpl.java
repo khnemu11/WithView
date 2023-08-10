@@ -57,6 +57,10 @@ public class CanvasServiceImpl implements CanvasService{
 	@Override
 	public CanvasDto findCanvasByChannelSeq(Long channelSeq) {
 		List<CanvasEntity> canvasEntityList = canvasRepository.findByChannelSeq(channelSeq);
+		
+		log.info(canvasEntityList.get(0).toString());
+
+		log.info(canvasEntityList.get(0).toString());
 
 		return CanvasEntity.toDto(canvasEntityList.get(0));
 	}

@@ -28,7 +28,7 @@ public class CanvasEntity {
 				.background(entity.getBackground())
 				.channelSeq(entity.getChannelSeq())
 				.image(entity.getImage())
-				.video(entity.getImage())
+				.video(entity.getVideo())
 				.build();
 	}
 	public void update(CanvasDto canvasDto){
