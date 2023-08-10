@@ -2,7 +2,6 @@ package com.ssafy.withview.entity;
 
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -20,19 +19,25 @@ public class PresetEntity {
 
 	@Id
 	private String id;
+
 	private Long userSeq;
+
 	private String presetName;
+
 	private String presetImgSearchName;
+
 	private String stage;
-	@CreationTimestamp
+
 	private LocalDateTime registerTime;
 
 	@Builder
-	public PresetEntity(Long userSeq, String presetName, String presetImgSearchName, String stage) {
+	public PresetEntity(Long userSeq, String presetName, String presetImgSearchName, String stage,
+		LocalDateTime registerTime) {
 		this.userSeq = userSeq;
 		this.presetName = presetName;
 		this.presetImgSearchName = presetImgSearchName;
 		this.stage = stage;
+		this.registerTime = registerTime;
 	}
 
 	public static PresetDto toDto(PresetEntity presetEntity) {

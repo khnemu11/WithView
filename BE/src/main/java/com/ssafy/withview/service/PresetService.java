@@ -2,6 +2,7 @@ package com.ssafy.withview.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -65,6 +66,7 @@ public class PresetService {
 				.presetName(presetName)
 				.presetImgSearchName(searchName)
 				.stage(stage)
+				.registerTime(LocalDateTime.now())
 				.build());
 
 		log.debug("Preset 저장 완료, userSeq: {}", userSeq);

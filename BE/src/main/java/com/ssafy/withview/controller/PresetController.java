@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,6 +67,7 @@ public class PresetController {
 	 * @param userSeq (프리셋을 저장한 유저의 pk 값)
 	 * @return ResponseEntity (true / false, 상태코드, PresetInfo - 프리셋의 id, 이름, png 이름, 등록일)
 	 */
+	@GetMapping("/{userSeq}/list")
 	public ResponseEntity<Map<String, Object>> getPresetList(@PathVariable(value = "userSeq") Long userSeq) {
 		log.debug("PresetController - getPresetList 실행: 저장한 프리셋 목록 확인");
 		Map<String, Object> resultMap = new HashMap<>();
@@ -91,11 +93,14 @@ public class PresetController {
 	 * @param id (선택한 프리셋의 id)
 	 * @return ResponseEntity (true / false, 상태코드, Stage)
 	 */
+	@GetMapping("/{id}")
 	public ResponseEntity<Map<String, Object>> getPreset(@PathVariable(value = "id") String id) {
 		log.debug("PresetController - getPreset 실행: 선택한 프리셋 가져오기");
 		Map<String, Object> resultMap = new HashMap<>();
 		HttpStatus status;
 		try {
+			String stage = presetService.getPreset(id);
+			resultMap.put("stage", stage);
 			resultMap.put("success", true);
 			status = HttpStatus.OK;
 			log.debug("선택한 프리셋 가져오기 성공, id: {}", id);
