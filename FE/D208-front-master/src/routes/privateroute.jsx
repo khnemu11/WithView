@@ -11,6 +11,8 @@ function PrivateRoute({ children }) {
   } else if (isLoggedIn && (location.pathname === "/" || location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/findid" || location.pathname === "/findpassword")) {
     return <Navigate to="/mainpage" />;
   }
+  
+
   return children;
 }
 

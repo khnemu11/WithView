@@ -7,6 +7,9 @@ import "../css/Login.css";
 import axios from "axios";
 import withview from "../assets/withview.png";
 import { setUser } from "../redux/actions/userActions";
+import SockJS from "sockjs-client";
+import { Stomp } from "@stomp/stompjs";
+import { setStomp } from "../redux/actions/stompActions";
 axios.defaults.withCredentials = true;
 
 export default function Test() {
@@ -56,7 +59,16 @@ export default function Test() {
           // 토큰을 Redux로 저장
           dispatch(setToken(accessToken));
           dispatch(setUser(userInfo));
-
+          const sock = new SockJS(`${url}/ws-stomp`); // 연결되는 웹소켓의 end-point
+          const stomp = Stomp.over(sock); // Stomp 연결
+          stomp.connect({
+            "userSeq" : res.data.UserInfo.seq}, 
+            (res)=>{console.log(res)
+                      // dispatch(setStomp(stomp))
+                    },
+            (err)=>{console.log(err)},
+          );
+          dispatch(setStomp(stomp))
           // 로비화면으로 이동
           navigate("/mainpage");
         } else {
