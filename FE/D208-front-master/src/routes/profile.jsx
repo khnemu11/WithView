@@ -230,7 +230,6 @@ const Profile = () => {
         },
         method : "PUT",
         url : `/users/${userPk}/nickname?nickname=${tempProfileNickname}`,
-        headers: {"Authorization" : `Bearer ${token}`}
       })
       .then((res)=>{
         console.log(res.data)
