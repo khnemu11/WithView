@@ -508,12 +508,30 @@ export default function GroupChat() {
     //참가한 채널 명을 url로 구분하도록 커스터마이징함
     console.log("캔버스 로드");
 
-    const headers = { Authorization: `Bearer ${Token}` };
-    let apiCall = await axiosInstance
-      .get(`/canvas/12`, { headers })
-      .then((response) => {
-        console.log("받은 데이터");
-        console.log(response);
+    let apiCall =  async () => await axios.get('http://localhost:9091/api/canvas/12')
+    .then(response=>{
+      console.log("받은 데이터");
+      console.log(response);
+
+      let data = response.data.canvas;
+
+      if (data.background != null) {
+        console.log("서버에 있는 배경 레이어");
+        remoteBGLayer = Konva.Node.create(data.background);
+        console.log(remoteBGLayer);
+
+        let backgroundObj = remoteBGLayer.children[0];
+        console.log(backgroundObj);
+             //이미지 변수 생성
+        let imageObj = new Image();
+        let imageName = backgroundObj.getAttr("id"); //img- 제거한 나머지를 이름으로 설정
+        console.log(imageName);
+        imageObj.src = "https://dm51j1y1p1ekp.cloudfront.net/channel-background/" + imageName.substring(3);
+
+        //로딩돠면
+        imageObj.onload = function () {
+        backgroundObj.setAttr("image", imageObj);
+        };
 
         let data = response.data.canvas;
         let backChildren = JSON.parse(data.background);
@@ -1200,8 +1218,7 @@ export default function GroupChat() {
           // if we are on empty place of the stage we will do nothing
           return;
         }
-
-        currentShape = e.target;
+        let currentShape = e.target;
         menuNode.style.display = "initial";
         menuNode.style.zIndex = "1";
         console.log(menuNode);
