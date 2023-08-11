@@ -97,12 +97,15 @@ public class PresetService {
 	 * @param id (선택한 프리셋의 id)
 	 * @return String (Stage)
 	 */
-	public String getPreset(String id) {
+	public PresetDto getPreset(String id) {
 		log.debug("PresetService - getPreset 실행");
 
 		PresetEntity presetEntity = presetRepository.findById(id)
 			.orElseThrow(() -> new IllegalArgumentException("일치하는 프리셋 정보가 없습니다."));
 
-		return presetEntity.getStage();
+		return PresetDto.builder()
+			.stage(presetEntity.getStage())
+			.presetImgSearchName(presetEntity.getPresetImgSearchName())
+			.build();
 	}
 }
