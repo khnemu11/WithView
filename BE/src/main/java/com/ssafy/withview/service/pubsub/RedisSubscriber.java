@@ -6,9 +6,10 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.withview.dto.CanvasDto;
 import com.ssafy.withview.dto.CanvasMessageDto;
-import com.ssafy.withview.dto.ChannelChatMessageDto;
+import com.ssafy.withview.dto.ChannelChatDto;
 import com.ssafy.withview.dto.ChannelValueDto;
 import com.ssafy.withview.dto.FriendsChatMessageDto;
+import com.ssafy.withview.dto.FriendsChatRoomsUserInfoForPubSendDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,8 +28,8 @@ public class RedisSubscriber {
 	 */
 	public void sendChannelMessage(String publishMessage) {
 		try {
-			// ChatMessageDTO 객체로 매핑
-			ChannelChatMessageDto chatMessage = objectMapper.readValue(publishMessage, ChannelChatMessageDto.class);
+			// ChannelChatDTO 객체로 매핑
+			ChannelChatDto chatMessage = objectMapper.readValue(publishMessage, ChannelChatDto.class);
 			log.info("{}번 채널 채팅 전송, 전송자 {}, 내용 {}", chatMessage.getChannelSeq(), chatMessage.getUserSeq(),
 				chatMessage.getMessage());
 			messagingTemplate.convertAndSend("/api/sub/chat/channel/" + chatMessage.getChannelSeq(),
@@ -40,11 +41,11 @@ public class RedisSubscriber {
 
 	public void sendFriendsMessage(String publishMessage) {
 		try {
-			// ChatMessageDTO 객체로 매핑
+			// FriendsChatDTO 객체로 매핑
 			FriendsChatMessageDto chatMessage = objectMapper.readValue(publishMessage, FriendsChatMessageDto.class);
-			log.info("{}번 친구 채팅 전송, 전송자 {}, 내용 {}", chatMessage.getFriendsChatSeq(), chatMessage.getSendUserSeq(),
-				chatMessage.getMessage());
-			messagingTemplate.convertAndSend("/api/sub/chat/friends/" + chatMessage.getFriendsChatSeq(),
+			// log.info("{}번 친구 채팅 전송, 전송자 {}, 내용 {}", chatMessage.getFriendsChatRoomSeq(), chatMessage.getUserSeq(),
+			// 	chatMessage.getMessage());
+			messagingTemplate.convertAndSend("/api/sub/chat/friends/" + chatMessage.getFriendsChatRoomSeq(),
 				chatMessage);
 		} catch (Exception e) {
 			log.error("Exception {}", e);
@@ -67,6 +68,19 @@ public class RedisSubscriber {
 			CanvasMessageDto canvasMessageDto = objectMapper.readValue(publishMessage, CanvasMessageDto.class);
 			log.info("변경된 캔버스 정보 전송", publishMessage);
 			messagingTemplate.convertAndSend("/api/sub/canvas/channel/" + canvasMessageDto.getChannelSeq(), publishMessage);
+		} catch (Exception e) {
+			log.error("Exception {}", e);
+		}
+	}
+
+
+	public void sendFriendsChatRoomsInfo(String publishMessage) {
+		try {
+			FriendsChatRoomsUserInfoForPubSendDto friendsChatRoomsUserInfoForPubSendDto = objectMapper.readValue(
+				publishMessage,
+				FriendsChatRoomsUserInfoForPubSendDto.class);
+			messagingTemplate.convertAndSend(
+				"/api/sub/chat/friends/chatroominfo/" + friendsChatRoomsUserInfoForPubSendDto.getUserSeq(), friendsChatRoomsUserInfoForPubSendDto);
 		} catch (Exception e) {
 			log.error("Exception {}", e);
 		}

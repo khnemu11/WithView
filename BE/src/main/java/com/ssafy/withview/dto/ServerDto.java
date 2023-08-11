@@ -2,7 +2,6 @@ package com.ssafy.withview.dto;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ssafy.withview.entity.ServerEntity;
 
 import lombok.AllArgsConstructor;
@@ -21,14 +20,15 @@ import lombok.ToString;
 public class ServerDto {
 	private Long seq;
 	private String name;
-	private Integer limitChannel;
+	@Builder.Default
+	private Integer limitChannel = 5;
 	private Long hostSeq;
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
 	private Boolean isFavorite;
 
-	public static ServerEntity toEntity(ServerDto serverDto){
-		if(serverDto == null){
+	public static ServerEntity toEntity(ServerDto serverDto) {
+		if (serverDto == null) {
 			return null;
 		}
 		return ServerEntity.builder()

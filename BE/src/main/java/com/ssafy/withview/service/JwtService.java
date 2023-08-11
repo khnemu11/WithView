@@ -274,6 +274,7 @@ public class JwtService {
 			.path("/")
 			.sameSite("None")
 			.maxAge(0)
+			.secure(true)
 			.build();
 	}
 
