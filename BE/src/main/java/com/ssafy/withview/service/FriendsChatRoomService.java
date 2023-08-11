@@ -1,5 +1,7 @@
 package com.ssafy.withview.service;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,14 +48,19 @@ public class FriendsChatRoomService {
 	}
 
 	public List<FriendsChatRoomsSeqDto> findFriendsChatRoomsByPartnerSeq(Long userSeq) {
+		log.info("findFriendsChatRoomByPartnerSeq 호출");
 		Set<FriendsChatRoomUserInfoEntity> chatRoomsByMyUserSeq = friendsChatRoomUserInfoRepository.findAllByUserSeq(
 			userSeq);
+		log.info("chatRoomsByMyUserSeq: {}", chatRoomsByMyUserSeq.toString());
 		Set<FriendsChatRoomUserInfoEntity> chatRoomsByPartnerSeq = chatRoomsByMyUserSeq.stream()
 			.map(entity -> friendsChatRoomUserInfoRepository.findBySeqAndUserSeqNot(entity.getSeq(), userSeq))
 			.collect(Collectors.toSet());
-
+		log.info("chatRoomsByPartnerSeq: {}", chatRoomsByPartnerSeq.toString());
 		return chatRoomsByPartnerSeq.stream()
 			.map(entity -> {
+				log.info("entity -> 내부, entity: {}", entity.getUserSeq());
+				log.info("entity -> 내부, entity: {}", entity.getSeq());
+				log.info("entity -> 내부, entity: {}", entity.getFriendsChatRoomEntity());
 				Long seq = entity.getFriendsChatRoomEntity().getSeq();
 				Long partnerSeq = entity.getUserSeq();
 				return FriendsChatRoomsSeqDto.builder()
