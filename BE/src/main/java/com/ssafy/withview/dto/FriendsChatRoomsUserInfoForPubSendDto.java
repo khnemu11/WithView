@@ -1,29 +1,24 @@
 package com.ssafy.withview.dto;
 
 import java.io.Serializable;
-import java.util.Map;
-import java.util.Set;
+import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
-public class ChannelValueDto implements Serializable {
+@Builder
+public class FriendsChatRoomsUserInfoForPubSendDto implements Serializable {
 
-	private static final long serialVersionUID = 649467897738472912L;
+	private static final long serialVersionUID = 81822976203816232L;
 
-	private Long serverSeq;
-	private Map<Long, Set<UserDto>> channelMember;
-
-	public ChannelValueDto(Long serverSeq) {
-		this.serverSeq = serverSeq;
-	}
+	private Long userSeq;
+	private List<FriendsChatRoomsUserInfoDto> friendsChatRoomsUserInfoDtos;
 
 	public String toJson() {
 		String json = null;

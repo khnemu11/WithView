@@ -1,6 +1,13 @@
 package com.ssafy.withview.entity;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 import org.hibernate.annotations.ColumnDefault;
 
@@ -29,10 +36,10 @@ public class ChannelEntity {
 	private String backgroundImgOriginalName;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="server_seq")
+	@JoinColumn(name = "server_seq")
 	private ServerEntity serverEntity;
 
-	public static ChannelDto toDto(ChannelEntity entity){
+	public static ChannelDto toDto(ChannelEntity entity) {
 		return ChannelDto.builder().seq(entity.getSeq())
 			.name(entity.getName())
 			.limitPeople(entity.getLimitPeople())
@@ -42,14 +49,15 @@ public class ChannelEntity {
 			.build();
 	}
 
-	public void update(ChannelDto channelDto){
+	public void update(ChannelDto channelDto) {
 		this.backgroundImgSearchName = channelDto.getBackgroundImgSearchName();
 		this.backgroundImgOriginalName = channelDto.getBackgroundImgOriginalName();
 		this.name = channelDto.getName();
 	}
 
 	@Builder
-	public ChannelEntity(String name, Integer limitPeople,String backgroundImgOriginalName, String backgroundImgSearchName,ServerEntity serverEntity) {
+	public ChannelEntity(String name, Integer limitPeople, String backgroundImgOriginalName,
+		String backgroundImgSearchName, ServerEntity serverEntity) {
 		this.name = name;
 		this.limitPeople = limitPeople;
 		this.backgroundImgOriginalName = backgroundImgOriginalName;
