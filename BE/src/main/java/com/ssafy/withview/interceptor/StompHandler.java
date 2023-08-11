@@ -20,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 public class StompHandler implements ChannelInterceptor {
 
 	private final ChannelValueService channelValueService;
-	private final JwtService jwtService;
 
 	@Override
 	public Message<?> preSend(Message<?> message, MessageChannel channel) {
