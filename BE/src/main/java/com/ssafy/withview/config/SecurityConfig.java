@@ -56,7 +56,7 @@ public class SecurityConfig {
 			.antMatchers("/api/users/check-id").permitAll()
 			.antMatchers("/api/users/email/validate").permitAll()
 			.antMatchers("/api/users/email/authenticate").permitAll()
-			.antMatchers("/api/user/*/password").permitAll()
+			.antMatchers("/api/users/*/password").permitAll()
 			.antMatchers("/api/sub/**").permitAll()
 			.antMatchers("/api/pub/**").permitAll()
 			.antMatchers("/api/ws-stomp/**").permitAll()
