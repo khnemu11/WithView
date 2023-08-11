@@ -56,8 +56,8 @@ public class FriendsChatRoomService {
 		log.info("chatRoomsByMyUserSeq: {}", chatRoomsByMyUserSeq.toString());
 		Set<FriendsChatRoomUserInfoEntity> chatRoomsByPartnerSeq = chatRoomsByMyUserSeq.stream()
 			.map(entity -> {
-				log.info("chatRoomsByPartnerSeq 내부 스트림: {}", friendsChatRoomUserInfoRepository.findTopByFriendsChatRoomEntitySeqAndUserSeqNot(entity.getSeq(), userSeq).getSeq());
-				return friendsChatRoomUserInfoRepository.findTopByFriendsChatRoomEntitySeqAndUserSeqNot(entity.getSeq(), userSeq);
+				log.info("chatRoomsByPartnerSeq 내부 스트림: {}", friendsChatRoomUserInfoRepository.findTopByFriendsChatRoomEntityAndUserSeqNot(entity.getFriendsChatRoomEntity(), userSeq).getSeq());
+				return friendsChatRoomUserInfoRepository.findTopByFriendsChatRoomEntityAndUserSeqNot(entity.getFriendsChatRoomEntity(), userSeq);
 			})
 			.collect(Collectors.toSet());
 		log.info("chatRoomsByPartnerSeq: {}", chatRoomsByPartnerSeq.toString());
