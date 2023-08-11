@@ -55,6 +55,7 @@ public class ChatController {
 	@MessageMapping("/chat/friends/chatroominfo")
 	public void friendsChatRoomInfo(UserSeqDto userSeqDto) {
 		Long userSeq = userSeqDto.getUserSeq();
+		log.info("{}번 유저의 채팅 목록 불러오기", userSeq);
 		List<FriendsChatRoomsSeqDto> friendsChatRoomsByPartnerSeq = friendsChatRoomService.findFriendsChatRoomsByPartnerSeq(
 			userSeq);
 
