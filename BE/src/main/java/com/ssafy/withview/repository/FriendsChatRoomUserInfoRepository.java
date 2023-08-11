@@ -14,7 +14,7 @@ import com.ssafy.withview.entity.FriendsChatRoomUserInfoEntity;
 public interface FriendsChatRoomUserInfoRepository extends JpaRepository<FriendsChatRoomUserInfoEntity, Long> {
 	public Set<FriendsChatRoomUserInfoEntity> findAllByUserSeq(Long userSeq);
 
-	public FriendsChatRoomUserInfoEntity findBySeqAndUserSeqNot(Long seq, Long userSeq);
+	public FriendsChatRoomUserInfoEntity findTopByFriendsChatRoomEntitySeqAndUserSeqNot(Long seq, Long userSeq);
 
 	public FriendsChatRoomUserInfoEntity findTopByFriendsChatRoomEntitySeqAndUserSeq(
 		Long friendsChatRoomSeq,
