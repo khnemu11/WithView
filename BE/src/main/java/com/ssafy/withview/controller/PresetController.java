@@ -99,8 +99,8 @@ public class PresetController {
 		Map<String, Object> resultMap = new HashMap<>();
 		HttpStatus status;
 		try {
-			String stage = presetService.getPreset(id);
-			resultMap.put("stage", stage);
+			PresetDto presetDto = presetService.getPreset(id);
+			resultMap.put("PresetInfo", presetDto);
 			resultMap.put("success", true);
 			status = HttpStatus.OK;
 			log.debug("선택한 프리셋 가져오기 성공, id: {}", id);
