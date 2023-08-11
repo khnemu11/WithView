@@ -61,11 +61,12 @@ public class FriendsChatRoomService {
 			})
 			.collect(Collectors.toSet());
 		log.info("chatRoomsByPartnerSeq: {}", chatRoomsByPartnerSeq.toString());
+		log.info("return 값 실행, stream 도는 entity는 FriendsChatRoomUserInfoEntity");
 		return chatRoomsByPartnerSeq.stream()
 			.map(entity -> {
-				log.info("entity -> 내부, entity: {}", entity.getUserSeq());
-				log.info("entity -> 내부, entity: {}", entity.getSeq());
-				log.info("entity -> 내부, entity: {}", entity.getFriendsChatRoomEntity());
+				log.info("entity -> 내부, entity.userseq: {}", entity.getUserSeq());
+				log.info("entity -> 내부, entity.seq: {}", entity.getSeq());
+				log.info("entity -> 내부, entity.friendschatroomentity: {}", entity.getFriendsChatRoomEntity().getSeq());
 				Long seq = entity.getFriendsChatRoomEntity().getSeq();
 				Long partnerSeq = entity.getUserSeq();
 				return FriendsChatRoomsSeqDto.builder()
