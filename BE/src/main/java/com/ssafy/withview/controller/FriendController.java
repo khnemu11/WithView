@@ -58,8 +58,14 @@ public class FriendController {
 		Long followingUserSeq = friendFollowDto.getFollowingUserSeq();
 		Long followedUserSeq = friendFollowDto.getFollowedUserSeq();
 		JSONObject result = new JSONObject();
+		log.info("팔로우 요청 실행, 요청자: {}, 요청 받은 자: {}", followingUserSeq, followedUserSeq);
 		try {
 			FriendDto friendDto = friendService.insertFollowUser(followingUserSeq, followedUserSeq);
+
+			if (friendDto == null) {
+				result.put("success", false);
+				result.put("msg", "이미 팔로우한 유저입니다.");
+			}
 
 			result.put("success", true);
 			result.put("follow", friendDto);
