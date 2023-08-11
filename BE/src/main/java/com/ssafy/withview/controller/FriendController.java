@@ -65,6 +65,7 @@ public class FriendController {
 			if (friendDto == null) {
 				result.put("success", false);
 				result.put("msg", "이미 팔로우한 유저입니다.");
+				return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
 			}
 
 			result.put("success", true);
