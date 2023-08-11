@@ -13,6 +13,7 @@ import Modal from "react-modal";
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
 import Popover from "react-popover";
+import axiosInstance from "./axiosinstance";
 
 Modal.setAppElement("#root");
 
@@ -26,7 +27,7 @@ const Serverpage = () => {
 
   const [serverMembers, setServerMembers] = useState([]);
   const profileImageURL = useSelector((state) => state.user.profile);
-  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImage}`;
+  const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImageURL}`;
 
   const userSeq = useSelector((state) => state.user.seq);
 
@@ -37,6 +38,8 @@ const Serverpage = () => {
   const [isHost, setIsHost] = useState(false);
 
   const { seq } = useParams();
+  const token = useSelector((state) => state.token);
+
   const navigate = useNavigate();
 
   const [editingChannel, setEditingChannel] = useState(null);
@@ -48,12 +51,13 @@ const Serverpage = () => {
   useEffect(() => {
     const fetchServerName = async () => {
       try {
-        const response = await axios.get(
-          `https://i9d208.p.ssafy.io/api/servers/${seq}`
-        );
+        const response = await axiosInstance.get(`/servers/${seq}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const serverInfo = response.data.server;
 
-        setServerInfo(serverInfo);
         setServerName(serverInfo.name);
         // 사용자가 호스트인지 확인
         setIsHost(serverInfo.hostSeq === userSeq);
@@ -67,9 +71,40 @@ const Serverpage = () => {
   const MemberPopover = ({ member }) => {
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${member.profileImgSearchName}`;
+    const [showFriendAddPopover, setShowFriendAddPopover] = useState(false);
+    const profileImageRef = useRef(null);
 
-    const togglePopover = () => {
+    const togglePopover = (e) => {
+      setIsPopoverOpen(prev => !prev);
+      e.stopPropagation(); // 이 부분 추가: 버블링 방지
       setIsPopoverOpen(!isPopoverOpen);
+      if (isPopoverOpen) {
+        setShowFriendAddPopover(false);
+      }
+    };
+
+    const addFriend = async (e) => {
+      e.stopPropagation(); // 버블링 중단
+  
+      const formData = new FormData();
+      formData.append("followingUserSeq", userSeq);
+      formData.append("followiedUserSeq", member.seq);
+  
+      try {
+        await axiosInstance.post("/friends", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+        alert("친구추가 되었습니다!");
+        console.log(member)
+        console.log(member.seq)
+      } catch (error) {
+        console.error("Error adding friend:", error);
+      }
+  
+      setShowFriendAddPopover(false); // 팝오버 닫기
     };
 
     const popoverBody = (
@@ -77,11 +112,38 @@ const Serverpage = () => {
         <img
           src={profileImageUrl}
           alt="profile"
+          ref={profileImageRef}
+          onClick={(e) => {
+            e.stopPropagation(); // 이 부분 추가: 버블링 방지
+            setShowFriendAddPopover(prev => !prev);
+          }}
           onError={(e) => {
             e.target.onerror = null;
             e.target.src = "/withView2.png";
           }}
         />
+        {showFriendAddPopover && (
+          <div 
+            className="addFriendPopover"
+            style={{
+              position: 'absolute',
+              top: profileImageRef.current ? profileImageRef.current.offsetTop : 0, 
+              left: profileImageRef.current ? profileImageRef.current.offsetLeft : 0,
+              width: profileImageRef.current ? profileImageRef.current.offsetWidth : '100%', 
+              height: profileImageRef.current ? profileImageRef.current.offsetHeight : '100%', 
+              backgroundColor: '#ffffff7a',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              fontSize: 'large',
+            }}
+            onClick={addFriend}
+          >
+            친구 추가
+          </div>
+        )}
         <h2>{member.nickname}</h2>
         <p>{member.profileMsg}</p>
       </div>
@@ -89,7 +151,12 @@ const Serverpage = () => {
 
     return (
       <div onClick={togglePopover}>
-        <Popover isOpen={isPopoverOpen} body={popoverBody} preferPlace="above">
+        <Popover
+          isOpen={isPopoverOpen}
+          body={popoverBody}
+          preferPlace="above"
+          onOuterAction={togglePopover}
+        >
           <img
             src={profileImageUrl}
             alt="profile"
@@ -107,9 +174,11 @@ const Serverpage = () => {
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const response = await axios.get(
-          `https://i9d208.p.ssafy.io/api/servers/${seq}/users`
-        );
+        const response = await axiosInstance.get(`/servers/${seq}/users`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (response.data.success) {
           setServerMembers(response.data.users);
         } else {
@@ -204,7 +273,7 @@ const Serverpage = () => {
     if (profileImageURL === null) {
       setProfileImage("/withView2.png");
     } else {
-      setProfileImage(profileImageURL);
+      setProfileImage(profileImageUrl);
     }
   }, [profileImageURL]);
 
@@ -215,9 +284,11 @@ const Serverpage = () => {
 
   const fetchChannels = async () => {
     try {
-      const response = await axios.get(
-        `https://i9d208.p.ssafy.io/api/servers/${seq}/channels`
-      );
+      const response = await axiosInstance.get(`/servers/${seq}/channels`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = response.data;
       setChannels(data.channels);
     } catch (error) {
@@ -241,11 +312,12 @@ const Serverpage = () => {
       }
 
       try {
-        const response = await axios.post(
-          `https://i9d208.p.ssafy.io/api/servers/${seq}/channels`,
+        const response = await axiosInstance.post(
+          `/servers/${seq}/channels`,
           formData,
           {
             headers: {
+              Authorization: `Bearer ${token}`,
               "Content-Type": "multipart/form-data",
             },
           }
@@ -308,11 +380,12 @@ const Serverpage = () => {
       }
 
       try {
-        const response = await axios.post(
-          `https://i9d208.p.ssafy.io/api/servers/${seq}/channels/${editingChannel.seq}`,
+        const response = await axiosInstance.post(
+          `/servers/${seq}/channels/${editingChannel.seq}`,
           formData,
           {
             headers: {
+              Authorization: `Bearer ${token}`,
               "Content-Type": "multipart/form-data",
             },
           }
@@ -348,15 +421,12 @@ const Serverpage = () => {
       formData.append("userSeq", userSeq);
       formData.append("serverSeq", seq);
 
-      const response = await axios.post(
-        "https://i9d208.p.ssafy.io/api/invite",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axiosInstance.post("/invite", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (response.status === 200) {
         const inviteLink = response.data.link;
@@ -496,13 +566,11 @@ const Serverpage = () => {
           <p> 컨트롤 V로 링크를 전달하세요 !</p>
           <button onClick={() => setInviteLinkModalOpen(false)}>닫기</button>
         </Modal>
-        <div className="scrollable-area">
-          <div className="grid-container">
-            <div className="serverMembers">
-              {serverMembers.map((member) => (
-                <MemberPopover key={member.id} member={member} />
-              ))}
-            </div>
+        <div className="scrollable-area-members">
+          <div className="serverMembers">
+            {serverMembers.map((member) => (
+              <MemberPopover key={member.id} member={member} token={token} userSeq={userSeq} />
+            ))}
           </div>
         </div>
       </div>

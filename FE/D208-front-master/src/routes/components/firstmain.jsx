@@ -5,12 +5,14 @@ import ServerOptions from "./serveroptions";
 import { useSelector } from "react-redux";
 
 
+
 const FirstMain = () => {
   const [profileImage, setProfileImage] = useState(null);
   // const [profileNickname, setProfileNickname] = useState("기본 닉네임");
   const profileNickname = useSelector((state) => state.user.nickname)
   const profileImageURL = useSelector((state) => state.user.profile);
   const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImageURL}`;
+
 
 
   useEffect(() => {

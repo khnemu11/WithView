@@ -9,6 +9,9 @@ import ServerOptions from "./serveroptions";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import axiosInstance from "../axiosinstance";
+
+
 
 Modal.setAppElement("#root");
 
@@ -24,6 +27,9 @@ const Mainpage = () => {
   const [favoriteserverData, setFavoriteServerData] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const token = useSelector((state) => state.token);
+
 
   useEffect(() => {
     // 만약 redux에서 프로필 이미지가 null이면 기본 이미지로 설정
@@ -59,21 +65,25 @@ const Mainpage = () => {
       handleSearchIconClick();
     }
   };
-
-  useEffect(() => {
-    // API를 통해 사용자가 참여한 서버 데이터를 가져오는 함수
-    const fetchJoinedServers = async () => {
-      try {
-        const response = await axios.get(
-          `https://i9d208.p.ssafy.io/api/servers/find-server-by-user?userSeq=${userSeq}`
-        );
-        const data = response.data;
-        console.log(data)
-        setJoinServerData(data.servers);
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    };
+useEffect(() => {
+  // API를 통해 사용자가 참여한 서버 데이터를 가져오는 함수
+  const fetchJoinedServers = async () => {
+    try {
+      const response = await axiosInstance.get(
+        `/servers/find-server-by-user?userSeq=${userSeq}`,
+        {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        }
+      );
+      const data = response.data;
+      console.log(data)
+      setJoinServerData(data.servers);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
 
     fetchJoinedServers();
   }, [userSeq]);
@@ -94,8 +104,8 @@ const Mainpage = () => {
 
   const handleFavoriteToggle = async (serverSeq, isFavorite) => {
     try {
-      const url = `https://i9d208.p.ssafy.io/api/users/1/favorites/`;
-      const url2 = `https://i9d208.p.ssafy.io/api/users/1/favorites?`;
+      const url = `/users/${userSeq}/favorites/`;
+      const url2 = `/users/${userSeq}/favorites?`;
 
       const formData = new FormData();
       formData.append("userSeq", userSeq);
@@ -105,10 +115,19 @@ const Mainpage = () => {
 
       if (isFavorite) {
         // 이미 즐겨찾기에 추가된 서버이면 삭제 요청 (DELETE)
-        await axios.delete(url2+queryString);
+        await axiosInstance.delete(url2+queryString, {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
       } else {
         // 즐겨찾기에 추가되지 않은 서버이면 추가 요청 (POST)
-        await axios.post(url, formData);
+        await axiosInstance.post(url, formData, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "multipart/form-data"
+          }
+        });
       }
 
       // 서버의 즐겨찾기 상태가 토글되었으므로 joinserverData 상태를 업데이트합니다.
@@ -120,7 +139,7 @@ const Mainpage = () => {
     } catch (error) {
       console.error("Error toggling favorite:", error);
     }
-  };
+};
 
   const CardItem = ({
     seq,

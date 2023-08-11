@@ -25,7 +25,7 @@ const Profile = () => {
   const [profilePassword, setProfilePassword] = useState("");
   const [profilePasswordCheck, setProfilePasswordCheck] = useState("");
   const [profileLeaveCheck, setProfileLeaveCheck] = useState("");
-  const [profileImage, setProfileImage] = useState("/프사.png");
+  const [profileImage, setProfileImage] = useState(null);
   const profileImageURL = useSelector((state) => state.user.profile);
   const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImageURL}`;
   const dispatch = useDispatch();
@@ -48,8 +48,8 @@ const Profile = () => {
     .then((res)=>{
       setProfileMessage(res.data.UserInfo.profileMsg)
     })
-    .catch(()=>{
-      // console.log(err)
+    .catch((err)=>{
+      console.log(err)
     })
   },[profileMessage])
 
@@ -225,8 +225,12 @@ const Profile = () => {
     }
     else {
       axiosInstance({
+        headers: {
+          "Authorization" : `Bearer ${token}`
+        },
         method : "PUT",
-        url : `/users/${userPk}/nickname?nickname=${tempProfileNickname}`
+        url : `/users/${userPk}/nickname?nickname=${tempProfileNickname}`,
+        headers: {"Authorization" : `Bearer ${token}`}
       })
       .then((res)=>{
         console.log(res.data)
