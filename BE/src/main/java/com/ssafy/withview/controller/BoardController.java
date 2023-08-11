@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -106,6 +107,35 @@ public class BoardController {
 			resultMap.put("success", "false");
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
 			log.error("[Error] 게시글 상세 정보 불러오기 실패, ErrorMessage: {}", e.getMessage());
+		}
+		return new ResponseEntity<>(resultMap, status);
+	}
+
+	/**
+	 * 게시글 수정
+	 *
+	 * @param boardDto (작성자 pk 값, 제목, 내용, 프리셋 이름)
+	 * @return ResponseEntity (true / false, 상태코드)
+	 * @throws IllegalArgumentException (작성자 pk 에 일치하는 회원 정보가 없을 때)
+	 */
+	@PutMapping("")
+	public ResponseEntity<Map<String, Object>> updateBoardArticle(@RequestBody BoardDto boardDto) {
+		Map<String, Object> resultMap = new HashMap<>();
+		HttpStatus status;
+		try {
+			boardService.writeBoardArticle(boardDto);
+			resultMap.put("success", "true");
+			status = HttpStatus.OK;
+			log.debug("게시글 수정 성공");
+		} catch (IllegalArgumentException e) {
+			resultMap.put("success", false);
+			resultMap.put("message", e.getMessage());
+			status = HttpStatus.BAD_REQUEST;
+			log.info("[Error] 게시글 수정 실패, ErrorMessage: {}", e.getMessage());
+		} catch (Exception e) {
+			resultMap.put("success", "false");
+			status = HttpStatus.INTERNAL_SERVER_ERROR;
+			log.error("[Error] 게시글 수정 실패, ErrorMessage: {}", e.getMessage());
 		}
 		return new ResponseEntity<>(resultMap, status);
 	}

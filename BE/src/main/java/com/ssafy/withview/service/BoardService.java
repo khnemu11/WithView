@@ -25,7 +25,7 @@ public class BoardService {
 	private final UserRepository userRepository;
 
 	/**
-	 * 게시글 작성
+	 * 게시글 작성 및 수정
 	 *
 	 * @param boardDto (작성자 pk 값, 제목, 내용, 프리셋 이름)
 	 */
