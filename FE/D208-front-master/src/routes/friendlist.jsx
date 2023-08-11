@@ -1,14 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../css/friendlist.css";
 import friendAddIcon from "/friend-add.png";
 import searchIcon from "/searchicon.png";
-import { useEffect } from "react";
 import paperPlaneIcon from "/paper-plane.png";
+import { useSelector } from "react-redux";
+import axios from "axios";
+import axiosInstance from "./axiosinstance";
 
 const FriendList = () => {
   const [selectedTab, setSelectedTab] = useState("친구"); // 초기 상태를 '친구'로 설정
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedChat, setSelectedChat] = useState(null);
+  const userSeq = useSelector((state) => state.user.seq);
+  const token = useSelector((state) => state.token);
+
+  const [friends, setFriends] = useState([]);
 
   useEffect(() => {
     document.body.style.backgroundImage = "none";
@@ -18,109 +24,26 @@ const FriendList = () => {
     };
   }, []);
 
-  const friends = [
-    { id: 1, name: "John Doe", profileImage: null, status: "Happy coding!" },
-    {
-      id: 2,
-      name: "Jane Smith",
-      profileImage: null,
-      status: "Working on a new project!",
-    },
-    { id: 3, name: "Chris Evans", profileImage: null, status: "At the gym" },
-    {
-      id: 4,
-      name: "Emily Clark",
-      profileImage: null,
-      status: "Reading a good book",
-    },
-    {
-      id: 5,
-      name: "Robert Downey",
-      profileImage: null,
-      status: "Just chilling",
-    },
-    {
-      id: 6,
-      name: "Emma Stone",
-      profileImage: null,
-      status: "Looking for a good movie to watch",
-    },
-    { id: 7, name: "Tom Holland", profileImage: null, status: "Busy shooting" },
-    {
-      id: 8,
-      name: "Scarlett Johansson",
-      profileImage: null,
-      status: "On a vacation",
-    },
-    {
-      id: 9,
-      name: "Ryan Reynolds",
-      profileImage: null,
-      status: "Having fun with kids",
-    },
-    {
-      id: 10,
-      name: "Jennifer Lawrence",
-      profileImage: null,
-      status: "Cooking some delicious food",
-    },
-    {
-      id: 11,
-      name: "Bradley Cooper",
-      profileImage: null,
-      status: "Recording a new song",
-    },
-    {
-      id: 12,
-      name: "Angelina Jolie",
-      profileImage: null,
-      status: "Traveling the world",
-    },
-    {
-      id: 13,
-      name: "Hugh Jackman",
-      profileImage: null,
-      status: "Doing what I love",
-    },
-    {
-      id: 14,
-      name: "Natalie Portman",
-      profileImage: null,
-      status: "Thinking of a new role",
-    },
-    {
-      id: 15,
-      name: "Leonardo DiCaprio",
-      profileImage: null,
-      status: "In the wild",
-    },
-    {
-      id: 16,
-      name: "Meryl Streep",
-      profileImage: null,
-      status: "Looking for script",
-    },
-    {
-      id: 17,
-      name: "Tom Hanks",
-      profileImage: null,
-      status: "Playing with my dog",
-    },
-    {
-      id: 18,
-      name: "Charlize Theron",
-      profileImage: null,
-      status: "Yoga time",
-    },
-    { id: 19, name: "Matt Damon", profileImage: null, status: "Writing" },
-    {
-      id: 20,
-      name: "Julia Roberts",
-      profileImage: null,
-      status: "Enjoying family time",
-    },
-    // ... 기타 친구들
-  ];
+  useEffect(() => {
+    const fetchFriends = async () => {
+      try {
+        const response = await axiosInstance.get(
+          `/friends?userSeq=${userSeq}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setFriends(response.data.userList);
+        console.log("친구목록 불러와졌습니다.");
+      } catch (error) {
+        console.error("Error fetching friends:", error);
+      }
+    };
+
+    fetchFriends();
+  }, [userSeq, token]);
 
   const chatRooms = [
     { id: 1, name: "John Doe", profileImage: null, lastMessage: "안녕하세요!" },
@@ -139,7 +62,7 @@ const FriendList = () => {
   const [chats, setChats] = useState(chatRooms);
 
   const filteredFriends = friends.filter((friend) =>
-    friend.name.includes(searchTerm)
+    friend.nickname.includes(searchTerm)
   );
 
   const filteredChatRooms = chats.filter((chat) =>
@@ -207,17 +130,22 @@ const FriendList = () => {
           {selectedTab === "친구"
             ? filteredFriends.map((friend) => (
                 <div
-                  key={friend.id}
+                  key={friend.seq}
                   className="friend-box"
                   onDoubleClick={() => handleFriendBoxDoubleClick(friend)}
                 >
                   <img
-                    src={friend.profileImage || "/withView2.png"}
-                    alt={friend.name}
+                    src={`https://dm51j1y1p1ekp.cloudfront.net/profile/${friend.profileImgSearchName}`}
+                    alt={friend.nickname}
                     className="friend-profile-image"
+                    onError={(e) => {
+                      if (e.target.src !== "/withView2.png") {
+                        e.target.src = "/withView2.png";
+                      }
+                    }}
                   />
-                  <div className="friend-name">{friend.name}</div>
-                  <div className="friend-status">{friend.status}</div>
+                  <div className="friend-name">{friend.nickname}</div>
+                  <div className="friend-status">{friend.profileMsg}</div>
                 </div>
               ))
             : filteredChatRooms.map((chat) => (
@@ -263,14 +191,14 @@ const FriendList = () => {
                 ))}
               </div>
               <div className="chat-input">
-    <input type="text" placeholder="메시지 입력..." />
-    <img
-      src={paperPlaneIcon}
-      alt="Send"
-      className="send-icon"
-      // onClick={/* 메시지 전송 함수 */}
-    />
-</div>
+                <input type="text" placeholder="메시지 입력..." />
+                <img
+                  src={paperPlaneIcon}
+                  alt="Send"
+                  className="send-icon"
+                  // onClick={/* 메시지 전송 함수 */}
+                />
+              </div>
             </div>
           ) : (
             <img

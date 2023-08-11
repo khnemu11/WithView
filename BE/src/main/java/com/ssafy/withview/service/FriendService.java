@@ -23,11 +23,14 @@ public class FriendService {
 	}
 
 	public FriendDto insertFollowUser(Long followingUserSeq, Long followedUserSeq) {
-		FriendDto friendDto = FriendDto.builder()
+		if (friendRepository.findByFollowingUserSeqAndFollowedUserSeq(followingUserSeq, followedUserSeq).isEmpty()) {
+			FriendDto friendDto = FriendDto.builder()
 				.followingUserSeq(followingUserSeq)
 				.followedUserSeq(followedUserSeq)
 				.build();
-		FriendEntity save = friendRepository.save(FriendDto.toEntity(friendDto));
-		return FriendEntity.toDto(save);
+			FriendEntity save = friendRepository.save(FriendDto.toEntity(friendDto));
+			return FriendEntity.toDto(save);
+		}
+		return null;
 	}
 }
