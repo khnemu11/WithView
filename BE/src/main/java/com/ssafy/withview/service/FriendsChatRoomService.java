@@ -37,10 +37,12 @@ public class FriendsChatRoomService {
 		friendsChatRoomUserInfoRepository.save(FriendsChatRoomUserInfoEntity.builder()
 			.friendsChatRoomEntity(friendsChatRoom)
 			.userSeq(mySeq)
+			.lastReadMessageSeq(0L)
 			.build());
 		friendsChatRoomUserInfoRepository.save(FriendsChatRoomUserInfoEntity.builder()
 			.friendsChatRoomEntity(friendsChatRoom)
 			.userSeq(yourSeq)
+			.lastReadMessageSeq(0L)
 			.build());
 		return friendsChatRoom.getSeq();
 	}
@@ -50,14 +52,17 @@ public class FriendsChatRoomService {
 		Set<FriendsChatRoomUserInfoEntity> chatRoomsByMyUserSeq = friendsChatRoomUserInfoRepository.findAllByUserSeq(
 			userSeq);
 		chatRoomsByMyUserSeq.stream()
-				.forEach(s -> {
-					log.info("chatRoomsByMyUserSeq Stream: {}", s.getFriendsChatRoomEntity().getSeq());
-				});
+			.forEach(s -> {
+				log.info("chatRoomsByMyUserSeq Stream: {}", s.getFriendsChatRoomEntity().getSeq());
+			});
 		log.info("chatRoomsByMyUserSeq: {}", chatRoomsByMyUserSeq.toString());
 		Set<FriendsChatRoomUserInfoEntity> chatRoomsByPartnerSeq = chatRoomsByMyUserSeq.stream()
 			.map(entity -> {
-				log.info("chatRoomsByPartnerSeq 내부 스트림: {}", friendsChatRoomUserInfoRepository.findTopByFriendsChatRoomEntityAndUserSeqNot(entity.getFriendsChatRoomEntity(), userSeq).getSeq());
-				return friendsChatRoomUserInfoRepository.findTopByFriendsChatRoomEntityAndUserSeqNot(entity.getFriendsChatRoomEntity(), userSeq);
+				log.info("chatRoomsByPartnerSeq 내부 스트림: {}",
+					friendsChatRoomUserInfoRepository.findTopByFriendsChatRoomEntityAndUserSeqNot(
+						entity.getFriendsChatRoomEntity(), userSeq).getSeq());
+				return friendsChatRoomUserInfoRepository.findTopByFriendsChatRoomEntityAndUserSeqNot(
+					entity.getFriendsChatRoomEntity(), userSeq);
 			})
 			.collect(Collectors.toSet());
 		log.info("chatRoomsByPartnerSeq: {}", chatRoomsByPartnerSeq.toString());
@@ -77,7 +82,6 @@ public class FriendsChatRoomService {
 			})
 			.collect(Collectors.toList());
 	}
-
 
 	// public Long findLastReadChatMessageFromChatRoom(Long userSeq, Long friendsChatRoomSeq) {
 	//
