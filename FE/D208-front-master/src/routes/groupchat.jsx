@@ -69,14 +69,7 @@ export default function GroupChat() {
   const [fullscreen, setFullscreen] = useState(true);
   const [inputText, setInputText] = useState("");
   const [chatLog, setChatLog] = useState([]);
-
-  function fullscreenSettings() {
-    setFullscreen((prevfullscreen) => !prevfullscreen);
-    console.log(fullscreen);
-    setsettingsClicked(false);
-    setstickerClicked(false);
-    setchatClicked(false);
-  }
+  const [fullsceenChatLog, setFullscreenChatLog] = useState([]);
 
   function backSettings() {
     setbackClicked((prevbackClicked) => !prevbackClicked);
@@ -205,9 +198,22 @@ export default function GroupChat() {
   };
 
   const handleTempButtonClick = () => {
-    setChatLog((prevChatLog) => [...prevChatLog, inputText]);
-    setInputText(""); // 입력 후 인풋 초기화
+    if (window.event.keyCode == 13) {
+      setChatLog((prevChatLog) => [...prevChatLog, inputText]);
+      setInputText(""); // 입력 후 인풋 초기화
+      fullscreenChatCss();
+    }
   };
+
+  function fullscreenChatCss() {
+    // 스크롤바를 맨 아래로 내림
+    let chatContainer = document.getElementById("chat-container");
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    setFullscreenChatLog(true);
+    setTimeout(() => {
+      setFullscreenChatLog(false);
+    }, 3000); // 채팅창이 서서히 사라지는 시간
+  }
 
   //konva 오브젝트 아이디 룰
   //이미지 : img-로 시작
@@ -473,13 +479,17 @@ export default function GroupChat() {
   }
 
   function deleteCanvasChange(data) {
-    let objectId = data.getAttr("id");
+    let parseddata = JSON.parse(data);
+    console.log(parseddata);
+    let objectId = parseddata.attrs.id;
     console.log("소캣에서 넘어온 객체 아이디");
     console.log(objectId);
     console.log(stage.current);
 
     let target = stage.current.find("#" + objectId); //객체 탐색
-    target.remove();
+    console.log(target);
+    target.destroy();
+    stage.current.backChildren[2].draw(); // 레이어 업데이트
   }
 
   function onError() {
@@ -636,16 +646,17 @@ export default function GroupChat() {
     });
     // On every Stream destroyed...
     session.current.on("streamDestroyed", (event) => {
-      // if (event.reason != "unpublish") {
-      console.log(session.current);
-      console.log(sessionScreen.current);
-      console.log("접속자 비디오 나감");
-      // Delete the HTML element with the user's nickname. HTML videos are automatically removed from DOM
-      removeUserInCanvas(event.stream.connection.connectionId);
-      removeUserData(event.stream.connection);
-      // } else {
-      //   removeShareInCanvas(event.stream.connection.connectionId);
-      // }
+      if (event.reason != "unpublish") {
+        console.log(session.current);
+        console.log(session.current);
+        console.log(sessionScreen.current);
+        console.log("접속자 비디오 나감");
+        // Delete the HTML element with the user's nickname. HTML videos are automatically removed from DOM
+        removeUserInCanvas(event.stream.connection.connectionId);
+        removeUserData(event.stream.connection);
+        // } else {
+        //   removeShareInCanvas(event.stream.connection.connectionId);
+      }
     });
 
     // On every asynchronous exception...
@@ -1080,8 +1091,7 @@ export default function GroupChat() {
 
   //채팅방의 정보를 가져오는 함수
   const createToken = (sessionId) => {
-    const url =
-      APPLICATION_SERVER_URL + "api/sessions/" + sessionId + "/connections";
+    const url = "sessions/" + sessionId + "/connections";
     const headers = {
       Authorization: `Bearer ${Token}`,
       "Content-Type": "application/json",
@@ -1210,6 +1220,7 @@ export default function GroupChat() {
     };
   }
 
+  // 공유화면 캔버스에 그리기
   function addScreenInCanvas(videoElement, connection) {
     console.log("share video in canvas");
     var connectionId = connection;
@@ -1315,11 +1326,41 @@ export default function GroupChat() {
       changeCanvas(video, "update");
     });
 
-    video.on("contextmenu", function () {
-      video.width = window.innerWidth;
-      video.height = window.innerHeight;
-      changeCanvas(video, "update");
+    video.on("contextmenu", function (e) {
+      e.evt.preventDefault();
+      video.setAttrs({
+        x: 0,
+        y: 0,
+        draggable: false,
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+      layer.draw();
+      console.log(video.attrs);
+      console.log(layer);
+      setFullscreen(false);
+      setsettingsClicked(false);
+      setstickerClicked(false);
+      setchatClicked(false);
     });
+  }
+
+  function pushX() {
+    let targerlayer = stage.current.children[1];
+    let sharescreen = targerlayer.find((node) => node.id().endsWith("-share"));
+    if (sharescreen[0]) {
+      console.log(sharescreen[0]);
+      console.log(sharescreen[0].attrs);
+      sharescreen[0].setAttrs({
+        x: 10,
+        y: 10,
+        width: 300,
+        height: 300,
+        draggable: true,
+      });
+      targerlayer.draw();
+    }
+    setFullscreen(true);
   }
 
   return (
@@ -1397,7 +1438,7 @@ export default function GroupChat() {
           <img
             src={x}
             alt="엑스"
-            onClick={fullscreenSettings}
+            onClick={pushX}
             className={fullscreen ? "fullscreen-x-hidden" : "fullscreen-x"}
           />
         </div>
@@ -1407,7 +1448,7 @@ export default function GroupChat() {
           <div
             className={settingsClicked ? "side-menu-div-on" : "side-menu-div"}
           >
-            <div>
+            <div className="setting-menu-div">
               <div className="accordion">
                 <div
                   className={
@@ -1818,8 +1859,8 @@ export default function GroupChat() {
             {/* 새로운 1대1 메세지 */}
             <button
               className="underbar button is-rounded"
-              // id={msgClicked ? "new-message" : "a-new-message"}
-              onClick={fullscreenSettings}
+              id={msgClicked ? "new-message" : "a-new-message"}
+              onClick={msgSettings}
             >
               <img src={man} alt="" className="user" />
               <div>
@@ -1857,8 +1898,11 @@ export default function GroupChat() {
           className={fullscreen ? "fullscreen-chat-hidden" : "fullscreen-chat"}
         >
           <div
+            id="chat-container"
             className={
-              fullscreen ? "fullscreen-chatlog-hidden" : "fullscreen-chatlog"
+              fullsceenChatLog
+                ? "fullscreen-chatlog"
+                : "fullscreen-chatlog-hidden"
             }
           >
             {/* 채팅 로그 출력 */}
@@ -1866,17 +1910,18 @@ export default function GroupChat() {
               <div key={index}>{message}</div>
             ))}
           </div>
-          {/* 임시 인풋 */}
-          <div>
-            <input
-              type="text"
-              value={inputText}
-              onChange={fullscreenInputChange}
-              className="chat-input-kan"
-              placeholder="메세지 보내기 !"
-            />
-            <button onClick={handleTempButtonClick}>temp</button>
-          </div>
+        </div>
+        {/* 임시 인풋 */}
+        <div className="fullscreen-chat-input-kan-div">
+          <input
+            type="text"
+            value={inputText}
+            className="fullscreen-chat-input-kan"
+            onKeyUp={handleTempButtonClick}
+            onChange={fullscreenInputChange}
+            placeholder="메세지 보내기 !"
+          />
+          {/* <button onClick={handleTempButtonClick}>temp</button> */}
         </div>
         {/* 얼굴 */}
         <div
