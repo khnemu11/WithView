@@ -7,7 +7,6 @@ import { store, persistor } from "./redux/store";
 import Hello from "./routes/hello";
 import Login from "./routes/login";
 import Signup from "./routes/signup";
-import "./css/main.css"; // Import the CSS file
 import GroupChat from "./routes/groupchat";
 // import GroupChattemp from "./routes/groupchattemp";
 import FullScreen from "./routes/fullscreen";
@@ -22,6 +21,7 @@ import FindPassword from "./routes/findpassword";
 import ServerEdit from "./routes/serveredit";
 import PrivateRoute from "./routes/privateroute";
 import FriendList from "./routes/friendlist";
+import Board from "./routes/board";
 
 import { AxiosInterceptor } from "./routes/axiosinstance";
 const router = createBrowserRouter([
@@ -94,6 +94,10 @@ const router = createBrowserRouter([
       {
         path:"/friendlist",
         element: <FriendList/>,
+      },
+      {
+        path:"/board",
+        element: <Board/>,
       },
     ],
   },

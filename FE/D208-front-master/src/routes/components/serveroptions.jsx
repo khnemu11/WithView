@@ -29,7 +29,9 @@ const ServerOptions = ({ profileImage, profileNickname }) => {
         <Link to="/profile" className="serverOptionText">
           정보 수정
         </Link>
-        <p className="serverOptionText">창작마당</p>
+        <Link to="/board" className="serverOptionText">
+          창작마당
+        </Link>
       </div>
       <div className="ml-auto is-flex">
         <img src={profileImage} className="profile-bar-image" alt="Profile" />
