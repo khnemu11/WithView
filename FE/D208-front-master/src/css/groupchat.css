@@ -558,6 +558,7 @@ button {
   background-color: #00000080;
   bottom: 0px;
 }
+
 .fullscreen-chat-input-kan {
   justify-content: space-between;
   color: #f7fbfc;
@@ -658,6 +659,19 @@ button {
 
 .fullscreen-chatlog-hidden::-webkit-scrollbar-button {
   display: none;
+}
+
+.fullscreen-chat-input-kan-div-hidden {
+  opacity: 0;
+  display: flex;
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  width: 25%;
+  height: 30px;
+  border-top: 1px solid #f7fbfc;
+  background-color: #00000080;
+  bottom: 0px;
 }
 
 .fullscreen-face-hidden {

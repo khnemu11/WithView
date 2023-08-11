@@ -75,7 +75,7 @@ const Serverpage = () => {
     const profileImageRef = useRef(null);
 
     const togglePopover = (e) => {
-      setIsPopoverOpen(prev => !prev);
+      setIsPopoverOpen((prev) => !prev);
       e.stopPropagation(); // 이 부분 추가: 버블링 방지
       setIsPopoverOpen(!isPopoverOpen);
       if (isPopoverOpen) {
@@ -85,25 +85,25 @@ const Serverpage = () => {
 
     const addFriend = async (e) => {
       e.stopPropagation(); // 버블링 중단
-  
+
       const formData = new FormData();
       formData.append("followingUserSeq", userSeq);
       formData.append("followiedUserSeq", member.seq);
-  
+
       try {
         await axiosInstance.post("/friends", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         alert("친구추가 되었습니다!");
-        console.log(member)
-        console.log(member.seq)
+        console.log(member);
+        console.log(member.seq);
       } catch (error) {
         console.error("Error adding friend:", error);
       }
-  
+
       setShowFriendAddPopover(false); // 팝오버 닫기
     };
 
@@ -115,7 +115,7 @@ const Serverpage = () => {
           ref={profileImageRef}
           onClick={(e) => {
             e.stopPropagation(); // 이 부분 추가: 버블링 방지
-            setShowFriendAddPopover(prev => !prev);
+            setShowFriendAddPopover((prev) => !prev);
           }}
           onError={(e) => {
             e.target.onerror = null;
@@ -123,21 +123,29 @@ const Serverpage = () => {
           }}
         />
         {showFriendAddPopover && (
-          <div 
+          <div
             className="addFriendPopover"
             style={{
-              position: 'absolute',
-              top: profileImageRef.current ? profileImageRef.current.offsetTop : 0, 
-              left: profileImageRef.current ? profileImageRef.current.offsetLeft : 0,
-              width: profileImageRef.current ? profileImageRef.current.offsetWidth : '100%', 
-              height: profileImageRef.current ? profileImageRef.current.offsetHeight : '100%', 
-              backgroundColor: '#ffffff7a',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              fontSize: 'large',
+              position: "absolute",
+              top: profileImageRef.current
+                ? profileImageRef.current.offsetTop
+                : 0,
+              left: profileImageRef.current
+                ? profileImageRef.current.offsetLeft
+                : 0,
+              width: profileImageRef.current
+                ? profileImageRef.current.offsetWidth
+                : "100%",
+              height: profileImageRef.current
+                ? profileImageRef.current.offsetHeight
+                : "100%",
+              backgroundColor: "#ffffff7a",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              fontWeight: "bold",
+              fontSize: "large",
             }}
             onClick={addFriend}
           >
@@ -223,9 +231,25 @@ const Serverpage = () => {
       </div>
     );
 
+    const joinChannel = (e) => {
+      e.stopPropagation(); // 이 부분 추가: 버블링 방지
+      // 그룹채팅 화면으로 이동하는 경로를 설정합니다.
+      const groupchatLinkPath = `/groupchat`;
+      // 클릭 시 그룹채팅로 이동합니다.
+      console.log(channel);
+      console.log(channel.seq);
+      navigate(groupchatLinkPath, {
+        state: {
+          serverSeq: seq,
+          channelSeq: channel.seq,
+          channelName: channel.name,
+        },
+      });
+    };
+
     return (
       <div className="channelCard">
-        <div className="channelCard-imageContainer">
+        <div className="channelCard-imageContainer" onClick={joinChannel}>
           <img
             src={`https://dm51j1y1p1ekp.cloudfront.net/channel-background/${channel.backgroundImgSearchName}`}
             alt={channel.name}
@@ -569,7 +593,12 @@ const Serverpage = () => {
         <div className="scrollable-area-members">
           <div className="serverMembers">
             {serverMembers.map((member) => (
-              <MemberPopover key={member.id} member={member} token={token} userSeq={userSeq} />
+              <MemberPopover
+                key={member.id}
+                member={member}
+                token={token}
+                userSeq={userSeq}
+              />
             ))}
           </div>
         </div>
