@@ -8,16 +8,16 @@ import { setStomp } from '../../redux/actions/stompActions'
 
 export default function Checkwebsocket() {
     const dispatch = useDispatch()
-    const stomp = useSelector((state)=>{state.stomp})
+    const stomp = useSelector((state) => state.stomp);
     console.log(stomp)
-    const userPk = useSelector((state)=>{state.user.seq})
+    const userPk = useSelector((state) => state.user.seq);
     console.log(userPk)
     const url = "https://i9d208.p.ssafy.io/api"
-    console.log("1번")
+    // console.log("1번")
     useEffect(()=>{
-        console.log("2번")
+        // console.log("2번")
         if(stomp === null){
-        console.log('3번')
+        // console.log('3번')
         const sock = new SockJS(`${url}/ws-stomp`); // 연결되는 웹소켓의 end-point
           const stomp = Stomp.over(sock); // Stomp 연결
           stomp.connect({
@@ -29,5 +29,5 @@ export default function Checkwebsocket() {
           );
           dispatch(setStomp(stomp))
         }
-      },[stomp])
+      },[])
 }
