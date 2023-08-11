@@ -26,6 +26,7 @@ public class BoardEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long seq;
 	private Long userSeq;
+	private String nickname;
 	private String title;
 	private String content;
 	private String presetImgSearchName;
@@ -34,8 +35,9 @@ public class BoardEntity {
 	private LocalDateTime registerTime;
 
 	@Builder
-	public BoardEntity(Long userSeq, String title, String content, String presetImgSearchName) {
+	public BoardEntity(Long userSeq, String nickname, String title, String content, String presetImgSearchName) {
 		this.userSeq = userSeq;
+		this.nickname = nickname;
 		this.title = title;
 		this.content = content;
 		this.presetImgSearchName = presetImgSearchName;
