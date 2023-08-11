@@ -1,10 +1,12 @@
 package com.ssafy.withview.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,7 +45,30 @@ public class BoardController {
 		} catch (Exception e) {
 			resultMap.put("success", "false");
 			status = HttpStatus.INTERNAL_SERVER_ERROR;
-			log.debug("게시글 등록 실패, ErrorMessage: {}", e.getMessage());
+			log.error("게시글 등록 실패, ErrorMessage: {}", e.getMessage());
+		}
+		return new ResponseEntity<>(resultMap, status);
+	}
+
+	/**
+	 * 게시글 목록
+	 *
+	 * @return ResponseEntity (true / false, 상태코드, BoardDto List - 작성자 pk 값, 제목, 내용, 등록일)
+	 */
+	@GetMapping("")
+	public ResponseEntity<Map<String, Object>> getBoardArticles() {
+		Map<String, Object> resultMap = new HashMap<>();
+		HttpStatus status;
+		try {
+			List<BoardDto> boardDtos = boardService.getBoardArticles();
+			resultMap.put("BoardListInfo", boardDtos);
+			resultMap.put("success", "true");
+			status = HttpStatus.OK;
+			log.debug("게시글 목록 불러오기 성공");
+		} catch (Exception e) {
+			resultMap.put("success", "false");
+			status = HttpStatus.INTERNAL_SERVER_ERROR;
+			log.error("게시글 목록 불러오기 실패, ErrorMessage: {}", e.getMessage());
 		}
 		return new ResponseEntity<>(resultMap, status);
 	}

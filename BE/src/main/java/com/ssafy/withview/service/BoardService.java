@@ -1,5 +1,8 @@
 package com.ssafy.withview.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,5 +33,21 @@ public class BoardService {
 			.content(boardDto.getContent())
 			.presetImgSearchName(boardDto.getPresetImgSearchName())
 			.build());
+	}
+
+	/**
+	 * 게시글 목록
+	 */
+	@Transactional
+	public List<BoardDto> getBoardArticles() {
+		return boardRepository.findAll().stream()
+			.map(b -> BoardDto.builder()
+				.seq(b.getSeq())
+				.userSeq(b.getUserSeq())
+				.title(b.getTitle())
+				.content(b.getContent())
+				.registerTime(b.getRegisterTime())
+				.build())
+			.collect(Collectors.toList());
 	}
 }
