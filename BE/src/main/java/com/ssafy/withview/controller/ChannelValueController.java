@@ -6,7 +6,6 @@ import org.springframework.stereotype.Controller;
 
 import com.ssafy.withview.dto.ChannelValueDto;
 import com.ssafy.withview.dto.UserSeqDto;
-import com.ssafy.withview.service.ChannelServiceImpl;
 import com.ssafy.withview.service.ChannelValueService;
 
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 public class ChannelValueController {
 
 	private final ChannelValueService channelValueService;
-	private final ChannelServiceImpl channelService;
 
 	@MessageMapping("/server/{serverSeq}/enter")
 	public void enterServerWebSocket(@DestinationVariable(value = "serverSeq") Long serverSeq) {

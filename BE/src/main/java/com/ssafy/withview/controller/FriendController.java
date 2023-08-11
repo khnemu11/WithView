@@ -1,19 +1,26 @@
 package com.ssafy.withview.controller;
 
-import com.ssafy.withview.dto.FriendDto;
-import com.ssafy.withview.dto.ServerDto;
-import com.ssafy.withview.entity.FriendEntity;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.json.simple.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.ssafy.withview.dto.FriendDto;
+import com.ssafy.withview.dto.FriendFollowDto;
+import com.ssafy.withview.dto.UserDto;
 import com.ssafy.withview.service.FriendService;
+import com.ssafy.withview.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/friends")
@@ -22,6 +29,7 @@ import java.util.List;
 public class FriendController {
 
 	private final FriendService friendService;
+	private final UserService userService;
 
 	@GetMapping
 	public ResponseEntity<?> getFollowingUsers(Long userSeq) {
@@ -29,8 +37,12 @@ public class FriendController {
 		try {
 			List<FriendDto> followingUsers = friendService.getFollowingUsers(userSeq);
 
+			List<UserDto> followingUsersProfile = followingUsers.stream()
+				.map(f -> userService.getProfile(f.getFollowedUserSeq()))
+				.collect(Collectors.toList());
+
 			result.put("success", true);
-			result.put("server", followingUsers);
+			result.put("userList", followingUsersProfile);
 		} catch (Exception e) {
 			e.printStackTrace();
 			result = new JSONObject();
@@ -42,13 +54,15 @@ public class FriendController {
 	}
 
 	@PostMapping
-	public ResponseEntity<?> followUser(Long followingUserSeq, Long followedUserSeq) {
+	public ResponseEntity<?> followUser(@ModelAttribute FriendFollowDto friendFollowDto) {
+		Long followingUserSeq = friendFollowDto.getFollowingUserSeq();
+		Long followedUserSeq = friendFollowDto.getFollowedUserSeq();
 		JSONObject result = new JSONObject();
 		try {
 			FriendDto friendDto = friendService.insertFollowUser(followingUserSeq, followedUserSeq);
 
 			result.put("success", true);
-			result.put("server", friendDto);
+			result.put("follow", friendDto);
 		} catch (Exception e) {
 			e.printStackTrace();
 			result = new JSONObject();
