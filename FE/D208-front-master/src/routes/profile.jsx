@@ -38,7 +38,11 @@ const Profile = () => {
   const [editedImage, setEditedImage] = useState(null);
   const [editedImageShow, setEditedImageShow] = useState(null);
   const url = "https://i9d208.p.ssafy.io/api";
-  
+
+  const imageStyle = {
+    borderRadius: editedImageShow ? '50%' : '0%'
+  };
+
   useEffect(()=>{
     axiosInstance({
       headers : {
@@ -280,6 +284,7 @@ const Profile = () => {
               <img
                 src={editedImageShow ? editedImageShow : '/uploadimage.png'}
                 className="image-upload"
+                style={imageStyle}
                 alt="Upload"
               />
               {/* {profileImage} */}
