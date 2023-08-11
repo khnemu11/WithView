@@ -11,4 +11,8 @@ import com.ssafy.withview.entity.BoardEntity;
 public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
 
 	Optional<BoardEntity> findBySeq(Long seq);
+
+	Boolean existsBySeq(Long seq);
+
+	void deleteBySeq(Long seq);
 }

@@ -42,4 +42,10 @@ public class BoardEntity {
 		this.content = content;
 		this.presetImgSearchName = presetImgSearchName;
 	}
+
+	public void updateBoardArticle(String title, String content, String presetImgSearchName) {
+		this.title = title;
+		this.content = content;
+		this.presetImgSearchName = presetImgSearchName;
+	}
 }
