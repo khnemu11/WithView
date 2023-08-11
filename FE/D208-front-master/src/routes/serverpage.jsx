@@ -71,9 +71,47 @@ const Serverpage = () => {
   const MemberPopover = ({ member }) => {
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${member.profileImgSearchName}`;
+    const [showFriendAddPopover, setShowFriendAddPopover] = useState(false);
+    const profileImageRef = useRef(null);
 
-    const togglePopover = () => {
+    const togglePopover = (e) => {
+      setIsPopoverOpen((prev) => !prev);
+      e.stopPropagation(); // 이 부분 추가: 버블링 방지
       setIsPopoverOpen(!isPopoverOpen);
+      if (isPopoverOpen) {
+        setShowFriendAddPopover(false);
+      }
+    };
+
+    const addFriend = async (e) => {
+      e.stopPropagation(); // 버블링 중단
+
+      const formData = new FormData();
+      formData.append("followingUserSeq", userSeq);
+      formData.append("followedUserSeq", member.seq);
+
+      try {
+        const response = await axiosInstance.post("/friends", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        // 서버의 응답을 확인하여 알림 제공
+        if (response.data.success) {
+          alert("친구추가 되었습니다!");
+        } else {
+          alert("이미 친구 추가된 상대입니다!");
+        }
+
+        console.log(member);
+        console.log(member.seq);
+      } catch (error) {
+        console.error("Error adding friend:", error);
+      }
+
+      setShowFriendAddPopover(false); // 팝오버 닫기
     };
 
     const popoverBody = (
@@ -81,11 +119,49 @@ const Serverpage = () => {
         <img
           src={profileImageUrl}
           alt="profile"
+          ref={profileImageRef}
+          onClick={(e) => {
+            e.stopPropagation(); // 버블링 방지
+            if (userSeq !== member.seq) {
+              // 자신의 프로필이 아닐 경우에만 친구 추가 팝오버 표시
+              setShowFriendAddPopover((prev) => !prev);
+            }
+          }}
           onError={(e) => {
             e.target.onerror = null;
             e.target.src = "/withView2.png";
           }}
         />
+        {showFriendAddPopover && (
+          <div
+            className="addFriendPopover"
+            style={{
+              position: "absolute",
+              top: profileImageRef.current
+                ? profileImageRef.current.offsetTop
+                : 0,
+              left: profileImageRef.current
+                ? profileImageRef.current.offsetLeft
+                : 0,
+              width: profileImageRef.current
+                ? profileImageRef.current.offsetWidth
+                : "100%",
+              height: profileImageRef.current
+                ? profileImageRef.current.offsetHeight
+                : "100%",
+              backgroundColor: "#ffffff7a",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              fontWeight: "bold",
+              fontSize: "large",
+            }}
+            onClick={addFriend}
+          >
+            친구 추가
+          </div>
+        )}
         <h2>{member.nickname}</h2>
         <p>{member.profileMsg}</p>
       </div>
@@ -511,7 +587,12 @@ const Serverpage = () => {
         <div className="scrollable-area-members">
           <div className="serverMembers">
             {serverMembers.map((member) => (
-              <MemberPopover key={member.id} member={member} />
+              <MemberPopover
+                key={member.id}
+                member={member}
+                token={token}
+                userSeq={userSeq}
+              />
             ))}
           </div>
         </div>

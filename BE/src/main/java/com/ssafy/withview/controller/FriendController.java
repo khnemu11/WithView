@@ -34,18 +34,20 @@ public class FriendController {
 	@GetMapping
 	public ResponseEntity<?> getFollowingUsers(Long userSeq) {
 		JSONObject result = new JSONObject();
+		log.info("{}번 유저의 팔로우 목록 불러오기", userSeq);
 		try {
 			List<FriendDto> followingUsers = friendService.getFollowingUsers(userSeq);
 
 			List<UserDto> followingUsersProfile = followingUsers.stream()
-				.map(f -> userService.getProfile(f.getFollowedUserSeq()))
-				.collect(Collectors.toList());
+				.map(f -> {
+					log.info("{}번 친구 정보 탐색", f.getFollowedUserSeq());
+					return userService.getProfile(f.getFollowedUserSeq());
+				}).sorted((a, b) -> a.getNickname().compareTo(b.getNickname())).collect(Collectors.toList());
 
 			result.put("success", true);
 			result.put("userList", followingUsersProfile);
 		} catch (Exception e) {
 			e.printStackTrace();
-			result = new JSONObject();
 			result.put("success", false);
 			result.put("msg", userSeq + "친구 찾기를 실패했습니다.");
 			return new ResponseEntity<JSONObject>(result, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -65,6 +67,7 @@ public class FriendController {
 			if (friendDto == null) {
 				result.put("success", false);
 				result.put("msg", "이미 팔로우한 유저입니다.");
+				return new ResponseEntity<JSONObject>(result, HttpStatus.OK);
 			}
 
 			result.put("success", true);

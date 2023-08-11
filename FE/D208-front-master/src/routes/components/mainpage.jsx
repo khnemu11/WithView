@@ -10,7 +10,7 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import axiosInstance from "../axiosinstance";
-
+import Checkwebsocket from "./checkwebsocket";
 
 
 Modal.setAppElement("#root");
@@ -30,7 +30,8 @@ const Mainpage = () => {
 
   const token = useSelector((state) => state.token);
 
-
+  Checkwebsocket()
+  
   useEffect(() => {
     // 만약 redux에서 프로필 이미지가 null이면 기본 이미지로 설정
     if (profileImageURL === null) {

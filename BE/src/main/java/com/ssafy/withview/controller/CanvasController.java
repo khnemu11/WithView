@@ -34,7 +34,6 @@ public class CanvasController {
 			return new ResponseEntity<>(jsonObject, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		jsonObject.put("success",true);
-		log.info(canvasDto.toString());
 		jsonObject.put("canvas",canvasDto);
 
 		return new ResponseEntity<>(jsonObject, HttpStatus.OK);
