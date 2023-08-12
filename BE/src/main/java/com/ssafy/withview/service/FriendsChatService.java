@@ -46,7 +46,7 @@ public class FriendsChatService {
 				.messageSeq(0L)
 				.fromUserSeq(0L)
 				.toUserSeq(0L)
-				.sendTime(LocalDateTime.now())
+				.sendTime(LocalDateTime.of(1990, 10, 1, 0, 0))
 				.build();
 		}
 		return FriendsChatMessageEntity.toDto(

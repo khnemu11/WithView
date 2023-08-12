@@ -51,27 +51,14 @@ public class FriendsChatRoomService {
 		log.info("findFriendsChatRoomByPartnerSeq 호출");
 		Set<FriendsChatRoomUserInfoEntity> chatRoomsByMyUserSeq = friendsChatRoomUserInfoRepository.findAllByUserSeq(
 			userSeq);
-		chatRoomsByMyUserSeq.stream()
-			.forEach(s -> {
-				log.info("chatRoomsByMyUserSeq Stream: {}", s.getFriendsChatRoomEntity().getSeq());
-			});
-		log.info("chatRoomsByMyUserSeq: {}", chatRoomsByMyUserSeq.toString());
 		Set<FriendsChatRoomUserInfoEntity> chatRoomsByPartnerSeq = chatRoomsByMyUserSeq.stream()
 			.map(entity -> {
-				log.info("chatRoomsByPartnerSeq 내부 스트림: {}",
-					friendsChatRoomUserInfoRepository.findTopByFriendsChatRoomEntityAndUserSeqNot(
-						entity.getFriendsChatRoomEntity(), userSeq).getSeq());
 				return friendsChatRoomUserInfoRepository.findTopByFriendsChatRoomEntityAndUserSeqNot(
 					entity.getFriendsChatRoomEntity(), userSeq);
 			})
 			.collect(Collectors.toSet());
-		log.info("chatRoomsByPartnerSeq: {}", chatRoomsByPartnerSeq.toString());
-		log.info("return 값 실행, stream 도는 entity는 FriendsChatRoomUserInfoEntity");
 		return chatRoomsByPartnerSeq.stream()
 			.map(entity -> {
-				log.info("entity -> 내부, entity.userseq: {}", entity.getUserSeq());
-				log.info("entity -> 내부, entity.seq: {}", entity.getSeq());
-				log.info("entity -> 내부, entity.friendschatroomentity: {}", entity.getFriendsChatRoomEntity().getSeq());
 				Long seq = entity.getFriendsChatRoomEntity().getSeq();
 				Long partnerSeq = entity.getUserSeq();
 				return FriendsChatRoomsSeqDto.builder()
@@ -82,8 +69,4 @@ public class FriendsChatRoomService {
 			})
 			.collect(Collectors.toList());
 	}
-
-	// public Long findLastReadChatMessageFromChatRoom(Long userSeq, Long friendsChatRoomSeq) {
-	//
-	// }
 }
