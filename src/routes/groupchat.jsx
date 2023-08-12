@@ -222,9 +222,8 @@ export default function GroupChat() {
   // let session; //현재 채널 이름(오픈비두에선 채팅방 단위를 'session'이라고 부름)
   let videoContainer = document.querySelector("#video-container"); //오픈비두로 받은 영상을 담은 컨테이너
   // let port = 9091; //백엔드 포트 번호
-  let domain = "localhost:9091"; //도메인 주소
-  // let domain = "i9d208.p.ssafy.io"; //도메인 주소
-  let APPLICATION_SERVER_URL = `http://${domain}/`;
+  // let domain = "localhost:9091"; //도메인 주소
+  let domain = "i9d208.p.ssafy.io"; //도메인 주소;
   let userId = useRef(null); //유저 아이디
   let remoteBGLayer = new Konva.Layer(); //소켓에 저장된 비디오 레이어(최초 접속시 한번 사용)
   let remoteVideoLayer = new Konva.Layer(); //소켓에 저장된 비디오 레이어(최초 접속시 한번 사용)
@@ -294,14 +293,6 @@ export default function GroupChat() {
       // 레이어 다시 그리기
       backLayer.batchDraw();
     });
-
-    //요청 들어온 캔버스(보여주지 않으므로 크기를 0으로)
-    let remoteStage = new Konva.Stage({
-      container: "shared-screen",
-      width: 0,
-      height: 0,
-    });
-    remoteStage.hide();
   }, []);
 
   // 배경에 이미지 추가
@@ -382,17 +373,12 @@ export default function GroupChat() {
         });
         var menuNode = document.getElementById("delete-img-menu");
 
-        document
-            .getElementById("delete-button")
-            .addEventListener("click", () => {
-              currentShape.destroy();
-              changeCanvas(currentShape, "delete");
-            });
-
-        window.addEventListener("click", () => {
-          // hide menu
-          menuNode.style.display = "none";
-        });
+        // document
+        //   .getElementById("delete-button")
+        //   .addEventListener("click", () => {
+        //     currentShape.destroy();
+        //     changeCanvas(currentShape, "delete");
+        //   });
 
         // 우클릭 이벤트 핸들러 등록
         object.on("contextmenu", function (e) {
@@ -479,15 +465,28 @@ export default function GroupChat() {
   }
 
   function deleteCanvasChange(data) {
-    let deleteElement = Konva.Node.create(data.background);
+    let deleteElement = Konva.Node.create(data);
 
-    let objectId = deleteElement.id;
+    console.log("삭제 객체");
+    console.log(deleteElement);
+    let objectId = deleteElement.attrs.id;
     console.log("소캣에서 넘어온 객체 아이디");
     console.log(objectId);
     console.log(stage.current);
 
-    let target = stage.current.find("#" + objectId); //객체 탐색
-    target.remove();
+    let target = stage.current.find("#"+objectId); //객체 탐색
+
+    for(let i=0;i<stage.current.children[2].children.length;i++){
+      let imageElement =  stage.current.children[2].children[i];
+
+      if(imageElement.attrs.id == objectId){
+        console.log("삭제 대상 객체");
+        console.log(imageElement);
+        imageElement.remove();
+        stage.current.children[2].children[i-1];
+        break;
+      }
+    }
   }
 
   function onError() {
@@ -506,9 +505,13 @@ export default function GroupChat() {
 
     //참가한 채널 명을 url로 구분하도록 커스터마이징함
     console.log("캔버스 로드");
+    const headers = {
+      Authorization: `Bearer ${Token}`,
+      "Content-Type": "application/json",
+    };
 
     let apiCall = await axiosInstance
-        .get(`/canvas/${channelSeq.current}`)
+        .get(`/canvas/${channelSeq.current}`,{headers})
         .then((response) => {
           console.log("받은 데이터");
           console.log(response);
@@ -521,9 +524,8 @@ export default function GroupChat() {
               image : stage.current.children[1],
               video : stage.current.children[2]
             }
-
             axiosInstance
-                .post(`/canvas`,parameters)
+                .post(`/canvas`,parameters,{headers})
                 .then((response) => {
                   console.log(response);
                 }).catch((err)=>{
@@ -606,7 +608,7 @@ export default function GroupChat() {
           console.log(err);
         });
 
-    stompSocket.current = new SockJS(`http://${domain}/api/ws-stomp`);
+    stompSocket.current = new SockJS(`https://${domain}/api/ws-stomp`);
     stomp.current = StompJs.over(stompSocket.current);
     stomp.current.connect({ userSeq: userSeq }, onConnected, onError);
 
@@ -770,6 +772,15 @@ export default function GroupChat() {
     });
   }
 
+  //외부를 클릭하면 우클릭 메뉴가 없어지는 것
+  window.addEventListener("click", () => {
+    // hide menu
+    let deleteBtn = document.querySelector("#delete-button");
+    deleteBtn.setAttribute("data-imgid","");
+    let menuNode = document.getElementById("delete-img-menu");
+    menuNode.style.display = "none";
+  });
+
   function publishScreenShare() {
     // --- 9.1) To create a publisherScreen set the property 'videoSource' to 'screen'
     console.log("스크린 ov");
@@ -848,7 +859,7 @@ export default function GroupChat() {
   //채널 명과 랜덤한 유저 아이디를 생성해줌
   //사용 안할듯
   function generateParticipantInfo() {
-    document.getElementById("sessionId").value = "mySession";
+    document.getElementById("sessionId").value = "mySession2";
     document.getElementById("userName").value =
         "Participant" + Math.floor(Math.random() * 100);
   }
@@ -1160,6 +1171,22 @@ export default function GroupChat() {
     document.querySelector("#main-video video")["muted"] = true;
   }
 
+  function deleteClickListener(){
+    //삭제 버튼 누를시 이벤트
+    let deleteBtn = document.querySelector("#delete-button");
+    console.log(deleteBtn);
+    let targetId = deleteBtn.getAttribute('data-imgid');
+
+    for (var i = 0; i < stage.current.children[2].children.length; i++) {
+      if (stage.current.children[2].children[i].getAttr("id") == targetId) {
+        console.log("find "+stage.current.children[2].children[i]);
+        changeCanvas(stage.current.children[2].children[i], "delete");
+        stage.current.children[2].children[i].remove();
+        stage.current.children[2].children[i-1].remove();
+        console.log("tarnsformer "+stage.current.children[2].children[i]);
+      }
+    }
+  }
   //버튼을 누르면 이미지가 생성되는 함수
   function stickertemp(name) {
     console.log("click");
@@ -1215,6 +1242,12 @@ export default function GroupChat() {
 
       // 드래그 범위 제한 함수를 객체에 연결
       papago.dragBoundFunc(limitDragBounds);
+      var menuNode = document.getElementById("delete-img-menu");
+
+      window.addEventListener("click", () => {
+        // hide menu
+        menuNode.style.display = "none";
+      });
 
       var menuNode = document.getElementById("delete-img-menu");
 
@@ -1232,6 +1265,10 @@ export default function GroupChat() {
       papago.on("contextmenu", function (e) {
         e.evt.preventDefault();
         console.log("우클릭 입력");
+
+        let deleteBtn = document.querySelector("#delete-button");
+        deleteBtn.setAttribute("data-imgid",`img-${name}`);
+
         if (e.target === stage.current) {
           // if we are on empty place of the stage we will do nothing
           return;
@@ -1361,7 +1398,7 @@ export default function GroupChat() {
       changeCanvas(video, "update");
     });
 
-    video.on("contextmenu", function () {
+    video.on("contextmenu", function (e) {
       e.evt.preventDefault();
       video.setAttrs({
         x: 0,
@@ -1432,7 +1469,7 @@ export default function GroupChat() {
             </div>
             <div id="delete-img-menu">
               <div>
-                <button id="delete-button">Delete</button>
+                <button onClick={deleteClickListener} id="delete-button" data-imgid="">Delete</button>
               </div>
             </div>
 
