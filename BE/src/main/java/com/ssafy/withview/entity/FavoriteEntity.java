@@ -39,6 +39,9 @@ public class FavoriteEntity {
 		this.serverEntity = serverEntity;
 	}
 
+	public String toString(){
+		return userEntity.getSeq()+" have "+serverEntity.getSeq();
+	}
 	public static FavoriteDto toDto(FavoriteEntity favoriteEntity){
 		if(favoriteEntity == null){
 			return null;

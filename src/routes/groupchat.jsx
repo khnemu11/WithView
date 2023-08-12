@@ -1249,6 +1249,18 @@ export default function GroupChat() {
         menuNode.style.display = "none";
       });
 
+      var menuNode = document.getElementById("delete-img-menu");
+
+      document.getElementById("delete-button").addEventListener("click", () => {
+        currentShape.destroy();
+        changeCanvas(currentShape, "delete");
+      });
+
+      window.addEventListener("click", () => {
+        // hide menu
+        menuNode.style.display = "none";
+      });
+
       // 우클릭 이벤트 핸들러 등록
       papago.on("contextmenu", function (e) {
         e.evt.preventDefault();

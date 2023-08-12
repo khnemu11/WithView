@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/api/chat")
+@RequestMapping("/api/chat/friends")
 @RequiredArgsConstructor
 @Slf4j
 public class FriendsChatRoomController {
@@ -42,6 +42,7 @@ public class FriendsChatRoomController {
 			Long friendsChatRoomSeq = friendsChatRoomService.insertFriendsChatRoom(mySeq, yourSeq);
 			log.info("새 1대1 채팅방 개설, 채팅방 번호: {}, 채팅방 생성 요청자: {}, 채팅 상대: {}", friendsChatRoomSeq, mySeq, yourSeq);
 			result.put("success", true);
+			result.put("friendsChatRoomSeq", friendsChatRoomSeq);
 		} catch (Exception e) {
 			e.printStackTrace();
 			result = new JSONObject();
