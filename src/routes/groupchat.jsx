@@ -1386,7 +1386,7 @@ export default function GroupChat() {
       changeCanvas(video, "update");
     });
 
-    video.on("contextmenu", function () {
+    video.on("contextmenu", function (e) {
       e.evt.preventDefault();
       video.setAttrs({
         x: 0,
