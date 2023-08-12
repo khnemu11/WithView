@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import Modal from 'react-modal';
 import Konva from "konva";
 import { OpenVidu } from "openvidu-browser";
 import SockJS from "sockjs-client";
@@ -43,6 +44,7 @@ import StompJs from "stompjs";
 import $ from "jquery";
 import { useSelector } from "react-redux";
 import axiosInstance from "./axiosinstance";
+import PresetRegistModal from "./components/presetRegistModal";
 
 export default function GroupChat() {
   const [backClicked, setbackClicked] = useState(false);
@@ -51,6 +53,7 @@ export default function GroupChat() {
   const [volClicked, setvolClicked] = useState(false);
   const [camClicked, setcamClicked] = useState(false);
   const [settingsClicked, setsettingsClicked] = useState(false);
+  const [presetRegisterClicked, setPresetRegisterClicked] = useState(false);
   const [stickerClicked, setstickerClicked] = useState(false);
   const [stickermenuClicked, setstickermenuClicked] = useState(false);
   const [chatClicked, setchatClicked] = useState(false);
@@ -133,6 +136,11 @@ export default function GroupChat() {
       // changeCanvas(myCam);
     }
     setprofileClicked(false);
+  }
+
+  function presetRegistSettings(){
+    setPresetRegisterClicked((presetRegisterClicked)=>!presetRegisterClicked);
+    console.log(presetRegisterClicked);
   }
 
   function settingsSettings() {
@@ -1249,18 +1257,6 @@ export default function GroupChat() {
         menuNode.style.display = "none";
       });
 
-      var menuNode = document.getElementById("delete-img-menu");
-
-      document.getElementById("delete-button").addEventListener("click", () => {
-        currentShape.destroy();
-        changeCanvas(currentShape, "delete");
-      });
-
-      window.addEventListener("click", () => {
-        // hide menu
-        menuNode.style.display = "none";
-      });
-
       // 우클릭 이벤트 핸들러 등록
       papago.on("contextmenu", function (e) {
         e.evt.preventDefault();
@@ -1398,7 +1394,7 @@ export default function GroupChat() {
       changeCanvas(video, "update");
     });
 
-    video.on("contextmenu", function (e) {
+    video.on("contextmenu", function () {
       e.evt.preventDefault();
       video.setAttrs({
         x: 0,
@@ -1597,6 +1593,18 @@ export default function GroupChat() {
                     <div className="accordion-header">채널 지우기</div>
                     <div className="accordion-content"></div>
                   </div>
+                </div>
+                <div className="accordion">
+                  <div className="accordion-item"  onMouseUp={presetRegistSettings}>
+                    <div className="accordion-header">프리셋 등록</div>
+                    <div className="accordion-content"></div>
+                  </div>
+                  <PresetRegistModal
+                      isOpen={presetRegisterClicked}
+                      onChange={presetRegistSettings}
+                      stage = {stage.current}
+                  >
+                  </PresetRegistModal>
                 </div>
               </div>
             </div>
