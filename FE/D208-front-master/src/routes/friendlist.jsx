@@ -6,6 +6,7 @@ import paperPlaneIcon from "/paper-plane.png";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import axiosInstance from "./axiosinstance";
+import Checkwebsocket from "./components/checkwebsocket";
 
 const FriendList = () => {
   const [selectedTab, setSelectedTab] = useState("친구"); // 초기 상태를 '친구'로 설정
@@ -15,6 +16,12 @@ const FriendList = () => {
   const token = useSelector((state) => state.token);
 
   const [friends, setFriends] = useState([]);
+
+  Checkwebsocket();
+
+  const stomp = useSelector((state) => state.stomp);
+  console.log("ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ", stomp);
+  console.log("유저세크", userSeq);
 
   useEffect(() => {
     document.body.style.backgroundImage = "none";
@@ -45,9 +52,75 @@ const FriendList = () => {
     fetchFriends();
   }, [userSeq, token]);
 
-  const chatRooms = [
-    { id: 1, name: "John Doe", profileImage: null, lastMessage: "안녕하세요!" },
-  ];
+  const [chatRooms, setChatRooms] = useState([]);
+  const connectStomp = async () => {
+    return new Promise((resolve, reject) => {
+      try {
+        if (!stomp) {
+          reject(new Error("Stomp 객체가 초기화되지 않았습니다."));
+          return;
+        }
+  
+        stomp.connect(
+          {
+            "userSeq" : userSeq},
+          () => {
+            resolve(stomp);
+          },
+          (error) => {
+            console.error('STOMP 연결 중 에러 발생:', error); // 연결 중 발생하는 에러 로깅
+            reject(error);
+          }
+        );
+      } catch (error) {
+        console.error('connectStomp에서 예외 발생:', error); // 기타 예외 로깅
+        reject(error);
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (!stomp) {
+      console.log("STOMP 객체가 아직 초기화되지 않았습니다.");
+      return;
+    }
+    let chatRoomInfoSubscription;
+
+    const recvMessage = (recieve) => {
+      setChatRooms(recieve); // 받아온 정보를 chatRooms 상태에 저장
+    };
+
+    const fetchChatRoomInfo = async () => {
+      try {
+        await connectStomp();
+
+        chatRoomInfoSubscription = stomp.subscribe(
+          `/api/sub/chat/friends/chatroominfo/${userSeq}`,
+          (message) => {
+            var recieve = JSON.parse(message.body);
+            recvMessage(recieve);
+          }
+        );
+
+        console.log("userSeq", userSeq);
+
+        // 최초 메시지 요청
+        stomp.send(
+          `/api/pub/chat/friends/chatroominfo`,
+          {},
+          JSON.stringify({ userSeq: userSeq })
+        );
+      } catch (error) {
+        console.error("STOMP 연결에 실패했습니다:", error);
+      }
+    };
+
+    fetchChatRoomInfo();
+
+    return () => {
+      chatRoomInfoSubscription && chatRoomInfoSubscription.unsubscribe(); // 컴포넌트가 언마운트될 때 구독 취소
+    };
+  }, [stomp, userSeq]);
 
   const chatMessages = {
     "John Doe": [
@@ -58,6 +131,8 @@ const FriendList = () => {
     ],
     // ... 기타 채팅방 메시지
   };
+
+  console.log('챗룸', chatRooms)
 
   const [chats, setChats] = useState(chatRooms);
 
@@ -75,10 +150,32 @@ const FriendList = () => {
     }
   };
 
-  const handleFriendBoxDoubleClick = (friend) => {
-    if (!chats.find((chat) => chat.name === friend.name)) {
-      const newChat = { ...friend, lastMessage: "" }; // 초기 메시지는 빈 문자열로 설정
-      setChats((prevChats) => [...prevChats, newChat]);
+  const handleFriendBoxDoubleClick = async (friend) => {
+    if (!chats.find((chat) => chat.nickname === friend.nickname)) {
+      try {
+        const response = await axiosInstance.post(
+          "/chat/friends",
+          {
+            mySeq: userSeq, // 현재 사용자의 seq
+            yourSeq: friend.seq, // 클릭한 친구의 seq
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        // 응답에 따라서 추가 작업을 수행할 수 있습니다.
+        // 예를 들면, 서버에서 새로운 채팅방 정보를 반환할 경우
+        // 해당 정보를 chats에 추가할 수 있습니다.
+        if (response.data && response.data.newChat) {
+          setChats((prevChats) => [...prevChats, response.data.newChat]);
+        }
+        console.log("요청 성공");
+      } catch (error) {
+        console.error("Error creating new chat:", error);
+      }
     }
   };
 
