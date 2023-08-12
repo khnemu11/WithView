@@ -39,7 +39,7 @@ public class FriendsChatService {
 	public FriendsChatMessageDto getLastFriendsChatMessage(Long friendsChatSeq) {
 		FriendsChatMessageEntity returnVal = friendsChatMessageRepository.findTopByFriendsChatRoomSeqOrderBySendTimeDesc(
 			friendsChatSeq);
-		if (returnVal.getFriendsChatRoomSeq() == null) {
+		if (returnVal == null) {
 			return FriendsChatMessageDto.builder()
 				.friendsChatRoomSeq(0L)
 				.message("")
