@@ -8,13 +8,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.ssafy.withview.entity.FriendsChatRoomEntity;
 import com.ssafy.withview.entity.FriendsChatRoomUserInfoEntity;
 
 @Repository
 public interface FriendsChatRoomUserInfoRepository extends JpaRepository<FriendsChatRoomUserInfoEntity, Long> {
 	public Set<FriendsChatRoomUserInfoEntity> findAllByUserSeq(Long userSeq);
 
-	public FriendsChatRoomUserInfoEntity findBySeqAndUserSeqNot(Long seq, Long userSeq);
+	public FriendsChatRoomUserInfoEntity findTopByFriendsChatRoomEntityAndUserSeqNot(FriendsChatRoomEntity entity, Long userSeq);
 
 	public FriendsChatRoomUserInfoEntity findTopByFriendsChatRoomEntitySeqAndUserSeq(
 		Long friendsChatRoomSeq,
