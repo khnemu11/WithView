@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -23,7 +24,7 @@ public class FriendsChatRoomsUserInfoForPubSendDto implements Serializable {
 	public String toJson() {
 		String json = null;
 		try {
-			json = new ObjectMapper().writeValueAsString(this);
+			json = new ObjectMapper().registerModule(new JavaTimeModule()).writeValueAsString(this);
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}
