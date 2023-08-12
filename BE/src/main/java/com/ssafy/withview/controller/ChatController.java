@@ -1,6 +1,7 @@
 package com.ssafy.withview.controller;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,6 +59,13 @@ public class ChatController {
 		log.info("{}번 유저의 채팅 목록 불러오기", userSeq);
 		List<FriendsChatRoomsSeqDto> friendsChatRoomsByPartnerSeq = friendsChatRoomService.findFriendsChatRoomsByPartnerSeq(
 			userSeq);
+
+		if (friendsChatRoomsByPartnerSeq.isEmpty()) {
+			chatPublisher.sendFriendsChatRoomInfo(FriendsChatRoomsUserInfoForPubSendDto.builder()
+				.friendsChatRoomsUserInfoDtos(new ArrayList<>())
+				.userSeq(userSeq)
+				.build().toJson());
+		}
 
 		List<FriendsChatRoomsUserInfoDto> friendsChatRoomsUserInfoDtos = friendsChatRoomsByPartnerSeq.stream()
 			.map(dto -> {

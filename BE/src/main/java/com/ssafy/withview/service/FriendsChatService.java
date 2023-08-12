@@ -1,5 +1,6 @@
 package com.ssafy.withview.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,8 +37,20 @@ public class FriendsChatService {
 	}
 
 	public FriendsChatMessageDto getLastFriendsChatMessage(Long friendsChatSeq) {
+		FriendsChatMessageEntity returnVal = friendsChatMessageRepository.findTopByFriendsChatRoomSeqOrderBySendTimeDesc(
+			friendsChatSeq);
+		if (returnVal.getFriendsChatRoomSeq() == null) {
+			return FriendsChatMessageDto.builder()
+				.friendsChatRoomSeq(0L)
+				.message("")
+				.messageSeq(0L)
+				.fromUserSeq(0L)
+				.toUserSeq(0L)
+				.sendTime(LocalDateTime.of(1990, 10, 1, 0, 0))
+				.build();
+		}
 		return FriendsChatMessageEntity.toDto(
-			friendsChatMessageRepository.findTopByFriendsChatRoomSeqOrderBySendTimeDesc(friendsChatSeq));
+			returnVal);
 	}
 
 	public Long getUnreadFriendsChatMessageCount(Long friendsChatSeq, Long userSeq, Long lastMessageSeq) {
