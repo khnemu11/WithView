@@ -512,7 +512,7 @@ export default function GroupChat() {
   async function joinSession() {
     console.log("join !");
     // channelSeqRef.current = channelSeq;
-    let mySessionId = channelName + "_" + channelSeqRef.current;
+    let mySessionId = "channel" + "_" + channelSeqRef.current;
     userId = userNick;
 
     //참가한 채널 명을 url로 구분하도록 커스터마이징함
@@ -830,6 +830,7 @@ export default function GroupChat() {
     publisherScreen.once("accessDenied", () => {
       console.error("Screen Share: Access Denied");
     });
+    catchChatSocket();
   }
 
   //오픈비두 예제함수
@@ -1403,11 +1404,11 @@ export default function GroupChat() {
     video.on("contextmenu", function (e) {
       e.evt.preventDefault();
       video.setAttrs({
-        x: 0,
-        y: 0,
+        x: -5,
+        y: -5,
         draggable: false,
-        width: window.innerWidth,
-        height: window.innerHeight,
+        width: window.innerWidth + 10,
+        height: window.innerHeight + 10,
       });
       layer.draw();
       console.log(video.attrs);
@@ -1437,11 +1438,6 @@ export default function GroupChat() {
   }
 
   function sendChatSocket(message) {
-    stomp.current.send(
-      `/api/pub/server/${serverSeq}/channel/${channelSeqRef.current}/enter`,
-      {},
-      JSON.stringify({ userSeq: { userSeq } })
-    );
     // 웹소켓에 채팅 전송하는 부분
     stomp.current.send(
       `/api/pub/chat/channel/message`,
@@ -1452,6 +1448,28 @@ export default function GroupChat() {
         message: { message },
       })
     );
+  }
+
+  function catchChatSocket() {
+    stomp.current.subscribe(
+      `/api/sub/chat/channel/${channelSeqRef.current}`,
+      function (message) {
+        // 윗줄은 채널에 입장 했으니 해당 서버의 모든 인원에게 채널 변경 정보를 뿌려주는것, 2번 구독에서 받아서 씀
+        var recieve = JSON.parse(message.body); // message에 채팅내용이 담겨서 옴
+        recvMessage(recieve); // 채팅내용을 html로 바꿔주는 함수 실행
+      }
+    );
+    stomp.current.send(
+      `/api/pub/server/${serverSeq}/channel/${channelSeqRef.current}/enter`,
+      {},
+      JSON.stringify({ userSeq: { userSeq } })
+    );
+    // --> subscribe 함수로 해당 url의 웹소켓 연결을 구독하는 상태가 되며, 백엔드에서 해당
+    // url로 publish를 해주면 바로 응답을 받아 html로 처리함.
+    // 이 부분에서 전송된 메시지를 응답할텐데, 그걸로 채널채팅 부분에 메시지를 뿌려주면 됨.
+  }
+  function recvMessage(recieve) {
+    console.log(recieve);
   }
   return (
     <>
