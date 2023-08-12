@@ -51,10 +51,15 @@ public class SecurityConfig {
 
 		http.authorizeRequests()
 			.antMatchers("/api/login/login").permitAll()
+			.antMatchers("/api/login/logout2").permitAll()
 			.antMatchers("/api/users").permitAll()
 			.antMatchers("/api/users/check-id").permitAll()
 			.antMatchers("/api/users/email/validate").permitAll()
 			.antMatchers("/api/users/email/authenticate").permitAll()
+			.antMatchers("/api/user/*/password").permitAll()
+			.antMatchers("/api/sub/**").permitAll()
+			.antMatchers("/api/pub/**").permitAll()
+			.antMatchers("/api/ws-stomp/**").permitAll()
 			.anyRequest().authenticated();
 
 		return http.build();

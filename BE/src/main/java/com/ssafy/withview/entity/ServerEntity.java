@@ -1,15 +1,21 @@
 package com.ssafy.withview.entity;
 
-import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import com.ssafy.withview.dto.ServerDto;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -25,18 +31,18 @@ public class ServerEntity {
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
 
-	@OneToMany(mappedBy="serverEntity", cascade = CascadeType.REMOVE)
+	@OneToMany(mappedBy = "serverEntity", cascade = CascadeType.REMOVE)
 	private List<UserServerEntity> userServerEntityList = new ArrayList<>();
 
-	@OneToMany(mappedBy="serverEntity", cascade = CascadeType.REMOVE)
+	@OneToMany(mappedBy = "serverEntity", cascade = CascadeType.REMOVE)
 	private List<ChannelEntity> channelEntityList = new ArrayList<>();
 
-	@OneToMany(mappedBy="serverEntity",cascade = CascadeType.REMOVE)
+	@OneToMany(mappedBy = "serverEntity", cascade = CascadeType.REMOVE)
 	private List<FavoriteEntity> favoriteEntityList = new ArrayList<>();
 
-
 	@Builder
-	public ServerEntity(String name, Integer limitChannel, Long hostSeq, String backgroundImgSearchName, String backgroundImgOriginalName) {
+	public ServerEntity(String name, Integer limitChannel, Long hostSeq, String backgroundImgSearchName,
+		String backgroundImgOriginalName) {
 		this.name = name;
 		this.limitChannel = limitChannel;
 		this.hostSeq = hostSeq;
@@ -44,12 +50,12 @@ public class ServerEntity {
 		this.backgroundImgOriginalName = backgroundImgOriginalName;
 	}
 
-	public static ServerDto toDto(ServerEntity serverEntity){
-		if(serverEntity == null){
+	public static ServerDto toDto(ServerEntity serverEntity) {
+		if (serverEntity == null) {
 			return null;
 		}
 		return ServerDto.builder()
-				.seq(serverEntity.getSeq())
+			.seq(serverEntity.getSeq())
 			.name(serverEntity.getName())
 			.limitChannel(serverEntity.getLimitChannel())
 			.hostSeq(serverEntity.getHostSeq())
@@ -58,7 +64,7 @@ public class ServerEntity {
 			.build();
 	}
 
-	public void update(ServerDto serverDto){
+	public void update(ServerDto serverDto) {
 		this.backgroundImgSearchName = serverDto.getBackgroundImgSearchName();
 		this.backgroundImgOriginalName = serverDto.getBackgroundImgOriginalName();
 		this.name = serverDto.getName();

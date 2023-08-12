@@ -16,6 +16,7 @@
 <button type="button" id="enter-btn2">입장2</button>
 <button type="button" id="leave-btn1">퇴장1</button>
 <button type="button" id="leave-btn2">퇴장2</button>
+<button type="button" id="unsub-btn">구독해제</button>
 <button type="button" id="chat-sub-btn">채팅 구독</button>
 <input id="chat">
 <button type="button" id="chat-btn">채팅보내기</button>
@@ -54,24 +55,36 @@
         stomp.send(severEnterSendUrl);
     });
 
+    document.querySelector("#unsub-btn").addEventListener("click", function () {
+        console.log("구독 해제 버튼 클릭");
+        stomp.unsubscribe(findUserInChannelsUrl, function (msg) {
+            stomp.send(severEnterSendUrl);
+            console.log("넘어온 메시지");
+            console.log(msg);
+            let data = JSON.parse(msg.body);
+            console.log("데이터");
+            console.log(data);
+        });
+    });
+
     document.querySelector("#enter-btn1").addEventListener("click", function () {
         console.log("입장1 버튼 클릭");
-        stomp.send(`/api/pub/channel/9/16/enter`, {}, JSON.stringify({"userSeq": 23}));
+        stomp.send(`/api/pub/server/9/channel/16/enter`, {}, JSON.stringify({"userSeq": 23}));
     })
 
     document.querySelector("#enter-btn2").addEventListener("click", function () {
         console.log("입장2 버튼 클릭");
-        stomp.send(`/api/pub/channel/9/16/enter`, {}, JSON.stringify({"userSeq": 24}));
+        stomp.send(`/api/pub/server/9/channel/16/enter`, {}, JSON.stringify({"userSeq": 24}));
     })
 
     document.querySelector("#leave-btn1").addEventListener("click", function () {
         console.log("퇴장1 버튼 클릭");
-        stomp.send(`/api/pub/channel/9/16/leave`, {}, JSON.stringify({"userSeq": 23}));
+        stomp.send(`/api/pub/server/9/channel/16/leave`, {}, JSON.stringify({"userSeq": 23}));
     })
 
     document.querySelector("#leave-btn2").addEventListener("click", function () {
         console.log("퇴장2 버튼 클릭");
-        stomp.send(`/api/pub/channel/9/16/leave`, {}, JSON.stringify({"userSeq": 24}));
+        stomp.send(`/api/pub/server/9/channel/16/leave`, {}, JSON.stringify({"userSeq": 24}));
     })
 
     document.querySelector("#chat-sub-btn").addEventListener("click", function () {
