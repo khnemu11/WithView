@@ -241,9 +241,25 @@ const Serverpage = () => {
       </div>
     );
 
+    const joinChannel = (e) => {
+      e.stopPropagation(); // 이 부분 추가: 버블링 방지
+      // 그룹채팅 화면으로 이동하는 경로를 설정합니다.
+      const groupchatLinkPath = `/groupchat`;
+      // 클릭 시 그룹채팅로 이동합니다.
+      console.log(channel);
+      console.log(channel.seq);
+      navigate(groupchatLinkPath, {
+        state: {
+          serverSeq: seq,
+          channelSeq: channel.seq,
+          channelName: channel.name,
+        },
+      });
+    };
+
     return (
       <div className="channelCard">
-        <div className="channelCard-imageContainer">
+        <div className="channelCard-imageContainer" onClick={joinChannel}>
           <img
             src={`https://dm51j1y1p1ekp.cloudfront.net/channel-background/${channel.backgroundImgSearchName}`}
             alt={channel.name}
