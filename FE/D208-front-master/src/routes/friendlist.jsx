@@ -1,14 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../css/friendlist.css";
 import friendAddIcon from "/friend-add.png";
 import searchIcon from "/searchicon.png";
-import { useEffect } from "react";
 import paperPlaneIcon from "/paper-plane.png";
+import { useSelector } from "react-redux";
+import axios from "axios";
+import axiosInstance from "./axiosinstance";
+import Checkwebsocket from "./components/checkwebsocket";
 
 const FriendList = () => {
   const [selectedTab, setSelectedTab] = useState("친구"); // 초기 상태를 '친구'로 설정
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedChat, setSelectedChat] = useState(null);
+  const userSeq = useSelector((state) => state.user.seq);
+  const token = useSelector((state) => state.token);
+
+  const [friends, setFriends] = useState([]);
+
+  Checkwebsocket();
+
+  const stomp = useSelector((state) => state.stomp);
+  console.log("ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ", stomp);
+  console.log("유저세크", userSeq);
 
   useEffect(() => {
     document.body.style.backgroundImage = "none";
@@ -18,113 +31,96 @@ const FriendList = () => {
     };
   }, []);
 
-  const friends = [
-    { id: 1, name: "John Doe", profileImage: null, status: "Happy coding!" },
-    {
-      id: 2,
-      name: "Jane Smith",
-      profileImage: null,
-      status: "Working on a new project!",
-    },
-    { id: 3, name: "Chris Evans", profileImage: null, status: "At the gym" },
-    {
-      id: 4,
-      name: "Emily Clark",
-      profileImage: null,
-      status: "Reading a good book",
-    },
-    {
-      id: 5,
-      name: "Robert Downey",
-      profileImage: null,
-      status: "Just chilling",
-    },
-    {
-      id: 6,
-      name: "Emma Stone",
-      profileImage: null,
-      status: "Looking for a good movie to watch",
-    },
-    { id: 7, name: "Tom Holland", profileImage: null, status: "Busy shooting" },
-    {
-      id: 8,
-      name: "Scarlett Johansson",
-      profileImage: null,
-      status: "On a vacation",
-    },
-    {
-      id: 9,
-      name: "Ryan Reynolds",
-      profileImage: null,
-      status: "Having fun with kids",
-    },
-    {
-      id: 10,
-      name: "Jennifer Lawrence",
-      profileImage: null,
-      status: "Cooking some delicious food",
-    },
-    {
-      id: 11,
-      name: "Bradley Cooper",
-      profileImage: null,
-      status: "Recording a new song",
-    },
-    {
-      id: 12,
-      name: "Angelina Jolie",
-      profileImage: null,
-      status: "Traveling the world",
-    },
-    {
-      id: 13,
-      name: "Hugh Jackman",
-      profileImage: null,
-      status: "Doing what I love",
-    },
-    {
-      id: 14,
-      name: "Natalie Portman",
-      profileImage: null,
-      status: "Thinking of a new role",
-    },
-    {
-      id: 15,
-      name: "Leonardo DiCaprio",
-      profileImage: null,
-      status: "In the wild",
-    },
-    {
-      id: 16,
-      name: "Meryl Streep",
-      profileImage: null,
-      status: "Looking for script",
-    },
-    {
-      id: 17,
-      name: "Tom Hanks",
-      profileImage: null,
-      status: "Playing with my dog",
-    },
-    {
-      id: 18,
-      name: "Charlize Theron",
-      profileImage: null,
-      status: "Yoga time",
-    },
-    { id: 19, name: "Matt Damon", profileImage: null, status: "Writing" },
-    {
-      id: 20,
-      name: "Julia Roberts",
-      profileImage: null,
-      status: "Enjoying family time",
-    },
-    // ... 기타 친구들
-  ];
+  useEffect(() => {
+    const fetchFriends = async () => {
+      try {
+        const response = await axiosInstance.get(
+          `/friends?userSeq=${userSeq}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setFriends(response.data.userList);
+        console.log("친구목록 불러와졌습니다.");
+      } catch (error) {
+        console.error("Error fetching friends:", error);
+      }
+    };
 
-  const chatRooms = [
-    { id: 1, name: "John Doe", profileImage: null, lastMessage: "안녕하세요!" },
-  ];
+    fetchFriends();
+  }, [userSeq, token]);
+
+  const [chatRooms, setChatRooms] = useState([]);
+  const connectStomp = async () => {
+    return new Promise((resolve, reject) => {
+      try {
+        if (!stomp) {
+          reject(new Error("Stomp 객체가 초기화되지 않았습니다."));
+          return;
+        }
+  
+        stomp.connect(
+          {
+            "userSeq" : userSeq},
+          () => {
+            resolve(stomp);
+          },
+          (error) => {
+            console.error('STOMP 연결 중 에러 발생:', error); // 연결 중 발생하는 에러 로깅
+            reject(error);
+          }
+        );
+      } catch (error) {
+        console.error('connectStomp에서 예외 발생:', error); // 기타 예외 로깅
+        reject(error);
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (!stomp) {
+      console.log("STOMP 객체가 아직 초기화되지 않았습니다.");
+      return;
+    }
+    let chatRoomInfoSubscription;
+
+    const recvMessage = (recieve) => {
+      setChatRooms(recieve); // 받아온 정보를 chatRooms 상태에 저장
+    };
+
+    const fetchChatRoomInfo = async () => {
+      try {
+        await connectStomp();
+
+        chatRoomInfoSubscription = stomp.subscribe(
+          `/api/sub/chat/friends/chatroominfo/${userSeq}`,
+          (message) => {
+            var recieve = JSON.parse(message.body);
+            recvMessage(recieve);
+          }
+        );
+
+        console.log("userSeq", userSeq);
+
+        // 최초 메시지 요청
+        stomp.send(
+          `/api/pub/chat/friends/chatroominfo`,
+          {},
+          JSON.stringify({ userSeq: userSeq })
+        );
+      } catch (error) {
+        console.error("STOMP 연결에 실패했습니다:", error);
+      }
+    };
+
+    fetchChatRoomInfo();
+
+    return () => {
+      chatRoomInfoSubscription && chatRoomInfoSubscription.unsubscribe(); // 컴포넌트가 언마운트될 때 구독 취소
+    };
+  }, [stomp, userSeq]);
 
   const chatMessages = {
     "John Doe": [
@@ -136,10 +132,12 @@ const FriendList = () => {
     // ... 기타 채팅방 메시지
   };
 
+  console.log('챗룸', chatRooms)
+
   const [chats, setChats] = useState(chatRooms);
 
   const filteredFriends = friends.filter((friend) =>
-    friend.name.includes(searchTerm)
+    friend.nickname.includes(searchTerm)
   );
 
   const filteredChatRooms = chats.filter((chat) =>
@@ -152,10 +150,32 @@ const FriendList = () => {
     }
   };
 
-  const handleFriendBoxDoubleClick = (friend) => {
-    if (!chats.find((chat) => chat.name === friend.name)) {
-      const newChat = { ...friend, lastMessage: "" }; // 초기 메시지는 빈 문자열로 설정
-      setChats((prevChats) => [...prevChats, newChat]);
+  const handleFriendBoxDoubleClick = async (friend) => {
+    if (!chats.find((chat) => chat.nickname === friend.nickname)) {
+      try {
+        const response = await axiosInstance.post(
+          "/chat/friends",
+          {
+            mySeq: userSeq, // 현재 사용자의 seq
+            yourSeq: friend.seq, // 클릭한 친구의 seq
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        // 응답에 따라서 추가 작업을 수행할 수 있습니다.
+        // 예를 들면, 서버에서 새로운 채팅방 정보를 반환할 경우
+        // 해당 정보를 chats에 추가할 수 있습니다.
+        if (response.data && response.data.newChat) {
+          setChats((prevChats) => [...prevChats, response.data.newChat]);
+        }
+        console.log("요청 성공");
+      } catch (error) {
+        console.error("Error creating new chat:", error);
+      }
     }
   };
 
@@ -207,17 +227,22 @@ const FriendList = () => {
           {selectedTab === "친구"
             ? filteredFriends.map((friend) => (
                 <div
-                  key={friend.id}
+                  key={friend.seq}
                   className="friend-box"
                   onDoubleClick={() => handleFriendBoxDoubleClick(friend)}
                 >
                   <img
-                    src={friend.profileImage || "/withView2.png"}
-                    alt={friend.name}
+                    src={`https://dm51j1y1p1ekp.cloudfront.net/profile/${friend.profileImgSearchName}`}
+                    alt={friend.nickname}
                     className="friend-profile-image"
+                    onError={(e) => {
+                      if (e.target.src !== "/withView2.png") {
+                        e.target.src = "/withView2.png";
+                      }
+                    }}
                   />
-                  <div className="friend-name">{friend.name}</div>
-                  <div className="friend-status">{friend.status}</div>
+                  <div className="friend-name">{friend.nickname}</div>
+                  <div className="friend-status">{friend.profileMsg}</div>
                 </div>
               ))
             : filteredChatRooms.map((chat) => (
@@ -263,14 +288,14 @@ const FriendList = () => {
                 ))}
               </div>
               <div className="chat-input">
-    <input type="text" placeholder="메시지 입력..." />
-    <img
-      src={paperPlaneIcon}
-      alt="Send"
-      className="send-icon"
-      // onClick={/* 메시지 전송 함수 */}
-    />
-</div>
+                <input type="text" placeholder="메시지 입력..." />
+                <img
+                  src={paperPlaneIcon}
+                  alt="Send"
+                  className="send-icon"
+                  // onClick={/* 메시지 전송 함수 */}
+                />
+              </div>
             </div>
           ) : (
             <img

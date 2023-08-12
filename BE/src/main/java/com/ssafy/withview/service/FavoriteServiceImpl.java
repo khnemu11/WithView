@@ -55,6 +55,8 @@ public class FavoriteServiceImpl implements FavoriteService {
 
 		FavoriteEntity favoriteEntity = favoriteRepository.findAllByUserEntityAndServerEntity(userEntity, serverEntity);
 
+		System.out.println(favoriteEntity);
+
 		if (favoriteEntity != null) {
 			throw new Exception("이미 즐겨찾기에 등록됨");
 		}

@@ -27,25 +27,36 @@ public class FriendsChatRoomService {
 
 	@Transactional
 	public Long insertFriendsChatRoom(Long mySeq, Long yourSeq) {
+
+		List<FriendsChatRoomUserInfoEntity> friendsChatRoomAlreadyExist = friendsChatRoomUserInfoRepository.findFriendsChatRoomAlreadyExist(
+			mySeq, yourSeq);
+		if (friendsChatRoomAlreadyExist.size() == 1) {
+			return friendsChatRoomAlreadyExist.get(0).getFriendsChatRoomEntity().getSeq();
+		}
 		FriendsChatRoomEntity friendsChatRoom = friendsChatRoomRepository.save(new FriendsChatRoomEntity());
 		friendsChatRoomUserInfoRepository.save(FriendsChatRoomUserInfoEntity.builder()
 			.friendsChatRoomEntity(friendsChatRoom)
 			.userSeq(mySeq)
+			.lastReadMessageSeq(0L)
 			.build());
 		friendsChatRoomUserInfoRepository.save(FriendsChatRoomUserInfoEntity.builder()
 			.friendsChatRoomEntity(friendsChatRoom)
 			.userSeq(yourSeq)
+			.lastReadMessageSeq(0L)
 			.build());
 		return friendsChatRoom.getSeq();
 	}
 
 	public List<FriendsChatRoomsSeqDto> findFriendsChatRoomsByPartnerSeq(Long userSeq) {
+		log.info("findFriendsChatRoomByPartnerSeq 호출");
 		Set<FriendsChatRoomUserInfoEntity> chatRoomsByMyUserSeq = friendsChatRoomUserInfoRepository.findAllByUserSeq(
 			userSeq);
 		Set<FriendsChatRoomUserInfoEntity> chatRoomsByPartnerSeq = chatRoomsByMyUserSeq.stream()
-			.map(entity -> friendsChatRoomUserInfoRepository.findBySeqAndUserSeqNot(entity.getSeq(), userSeq))
+			.map(entity -> {
+				return friendsChatRoomUserInfoRepository.findTopByFriendsChatRoomEntityAndUserSeqNot(
+					entity.getFriendsChatRoomEntity(), userSeq);
+			})
 			.collect(Collectors.toSet());
-
 		return chatRoomsByPartnerSeq.stream()
 			.map(entity -> {
 				Long seq = entity.getFriendsChatRoomEntity().getSeq();
@@ -58,9 +69,4 @@ public class FriendsChatRoomService {
 			})
 			.collect(Collectors.toList());
 	}
-
-
-	// public Long findLastReadChatMessageFromChatRoom(Long userSeq, Long friendsChatRoomSeq) {
-	//
-	// }
 }

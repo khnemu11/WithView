@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { clearToken, setToken } from "../redux/actions/tokenActions";
 import { clearUser, setUser } from "../redux/actions/userActions";
 import { data } from "jquery";
+import { clearStomp } from "../redux/actions/stompActions";
 axios.defaults.withCredentials = true;
 const Profile = () => {
   const [view, setView] = useState("profile"); // view 상태를 선언하고 기본값을 'profile'로 설정합니다.
@@ -22,6 +23,7 @@ const Profile = () => {
   const profileNickname = useSelector((state) => state.user.nickname);
   const userPk = useSelector((state) => state.user.seq);
   const token = useSelector((state) => state.token);
+  const stomp = useSelector((state)=>state.stomp);
   const [profilePassword, setProfilePassword] = useState("");
   const [profilePasswordCheck, setProfilePasswordCheck] = useState("");
   const [profileLeaveCheck, setProfileLeaveCheck] = useState("");
@@ -36,7 +38,11 @@ const Profile = () => {
   const [editedImage, setEditedImage] = useState(null);
   const [editedImageShow, setEditedImageShow] = useState(null);
   const url = "https://i9d208.p.ssafy.io/api";
-  
+
+  const imageStyle = {
+    borderRadius: editedImageShow ? '50%' : '0%'
+  };
+
   useEffect(()=>{
     axiosInstance({
       headers : {
@@ -90,6 +96,18 @@ const Profile = () => {
         console.log(res.data);
         if (res.data.success) {
           alert("로그아웃 되었습니다.");
+          if (stomp !== null){
+            
+            stomp.disconnect(
+              {"userSeq": userPk}, 
+              (res)=>{
+                console.log(res)
+              },
+              (err) =>{console.log(err)},
+              );
+          }
+          
+          dispatch(clearStomp())
           dispatch(clearToken());
           dispatch(clearUser());
           navigate("/login");
@@ -230,7 +248,6 @@ const Profile = () => {
         },
         method : "PUT",
         url : `/users/${userPk}/nickname?nickname=${tempProfileNickname}`,
-        headers: {"Authorization" : `Bearer ${token}`}
       })
       .then((res)=>{
         console.log(res.data)
@@ -267,6 +284,7 @@ const Profile = () => {
               <img
                 src={editedImageShow ? editedImageShow : '/uploadimage.png'}
                 className="image-upload"
+                style={imageStyle}
                 alt="Upload"
               />
               {/* {profileImage} */}
