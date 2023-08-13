@@ -252,7 +252,6 @@ const Serverpage = () => {
         state: {
           serverSeq: seq,
           channelSeq: channel.seq,
-          channelName: channel.name,
         },
       });
     };
