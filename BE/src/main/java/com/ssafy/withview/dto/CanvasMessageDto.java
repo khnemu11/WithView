@@ -15,7 +15,6 @@ import lombok.ToString;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 public class CanvasMessageDto extends CanvasDto{
 	private String type;
 	private String object;
