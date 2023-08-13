@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
+import Modal from "react-modal";
 import Konva from "konva";
 import { OpenVidu } from "openvidu-browser";
 import SockJS from "sockjs-client";
@@ -43,6 +44,7 @@ import StompJs from "stompjs";
 import $ from "jquery";
 import { useSelector } from "react-redux";
 import axiosInstance from "./axiosinstance";
+import PresetRegistModal from "./components/presetRegistModal";
 
 export default function GroupChat() {
   const [backClicked, setbackClicked] = useState(false);
@@ -51,6 +53,7 @@ export default function GroupChat() {
   const [volClicked, setvolClicked] = useState(false);
   const [camClicked, setcamClicked] = useState(false);
   const [settingsClicked, setsettingsClicked] = useState(false);
+  const [presetRegisterClicked, setPresetRegisterClicked] = useState(false);
   const [stickerClicked, setstickerClicked] = useState(false);
   const [stickermenuClicked, setstickermenuClicked] = useState(false);
   const [chatClicked, setchatClicked] = useState(false);
@@ -136,6 +139,11 @@ export default function GroupChat() {
       // changeCanvas(myCam);
     }
     setprofileClicked(false);
+  }
+
+  function presetRegistSettings() {
+    setPresetRegisterClicked((presetRegisterClicked) => !presetRegisterClicked);
+    console.log(presetRegisterClicked);
   }
 
   function settingsSettings() {
@@ -227,8 +235,7 @@ export default function GroupChat() {
   let videoContainer = document.querySelector("#video-container"); //오픈비두로 받은 영상을 담은 컨테이너
   // let port = 9091; //백엔드 포트 번호
   // let domain = "localhost:9091"; //도메인 주소
-  let domain = "i9d208.p.ssafy.io"; //도메인 주소
-  let APPLICATION_SERVER_URL = `https://${domain}/`;
+  let domain = "i9d208.p.ssafy.io"; //도메인 주소;
   let userId = useRef(null); //유저 아이디
   let remoteBGLayer = new Konva.Layer(); //소켓에 저장된 비디오 레이어(최초 접속시 한번 사용)
   let remoteVideoLayer = new Konva.Layer(); //소켓에 저장된 비디오 레이어(최초 접속시 한번 사용)
@@ -299,14 +306,6 @@ export default function GroupChat() {
       // 레이어 다시 그리기
       backLayer.batchDraw();
     });
-
-    //요청 들어온 캔버스(보여주지 않으므로 크기를 0으로)
-    let remoteStage = new Konva.Stage({
-      container: "shared-screen",
-      width: 0,
-      height: 0,
-    });
-    remoteStage.hide();
   }, []);
 
   // 배경에 이미지 추가
@@ -387,17 +386,12 @@ export default function GroupChat() {
         });
         var menuNode = document.getElementById("delete-img-menu");
 
-        document
-          .getElementById("delete-button")
-          .addEventListener("click", () => {
-            currentShape.destroy();
-            changeCanvas(currentShape, "delete");
-          });
-
-        window.addEventListener("click", () => {
-          // hide menu
-          menuNode.style.display = "none";
-        });
+        // document
+        //   .getElementById("delete-button")
+        //   .addEventListener("click", () => {
+        //     currentShape.destroy();
+        //     changeCanvas(currentShape, "delete");
+        //   });
 
         // 우클릭 이벤트 핸들러 등록
         object.on("contextmenu", function (e) {
@@ -484,15 +478,28 @@ export default function GroupChat() {
   }
 
   function deleteCanvasChange(data) {
-    let deleteElement = Konva.Node.create(data.background);
+    let deleteElement = Konva.Node.create(data);
 
-    let objectId = deleteElement.id;
+    console.log("삭제 객체");
+    console.log(deleteElement);
+    let objectId = deleteElement.attrs.id;
     console.log("소캣에서 넘어온 객체 아이디");
     console.log(objectId);
     console.log(stage.current);
 
     let target = stage.current.find("#" + objectId); //객체 탐색
-    target.remove();
+
+    for (let i = 0; i < stage.current.children[2].children.length; i++) {
+      let imageElement = stage.current.children[2].children[i];
+
+      if (imageElement.attrs.id == objectId) {
+        console.log("삭제 대상 객체");
+        console.log(imageElement);
+        imageElement.remove();
+        stage.current.children[2].children[i - 1];
+        break;
+      }
+    }
   }
 
   function onError() {
@@ -505,14 +512,15 @@ export default function GroupChat() {
   async function joinSession() {
     console.log("join !");
     // channelSeqRef.current = channelSeq;
-    let mySessionId = channelName + "_" + channelSeqRef.current;
+    let mySessionId = "channel" + "_" + channelSeqRef.current;
     userId = userNick;
-    const headers = {
-      Authorization: `Bearer ${Token}`,
-    };
 
     //참가한 채널 명을 url로 구분하도록 커스터마이징함
     console.log("캔버스 로드");
+    const headers = {
+      Authorization: `Bearer ${Token}`,
+      "Content-Type": "application/json",
+    };
 
     let apiCall = await axiosInstance
       .get(`/canvas/${channelSeqRef.current}`, { headers })
@@ -527,7 +535,6 @@ export default function GroupChat() {
             image: stage.current.children[1],
             video: stage.current.children[2],
           };
-
           axiosInstance
             .post(`/canvas`, parameters, { headers })
             .then((response) => {
@@ -777,6 +784,15 @@ export default function GroupChat() {
     });
   }
 
+  //외부를 클릭하면 우클릭 메뉴가 없어지는 것
+  window.addEventListener("click", () => {
+    // hide menu
+    let deleteBtn = document.querySelector("#delete-button");
+    deleteBtn.setAttribute("data-imgid", "");
+    let menuNode = document.getElementById("delete-img-menu");
+    menuNode.style.display = "none";
+  });
+
   function publishScreenShare() {
     // --- 9.1) To create a publisherScreen set the property 'videoSource' to 'screen'
     console.log("스크린 ov");
@@ -814,6 +830,7 @@ export default function GroupChat() {
     publisherScreen.once("accessDenied", () => {
       console.error("Screen Share: Access Denied");
     });
+    catchChatSocket();
   }
 
   //오픈비두 예제함수
@@ -1169,6 +1186,22 @@ export default function GroupChat() {
     document.querySelector("#main-video video")["muted"] = true;
   }
 
+  function deleteClickListener() {
+    //삭제 버튼 누를시 이벤트
+    let deleteBtn = document.querySelector("#delete-button");
+    console.log(deleteBtn);
+    let targetId = deleteBtn.getAttribute("data-imgid");
+
+    for (var i = 0; i < stage.current.children[2].children.length; i++) {
+      if (stage.current.children[2].children[i].getAttr("id") == targetId) {
+        console.log("find " + stage.current.children[2].children[i]);
+        changeCanvas(stage.current.children[2].children[i], "delete");
+        stage.current.children[2].children[i].remove();
+        stage.current.children[2].children[i - 1].remove();
+        console.log("tarnsformer " + stage.current.children[2].children[i]);
+      }
+    }
+  }
   //버튼을 누르면 이미지가 생성되는 함수
   function stickertemp(name) {
     console.log("click");
@@ -1224,13 +1257,7 @@ export default function GroupChat() {
 
       // 드래그 범위 제한 함수를 객체에 연결
       papago.dragBoundFunc(limitDragBounds);
-
       var menuNode = document.getElementById("delete-img-menu");
-
-      document.getElementById("delete-button").addEventListener("click", () => {
-        currentShape.destroy();
-        changeCanvas(currentShape, "delete");
-      });
 
       window.addEventListener("click", () => {
         // hide menu
@@ -1241,6 +1268,10 @@ export default function GroupChat() {
       papago.on("contextmenu", function (e) {
         e.evt.preventDefault();
         console.log("우클릭 입력");
+
+        let deleteBtn = document.querySelector("#delete-button");
+        deleteBtn.setAttribute("data-imgid", `img-${name}`);
+
         if (e.target === stage.current) {
           // if we are on empty place of the stage we will do nothing
           return;
@@ -1373,11 +1404,11 @@ export default function GroupChat() {
     video.on("contextmenu", function (e) {
       e.evt.preventDefault();
       video.setAttrs({
-        x: 0,
-        y: 0,
+        x: -5,
+        y: -5,
         draggable: false,
-        width: window.innerWidth,
-        height: window.innerHeight,
+        width: window.innerWidth + 10,
+        height: window.innerHeight + 10,
       });
       layer.draw();
       console.log(video.attrs);
@@ -1407,11 +1438,6 @@ export default function GroupChat() {
   }
 
   function sendChatSocket(message) {
-    stomp.current.send(
-      `/api/pub/server/${serverSeq}/channel/${channelSeqRef.current}/enter`,
-      {},
-      JSON.stringify({ userSeq: { userSeq } })
-    );
     // 웹소켓에 채팅 전송하는 부분
     stomp.current.send(
       `/api/pub/chat/channel/message`,
@@ -1422,6 +1448,28 @@ export default function GroupChat() {
         message: { message },
       })
     );
+  }
+
+  function catchChatSocket() {
+    stomp.current.subscribe(
+      `/api/sub/chat/channel/${channelSeqRef.current}`,
+      function (message) {
+        // 윗줄은 채널에 입장 했으니 해당 서버의 모든 인원에게 채널 변경 정보를 뿌려주는것, 2번 구독에서 받아서 씀
+        var recieve = JSON.parse(message.body); // message에 채팅내용이 담겨서 옴
+        recvMessage(recieve); // 채팅내용을 html로 바꿔주는 함수 실행
+      }
+    );
+    stomp.current.send(
+      `/api/pub/server/${serverSeq}/channel/${channelSeqRef.current}/enter`,
+      {},
+      JSON.stringify({ userSeq: { userSeq } })
+    );
+    // --> subscribe 함수로 해당 url의 웹소켓 연결을 구독하는 상태가 되며, 백엔드에서 해당
+    // url로 publish를 해주면 바로 응답을 받아 html로 처리함.
+    // 이 부분에서 전송된 메시지를 응답할텐데, 그걸로 채널채팅 부분에 메시지를 뿌려주면 됨.
+  }
+  function recvMessage(recieve) {
+    console.log(recieve);
   }
   return (
     <>
@@ -1449,7 +1497,13 @@ export default function GroupChat() {
           </div>
           <div id="delete-img-menu">
             <div>
-              <button id="delete-button">Delete</button>
+              <button
+                onClick={deleteClickListener}
+                id="delete-button"
+                data-imgid=""
+              >
+                Delete
+              </button>
             </div>
           </div>
 
@@ -1577,6 +1631,20 @@ export default function GroupChat() {
                   <div className="accordion-header">채널 지우기</div>
                   <div className="accordion-content"></div>
                 </div>
+              </div>
+              <div className="accordion">
+                <div
+                  className="accordion-item"
+                  onMouseUp={presetRegistSettings}
+                >
+                  <div className="accordion-header">프리셋 등록</div>
+                  <div className="accordion-content"></div>
+                </div>
+                <PresetRegistModal
+                  isOpen={presetRegisterClicked}
+                  onChange={presetRegistSettings}
+                  stage={stage.current}
+                ></PresetRegistModal>
               </div>
             </div>
           </div>
@@ -1977,6 +2045,7 @@ export default function GroupChat() {
             onKeyUp={handleTempButtonClick}
             placeholder="메세지 보내기 !"
           />
+          {/* <button onClick={handleTempButtonClick}>temp</button> */}
         </div>
         {/* 얼굴 */}
         <div
