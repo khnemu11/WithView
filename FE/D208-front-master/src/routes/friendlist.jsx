@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "../css/friendlist.css";
 import friendAddIcon from "/friend-add.png";
 import searchIcon from "/searchicon.png";
@@ -16,6 +16,11 @@ const FriendList = () => {
   const token = useSelector((state) => state.token);
 
   const [friends, setFriends] = useState([]);
+  const [chatMessages, setChatMessages] = useState([]); // 각 채팅방별 메시지를 저장
+
+  const [chatRooms, setChatRooms] = useState([]);
+
+  const [chatData, setChatData] = useState(null);
 
   Checkwebsocket();
 
@@ -52,7 +57,10 @@ const FriendList = () => {
     fetchFriends();
   }, [userSeq, token]);
 
-  const [chatRooms, setChatRooms] = useState([]);
+  const handleChatSelection = (chatRoomSeq) => {
+    setSelectedChat(chatRoomSeq);
+  };
+
   const connectStomp = async () => {
     return new Promise((resolve, reject) => {
       try {
@@ -60,25 +68,28 @@ const FriendList = () => {
           reject(new Error("Stomp 객체가 초기화되지 않았습니다."));
           return;
         }
-  
+
         stomp.connect(
           {
-            "userSeq" : userSeq},
+            userSeq: userSeq,
+          },
           () => {
+            console.log("STOMP 연결 성공");
             resolve(stomp);
           },
           (error) => {
-            console.error('STOMP 연결 중 에러 발생:', error); // 연결 중 발생하는 에러 로깅
+            console.error("STOMP 연결 중 에러 발생:", error); // 연결 중 발생하는 에러 로깅
             reject(error);
           }
         );
       } catch (error) {
-        console.error('connectStomp에서 예외 발생:', error); // 기타 예외 로깅
+        console.error("connectStomp에서 예외 발생:", error); // 기타 예외 로깅
         reject(error);
       }
     });
   };
 
+  //1대1 채팅 목록에 들어간다.
   useEffect(() => {
     if (!stomp) {
       console.log("STOMP 객체가 아직 초기화되지 않았습니다.");
@@ -86,7 +97,8 @@ const FriendList = () => {
     }
     let chatRoomInfoSubscription;
 
-    const recvMessage = (recieve) => {
+    const recvchatroom = (recieve) => {
+      console.log("setChatRoom 작동 중 작동 중");
       setChatRooms(recieve); // 받아온 정보를 chatRooms 상태에 저장
     };
 
@@ -98,7 +110,11 @@ const FriendList = () => {
           `/api/sub/chat/friends/chatroominfo/${userSeq}`,
           (message) => {
             var recieve = JSON.parse(message.body);
-            recvMessage(recieve);
+            recvchatroom(recieve);
+            console.log("채팅방 목록 구독 중");
+          },
+          (error) => {
+            console.error("구독 중 에러 발생:", error);
           }
         );
 
@@ -118,31 +134,28 @@ const FriendList = () => {
     fetchChatRoomInfo();
 
     return () => {
+      console.log("채팅방 목록 구독 취소");
       chatRoomInfoSubscription && chatRoomInfoSubscription.unsubscribe(); // 컴포넌트가 언마운트될 때 구독 취소
     };
   }, [stomp, userSeq]);
 
-  const chatMessages = {
-    "John Doe": [
-      { sender: "John Doe", message: "안녕하세요 ?" },
-      { sender: "Me", message: "안녕하세요 !" },
-      { sender: "Me", message: "이것은 예시랍니다 !" },
-      { sender: "John Doe", message: "그렇군요 ?" },
-    ],
-    // ... 기타 채팅방 메시지
-  };
+  console.log("챗룸", chatRooms);
 
-  console.log('챗룸', chatRooms)
+  console.log("챗룸 테스트", chatRooms.friendsChatRoomsUserInfoDtos);
 
-  const [chats, setChats] = useState(chatRooms);
+  console.log("친구 테스트", friends);
 
   const filteredFriends = friends.filter((friend) =>
     friend.nickname.includes(searchTerm)
   );
 
-  const filteredChatRooms = chats.filter((chat) =>
-    chat.name.includes(searchTerm)
-  );
+  const filteredChatRooms = chatRooms.friendsChatRoomsUserInfoDtos
+    ? chatRooms.friendsChatRoomsUserInfoDtos.filter((chat) =>
+        chat.userDto.nickname.includes(searchTerm)
+      )
+    : [];
+
+  console.log("filteredChatRooms", filteredChatRooms);
 
   const handleSearch = (event) => {
     if (event.key === "Enter") {
@@ -151,37 +164,160 @@ const FriendList = () => {
   };
 
   const handleFriendBoxDoubleClick = async (friend) => {
-    if (!chats.find((chat) => chat.nickname === friend.nickname)) {
-      try {
-        const response = await axiosInstance.post(
-          "/chat/friends",
-          {
-            mySeq: userSeq, // 현재 사용자의 seq
-            yourSeq: friend.seq, // 클릭한 친구의 seq
+    try {
+      const response = await axiosInstance.post(
+        "/chat/friends",
+        {
+          mySeq: userSeq, // 현재 사용자의 seq
+          yourSeq: friend.seq, // 클릭한 친구의 seq
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        // 응답에 따라서 추가 작업을 수행할 수 있습니다.
-        // 예를 들면, 서버에서 새로운 채팅방 정보를 반환할 경우
-        // 해당 정보를 chats에 추가할 수 있습니다.
-        if (response.data && response.data.newChat) {
-          setChats((prevChats) => [...prevChats, response.data.newChat]);
         }
-        console.log("요청 성공");
-      } catch (error) {
-        console.error("Error creating new chat:", error);
-      }
+      );
+
+      console.log("요청 성공:", response.data); // 서버 응답 출력
+    } catch (error) {
+      console.error("Error creating new chat:", error);
     }
   };
 
-  const handleChatBoxDoubleClick = (chat) => {
-    setSelectedChat(chat.name); // 채팅방 선택 시 해당 채팅방 이름으로 상태 업데이트
+  function handleChatBoxDoubleClick(chat, page = 1) {
+    setChatMessages([]);
+    const friendsChatRoomSeq = chat.chatRoomSeq;
+
+    setChatData(chat);
+
+    // 1. API를 사용하여 이전 채팅 기록 가져오기
+
+    axiosInstance
+      .get(`/chat/friends/${friendsChatRoomSeq}?page=${page}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        console.log("리스폰스데이터", response.data);
+        const chatList = response.data.messages;
+        if (Array.isArray(chatList) && chatList.length) {
+          // chatList가 배열인지와 내용이 있는지 확인
+          chatList.forEach((chat) => {
+            recvMessage(chat);
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching chat history:", error);
+      });
+
+    // 2. 웹소켓을 통한 실시간 채팅 데이터 수신
+    const friendsChatSubscribe = stomp.subscribe(
+      `/api/sub/chat/friends/${friendsChatRoomSeq}`,
+      function (message) {
+        const recieve = JSON.parse(message.body);
+        recvMessage(recieve);
+      }
+    );
+
+    handleChatSelection(friendsChatRoomSeq);
+
+    // 해당 페이지나 대화방을 나갈 때 웹소켓 구독 해지
+    window.addEventListener("beforeunload", function () {
+      if (friendsChatSubscribe) {
+        friendsChatSubscribe.unsubscribe();
+      }
+    });
+  }
+
+  function recvMessage(chat) {
+    // 메시지 상태 업데이트
+    setChatMessages((prevMessages) => {
+      return [...prevMessages, chat];
+    });
+  }
+
+  useEffect(() => {
+    console.log("최신 chatMessages 값:", chatMessages);
+  }, [chatMessages]);
+
+  const [inputMessage, setInputMessage] = useState("");
+
+  const sendMessage = () => {
+    console.log("이것은 챗데이터다", chatData);
+    console.log("sendMessage 함수가 호출되었습니다.");
+
+    const toUserSeq = chatData.userDto.seq;
+
+    if (inputMessage.trim() !== "") {
+      stomp.send(
+        `/api/pub/chat/friends/message`,
+        {},
+        JSON.stringify({
+          friendsChatRoomSeq: chatData.chatRoomSeq,
+          message: inputMessage,
+          fromUserSeq: userSeq,
+          toUserSeq: toUserSeq,
+        })
+      );
+      stomp.send(
+        `/api/pub/chat/friends/chatroominfo`,
+        {},
+        JSON.stringify({ userSeq: toUserSeq })
+      );
+      stomp.send(
+        `/api/pub/chat/friends/chatroominfo`,
+        {},
+        JSON.stringify({ userSeq: userSeq })
+      );
+      console.log("메시지 보내기 성공!");
+      setInputMessage(""); // 메시지 전송 후 input 비우기
+    }
   };
+
+  const handleInputChange = (event) => {
+    setInputMessage(event.target.value);
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter" && inputMessage.trim() !== "") {
+      event.preventDefault(); // 기본 이벤트를 방지합니다.
+      sendMessage(inputMessage.trim());
+      setInputMessage(""); // 입력 필드를 초기화합니다.
+    }
+  };
+
+  const chatMessagesRef = useRef(null); // 참조 생성
+
+  useEffect(() => {
+    if (chatMessagesRef.current) {
+      const element = chatMessagesRef.current;
+      element.scrollTop = element.scrollHeight;
+    }
+  }, [chatMessages]);
+
+  function ChatMessagesComponent({ chatMessages, userSeq }) {
+    return (
+      <div className="chat-messages" ref={chatMessagesRef}>
+        {chatMessages.map((chat, index) => {
+          const isMe = chat.fromUserSeq === userSeq;
+          const className = isMe ? "me-chat" : "other-chat";
+
+          return (
+            <div key={index} className={`message ${className}`}>
+              <div className="message-content">{chat.message}</div>
+              <div className="message-info">
+                <span className="from">{chat.fromUserSeq}</span>
+                <span className="to">{chat.toUserSeq}</span>
+                <span className="send-time">{chat.sendTime}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
 
   return (
     <div className="friendlist-container">
@@ -247,17 +383,23 @@ const FriendList = () => {
               ))
             : filteredChatRooms.map((chat) => (
                 <div
-                  key={chat.id}
+                  key={chat.chatRoomSeq} // chatRoomSeq를 key로 사용
                   className="friend-box"
                   onDoubleClick={() => handleChatBoxDoubleClick(chat)}
                 >
                   <img
-                    src={chat.profileImage || "/withView2.png"}
-                    alt={chat.name}
+                    src={
+                      chat.userDto.profileImgSearchName
+                        ? `https://dm51j1y1p1ekp.cloudfront.net/profile/${chat.userDto.profileImgSearchName}`
+                        : "/withView2.png"
+                    }
+                    alt={chat.userDto.nickname}
                     className="friend-profile-image"
                   />
-                  <span className="name">{chat.name}</span>
-                  <span className="chat-last-message">{chat.lastMessage}</span>
+                  <span className="name">{chat.userDto.nickname}</span>
+                  <span className="chat-last-message">
+                    {chat.friendsChatMessageDto.message}
+                  </span>
                 </div>
               ))}
         </div>
@@ -265,35 +407,44 @@ const FriendList = () => {
           {selectedChat ? (
             <div className="chat-container">
               <div className="chat-header">
-                <img
-                  src={
-                    chatMessages[selectedChat][0].sender.profileImage ||
-                    "/withView2.png"
-                  } // 해당 친구의 프로필 이미지를 가져옵니다. 기본 이미지로 설정된 경우 기본 이미지가 나올 것입니다.
-                  alt={selectedChat}
-                  className="chat-profile-image"
-                />
-                <div className="chat-username">{selectedChat}</div>
+                {chatRooms &&
+                  chatRooms.friendsChatRoomsUserInfoDtos &&
+                  chatRooms.friendsChatRoomsUserInfoDtos
+                    .filter((chat) => chat.chatRoomSeq === selectedChat)
+                    .map((chatRoom, index) => (
+                      <React.Fragment key={index}>
+                        <img
+                          src={
+                            chatRoom.userDto.profileImgSearchName
+                              ? `https://dm51j1y1p1ekp.cloudfront.net/profile/${chatRoom.userDto.profileImgSearchName}`
+                              : "/withView2.png"
+                          }
+                          alt={chatRoom.userDto.nickname}
+                          className="chat-profile-image"
+                        />
+                        <div className="chat-username">
+                          {chatRoom.userDto.nickname}
+                        </div>
+                      </React.Fragment>
+                    ))}
               </div>
-              <div className="chat-messages">
-                {chatMessages[selectedChat].map((msg, index) => (
-                  <div
-                    key={index}
-                    className={`message ${
-                      msg.sender === "Me" ? "me-chat" : "other-chat"
-                    }`}
-                  >
-                    <span>{msg.message}</span>
-                  </div>
-                ))}
-              </div>
+              <ChatMessagesComponent
+                chatMessages={chatMessages}
+                userSeq={userSeq}
+              />
               <div className="chat-input">
-                <input type="text" placeholder="메시지 입력..." />
+                <input
+                  type="text"
+                  placeholder="메시지 입력..."
+                  value={inputMessage}
+                  onChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
+                />
                 <img
                   src={paperPlaneIcon}
                   alt="Send"
                   className="send-icon"
-                  // onClick={/* 메시지 전송 함수 */}
+                  onClick={sendMessage}
                 />
               </div>
             </div>
