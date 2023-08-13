@@ -11,7 +11,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.ssafy.withview.dto.FriendsChatMessageDto;
+import com.ssafy.withview.dto.FriendsChatRoomLastReadDto;
 import com.ssafy.withview.entity.FriendsChatMessageEntity;
+import com.ssafy.withview.entity.FriendsChatRoomUserInfoEntity;
 import com.ssafy.withview.repository.FriendsChatMessageRepository;
 import com.ssafy.withview.repository.FriendsChatRoomUserInfoRepository;
 import com.ssafy.withview.repository.RedisTemplateRepository;
@@ -33,6 +35,7 @@ public class FriendsChatService {
 				PageRequest.of(100 * (page - 1), 100 * page))
 			.stream()
 			.map(FriendsChatMessageEntity::toDto)
+			.sorted((a, b) -> b.getMessageSeq().compareTo(a.getMessageSeq()))
 			.collect(Collectors.toList());
 	}
 
@@ -67,7 +70,7 @@ public class FriendsChatService {
 		friendsChatMessageRepository.save(entity);
 	}
 
-	public Long setFriendsChatRoomLastMessageSeq(Long friendsChatRoomSeq) {
+	public Long setFriendsChatRoomLastMessageSeqRedis(Long friendsChatRoomSeq) {
 		Long messageSeq = Optional.ofNullable(friendsChatMessageRepository.findTopByFriendsChatRoomSeqOrderBySendTimeDesc(
 			friendsChatRoomSeq).getMessageSeq()).orElse(1L);
 		redisTemplateRepository.setFriendsChatRoomLastMessageSeq(friendsChatRoomSeq, messageSeq);
@@ -76,5 +79,14 @@ public class FriendsChatService {
 
 	public Long getFriendsChatRoomLastMessageSeq(Long friendsChatRoomSeq) {
 		return redisTemplateRepository.getFriendsChatRoomLastMessageSeq(friendsChatRoomSeq);
+	}
+
+	@Transactional
+	public void setFriendsChatRoomLastMessageSeqJpa(Long friendsChatRoomSeq, Long userSeq, Long lastReadMessageSeq) {
+		FriendsChatRoomUserInfoEntity entity = friendsChatRoomUserInfoRepository.findTopByFriendsChatRoomEntitySeqAndUserSeq(
+			friendsChatRoomSeq, userSeq);
+		FriendsChatRoomLastReadDto dto = FriendsChatRoomUserInfoEntity.toDto(entity);
+		dto.setLastReadMessageSeq(lastReadMessageSeq);
+		entity.updateLastReadMessageSeq(dto);
 	}
 }
