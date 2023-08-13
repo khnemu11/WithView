@@ -31,7 +31,7 @@ public class FriendsChatService {
 	private final RedisTemplateRepository redisTemplateRepository;
 
 	public List<FriendsChatMessageDto> getFriendsChatMessagesByPage(Long friendsChatRoomSeq, int page) {
-		return friendsChatMessageRepository.findByFriendsChatRoomSeqOrderBySendTimeDesc(friendsChatRoomSeq,
+		return friendsChatMessageRepository.findByFriendsChatRoomSeqOrderByMessageSeqAsc(friendsChatRoomSeq,
 				PageRequest.of(100 * (page - 1), 100 * page))
 			.stream()
 			.map(FriendsChatMessageEntity::toDto)
@@ -40,7 +40,7 @@ public class FriendsChatService {
 	}
 
 	public FriendsChatMessageDto getLastFriendsChatMessage(Long friendsChatSeq) {
-		FriendsChatMessageEntity returnVal = friendsChatMessageRepository.findTopByFriendsChatRoomSeqOrderBySendTimeDesc(
+		FriendsChatMessageEntity returnVal = friendsChatMessageRepository.findTopByFriendsChatRoomSeqOrderByMessageSeqDesc(
 			friendsChatSeq);
 		if (returnVal == null) {
 			return FriendsChatMessageDto.builder()
@@ -71,7 +71,7 @@ public class FriendsChatService {
 	}
 
 	public Long setFriendsChatRoomLastMessageSeqRedis(Long friendsChatRoomSeq) {
-		Long messageSeq = Optional.ofNullable(friendsChatMessageRepository.findTopByFriendsChatRoomSeqOrderBySendTimeDesc(
+		Long messageSeq = Optional.ofNullable(friendsChatMessageRepository.findTopByFriendsChatRoomSeqOrderByMessageSeqDesc(
 			friendsChatRoomSeq).getMessageSeq()).orElse(1L);
 		redisTemplateRepository.setFriendsChatRoomLastMessageSeq(friendsChatRoomSeq, messageSeq);
 		return messageSeq;
