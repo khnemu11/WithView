@@ -9,6 +9,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.ssafy.withview.dto.FriendsChatRoomLastReadDto;
+import com.ssafy.withview.dto.FriendsChatRoomsUserInfoDto;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,5 +39,16 @@ public class FriendsChatRoomUserInfoEntity {
 		this.friendsChatRoomEntity = friendsChatRoomEntity;
 		this.userSeq = userSeq;
 		this.lastReadMessageSeq = lastReadMessageSeq;
+	}
+
+	public void updateLastReadMessageSeq(FriendsChatRoomLastReadDto dto) {
+		this.lastReadMessageSeq = dto.getLastReadMessageSeq();
+	}
+
+	public static FriendsChatRoomLastReadDto toDto(FriendsChatRoomUserInfoEntity entity) {
+		return FriendsChatRoomLastReadDto.builder()
+			.lastReadMessageSeq(entity.getLastReadMessageSeq())
+			.userSeq(entity.getUserSeq())
+			.build();
 	}
 }
