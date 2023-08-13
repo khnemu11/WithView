@@ -68,6 +68,7 @@ export default function GroupChat() {
   const [publisher, setPublisher] = useState(null);
   const userSeq = useSelector((state) => state.user.seq);
   const userNick = useSelector((state) => state.user.nickname);
+  const userProfile = useSelector((state) => state.user.profile);
   const Token = useSelector((state) => state.token);
   const [stickerAndBg, setstickerAndBg] = useState(false);
   const [fullscreen, setFullscreen] = useState(true);
@@ -75,7 +76,7 @@ export default function GroupChat() {
   const [chatLog, setChatLog] = useState([]);
   const [fullsceenChatLog, setFullscreenChatLog] = useState([]);
   const { state } = useLocation();
-  const { serverSeq, channelSeq, channelName } = state;
+  const { serverSeq, channelSeq } = state;
 
   function backSettings() {
     setbackClicked((prevbackClicked) => !prevbackClicked);
@@ -117,26 +118,33 @@ export default function GroupChat() {
       camPublisherRef.current.publishVideo(isCameraOn);
       setIsCameraOn(isCameraOn);
 
-      // let myCam; // 변수를 선언한 후, for 루프 내에서 할당
-      // let myCamID = document.getElementById("userName").value;
-      // for (var i = 0; i < stage.current.children[1].children.length; i++) {
-      //   console.log(
-      //     stage.current.children[1].children[i].getAttr("id") + " vs " + myCamID
-      //   );
-      //   if (stage.current.children[1].children[i].getAttr("id") == myCamID) {
-      //     myCam = stage.current.children[1].children[i];
-      //     break;
-      //   }
-      // }
-      // if (isCameraOn === true) {
-      //   myCam.show();
-      //   console.log(stage.current.children[1]);
-      // } else {
-      //   myCam.hide();
-      //   console.log(stage.current.children[1]);
-      // }
-      // console.log(myCam);
-      // changeCanvas(myCam);
+      let myCam; // 변수를 선언한 후, for 루프 내에서 할당
+      let myCamID = userNick;
+      for (var i = 0; i < stage.current.children[1].children.length; i++) {
+        console.log(
+          stage.current.children[1].children[i].getAttr("id") + " vs " + myCamID
+        );
+        if (stage.current.children[1].children[i].getAttr("id") == myCamID) {
+          myCam = stage.current.children[1].children[i];
+          break;
+        }
+      }
+      if (isCameraOn === true) {
+        myCam.image(document.getElementById("local-video-undefined"));
+        console.log(stage.current.children[1]);
+      } else {
+        const profileUrl =
+          "https://dm51j1y1p1ekp.cloudfront.net/profile/" + userProfile;
+        const profileElement = new Image();
+        profileElement.onload = function () {
+          myCam.image(profileElement);
+        };
+        profileElement.src = profileUrl;
+        console.log(stage.current.children[1]);
+      }
+      console.log(myCam);
+      myCam.moveToTop();
+      changeCanvas(myCam, "update");
     }
     setprofileClicked(false);
   }
@@ -1097,6 +1105,8 @@ export default function GroupChat() {
     stompData["userSeq"] = userSeq;
     stompData["object"] = element.toJSON();
 
+    console.log(stompData);
+
     stomp.current.send(
       "/api/pub/canvas/channel/" + channelSeqRef.current,
       {},
@@ -1831,50 +1841,19 @@ export default function GroupChat() {
           <div className={chatClicked ? "side-menu-div-on" : "side-menu-div"}>
             <div className="chat-menu-div">
               <div className="groupchat-log-div">
-                <ul>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                </ul>
+                {/* 채팅 로그 출력 */}
+                {chatLog.map((message, index) => (
+                  <div key={index}>{message}</div>
+                ))}
               </div>
               <div className="chat-input-div">
                 <img src={plus} alt="이모티콘" className="add-imo" />
                 <input
                   type="text"
-                  name=""
-                  id=""
+                  value={inputText}
+                  onChange={fullscreenInputChange}
                   className="chat-input-kan"
+                  onKeyUp={handleTempButtonClick}
                   placeholder="메세지 보내기 !"
                 />
                 <img src={plane} alt="비행기" className="send-message-plane" />
