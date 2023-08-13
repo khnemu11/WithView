@@ -93,7 +93,7 @@ public class RedisTemplateRepository {
 
 	public Long getFriendsChatRoomLastMessageSeq(Long friendsChatRoomSeq) {
 		if (valOpsFriendsChatRoomLastMessageSeq.get(FRIENDS_CHAT_ROOM_LAST_MESSAGE_SEQ + friendsChatRoomSeq) == null) {
-			return 1L;
+			return setFriendsChatRoomLastMessageSeq(friendsChatRoomSeq, 1L);
 		}
 		String lastMessageSeq = valOpsFriendsChatRoomLastMessageSeq.get(FRIENDS_CHAT_ROOM_LAST_MESSAGE_SEQ + friendsChatRoomSeq);
 		valOpsFriendsChatRoomLastMessageSeq.increment(FRIENDS_CHAT_ROOM_LAST_MESSAGE_SEQ + friendsChatRoomSeq);
