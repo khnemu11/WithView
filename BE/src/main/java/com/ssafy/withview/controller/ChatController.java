@@ -101,8 +101,15 @@ public class ChatController {
 
 	@MessageMapping("/chat/friends/{friendsChatRoomSeq}")
 	public void setRecentChatMessageSeq(@DestinationVariable Long friendsChatRoomSeq) {
-		Long lastMessageSeq = friendsChatService.setFriendsChatRoomLastMessageSeq(friendsChatRoomSeq);
+		Long lastMessageSeq = friendsChatService.setFriendsChatRoomLastMessageSeqRedis(friendsChatRoomSeq);
 		log.info("{}번 1대1 채팅방 구독 시작, 마지막 메시지 seq: {}", friendsChatRoomSeq, lastMessageSeq);
+	}
+
+	@MessageMapping("chat/friends/{friendsChatRoomSeq}/{userSeq}")
+	public void setUnreadMessageSeq(@DestinationVariable Long friendsChaRoomSeq, @DestinationVariable Long userSeq) {
+		FriendsChatMessageDto lastFriendsChatMessage = friendsChatService.getLastFriendsChatMessage(friendsChaRoomSeq);
+		Long lastReadMessageSeq = lastFriendsChatMessage.getMessageSeq();
+		friendsChatService.setFriendsChatRoomLastMessageSeqJpa(friendsChaRoomSeq, userSeq, lastReadMessageSeq);
 	}
 
 	@GetMapping("/chat/view")

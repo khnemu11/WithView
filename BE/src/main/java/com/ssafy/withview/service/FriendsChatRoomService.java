@@ -27,7 +27,6 @@ public class FriendsChatRoomService {
 
 	@Transactional
 	public Long insertFriendsChatRoom(Long mySeq, Long yourSeq) {
-
 		List<FriendsChatRoomUserInfoEntity> friendsChatRoomAlreadyExist = friendsChatRoomUserInfoRepository.findFriendsChatRoomAlreadyExist(
 			mySeq, yourSeq);
 		if (friendsChatRoomAlreadyExist.size() == 1) {
