@@ -696,6 +696,61 @@ button {
   }
 }
 
+.speakingdiv {
+  display: grid;
+  overflow: hidden;
+}
+
+.chatLogSide {
+  display: flex;
+  flex-direction: column; /* 세로 방향으로 요소들을 배치 */
+  align-items: flex-start; /* 요소들을 왼쪽으로 정렬 */
+}
+
+.myChat,
+.yourChat {
+  display: flex;
+  margin: 5px; /* 요소들 사이의 간격 설정 */
+}
+
+.myChat {
+  flex-direction: row-reverse;
+  margin-left: 30px;
+}
+
+.yourChat {
+  margin-right: 30px;
+}
+
+.myChatdiv {
+  text-align: right;
+}
+
+.yourChatdiv {
+  text-align: left;
+}
+
+.myChatHeader,
+.yourChatHeader {
+  display: flex;
+}
+
+.myChatHeader {
+  flex-direction: row-reverse;
+}
+
+.myChat img,
+.yourChat img {
+  width: 30px; /* 이미지 너비 고정 */
+  height: 30px; /* 이미지 높이 고정 */
+  border-radius: 50%; /* 이미지를 둥글게 처리 */
+  margin: 0px 5px 0px 5px;
+}
+
+.myChat img {
+  flex-direction: row-reverse;
+}
+
 #profile {
   background-color: #f7fbfc;
   border: 0px;
