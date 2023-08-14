@@ -28,13 +28,19 @@ const ServerEnter = () => {
             "Authorization": `Bearer ${token}`
           }
         });
+        const response2 = await axiosInstance.get(`servers/${response.data.server.seq}/users`, {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
   
         const backgroundImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/server-background/${response.data.server.backgroundImgSearchName}`;
   
         setServerImage(backgroundImageUrl);
         setServerName(response.data.server.name);
         setServerSeq(response.data.server.seq);
-        // setServerMembersNumber(response.data.members);
+        console.log(response2.data)
+        setServerMembersNumber(response2.data.users.length);
       } catch (error) {
         console.error("Error fetching server data", error);
       }

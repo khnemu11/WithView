@@ -26,6 +26,8 @@ public class ServerDto {
 	private String backgroundImgSearchName;
 	private String backgroundImgOriginalName;
 	private Boolean isFavorite;
+	@Builder.Default
+	private Integer peopleCnt = 0;
 
 	public static ServerEntity toEntity(ServerDto serverDto) {
 		if (serverDto == null) {

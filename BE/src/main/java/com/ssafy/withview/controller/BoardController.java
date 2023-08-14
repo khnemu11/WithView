@@ -38,7 +38,7 @@ public class BoardController {
 	/**
 	 * 게시글 작성
 	 *
-	 * @param boardDto (작성자 pk 값, 제목, 내용, 프리셋 이름)
+	 * @param boardDto (제목, 내용, 작성자 pk 값, 프리셋 pk 값)
 	 * @return ResponseEntity (true / false, 상태코드)
 	 * @throws IllegalArgumentException (작성자 pk 에 일치하는 회원 정보가 없을 때)
 	 * @throws BadRequestException (로그인 유저와 작성자의 pk 값이 다를 때)
@@ -59,7 +59,7 @@ public class BoardController {
 			boardService.insertBoardArticle(boardDto);
 			resultMap.put("success", true);
 			status = HttpStatus.CREATED;
-			log.debug("게시글 등록 성공, seq: {}", boardDto.getSeq());
+			log.debug("게시글 등록 성공, seq: {}", boardDto.getBoardSeq());
 		} catch (IllegalArgumentException e) {
 			resultMap.put("success", false);
 			resultMap.put("message", e.getMessage());
@@ -82,7 +82,7 @@ public class BoardController {
 	/**
 	 * 게시글 목록
 	 *
-	 * @return ResponseEntity (true / false, 상태코드, BoardDto List - 게시글 pk 값, 작성자 닉네임, 제목, 내용, 등록일)
+	 * @return ResponseEntity (true / false, 상태코드, BoardDto List - 게시글 pk 값, 제목, 작성자 닉네임, 프리셋 png)
 	 */
 	@GetMapping("")
 	public ResponseEntity<Map<String, Object>> getBoardArticles() {
@@ -108,7 +108,7 @@ public class BoardController {
 	 * 게시글 상세 정보
 	 *
 	 * @param seq (게시글 seq)
-	 * @return ResponseEntity (true / false, 상태코드, BoardDto - 작성자 닉네임, 제목, 내용, 등록일, 이미지 png 이름)
+	 * @return ResponseEntity (true / false, 상태코드, BoardDto - 게시글 pk 값, 제목, 내용, 등록일, 작성자 pk 값, 닉네임, 프로필 png, 프리셋 png, stage)
 	 * @throws IllegalArgumentException (seq 에 일치하는 게시글이 없을 때)
 	 */
 	@GetMapping("/{seq}")
@@ -139,7 +139,7 @@ public class BoardController {
 	/**
 	 * 게시글 수정
 	 *
-	 * @param boardDto (게시글 pk 값, 제목, 내용, 프리셋 이름)
+	 * @param boardDto (제목, 내용, 게시글 pk 값, 프리셋 pk 값)
 	 * @return ResponseEntity (true / false, 상태코드)
 	 * @throws BadRequestException (로그인 유저와 작성자의 pk 값이 다를 때)
 	 */
@@ -153,7 +153,7 @@ public class BoardController {
 			String accessToken = jwtService.resolveAccessToken(request.getHeader("Authorization"));
 			log.debug("AccessToken: {}", accessToken);
 			LoginDto loginDto = jwtService.getLoginInfo(accessToken);
-			if (loginDto.getUserSeq() != boardService.getUserSeq(boardDto.getSeq())) {
+			if (loginDto.getUserSeq() != boardService.getUserSeq(boardDto.getBoardSeq())) {
 				throw new BadRequestException("BAD_REQUEST");
 			}
 			boardService.updateBoardArticle(boardDto);
