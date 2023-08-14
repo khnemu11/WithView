@@ -100,6 +100,7 @@ public class BoardService {
 			.userSeq(boardEntity.getUserSeq())
 			.nickname(boardEntity.getNickname())
 			.profileImgSearchName(userEntity.getProfileImgSearchName())
+			.presetId(boardEntity.getPresetId())
 			.presetImgSearchName(boardEntity.getPresetImgSearchName())
 			.stage(presetEntity.getStage())
 			.build();
