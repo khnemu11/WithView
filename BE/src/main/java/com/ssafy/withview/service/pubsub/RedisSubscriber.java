@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.withview.dto.CanvasDto;
 import com.ssafy.withview.dto.CanvasMessageDto;
 import com.ssafy.withview.dto.ChannelChatDto;
+import com.ssafy.withview.dto.ChannelChatSendDto;
 import com.ssafy.withview.dto.ChannelValueDto;
 import com.ssafy.withview.dto.FriendsChatMessageDto;
 import com.ssafy.withview.dto.FriendsChatRoomsUserInfoForPubSendDto;
@@ -29,8 +30,8 @@ public class RedisSubscriber {
 	public void sendChannelMessage(String publishMessage) {
 		try {
 			// ChannelChatDTO 객체로 매핑
-			ChannelChatDto chatMessage = objectMapper.readValue(publishMessage, ChannelChatDto.class);
-			log.info("{}번 채널 채팅 전송, 전송자 {}, 내용 {}", chatMessage.getChannelSeq(), chatMessage.getUserSeq(),
+			ChannelChatSendDto chatMessage = objectMapper.readValue(publishMessage, ChannelChatSendDto.class);
+			log.info("{}번 채널 채팅 전송, 전송자 {}, 내용 {}", chatMessage.getChannelSeq(), chatMessage.getUserDto().getSeq(),
 				chatMessage.getMessage());
 			messagingTemplate.convertAndSend("/api/sub/chat/channel/" + chatMessage.getChannelSeq(),
 				chatMessage);
