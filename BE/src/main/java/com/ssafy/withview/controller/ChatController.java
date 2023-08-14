@@ -9,12 +9,16 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ssafy.withview.dto.ChannelChatDto;
+import com.ssafy.withview.dto.ChannelChatSendDto;
 import com.ssafy.withview.dto.FriendsChatMessageDto;
 import com.ssafy.withview.dto.FriendsChatRoomsSeqDto;
 import com.ssafy.withview.dto.FriendsChatRoomsUserInfoDto;
 import com.ssafy.withview.dto.FriendsChatRoomsUserInfoForPubSendDto;
+import com.ssafy.withview.dto.UserDto;
 import com.ssafy.withview.dto.UserSeqDto;
 import com.ssafy.withview.service.ChannelChatService;
 import com.ssafy.withview.service.ChatPublisher;
@@ -38,18 +42,28 @@ public class ChatController {
 
 	// websocket "/api/pub/chat/channel/message"로 들어오는 메시징을 처리한다.
 	@MessageMapping("/chat/channel/message")
-	public void channelChatMessage(ChannelChatDto message) {
-		message.setSendTime(LocalDateTime.now());
-		channelChatService.insertChannelChat(message);
-		chatPublisher.sendChannelChatMessage(message.toJson());
+	public void channelChatMessage(ChannelChatDto channelChatDto) {
+		channelChatDto.setSendTime(LocalDateTime.now());
+		UserDto profile = userService.getProfile(channelChatDto.getUserSeq());
+		ChannelChatSendDto channelChatSendDto = ChannelChatSendDto.builder()
+			.message(channelChatDto.getMessage())
+			.channelSeq(channelChatDto.getChannelSeq())
+			.sendTime(channelChatDto.getSendTime())
+			.userDto(profile)
+			.build();
+		channelChatService.insertChannelChat(channelChatDto);
+		chatPublisher.sendChannelChatMessage(channelChatSendDto.toJson());
 	}
 
 	// websocket "/api/pub/chat/friends/message"로 들어오는 메시징을 처리한다.
 	@MessageMapping("/chat/friends/message")
 	public void friendsChatMessage(FriendsChatMessageDto message) {
-		message.setMessageSeq(friendsChatService.getFriendsChatRoomLastMessageSeq(message.getFriendsChatRoomSeq()));
+		Long friendsChatRoomLastMessageSeq = friendsChatService.getFriendsChatRoomLastMessageSeq(
+			message.getFriendsChatRoomSeq());
+		message.setMessageSeq(friendsChatRoomLastMessageSeq);
 		message.setSendTime(LocalDateTime.now());
 		friendsChatService.insertFriendsChat(message);
+		friendsChatService.setFriendsChatRoomLastMessageSeqJpa(message.getFriendsChatRoomSeq(), message.getFromUserSeq(), friendsChatRoomLastMessageSeq);
 		chatPublisher.sendFriendsChatMessage(message.toJson());
 	}
 
@@ -106,14 +120,15 @@ public class ChatController {
 	}
 
 	@MessageMapping("chat/friends/{friendsChatRoomSeq}/{userSeq}")
-	public void setUnreadMessageSeq(@DestinationVariable Long friendsChaRoomSeq, @DestinationVariable Long userSeq) {
-		FriendsChatMessageDto lastFriendsChatMessage = friendsChatService.getLastFriendsChatMessage(friendsChaRoomSeq);
+	public void setUnreadMessageSeq(@DestinationVariable Long friendsChatRoomSeq, @DestinationVariable Long userSeq) {
+		FriendsChatMessageDto lastFriendsChatMessage = friendsChatService.getLastFriendsChatMessage(friendsChatRoomSeq);
 		Long lastReadMessageSeq = lastFriendsChatMessage.getMessageSeq();
-		friendsChatService.setFriendsChatRoomLastMessageSeqJpa(friendsChaRoomSeq, userSeq, lastReadMessageSeq);
+		friendsChatService.setFriendsChatRoomLastMessageSeqJpa(friendsChatRoomSeq, userSeq, lastReadMessageSeq);
 	}
 
-	@GetMapping("/chat/view")
-	public String chatView(ChannelChatDto message) {
-		return "chat";
+	@GetMapping("/chat/test")
+	@ResponseBody
+	public List<FriendsChatMessageDto> test(@RequestParam Long test) {
+		return friendsChatService.getFriendsChatMessagesByPage(test, 1);
 	}
 }

@@ -1,0 +1,53 @@
+.modal-form, .modal-title{
+    padding:30px;
+}
+.modal-container{
+    height:60%;
+    max-height: 800px;
+}
+.modal-title{
+    font-size:30px;
+    color:#3077AA;
+    font-weight:bold;
+    padding-top:10px;
+    padding-bottom:10px;
+}
+.modal-input-title{
+    font-size:26px;
+    color:#80C4FF;
+    margin-bottom:15px;
+}
+.preset-list{
+    height:55vh;
+    max-height: 500px;
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
+    grid-template-rows: auto;
+    row-gap: 20px;
+}
+.card{
+    margin-right:10px;
+    margin-bottom:10px;
+}
+.preset-list::-webkit-scrollbar{
+    width: 7px; /* 스크롤바 너비 */
+}
+.preset-list::-webkit-scrollbar-thumb {
+    /* background-clip: border-box; */
+    background-color: #d3d3d3 !important;
+    border-radius: 20px !important;
+}
+.preset-list::-webkit-scrollbar-track {   
+    background-color: transparent;
+}
+.title{
+    margin-bottom:20px !important;
+    padding-bottom:0px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.is-right{
+    display: flex;
+    justify-content: right;
+}

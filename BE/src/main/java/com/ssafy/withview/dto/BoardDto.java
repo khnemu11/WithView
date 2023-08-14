@@ -18,6 +18,7 @@ import lombok.Setter;
 public class BoardDto {
 	private Long seq;
 	private Long userSeq;
+	private String profileImgSearchName;
 	private String nickname;
 	private String title;
 	private String content;

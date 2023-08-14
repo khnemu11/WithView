@@ -95,8 +95,8 @@ public class RedisTemplateRepository {
 		if (valOpsFriendsChatRoomLastMessageSeq.get(FRIENDS_CHAT_ROOM_LAST_MESSAGE_SEQ + friendsChatRoomSeq) == null) {
 			return setFriendsChatRoomLastMessageSeq(friendsChatRoomSeq, 1L);
 		}
-		String lastMessageSeq = valOpsFriendsChatRoomLastMessageSeq.get(FRIENDS_CHAT_ROOM_LAST_MESSAGE_SEQ + friendsChatRoomSeq);
 		valOpsFriendsChatRoomLastMessageSeq.increment(FRIENDS_CHAT_ROOM_LAST_MESSAGE_SEQ + friendsChatRoomSeq);
-		return Long.parseLong(lastMessageSeq);
+		return Long.parseLong(
+			valOpsFriendsChatRoomLastMessageSeq.get(FRIENDS_CHAT_ROOM_LAST_MESSAGE_SEQ + friendsChatRoomSeq));
 	}
 }
