@@ -1,6 +1,7 @@
 package com.ssafy.withview.controller;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,7 +44,7 @@ public class ChatController {
 	// websocket "/api/pub/chat/channel/message"로 들어오는 메시징을 처리한다.
 	@MessageMapping("/chat/channel/message")
 	public void channelChatMessage(ChannelChatDto channelChatDto) {
-		channelChatDto.setSendTime(LocalDateTime.now());
+		channelChatDto.setSendTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")));
 		UserDto profile = userService.getProfile(channelChatDto.getUserSeq());
 		ChannelChatSendDto channelChatSendDto = ChannelChatSendDto.builder()
 			.message(channelChatDto.getMessage())
@@ -61,7 +62,7 @@ public class ChatController {
 		Long friendsChatRoomLastMessageSeq = friendsChatService.getFriendsChatRoomLastMessageSeq(
 			message.getFriendsChatRoomSeq());
 		message.setMessageSeq(friendsChatRoomLastMessageSeq);
-		message.setSendTime(LocalDateTime.now());
+		message.setSendTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")));
 		friendsChatService.insertFriendsChat(message);
 		friendsChatService.setFriendsChatRoomLastMessageSeqJpa(message.getFriendsChatRoomSeq(), message.getFromUserSeq(), friendsChatRoomLastMessageSeq);
 		chatPublisher.sendFriendsChatMessage(message.toJson());
