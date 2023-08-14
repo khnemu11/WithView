@@ -9,6 +9,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ssafy.withview.dto.ChannelChatDto;
 import com.ssafy.withview.dto.FriendsChatMessageDto;
@@ -110,10 +111,5 @@ public class ChatController {
 		FriendsChatMessageDto lastFriendsChatMessage = friendsChatService.getLastFriendsChatMessage(friendsChaRoomSeq);
 		Long lastReadMessageSeq = lastFriendsChatMessage.getMessageSeq();
 		friendsChatService.setFriendsChatRoomLastMessageSeqJpa(friendsChaRoomSeq, userSeq, lastReadMessageSeq);
-	}
-
-	@GetMapping("/chat/view")
-	public String chatView(ChannelChatDto message) {
-		return "chat";
 	}
 }
