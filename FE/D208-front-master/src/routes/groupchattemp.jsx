@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
+import Modal from "react-modal";
 import Konva from "konva";
 import { OpenVidu } from "openvidu-browser";
 import SockJS from "sockjs-client";
@@ -37,12 +38,17 @@ import maelong from "../assets/imo/maelong.png";
 import ghost from "../assets/imo/ghost.png";
 import santa from "../assets/imo/santa.png";
 import dino from "../assets/imo/dino.png";
+import withview from "../assets/withview.png";
 import "../css/groupchat.css";
 import axios from "axios";
 import StompJs from "stompjs";
 import $ from "jquery";
 import { useSelector } from "react-redux";
 import axiosInstance from "./axiosinstance";
+import PresetRegistModal from "./components/presetRegistModal";
+import PresetLoadModal from "./components/presetLoadModal";
+import Checkwebsocket from "./components/checkwebsocket";
+import { store } from "../redux/store";
 
 export default function GroupChat() {
   const [backClicked, setbackClicked] = useState(false);
@@ -51,6 +57,7 @@ export default function GroupChat() {
   const [volClicked, setvolClicked] = useState(false);
   const [camClicked, setcamClicked] = useState(false);
   const [settingsClicked, setsettingsClicked] = useState(false);
+  const [presetRegisterClicked, setPresetRegisterClicked] = useState(false);
   const [stickerClicked, setstickerClicked] = useState(false);
   const [stickermenuClicked, setstickermenuClicked] = useState(false);
   const [chatClicked, setchatClicked] = useState(false);
@@ -65,6 +72,9 @@ export default function GroupChat() {
   const [publisher, setPublisher] = useState(null);
   const userSeq = useSelector((state) => state.user.seq);
   const userNick = useSelector((state) => state.user.nickname);
+  const userProfile = useSelector((state) => state.user.profile);
+  const chatStomp = useSelector((state) => state.stomp);
+
   const Token = useSelector((state) => state.token);
   const [stickerAndBg, setstickerAndBg] = useState(false);
   const [fullscreen, setFullscreen] = useState(true);
@@ -72,7 +82,13 @@ export default function GroupChat() {
   const [chatLog, setChatLog] = useState([]);
   const [fullsceenChatLog, setFullscreenChatLog] = useState([]);
   const { state } = useLocation();
-  const { serverSeq, channelSeq, channelName } = state;
+  const { serverSeq, channelSeq } = state;
+  const [presetLoadClicked, setPresetLoadClicked] = useState(false);
+
+  function presetLoadClickedChange() {
+    setPresetLoadClicked((presetLoadClicked) => !presetLoadClicked);
+    console.log(presetLoadClicked);
+  }
 
   function backSettings() {
     setbackClicked((prevbackClicked) => !prevbackClicked);
@@ -113,29 +129,35 @@ export default function GroupChat() {
       const isCameraOn = !camPublisherRef.current.stream.videoActive;
       camPublisherRef.current.publishVideo(isCameraOn);
       setIsCameraOn(isCameraOn);
+      console.log(isCameraOn);
 
-      // let myCam; // 변수를 선언한 후, for 루프 내에서 할당
-      // let myCamID = document.getElementById("userName").value;
-      // for (var i = 0; i < stage.current.children[1].children.length; i++) {
-      //   console.log(
-      //     stage.current.children[1].children[i].getAttr("id") + " vs " + myCamID
-      //   );
-      //   if (stage.current.children[1].children[i].getAttr("id") == myCamID) {
-      //     myCam = stage.current.children[1].children[i];
-      //     break;
-      //   }
-      // }
-      // if (isCameraOn === true) {
-      //   myCam.show();
-      //   console.log(stage.current.children[1]);
-      // } else {
-      //   myCam.hide();
-      //   console.log(stage.current.children[1]);
-      // }
-      // console.log(myCam);
-      // changeCanvas(myCam);
+      let myCam; // 변수를 선언한 후, for 루프 내에서 할당
+      let myCamID = userNick;
+      for (var i = 0; i < stage.current.children[1].children.length; i++) {
+        console.log(
+          stage.current.children[1].children[i].getAttr("id") + " vs " + myCamID
+        );
+        if (stage.current.children[1].children[i].getAttr("id") == myCamID) {
+          myCam = stage.current.children[1].children[i];
+          break;
+        }
+      }
+      if (isCameraOn === true) {
+        myCam.setAttr("cornerRadius", 150);
+      } else {
+        myCam.setAttr("cornerRadius", 149);
+      }
+      console.log(camPublisherRef.current.stream.streamId);
+      console.log(myCam);
+      myCam.moveToTop();
+      changeCanvas(myCam, "update");
     }
     setprofileClicked(false);
+  }
+
+  function presetRegistSettings() {
+    setPresetRegisterClicked((presetRegisterClicked) => !presetRegisterClicked);
+    console.log(presetRegisterClicked);
   }
 
   function settingsSettings() {
@@ -202,9 +224,11 @@ export default function GroupChat() {
 
   const handleTempButtonClick = () => {
     if (window.event.keyCode == 13) {
+      console.log("내가 채팅 보내기");
       setChatLog((prevChatLog) => [...prevChatLog, inputText]);
       setInputText(""); // 입력 후 인풋 초기화
       fullscreenChatCss();
+      console.log(inputText);
       sendChatSocket(inputText);
     }
   };
@@ -226,9 +250,8 @@ export default function GroupChat() {
   // let session; //현재 채널 이름(오픈비두에선 채팅방 단위를 'session'이라고 부름)
   let videoContainer = document.querySelector("#video-container"); //오픈비두로 받은 영상을 담은 컨테이너
   // let port = 9091; //백엔드 포트 번호
-  // let domain = "localhost:9091"; //도메인 주소
-  let domain = "i9d208.p.ssafy.io"; //도메인 주소
-  let APPLICATION_SERVER_URL = `https://${domain}/`;
+  // let domain = "http://localhost:9091"; //도메인 주소
+  let domain = "https://i9d208.p.ssafy.io"; //도메인 주소;
   let userId = useRef(null); //유저 아이디
   let remoteBGLayer = new Konva.Layer(); //소켓에 저장된 비디오 레이어(최초 접속시 한번 사용)
   let remoteVideoLayer = new Konva.Layer(); //소켓에 저장된 비디오 레이어(최초 접속시 한번 사용)
@@ -242,9 +265,11 @@ export default function GroupChat() {
   let screensharing = false;
   let CamOV = useRef(null); //오픈비두 변수
   let ScreenOV = useRef(null); //오픈비두 변수
+  let camCutId = useRef(null);
   let channelSeqRef = useRef(channelSeq);
   let currentShape;
 
+  Checkwebsocket();
   useEffect(() => {
     joinSession();
     const container = document.getElementById("channel-screen");
@@ -299,14 +324,6 @@ export default function GroupChat() {
       // 레이어 다시 그리기
       backLayer.batchDraw();
     });
-
-    //요청 들어온 캔버스(보여주지 않으므로 크기를 0으로)
-    let remoteStage = new Konva.Stage({
-      container: "shared-screen",
-      width: 0,
-      height: 0,
-    });
-    remoteStage.hide();
   }, []);
 
   // 배경에 이미지 추가
@@ -315,6 +332,8 @@ export default function GroupChat() {
     console.log(imageUrl);
 
     const backObj = new Image();
+    backObj.crossOrigin = "anonymous";
+
     backObj.onload = function () {
       const backgroundImage = new Konva.Image({
         id: "bg-" + imageUrl,
@@ -328,13 +347,14 @@ export default function GroupChat() {
       stage.current.children[0].draw(); // 배경 레이어 다시 그리기
 
       console.log("이미지 로드!");
-
       console.log(session.current);
 
       changeCanvas(backgroundImage, "update");
     };
     backObj.src =
-      "https://dm51j1y1p1ekp.cloudfront.net/channel-background/" + imageUrl;
+      "https://dm51j1y1p1ekp.cloudfront.net/channel-background/" +
+      imageUrl +
+      "?timestamp=2";
   }
 
   const addBackImageClick = (imageUrl) => {
@@ -367,9 +387,12 @@ export default function GroupChat() {
 
         //이미지 변수 생성
         let imageObj = new Image();
+        imageObj.crossOrigin = "anonymous";
         let imageName = objectId.substring(4); //img- 제거한 나머지를 이름으로 설정
         imageObj.src =
-          "https://dm51j1y1p1ekp.cloudfront.net/sticker/" + imageName;
+          "https://dm51j1y1p1ekp.cloudfront.net/sticker/" +
+          imageName +
+          "?timestamp=2";
 
         //로딩돠면
         imageObj.onload = function () {
@@ -386,18 +409,6 @@ export default function GroupChat() {
           changeCanvas(object, "update");
         });
         var menuNode = document.getElementById("delete-img-menu");
-
-        document
-          .getElementById("delete-button")
-          .addEventListener("click", () => {
-            currentShape.destroy();
-            changeCanvas(currentShape, "delete");
-          });
-
-        window.addEventListener("click", () => {
-          // hide menu
-          menuNode.style.display = "none";
-        });
 
         // 우클릭 이벤트 핸들러 등록
         object.on("contextmenu", function (e) {
@@ -428,6 +439,7 @@ export default function GroupChat() {
       else if (objectId.indexOf("bg-") != -1) {
         //배경 변수 생성
         let backObj = new Image();
+        backObj.crossOrigin = "anonymous";
         let imageName = objectId.substring(3); // 임시 어차피 바꿔야함
 
         console.log("배경 이미지 이름");
@@ -435,7 +447,8 @@ export default function GroupChat() {
 
         backObj.src =
           "https://dm51j1y1p1ekp.cloudfront.net/channel-background/" +
-          imageName;
+          imageName +
+          "?timestamp=2";
 
         //로딩돠면
         backObj.onload = function () {
@@ -452,7 +465,27 @@ export default function GroupChat() {
       //영상 위치 변경
       else {
         target[0].setAttrs(object.getAttrs());
-        console.log(object);
+        // let triger = target[0].getAttr("cornerRadius");
+        // if (triger === 149) {
+        //   const tempvideoElement = target[0].attrs.image;
+        //   camCutId.current = tempvideoElement.getAttribute("id");
+        //   console.log(camCutId.current);
+        //   console.log("캠꺼진상태");
+        //   const profileUrl =
+        //     "https://dm51j1y1p1ekp.cloudfront.net/sticker/sleep.png";
+        //   const profileElement = new Image();
+        //   profileElement.src = profileUrl;
+        //   target[0].image(profileElement);
+        // } else {
+        //   console.log("캠켜진상태");
+        //   if (objectId != userNick) {
+        //     console.log("남의화면");
+        //     target[0].image(document.getElementById(camCutId.current));
+        //   } else {
+        //     console.log("내화면");
+        //     target[0].image(document.getElementById("local-video-undefined"));
+        //   }
+        // }
       }
     }
   }
@@ -476,23 +509,44 @@ export default function GroupChat() {
           console.log("요소 삭제");
           console.log(data);
           deleteCanvasChange(data.object);
+        } else if (data.type == "load") {
+          console.log("프리셋 불러오기");
+          stage.current.children[0].removeChildren();
+          stage.current.children[2].removeChildren();
+
+          loadCanvas(data);
+        } else {
+          console.log("데이터");
+          console.log(data);
         }
-        console.log("데이터");
-        console.log(data);
       }
     );
+    chatConnect(); // 반응 없음
   }
 
   function deleteCanvasChange(data) {
-    let deleteElement = Konva.Node.create(data.background);
+    let deleteElement = Konva.Node.create(data);
 
-    let objectId = deleteElement.id;
+    console.log("삭제 객체");
+    console.log(deleteElement);
+    let objectId = deleteElement.attrs.id;
     console.log("소캣에서 넘어온 객체 아이디");
     console.log(objectId);
     console.log(stage.current);
 
     let target = stage.current.find("#" + objectId); //객체 탐색
-    target.remove();
+
+    for (let i = 0; i < stage.current.children[2].children.length; i++) {
+      let imageElement = stage.current.children[2].children[i];
+
+      if (imageElement.attrs.id == objectId) {
+        console.log("삭제 대상 객체");
+        console.log(imageElement);
+        imageElement.remove();
+        stage.current.children[2].children[i - 1];
+        break;
+      }
+    }
   }
 
   function onError() {
@@ -502,18 +556,161 @@ export default function GroupChat() {
   //채널에 들어오면 sessionId와 userName(유저 아이디)를 통해 채널에 들어가는 로직이 들어가 있는 함수
   //제일 중요함
   /* OPENVIDU METHODS */
+  function loadCanvas(data) {
+    let backChildren = JSON.parse(data.background);
+
+    if (backChildren.children.length > 0) {
+      console.log("서버에 있는 배경 레이어");
+      remoteBGLayer = Konva.Node.create(data.background);
+      console.log(remoteBGLayer);
+
+      let backgroundObj = remoteBGLayer.children[0];
+      console.log(backgroundObj);
+      //이미지 변수 생성
+      let imageObj = new Image();
+      imageObj.crossOrigin = "anonymous";
+      let imageName = backgroundObj.getAttr("id"); //img- 제거한 나머지를 이름으로 설정
+      console.log(imageName);
+      imageObj.src =
+        "https://dm51j1y1p1ekp.cloudfront.net/channel-background/" +
+        imageName.substring(3) +
+        "?timestamp=2";
+
+      //로딩돠면
+      imageObj.onload = function () {
+        backgroundObj.setAttr("image", imageObj);
+        backgroundObj.setAttr("width", document.body.offsetWidth);
+        backgroundObj.setAttr("height", document.body.offsetHeight);
+      };
+
+      console.log(stage.current);
+
+      stage.current.children[0].add(backgroundObj);
+    }
+    //비디오 레이어 로드
+    if (data.video != null) {
+      console.log("서버에 있는 비디오 레이어");
+      remoteVideoLayer = Konva.Node.create(data.video);
+      console.log(remoteVideoLayer);
+    }
+    //이미지 레이어 로드
+    if (data.image != null) {
+      console.log("서버에 있는 이미지 레이어");
+      remoteImageLayer = Konva.Node.create(data.image);
+      console.log(remoteImageLayer);
+      let images = remoteImageLayer.find("Image");
+
+      for (let i = 0; i < images.length; i++) {
+        let tr = new Konva.Transformer();
+        //이미지 변수 생성
+        let imageObj = new Image();
+        imageObj.crossOrigin = "anonymous";
+        let imageName = images[i].getAttr("id").substring(4); //img- 제거한 나머지를 이름으로 설정
+        console.log("최초 이미지 로드 대상");
+
+        console.log(imageName);
+        imageObj.src =
+          "https://dm51j1y1p1ekp.cloudfront.net/sticker/" +
+          imageName +
+          "?timestamp=2";
+
+        console.log("이미지 경로");
+        console.log(imageObj.src);
+        //로딩돠면
+        imageObj.onload = function () {
+          console.log("이미지 로드 완료");
+          images[i].setAttr("image", imageObj);
+        };
+
+        //드래그 반응이 끝나면 캔버스 넘기기
+        images[i].on("dragend", function () {
+          changeCanvas(images[i], "update");
+        });
+
+        //비디오의 모양을 변경하면 캔버스 변경사항을 다른사람에게 전송
+        images[i].on("transformend", function () {
+          changeCanvas(images[i], "update");
+        });
+        console.log(stage.current);
+
+        function limitDragBounds(pos) {
+          var newX = Math.max(
+            0,
+            Math.min(stage.current.width() - images[i].width(), pos.x)
+          );
+          var newY = Math.max(
+            0,
+            Math.min(stage.current.height() - images[i].height(), pos.y)
+          );
+          return { x: newX, y: newY };
+        }
+
+        // 드래그 범위 제한 함수를 객체에 연결
+        images[i].dragBoundFunc(limitDragBounds);
+        var menuNode = document.getElementById("delete-img-menu");
+
+        window.addEventListener("click", () => {
+          // hide menu
+          menuNode.style.display = "none";
+        });
+
+        // 우클릭 이벤트 핸들러 등록
+        images[i].on("contextmenu", function (e) {
+          e.evt.preventDefault();
+          console.log("우클릭 입력");
+
+          let deleteBtn = document.querySelector("#delete-button");
+          deleteBtn.setAttribute("data-imgid", images[i].getAttr("id"));
+          if (e.target === stage.current) {
+            return;
+          }
+
+          currentShape = e.target;
+          menuNode.style.display = "initial";
+          menuNode.style.zIndex = "1";
+
+          console.log(menuNode);
+
+          var containerRect = stage.current.container().getBoundingClientRect();
+          menuNode.style.top =
+            containerRect.top + stage.current.getPointerPosition().y + 4 + "px";
+          menuNode.style.left =
+            containerRect.left +
+            stage.current.getPointerPosition().x +
+            4 +
+            "px";
+        });
+
+        stage.current.children[2].add(tr);
+        stage.current.children[2].add(images[i]);
+      }
+    }
+  }
+
+  async function loadRedux() {
+    console.log("리덕스 로드 함수 실행");
+    let reduxValues = store.getState();
+    console.log(reduxValues);
+  }
+
   async function joinSession() {
+    const load = await loadRedux();
+
+    if (stompSocket.current) {
+      console.log("소켓 있음");
+      return;
+    }
     console.log("join !");
-    // channelSeqRef.current = channelSeq;
-    let mySessionId = channelName + "_" + channelSeqRef.current;
+
+    let mySessionId = "channel" + "_" + channelSeqRef.current;
     userId = userNick;
+
+    //참가한 채널 명을 url로 구분하도록 커스터마이징함
+    console.log("캔버스 로드");
     const headers = {
       Authorization: `Bearer ${Token}`,
       "Content-Type": "application/json",
     };
-
-    //참가한 채널 명을 url로 구분하도록 커스터마이징함
-    console.log("캔버스 로드");
 
     let apiCall = await axiosInstance
       .get(`/canvas/${channelSeqRef.current}`, { headers })
@@ -528,7 +725,6 @@ export default function GroupChat() {
             image: stage.current.children[1],
             video: stage.current.children[2],
           };
-
           axiosInstance
             .post(`/canvas`, parameters, { headers })
             .then((response) => {
@@ -538,75 +734,7 @@ export default function GroupChat() {
               console.log(err);
             });
         } else {
-          let backChildren = JSON.parse(data.background);
-
-          if (backChildren.children.length > 0) {
-            console.log("서버에 있는 배경 레이어");
-            remoteBGLayer = Konva.Node.create(data.background);
-            console.log(remoteBGLayer);
-
-            let backgroundObj = remoteBGLayer.children[0];
-            console.log(backgroundObj);
-            //이미지 변수 생성
-            let imageObj = new Image();
-            let imageName = backgroundObj.getAttr("id"); //img- 제거한 나머지를 이름으로 설정
-            console.log(imageName);
-            imageObj.src =
-              "https://dm51j1y1p1ekp.cloudfront.net/channel-background/" +
-              imageName.substring(3);
-
-            //로딩돠면
-            imageObj.onload = function () {
-              backgroundObj.setAttr("image", imageObj);
-            };
-
-            console.log(stage.current);
-
-            stage.current.children[0].add(backgroundObj);
-          }
-          //비디오 레이어 로드
-          if (data.video != null) {
-            console.log("서버에 있는 비디오 레이어");
-            remoteVideoLayer = Konva.Node.create(data.video);
-            console.log(remoteVideoLayer);
-          }
-          //이미지 레이어 로드
-          if (data.image != null) {
-            console.log("서버에 있는 이미지 레이어");
-            remoteImageLayer = Konva.Node.create(data.image);
-            console.log(remoteImageLayer);
-            let images = remoteImageLayer.find("Image");
-
-            for (let i = 0; i < images.length; i++) {
-              let tr = new Konva.Transformer();
-
-              //이미지 변수 생성
-              let imageObj = new Image();
-              let imageName = images[i].getAttr("id").substring(4); //img- 제거한 나머지를 이름으로 설정
-              console.log(imageName);
-              imageObj.src =
-                "https://dm51j1y1p1ekp.cloudfront.net/" + imageName;
-
-              //로딩돠면
-              imageObj.onload = function () {
-                images[i].setAttr("image", imageObj);
-              };
-
-              //드래그 반응이 끝나면 캔버스 넘기기
-              images[i].on("dragend", function () {
-                changeCanvas(images[i], "update");
-              });
-
-              //비디오의 모양을 변경하면 캔버스 변경사항을 다른사람에게 전송
-              images[i].on("transformend", function () {
-                changeCanvas(images[i], "update");
-              });
-              console.log(stage.current);
-
-              stage.current.children[2].add(tr);
-              stage.current.children[2].add(images[i]);
-            }
-          }
+          loadCanvas(data);
         }
       })
       .catch((err) => {
@@ -614,7 +742,7 @@ export default function GroupChat() {
         console.log(err);
       });
 
-    stompSocket.current = new SockJS(`https://${domain}/api/ws-stomp`);
+    stompSocket.current = new SockJS(`${domain}/api/ws-stomp`);
     stomp.current = StompJs.over(stompSocket.current);
     stomp.current.connect({ userSeq: userSeq }, onConnected, onError);
 
@@ -642,15 +770,40 @@ export default function GroupChat() {
       console.log("비디오 아이디 : " + videoId);
       console.log("비디오가 들어있는 div");
       console.log(document.querySelector("#" + videoId));
+
+      const videoBox = document.getElementById("video-container");
+      const originalVideo = videoBox.querySelector("#" + videoId);
+      originalVideo.setAttribute("height", 200);
+      originalVideo.setAttribute("width", 200);
+
+      const destinationContainer = document.getElementById("speakingdiv");
+      destinationContainer.appendChild(originalVideo);
+      // const clonedVideo = destinationContainer.childNodes;
+      // clonedVideo.classList.add(`cloned-${videoId}`);
     });
 
     //말 끝나면 반응하는거
     session.current.on("publisherStopSpeaking", (event) => {
-      console.log(event);
       let speakUserId = JSON.parse(event.connection.data).clientData;
+      console.log(speakUserId + "말 안함");
+      let videoId;
+
+      if (speakUserId == userId) {
+        videoId = "local-video-undefined";
+      } else {
+        videoId = "remote-video-" + event.streamId;
+      }
+
+      const destinationContainer = document.getElementById("speakingdiv");
+      const clonedVideo = destinationContainer.querySelector("#" + videoId);
+
+      const videoBox = document.getElementById("video-container");
+      videoBox.appendChild(clonedVideo);
+      // clonedVideo.style.display = "none";
 
       console.log(speakUserId + "가 말 끝남");
     });
+
     // --- 3) Specify the actions when events take place in the session ---
     // On every new Stream received...
     session.current.on("streamCreated", (event) => {
@@ -776,7 +929,43 @@ export default function GroupChat() {
           );
         });
     });
+    console.log(stomp.current);
   }
+  function chatConnect() {
+    console.log(channelSeqRef.current);
+    console.log("connect CHAT");
+    console.log(stomp.current);
+    const channelSubscribe = stomp.current.subscribe(
+      `/api/sub/chat/channel/${channelSeqRef.current}`,
+      (message) => {
+        console.log("구독 성공");
+        const receivedMessage = JSON.parse(message.body);
+        recvMessage(receivedMessage); // 채팅내용을 처리하는 함수 호출
+      }
+    );
+    stomp.current.send(
+      `/api/pub/chat/channel/message`,
+      {},
+      JSON.stringify({
+        channelSeq: channelSeqRef.current,
+        userSeq: userSeq,
+      })
+    );
+
+    return () => {
+      channelSubscribe.unsubscribe(); // 컴포넌트 언마운트 시 구독 해제
+      stomp.disconnect(); // 컴포넌트 언마운트 시 연결 해제
+    };
+  }
+
+  //외부를 클릭하면 우클릭 메뉴가 없어지는 것
+  window.addEventListener("click", () => {
+    // hide menu
+    let deleteBtn = document.querySelector("#delete-button");
+    deleteBtn.setAttribute("data-imgid", "");
+    let menuNode = document.getElementById("delete-img-menu");
+    menuNode.style.display = "none";
+  });
 
   function publishScreenShare() {
     // --- 9.1) To create a publisherScreen set the property 'videoSource' to 'screen'
@@ -876,6 +1065,8 @@ export default function GroupChat() {
     var dataNode = document.createElement("div");
     dataNode.className = "data-node";
     dataNode.id = "data-" + nodeId;
+    dataNode.crossOrigin = "anonymous";
+
     dataNode.innerHTML = "<p>" + userData + "</p>";
     videoElement.parentNode.insertBefore(dataNode, videoElement.nextSibling);
     addClickListener(videoElement, userData);
@@ -925,18 +1116,33 @@ export default function GroupChat() {
     }
     updateCanvasOnlyServer();
   }
+  function sendStageInfo(stage) {
+    let data = Konva.Node.create(stage, "remote-container");
+
+    let jsonData = {};
+    //stage 저장 및 바뀐 객체 전송
+    jsonData["background"] = data.children[0];
+    jsonData["video"] = data.children[1];
+    jsonData["image"] = data.children[2];
+    jsonData["type"] = "load";
+    jsonData["channelSeq"] = channelSeq.current;
+    jsonData["userSeq"] = userSeq;
+    jsonData["stage"] = stage;
+
+    console.log(jsonData);
+    console.log(JSON.stringify(jsonData));
+
+    stomp.current.send(
+      "/api/pub/canvas/channel/" + channelSeq.current,
+      {},
+      JSON.stringify(jsonData)
+    );
+
+    document.querySelector("#remote-container").innerHTML = "";
+  }
 
   //이용자 나감/튕김으로 인한 캔버스 내용 변경을 서버에 저장하는 함수
   function updateCanvasOnlyServer() {
-    let jsonData = {};
-
-    //stage 저장 및 바뀐 객체 전송
-    jsonData["background"] = stage.current.children[0];
-    jsonData["video"] = stage.current.children[1];
-    jsonData["image"] = stage.current.children[2];
-    jsonData["type"] = "update";
-    jsonData["channel"] = session.current.sessionId;
-
     let stompData = {};
     stompData["background"] = stage.current.children[0];
     stompData["video"] = stage.current.children[1];
@@ -944,9 +1150,7 @@ export default function GroupChat() {
     stompData["type"] = "update";
     stompData["channelSeq"] = channelSeqRef.current;
     stompData["userSeq"] = userSeq;
-
-    console.log(jsonData);
-    console.log(JSON.stringify(jsonData));
+    stompData["stage"] = stage.current;
 
     stomp.current.send(
       "/api/pub/canvas/channel/" + channelSeqRef.current,
@@ -1001,7 +1205,6 @@ export default function GroupChat() {
         id: connectionId, //수정하면 안됨!!
         cornerRadius: 150,
         visible: true,
-        // fill: man,
       });
     }
 
@@ -1017,13 +1220,11 @@ export default function GroupChat() {
         id: connectionId, //수정하면 안됨!!
         cornerRadius: 150,
         visible: true,
-        // fill: man,
       });
     }
 
     //비디오 크기 및 회전을 도와주는 객체
     var tr = new Konva.Transformer();
-    // tr.nodes([video]);
 
     //비디오 실행
     var animation = new Konva.Animation(function () {}, layer);
@@ -1080,6 +1281,7 @@ export default function GroupChat() {
     stompData["channelSeq"] = channelSeqRef.current;
     stompData["userSeq"] = userSeq;
     stompData["object"] = element.toJSON();
+    stompData["stage"] = stage.current;
 
     stomp.current.send(
       "/api/pub/canvas/channel/" + channelSeqRef.current,
@@ -1170,13 +1372,35 @@ export default function GroupChat() {
     document.querySelector("#main-video video")["muted"] = true;
   }
 
+  function deleteClickListener() {
+    //삭제 버튼 누를시 이벤트
+    let deleteBtn = document.querySelector("#delete-button");
+    console.log(deleteBtn);
+    let targetId = deleteBtn.getAttribute("data-imgid");
+    console.log("삭제 아이디");
+    console.log(targetId);
+
+    for (var i = 0; i < stage.current.children[2].children.length; i++) {
+      if (stage.current.children[2].children[i].getAttr("id") == targetId) {
+        console.log("find " + stage.current.children[2].children[i]);
+        changeCanvas(stage.current.children[2].children[i], "delete");
+        stage.current.children[2].children[i].remove();
+        stage.current.children[2].children[i - 1].remove();
+        console.log("tarnsformer " + stage.current.children[2].children[i]);
+      }
+    }
+  }
   //버튼을 누르면 이미지가 생성되는 함수
   function stickertemp(name) {
     console.log("click");
     var imageObj = new Image();
-    imageObj.src = `https://dm51j1y1p1ekp.cloudfront.net/sticker/${name}`;
+    imageObj.crossOrigin = "anonymous";
+
+    imageObj.src =
+      `https://dm51j1y1p1ekp.cloudfront.net/sticker/${name}` + "?timestamp=2";
     console.log("이미지 객체");
     console.log(imageObj);
+
     var papago; //이미지 객체
     let layer;
 
@@ -1225,13 +1449,7 @@ export default function GroupChat() {
 
       // 드래그 범위 제한 함수를 객체에 연결
       papago.dragBoundFunc(limitDragBounds);
-
       var menuNode = document.getElementById("delete-img-menu");
-
-      document.getElementById("delete-button").addEventListener("click", () => {
-        currentShape.destroy();
-        changeCanvas(currentShape, "delete");
-      });
 
       window.addEventListener("click", () => {
         // hide menu
@@ -1242,6 +1460,10 @@ export default function GroupChat() {
       papago.on("contextmenu", function (e) {
         e.evt.preventDefault();
         console.log("우클릭 입력");
+
+        let deleteBtn = document.querySelector("#delete-button");
+        deleteBtn.setAttribute("data-imgid", `img-${name}`);
+
         if (e.target === stage.current) {
           // if we are on empty place of the stage we will do nothing
           return;
@@ -1374,11 +1596,11 @@ export default function GroupChat() {
     video.on("contextmenu", function (e) {
       e.evt.preventDefault();
       video.setAttrs({
-        x: 0,
-        y: 0,
+        x: -5,
+        y: -5,
         draggable: false,
-        width: window.innerWidth,
-        height: window.innerHeight,
+        width: window.innerWidth + 10,
+        height: window.innerHeight + 10,
       });
       layer.draw();
       console.log(video.attrs);
@@ -1408,21 +1630,94 @@ export default function GroupChat() {
   }
 
   function sendChatSocket(message) {
-    stomp.current.send(
-      `/api/pub/server/${serverSeq}/channel/${channelSeqRef.current}/enter`,
-      {},
-      JSON.stringify({ userSeq: { userSeq } })
-    );
     // 웹소켓에 채팅 전송하는 부분
+    console.log(stomp.current);
+    console.log(message);
     stomp.current.send(
-      `/api/pub/chat/channel/message`,
+      "/api/pub/chat/channel/message",
       {},
       JSON.stringify({
-        userSeq: { userSeq },
-        channelSeq: { channelSeq },
-        message: { message },
+        userSeq: userSeq,
+        channelSeq: channelSeq,
+        message: message,
       })
     );
+  }
+
+  function recvMessage(recieve) {
+    console.log(recieve);
+    let chatMessage = recieve.message;
+    const chatOwner = recieve.userDto.nickname;
+    const chatTime = recieve.sendTime.substr(11, 5);
+    const chatImage = recieve.userDto.profileImgSearchName;
+    const chatLogSide = document.getElementById("chatLogSide");
+    if (chatOwner === userNick) {
+      const myChat = document.createElement("div");
+      const myChatHeader = document.createElement("div");
+      const myChatdiv = document.createElement("div");
+      const myChatText = document.createElement("div");
+      const myChatNick = document.createElement("div");
+      const myChatTime = document.createElement("div");
+      const myChatImage = document.createElement("img");
+      myChatText.textContent = chatMessage;
+      myChatNick.textContent = chatOwner;
+      myChatTime.textContent = chatTime;
+      if (chatImage) {
+        myChatImage.src =
+          "https://dm51j1y1p1ekp.cloudfront.net/profile/" + chatImage;
+        myChatImage.height = 30;
+        myChatImage.width = 30;
+        myChatImage.style.borderRadius = "50%";
+      } else {
+        myChatImage.src = withview;
+        myChatImage.height = 30;
+        myChatImage.width = 30;
+        myChatImage.style.borderRadius = "50%";
+      }
+      myChat.appendChild(myChatImage);
+      myChatHeader.appendChild(myChatNick);
+      myChatHeader.appendChild(myChatTime);
+      myChatdiv.appendChild(myChatHeader);
+      myChatdiv.appendChild(myChatText);
+      myChat.appendChild(myChatdiv);
+      myChat.classList.add("myChat");
+      myChatdiv.classList.add("myChatdiv");
+      myChatHeader.classList.add("myChatHeader");
+      chatLogSide.appendChild(myChat);
+    } else {
+      const yourChat = document.createElement("div");
+      const yourChatHeader = document.createElement("div");
+      const yourChatdiv = document.createElement("div");
+      const yourChatText = document.createElement("div");
+      const yourChatNick = document.createElement("div");
+      const yourChatTime = document.createElement("div");
+      const yourChatImage = document.createElement("img");
+      yourChatText.textContent = chatMessage;
+      yourChatNick.textContent = chatOwner;
+      yourChatTime.textContent = chatTime;
+      if (chatImage) {
+        yourChatImage.src =
+          "https://dm51j1y1p1ekp.cloudfront.net/profile/" + chatImage;
+        yourChatImage.height = 30;
+        yourChatImage.width = 30;
+        yourChatImage.style.borderRadius = "50%";
+      } else {
+        yourChatImage.src = withview;
+        yourChatImage.height = 30;
+        yourChatImage.width = 30;
+        yourChatImage.style.borderRadius = "50%";
+      }
+      yourChat.appendChild(yourChatImage);
+      yourChatHeader.appendChild(yourChatNick);
+      yourChatHeader.appendChild(yourChatTime);
+      yourChatdiv.appendChild(yourChatHeader);
+      yourChatdiv.appendChild(yourChatText);
+      yourChat.appendChild(yourChatdiv);
+      yourChat.classList.add("yourChat");
+      yourChatdiv.classList.add("yourChatdiv");
+      yourChatHeader.classList.add("yourChatHeader");
+      chatLogSide.appendChild(yourChat);
+    }
   }
   return (
     <>
@@ -1450,7 +1745,13 @@ export default function GroupChat() {
           </div>
           <div id="delete-img-menu">
             <div>
-              <button id="delete-button">Delete</button>
+              <button
+                onClick={deleteClickListener}
+                id="delete-button"
+                data-imgid=""
+              >
+                Delete
+              </button>
             </div>
           </div>
 
@@ -1472,7 +1773,9 @@ export default function GroupChat() {
                 <video autoPlay playsInline={true}></video>
               </div>
               <div id="video-container" className="col-md-6"></div>
+              <div id="remote-container" className="none"></div>
               <div id="container-screens" className="sharing-Screen"></div>
+              <div id="img-container"></div>
             </div>
           </div>
         </div>
@@ -1577,6 +1880,38 @@ export default function GroupChat() {
                 <div className="accordion-item">
                   <div className="accordion-header">채널 지우기</div>
                   <div className="accordion-content"></div>
+                </div>
+              </div>
+              <div className="accordion">
+                <div
+                  className="accordion-item"
+                  onMouseUp={presetRegistSettings}
+                >
+                  <div className="accordion-header">프리셋 등록</div>
+                  <div className="accordion-content"></div>
+                </div>
+                <div className="scroll-container">
+                  <PresetRegistModal
+                    isOpen={presetRegisterClicked}
+                    onChange={presetRegistSettings}
+                    stage={stage.current}
+                  ></PresetRegistModal>
+                </div>
+              </div>
+              <div className="accordion">
+                <div
+                  className="accordion-item"
+                  onMouseUp={presetLoadClickedChange}
+                >
+                  <div className="accordion-header">프리셋 불러오기</div>
+                  <div className="accordion-content"></div>
+                </div>
+                <div className="scroll-container">
+                  <PresetLoadModal
+                    isOpen={presetLoadClicked}
+                    onChange={presetLoadClickedChange}
+                    loadCanvas={sendStageInfo}
+                  ></PresetLoadModal>
                 </div>
               </div>
             </div>
@@ -1763,54 +2098,16 @@ export default function GroupChat() {
           {/* 채팅 */}
           <div className={chatClicked ? "side-menu-div-on" : "side-menu-div"}>
             <div className="chat-menu-div">
-              <div className="groupchat-log-div">
-                <ul>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                  <li>재미있는 채팅. 지저분한 코드</li>
-                </ul>
-              </div>
-              <div className="chat-input-div">
-                <img src={plus} alt="이모티콘" className="add-imo" />
+              <div id="chatLogSide" className="groupchat-log-div"></div>
+              <div id="chat-container" className="chat-input-div">
                 <input
                   type="text"
-                  name=""
-                  id=""
+                  value={inputText}
+                  onChange={fullscreenInputChange}
                   className="chat-input-kan"
+                  onKeyUp={handleTempButtonClick}
                   placeholder="메세지 보내기 !"
                 />
-                <img src={plane} alt="비행기" className="send-message-plane" />
               </div>
             </div>
           </div>
@@ -1978,17 +2275,1018 @@ export default function GroupChat() {
             onKeyUp={handleTempButtonClick}
             placeholder="메세지 보내기 !"
           />
+          {/* <button onClick={handleTempButtonClick}>temp</button> */}
         </div>
         {/* 얼굴 */}
         <div
           className={fullscreen ? "fullscreen-face-hidden" : "fullscreen-face"}
         >
           <h1>얼굴들</h1>
-          <div>
-            <video autoPlay playsInline={true}></video>
-          </div>
+          <div id="speakingdiv" className="speakingdiv"></div>
         </div>
       </div>
     </>
   );
+}
+=============================================================================================================
+button {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0px;
+  margin: 0px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.groupchat {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+.canvas {
+  background-color: rgb(108, 108, 108);
+  position: relative;
+  width: 100%;
+}
+
+.groupchat-exit {
+  position: absolute;
+  transition-duration: 0.8s;
+  top: 10px;
+  right: 10px;
+  height: 71px;
+  width: 73px;
+  opacity: 0.5;
+}
+
+.groupchat-exit:active {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  height: 71px;
+  width: 73px;
+  opacity: 1;
+}
+
+.groupchat-exit-hidden {
+  transform: translateY(-200%);
+  transition-duration: 0.8s;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  height: 71px;
+  width: 73px;
+  opacity: 0.5;
+}
+
+.fullscreen-x {
+  position: absolute;
+  transition-duration: 0.8s;
+  top: 10px;
+  right: 10px;
+  height: 61px;
+  width: 63px;
+  opacity: 0.5;
+}
+
+.fullscreen-x-hidden {
+  transform: translatex(200%);
+  transition-duration: 0.8s;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  height: 61px;
+  width: 63px;
+  opacity: 0.5;
+}
+
+.side-menu-div {
+  transform: translateX(100%);
+  height: 89%;
+  width: 23%;
+  right: 0px;
+  position: absolute;
+  background-color: #000000cc;
+  transition-duration: 0.8s;
+}
+
+.side-menu-div-on {
+  color: #f7fbfc;
+  transform: translateX(0);
+  height: 89%;
+  width: 23%;
+  right: 0px;
+  position: absolute;
+  background-color: #00000080;
+  transition-duration: 0.8s;
+}
+
+.house-image {
+  overflow: auto;
+}
+
+.user-bg {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.settings-form-on {
+  position: absolute;
+  transform: translateX(0%);
+  color: #f7fbfc;
+  opacity: 1;
+}
+
+.sticker-form-on {
+  position: absolute;
+  transform: translateX(0%);
+  color: #f7fbfc;
+  opacity: 1;
+}
+
+.chat-form-on {
+  position: absolute;
+  transform: translateX(0%);
+  color: #f7fbfc;
+  opacity: 1;
+}
+
+.underbar-container {
+  transition-duration: 0.8s;
+  display: flex;
+  position: absolute;
+  height: 10%;
+  bottom: 0px;
+  width: 100%;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+
+.underbar-container-hidden {
+  transform: translateY(200%);
+  transition-duration: 0.8s;
+  display: flex;
+  position: absolute;
+  height: 10%;
+  bottom: 0px;
+  width: 100%;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+
+.left-menu-container {
+  display: flex;
+}
+
+.left-menu-in {
+  transform: translateX(-200%);
+  transition-duration: 0.8s;
+}
+
+.left-menu-out {
+  transform: translateX(0);
+  transition-duration: 0.8s;
+}
+
+.back {
+  margin-top: 5px;
+  height: 60px;
+  opacity: 0.5;
+  transition-duration: 0.3s;
+}
+
+.aback {
+  margin-top: 5px;
+  height: 60px;
+  opacity: 1;
+  transform: scaleX(-1);
+  transition-duration: 0.3s;
+}
+
+.profile-wrapper {
+  display: flex;
+  width: 150px;
+  justify-content: space-between;
+}
+
+.user {
+  height: 50px;
+  width: 50px;
+  border-radius: 100%;
+}
+
+.user-stat {
+  margin: 0px 20px 0px 0px;
+}
+
+.username {
+  font-weight: bold;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.onlinetf {
+  font-family: "Courier New", Courier, monospace;
+}
+
+.user-stat-control {
+  visibility: hidden;
+  width: 120px;
+  background-color: #f7fbfc;
+  color: #000;
+  text-align: center;
+  border-radius: 4px;
+  padding: 6px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.a-user-stat-control {
+  visibility: visible;
+  width: 120px;
+  background-color: #f7fbfc;
+  color: #000;
+  text-align: center;
+  border-radius: 4px;
+  padding: 6px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+.mic-control {
+  visibility: hidden;
+  width: 120px;
+  background-color: #f7fbfc;
+  color: #000;
+  text-align: center;
+  border-radius: 4px;
+  padding: 6px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.a-mic-control {
+  visibility: visible;
+  width: 120px;
+  background-color: #f7fbfc;
+  color: #000;
+  text-align: center;
+  border-radius: 4px;
+  padding: 6px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+.vol-control {
+  visibility: hidden;
+  width: 120px;
+  background-color: #f7fbfc;
+  color: #000;
+  text-align: center;
+  border-radius: 4px;
+  padding: 6px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.a-vol-control {
+  visibility: visible;
+  width: 120px;
+  background-color: #f7fbfc;
+  color: #000;
+  text-align: center;
+  border-radius: 4px;
+  padding: 6px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+.setting-menu-div {
+  padding: 0px 10px 0px 10px;
+}
+
+.chat-menu-div {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 10px;
+  justify-content: space-between;
+}
+
+.groupchat-log-div {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.groupchat-log-div::-webkit-scrollbar {
+  width: 10px;
+}
+
+.groupchat-log-div::-webkit-scrollbar-thumb {
+  height: 30%;
+  background-color: #bebebe; /* 스크롤바의 색상 */
+  border-radius: 10px;
+}
+
+.groupchat-log-div::-webkit-scrollbar-track {
+  background: #00000000; /* 스크롤바 뒷 배경 색상 */
+}
+
+.groupchat-log-div::-webkit-scrollbar-button {
+  display: none;
+}
+
+.chat-input-div {
+  padding-top: 5px;
+  display: flex;
+  position: relative;
+  height: 40px;
+  bottom: 0px;
+  border-top: 2px solid #ccc;
+  justify-content: space-between;
+}
+
+.chat-input-kan {
+  color: #f7fbfc;
+  height: 35px;
+  font-size: 15px;
+  color: #222222;
+  width: 100%;
+  border: none;
+  position: relative;
+  background: none;
+  z-index: 5;
+}
+
+.chat-input-kan::placeholder {
+  color: #bebebe;
+}
+
+.chat-input-kan:not(:placeholder-shown) {
+  color: #ffffff;
+}
+
+.add-imo {
+  height: 30px;
+  width: 30px;
+  margin-right: 5px;
+  margin-top: 3px;
+  cursor: pointer;
+}
+
+.send-message-plane {
+  height: 30px;
+  width: 30px;
+  margin-left: 5px;
+  margin-top: 1px;
+  cursor: pointer;
+}
+
+/* 아코디언 스타일 */
+.accordion {
+  width: 100%;
+  margin: 20px auto;
+}
+
+.accordion-item {
+  border-bottom: 1px solid #ccc;
+}
+
+.accordion-header {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.accordion-content {
+  padding: 10px;
+  visibility: hidden;
+  height: 0;
+}
+
+/* 아코디언 활성화 스타일 */
+.a-accordion-item .accordion-content {
+  display: block;
+  visibility: visible;
+  height: initial;
+  border-bottom: 1px solid #ccc;
+}
+
+.accordion-vol {
+  display: flex;
+}
+.accordion-ch {
+  display: flex;
+  justify-content: space-between;
+}
+
+.ch-name {
+  height: 1.5rem;
+  border-radius: 0.3rem;
+  width: 80%;
+}
+
+.ch-name-btn {
+  background-color: #f7fbfc;
+  height: 1.5rem;
+  width: 18%;
+  border: 0px;
+  padding: 0px;
+  opacity: 0.8;
+  border-radius: 0.8rem;
+}
+
+.ch-name-btn:active {
+  background-color: #f7fbfc;
+  height: 1.5rem;
+  width: 18%;
+  border: 0px;
+  padding: 0px;
+  opacity: 1;
+  border-radius: 0.8rem;
+}
+
+.cam-dev-block {
+  /* height: 0;
+  display: none; */
+}
+
+.sharingScreen {
+  height: 300px;
+  width: 300px;
+}
+
+.sticker-upload {
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.sticker-preview {
+  width: 100%;
+  margin: auto;
+  justify-content: center;
+  align-items: center;
+  padding: 0% 3% 0% 0%;
+  margin-bottom: 10%;
+}
+
+.file-label {
+  font-size: small;
+}
+
+.bg-tag {
+  font-size: 18px;
+  text-align: right;
+}
+
+.house-sticker {
+  margin: 6px 6px 0px 6px;
+  width: 20%;
+}
+
+.fullscreen-chat {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  animation: fadein 1s;
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  width: 25%;
+  height: 50%;
+}
+
+@keyframes fadein {
+  /* 효과를 동작시간 동안 0 ~ 1까지 */
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fullscreen-chatlog {
+  position: absolute;
+  animation: fadein 1s;
+  color: #f7fbfc;
+  background: #00000080;
+  left: 0px;
+  bottom: 30px;
+  padding: 0px 0px 0px 10px;
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  overflow: auto;
+}
+
+@keyframes fadein {
+  /* 효과를 동작시간 동안 0 ~ 1까지 */
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fullscreen-chatlog::-webkit-scrollbar {
+  width: 5px;
+}
+
+.fullscreen-chatlog::-webkit-scrollbar-thumb {
+  height: 30%;
+  background-color: #bebebe; /* 스크롤바의 색상 */
+  border-radius: 10px;
+}
+.fullscreen-chatlog::-webkit-scrollbar-track {
+  background: #00000000; /* 스크롤바 뒷 배경 색상 */
+}
+
+.fullscreen-chatlog::-webkit-scrollbar-button {
+  display: none;
+}
+
+.fullscreen-chat-input-kan-div {
+  display: flex;
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  width: 25%;
+  height: 30px;
+  border-top: 1px solid #f7fbfc;
+  background-color: #00000080;
+  bottom: 0px;
+}
+
+.fullscreen-chat-input-kan {
+  justify-content: space-between;
+  color: #f7fbfc;
+  font-size: 15px;
+  color: #222222;
+  width: 100%;
+  border: none;
+  background: none;
+  z-index: 5;
+}
+
+.fullscreen-chat-input-kan::placeholder {
+  color: #bebebe;
+}
+
+.fullscreen-chat-input-kan:not(:placeholder-shown) {
+  color: #ffffff;
+}
+
+.fullscreen-face {
+  animation: fadein 1s;
+  background-color: #00000080;
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  padding: 0 0 10px 10px;
+  height: 30%;
+  width: 60%;
+}
+
+@keyframes fadein {
+  /* 효과를 동작시간 동안 0 ~ 1까지 */
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fullscreen-chat-hidden {
+  animation: fadeout 1s;
+  display: none;
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  padding: 0 0 10px 10px;
+  width: 25%;
+  height: 50%;
+}
+
+@keyframes fadeout {
+  /* 효과를 동작시간 동안 0 ~ 1까지 */
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.fullscreen-chatlog-hidden {
+  position: absolute;
+  animation: fadeout 10s;
+  color: #f7fbfc;
+  background: #00000080;
+  left: 0px;
+  bottom: 30px;
+  padding: 0px 0px 0px 10px;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  overflow: auto;
+}
+
+@keyframes fadeout {
+  /* 효과를 동작시간 동안 0 ~ 1까지 */
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.fullscreen-chatlog-hidden::-webkit-scrollbar {
+  width: 5px;
+}
+
+.fullscreen-chatlog-hidden::-webkit-scrollbar-thumb {
+  height: 30%;
+  background-color: #bebebe; /* 스크롤바의 색상 */
+  border-radius: 10px;
+}
+.fullscreen-chatlog-hidden::-webkit-scrollbar-track {
+  background: #00000000; /* 스크롤바 뒷 배경 색상 */
+}
+
+.fullscreen-chatlog-hidden::-webkit-scrollbar-button {
+  display: none;
+}
+
+.fullscreen-chat-input-kan-div-hidden {
+  opacity: 0;
+  display: flex;
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  width: 25%;
+  height: 30px;
+  border-top: 1px solid #f7fbfc;
+  background-color: #00000080;
+  bottom: 0px;
+}
+
+.fullscreen-face-hidden {
+  animation: fadeout 1s;
+  display: none;
+  background-color: #00000080;
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  padding: 0 0 10px 10px;
+  height: 30%;
+  width: 60%;
+}
+
+@keyframes fadeout {
+  /* 효과를 동작시간 동안 0 ~ 1까지 */
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.speakingdiv {
+  display: grid;
+  overflow: hidden;
+}
+
+.chatLogSide {
+  display: flex;
+  flex-direction: column; /* 세로 방향으로 요소들을 배치 */
+  align-items: flex-start; /* 요소들을 왼쪽으로 정렬 */
+}
+
+.myChat,
+.yourChat {
+  display: flex;
+  margin: 5px; /* 요소들 사이의 간격 설정 */
+}
+
+.myChat {
+  flex-direction: row-reverse;
+  margin-left: 30px;
+}
+
+.yourChat {
+  margin-right: 30px;
+}
+
+.myChatdiv {
+  text-align: right;
+}
+
+.yourChatdiv {
+  text-align: left;
+}
+
+.myChatHeader,
+.yourChatHeader {
+  display: flex;
+}
+
+.myChatHeader {
+  flex-direction: row-reverse;
+}
+
+.myChat img,
+.yourChat img {
+  width: 30px; /* 이미지 너비 고정 */
+  height: 30px; /* 이미지 높이 고정 */
+  border-radius: 50%; /* 이미지를 둥글게 처리 */
+  margin: 0px 5px 0px 5px;
+}
+
+.myChat img {
+  flex-direction: row-reverse;
+}
+
+#profile {
+  background-color: #f7fbfc;
+  border: 0px;
+  padding: 0px;
+  margin: 0px 10px 0px 0px;
+  opacity: 0.8;
+  width: 180px;
+  height: 60px;
+  box-shadow: 3px 3px 5px rgb(0, 0, 0);
+  transition-duration: 0.3s;
+}
+
+#profile:active {
+  background-color: #f7fbfc;
+  border: 0px;
+  padding: 0px;
+  margin: 0px 10px 0px 0px;
+  opacity: 0.8;
+  width: 180px;
+  height: 60px;
+  box-shadow: inset 3px 3px 10px rgb(0, 0, 0);
+}
+
+#mic {
+  background-color: #f7fbfc;
+  border: 0px;
+  padding: 0px;
+  margin: 0px 10px 0px 0px;
+  opacity: 0.8;
+  width: 70px;
+  height: 60px;
+  box-shadow: 3px 3px 5px rgb(0, 0, 0);
+  transition-duration: 0.3s;
+}
+
+#mic:active {
+  background-color: #f7fbfc;
+  border: 0px;
+  padding: 0px;
+  margin: 0px 10px 0px 0px;
+  width: 70px;
+  height: 60px;
+  box-shadow: inset 3px 3px 10px rgb(0, 0, 0);
+}
+
+#vol {
+  background-color: #f7fbfc;
+  border: 0px;
+  padding: 0px;
+  margin: 0px 10px 0px 0px;
+  opacity: 0.8;
+  width: 70px;
+  height: 60px;
+  box-shadow: 3px 3px 5px rgb(0, 0, 0);
+  transition-duration: 0.3s;
+}
+
+#vol:active {
+  background-color: #f7fbfc;
+  border: 0px;
+  padding: 0px;
+  margin: 0px 10px 0px 0px;
+  width: 70px;
+  height: 60px;
+  box-shadow: inset 3px 3px 10px rgb(0, 0, 0);
+}
+
+#cam {
+  background-color: #f7fbfc;
+  border: 0px;
+  padding: 0px;
+  margin: 0px 10px 0px 0px;
+  opacity: 0.8;
+  width: 70px;
+  height: 60px;
+  box-shadow: 3px 3px 5px rgb(0, 0, 0);
+  transition-duration: 0.3s;
+}
+
+#cam:active {
+  background-color: #f7fbfc;
+  border: 0px;
+  padding: 0px;
+  margin: 0px 10px 0px 0px;
+  width: 70px;
+  height: 60px;
+  box-shadow: inset 3px 3px 10px rgb(0, 0, 0);
+}
+
+#new-message {
+  font-weight: bold;
+  justify-content: space-between;
+  background-color: #f7fbfc;
+  border: 0px;
+  padding: 0px 20px 0px 10px;
+  opacity: 0;
+  height: 60px;
+  width: 135px;
+  margin-right: 15px;
+  box-shadow: 3px 3px 5px rgb(0, 0, 0);
+  transition-duration: 0.3s;
+}
+
+#a-new-message {
+  font-weight: bold;
+  justify-content: space-between;
+  background-color: #f7fbfc;
+  border: 0px;
+  padding: 0px 20px 0px 10px;
+  opacity: 0.8;
+  height: 60px;
+  width: 135px;
+  margin-right: 15px;
+  box-shadow: 3px 3px 5px rgb(0, 0, 0);
+  transition-duration: 0.3s;
+}
+
+#settings {
+  height: 60px;
+  width: 60px;
+  opacity: 0.5;
+}
+
+#asettings {
+  height: 60px;
+  width: 60px;
+  opacity: 1;
+}
+
+#sticker {
+  margin: 0px 10px 0px 6px;
+  height: 60px;
+  width: 60px;
+  opacity: 0.5;
+}
+
+#asticker {
+  margin: 0px 10px 0px 6px;
+  height: 60px;
+  width: 60px;
+  opacity: 1;
+}
+
+#stickerimg {
+  height: 60px;
+  width: 60px;
+}
+
+#chat {
+  width: 60px;
+  height: 60px;
+  opacity: 0.5;
+}
+
+#achat {
+  width: 60px;
+  height: 60px;
+  opacity: 1;
+}
+
+#sticker-and-backimg {
+  margin: 10px 30px 20px 30px;
+  display: flex;
+  justify-content: space-around;
+  color: #f7fbfc;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.stk-bg-selecter {
+  color: #769fcd;
+}
+
+.sticker-menu {
+  width: 0;
+  height: 100%;
+  display: none;
+  transition-duration: 0.3s;
+  overflow: hidden;
+}
+
+.sticker-menu-on {
+  transition-duration: 0.3s;
+  height: 90%;
+  padding: 0px 40px 0px 50px;
+  overflow: auto;
+}
+
+.sticker-menu-on::-webkit-scrollbar {
+  width: 10px;
+}
+
+.sticker-menu-on::-webkit-scrollbar-thumb {
+  height: 30%;
+  background-color: #bebebe; /* 스크롤바의 색상 */
+  border-radius: 10px;
+}
+
+.sticker-menu-on::-webkit-scrollbar-track {
+  background: #00000000; /* 스크롤바 뒷 배경 색상 */
+}
+
+.sticker-menu-on::-webkit-scrollbar-button {
+  display: none;
+}
+
+#back-menu {
+  width: 0;
+  height: 100%;
+  display: none;
+  transition-duration: 0.3s;
+  overflow: hidden;
+}
+
+#back-menu-on {
+  transition-duration: 0.3s;
+  height: 90%;
+  padding: 0px 40px 0px 50px;
+  overflow: auto;
+}
+
+#back-menu-on::-webkit-scrollbar {
+  width: 10px;
+}
+
+#back-menu-on::-webkit-scrollbar-thumb {
+  height: 30%;
+  background-color: #bebebe; /* 스크롤바의 색상 */
+  border-radius: 10px;
+}
+
+#back-menu-on::-webkit-scrollbar-track {
+  background: #00000000; /* 스크롤바 뒷 배경 색상 */
+}
+
+#back-menu-on::-webkit-scrollbar-button {
+  display: none;
+}
+
+#delete-img-menu {
+  display: none;
+  position: absolute;
+  width: 60px;
+  background-color: white;
+  box-shadow: 0 0 5px grey;
+  border-radius: 3px;
 }

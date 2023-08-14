@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @EnableJpaAuditing
 @EnableMongoAuditing
-@SpringBootApplication()
+@SpringBootApplication
 public class WithviewApplication implements WebMvcConfigurer {
 	public static void main(String[] args) {
 		SpringApplication.run(WithviewApplication.class, args);

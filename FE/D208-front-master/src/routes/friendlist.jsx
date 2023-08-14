@@ -184,11 +184,28 @@ const FriendList = () => {
     }
   };
 
+  const [currentSubscription, setCurrentSubscription] = useState(null);
+  const [currentFriendsChatRoomSeq, setCurrentFriendsChatRoomSeq] =
+    useState(null);
+
   function handleChatBoxDoubleClick(chat, page = 1) {
     setChatMessages([]);
     const friendsChatRoomSeq = chat.chatRoomSeq;
 
     setChatData(chat);
+    console.log(
+      "currentSubscriptioncurrentSubscriptioncurrentSubscription",
+      currentSubscription
+    );
+    if (currentSubscription) {
+      currentSubscription.unsubscribe();
+      setInputMessage("");
+      stomp.send(
+        `/api/pub/chat/friends/${currentFriendsChatRoomSeq}/${userSeq}`,
+        {},
+        ""
+      );
+    }
 
     // 1. API를 사용하여 이전 채팅 기록 가져오기
 
@@ -220,6 +237,9 @@ const FriendList = () => {
         recvMessage(recieve);
       }
     );
+    stomp.send(`/api/pub/chat/friends/${friendsChatRoomSeq}`, {}, "");
+    setCurrentSubscription(friendsChatSubscribe); // 상태 변수에 새 구독 저장
+    setCurrentFriendsChatRoomSeq(friendsChatRoomSeq);
 
     handleChatSelection(friendsChatRoomSeq);
 
@@ -227,6 +247,11 @@ const FriendList = () => {
     window.addEventListener("beforeunload", function () {
       if (friendsChatSubscribe) {
         friendsChatSubscribe.unsubscribe();
+        stomp.send(
+          `/api/pub/chat/friends/${currentFriendsChatRoomSeq}/${userSeq}`,
+          {},
+          ""
+        );
       }
     });
   }
@@ -288,30 +313,59 @@ const FriendList = () => {
     }
   };
 
-  const chatMessagesRef = useRef(null); // 참조 생성
-
-  useEffect(() => {
-    if (chatMessagesRef.current) {
-      const element = chatMessagesRef.current;
-      element.scrollTop = element.scrollHeight;
-    }
-  }, [chatMessages]);
-
   function ChatMessagesComponent({ chatMessages, userSeq }) {
+    const chatContainerRef = useRef(null);
+    let atBottomBeforeUpdate = true;
+
+    useEffect(() => {
+      if (chatContainerRef.current) {
+        const element = chatContainerRef.current;
+        const isAtBottom =
+          element.scrollHeight - element.scrollTop === element.clientHeight;
+
+        if (isAtBottom || atBottomBeforeUpdate) {
+          element.scrollTop = element.scrollHeight;
+        }
+
+        atBottomBeforeUpdate = isAtBottom;
+      }
+    }, [chatMessages]);
+
+    const formatDate = (dateTimeString) => {
+      const date = new Date(dateTimeString);
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+
+      return { date: `${month}-${day}`, time: `${hours}:${minutes}` };
+    };
+
     return (
-      <div className="chat-messages" ref={chatMessagesRef}>
+      <div className="chat-messages" ref={chatContainerRef}>
         {chatMessages.map((chat, index) => {
           const isMe = chat.fromUserSeq === userSeq;
           const className = isMe ? "me-chat" : "other-chat";
+          const className2 = isMe ? "me" : "";
+          const { date, time } = formatDate(chat.sendTime);
 
           return (
-            <div key={index} className={`message ${className}`}>
-              <div className="message-content">{chat.message}</div>
-              <div className="message-info">
-                <span className="from">{chat.fromUserSeq}</span>
-                <span className="to">{chat.toUserSeq}</span>
-                <span className="send-time">{chat.sendTime}</span>
+            <div key={index} className={`messageBox ${className2}`}>
+              {isMe && (
+                <span className="send-time">
+                  <span className="date">{date}</span>
+                  <span className="time">{time}</span>
+                </span>
+              )}
+              <div className={`message ${className}`}>
+                <div className="message-content">{chat.message}</div>
               </div>
+              {!isMe && (
+                <span className="send-time">
+                  <span className="date">{date}</span>
+                  <span className="time">{time}</span>
+                </span>
+              )}
             </div>
           );
         })}
