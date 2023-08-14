@@ -90,7 +90,7 @@ public class PresetController {
 	/**
 	 * 선택한 프리셋 가져오기
 	 *
-	 * @param id (선택한 프리셋의 id)
+	 * @param id (선택한 프리셋의 pk 값)
 	 * @return ResponseEntity (true / false, 상태코드, Stage)
 	 */
 	@GetMapping("/{id}")
