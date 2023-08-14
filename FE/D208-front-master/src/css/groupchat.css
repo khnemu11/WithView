@@ -446,8 +446,8 @@ button {
 }
 
 .cam-dev-block {
-  height: 0;
-  display: none;
+  /* height: 0;
+  display: none; */
 }
 
 .sharingScreen {

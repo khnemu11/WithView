@@ -61,6 +61,7 @@ public class BoardService {
 				.nickname(b.getNickname())
 				.title(b.getTitle())
 				.content(b.getContent())
+				.presetImgSearchName(b.getPresetImgSearchName())
 				.registerTime(b.getRegisterTime())
 				.build())
 			.collect(Collectors.toList());
@@ -79,7 +80,13 @@ public class BoardService {
 		BoardEntity boardEntity = boardRepository.findBySeq(seq)
 			.orElseThrow(() -> new IllegalArgumentException("일치하는 게시글이 없습니다."));
 
+		UserEntity userEntity = userRepository.findBySeq(boardEntity.getUserSeq())
+			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원정보가 없습니다."));
+
 		return BoardDto.builder()
+			.seq(boardEntity.getSeq())
+			.userSeq(boardEntity.getUserSeq())
+			.profileImgSearchName(userEntity.getProfileImgSearchName())
 			.nickname(boardEntity.getNickname())
 			.title(boardEntity.getTitle())
 			.content(boardEntity.getContent())

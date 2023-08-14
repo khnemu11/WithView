@@ -1,5 +1,65 @@
-
-.modal{
-    width:100%;
-    height:100%;
+.modal-form, .modal-title{
+    padding:30px;
 }
+.modal-title{
+    font-size:30px;
+    color:#3077AA;
+    font-weight:bold;
+    padding-top:10px;
+    padding-bottom:10px;
+}
+.modal-input-title{
+    font-size:26px;
+    color:#80C4FF;
+    margin-bottom:15px;
+}
+.modal-input-content{
+    width:100%;
+    border-radius: 10px;
+    height:40px;
+    margin-bottom:20px;
+    background-color: #D6E6F2;
+    border:none;
+    font-size:24px;
+    padding:20px;
+    margin-bottom:20px;
+}
+.modal-input-content:focus{
+    outline:none;
+    border:none;
+}
+.w-100{
+    width:100%;
+}
+.flex{
+    display:flex;
+    justify-content: center;
+}
+.model-input-btn{
+    width: 60%;
+    max-width: 800px;
+    background-color: #769FCD;
+    border-radius: 20px;
+    height:60px;
+    margin-top:30px;
+    margin-bottom:20px;
+    font-size:24px;
+    color:white;
+}
+.modal-input-image{
+    object-fit: cover;
+}
+.preset-list::-webkit-scrollbar{
+    width: 15px; /* 스크롤바 너비 */
+}
+
+.preset-list::-webkit-scrollbar-thumb {
+    border:200px solid #808080;
+    /* border-radius: 20px; */
+}
+.preset-list::-webkit-scrollbar-track {   
+    background-color: transparent; /* 스크롤바 트랙 색상 */
+}
+.preset-list{
+    overflow-y: scroll;
+} 
