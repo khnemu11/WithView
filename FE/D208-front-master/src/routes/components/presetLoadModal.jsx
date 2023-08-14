@@ -1,4 +1,3 @@
-// firstmain.jsx
 import { useState, useEffect, useRef } from "react";
 import Modal from 'react-modal';
 import "../../css/presetLoadModal.css"
@@ -88,7 +87,9 @@ const PresetLoadModal = (props) => {
                           <div className="media">
                             <div className="media-content">
                               <p className="title is-5">{preset.presetName}</p>
-                              <div className="is-right"><p className="subtile is-6">{preset.registerTime.substring(0,10)}</p></div>
+                              <div className="is-right"><p className="subtile is-6">{
+                                  preset.registerTime == null ? preset.registerTime : preset.registerTime.substring(0,10)
+                              }</p></div>
                             </div>
                           </div>
                       </div>

@@ -58,9 +58,9 @@ const PresetRegistModal = (props) => {
       array.push(binaryData.charCodeAt(i));
     }
 
-    console.log(name);
+    console.log(presetName);
 
-    let filename = name;
+    let filename = presetName;
 
     let file = new File([new Uint8Array(array)], filename+".png", {type: 'image/png'});
 
@@ -81,8 +81,10 @@ const PresetRegistModal = (props) => {
     .post(`/preset`,formData,{headers})
     .then((response) => {
       console.log(response);
+      alert("프리셋 등록을 성공했습니다.");
     }).catch((err)=>{
       console.log(err);
+      alert("프리셋 등록을 실패했습니다.");
     })
   }
     return(
