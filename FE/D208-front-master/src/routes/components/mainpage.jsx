@@ -8,10 +8,9 @@ import "../../css/mainpage.css"; // CSS 파일 임포트
 import ServerOptions from "./serveroptions";
 import { useSelector } from "react-redux";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate  } from "react-router-dom";
 import axiosInstance from "../axiosinstance";
 import Checkwebsocket from "./checkwebsocket";
-
 
 Modal.setAppElement("#root");
 
@@ -30,8 +29,8 @@ const Mainpage = () => {
 
   const token = useSelector((state) => state.token);
 
-  Checkwebsocket()
-  
+  Checkwebsocket();
+
   useEffect(() => {
     // 만약 redux에서 프로필 이미지가 null이면 기본 이미지로 설정
     if (profileImageURL === null) {
@@ -66,25 +65,25 @@ const Mainpage = () => {
       handleSearchIconClick();
     }
   };
-useEffect(() => {
-  // API를 통해 사용자가 참여한 서버 데이터를 가져오는 함수
-  const fetchJoinedServers = async () => {
-    try {
-      const response = await axiosInstance.get(
-        `/servers/find-server-by-user?userSeq=${userSeq}`,
-        {
-          headers: {
-            "Authorization": `Bearer ${token}`
+  useEffect(() => {
+    // API를 통해 사용자가 참여한 서버 데이터를 가져오는 함수
+    const fetchJoinedServers = async () => {
+      try {
+        const response = await axiosInstance.get(
+          `/servers/find-server-by-user?userSeq=${userSeq}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
-        }
-      );
-      const data = response.data;
-      console.log(data)
-      setJoinServerData(data.servers);
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
+        );
+        const data = response.data;
+        console.log(data);
+        setJoinServerData(data.servers);
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
 
     fetchJoinedServers();
   }, [userSeq]);
@@ -112,48 +111,50 @@ useEffect(() => {
       formData.append("userSeq", userSeq);
       formData.append("serverSeq", serverSeq);
 
-      const queryString = new URLSearchParams(formData).toString()
+      const queryString = new URLSearchParams(formData).toString();
 
       if (isFavorite) {
         // 이미 즐겨찾기에 추가된 서버이면 삭제 요청 (DELETE)
-        await axiosInstance.delete(url2+queryString, {
+        await axiosInstance.delete(url2 + queryString, {
           headers: {
-            "Authorization": `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
       } else {
         // 즐겨찾기에 추가되지 않은 서버이면 추가 요청 (POST)
         await axiosInstance.post(url, formData, {
           headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "multipart/form-data"
-          }
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
         });
       }
 
       // 서버의 즐겨찾기 상태가 토글되었으므로 joinserverData 상태를 업데이트합니다.
       setJoinServerData((prevData) =>
         prevData.map((server) =>
-          server.seq === serverSeq ? { ...server, isFavorite: !isFavorite } : server
+          server.seq === serverSeq
+            ? { ...server, isFavorite: !isFavorite }
+            : server
         )
       );
     } catch (error) {
       console.error("Error toggling favorite:", error);
     }
-};
+  };
 
   const CardItem = ({
     seq,
     name,
     backgroundImgSearchName,
     isFavorite,
+    peopleCnt,
   }) => {
+    const navigate = useNavigate();
     const handleCardClick = () => {
-      // 서버 화면으로 이동하는 경로를 설정합니다.
       const serverLinkPath = `/server/${seq}`;
-      // 클릭 시 서버로 이동합니다.
-      window.location.href = serverLinkPath;
-    };
+      navigate(serverLinkPath);
+  };
 
     const handleFavoriteButtonClick = (e) => {
       e.stopPropagation();
@@ -180,6 +181,15 @@ useEffect(() => {
         <Link to={`/server/${seq}`} style={{ textDecoration: "none" }}>
           <header className="card-header">
             <p className="card-header-title">{name}</p>
+            <div className="card-header-users">
+              <img
+                src="/usersicon.png"
+                className="cardUserIcon"
+                alt="사용자 아이콘"
+                style={{ marginRight: "5px" }}
+              />
+              <span>{peopleCnt}</span>
+            </div>
           </header>
         </Link>
       </div>
@@ -241,6 +251,7 @@ useEffect(() => {
                     hostSeq={server.hostSeq}
                     backgroundImgSearchName={server.backgroundImgSearchName}
                     isFavorite={server.isFavorite}
+                    peopleCnt={server.peopleCnt}
                   />
                 </div>
               ))}
@@ -267,6 +278,7 @@ useEffect(() => {
                   hostSeq={server.hostSeq}
                   backgroundImgSearchName={server.backgroundImgSearchName}
                   isFavorite={server.isFavorite}
+                  peopleCnt={server.peopleCnt}
                 />
               </div>
             ))}
@@ -292,6 +304,7 @@ useEffect(() => {
                   backgroundImgSearchName={server.backgroundImgSearchName}
                   backgroundImgOriginalName={server.backgroundImgOriginalName}
                   isFavorite={server.isFavorite}
+                  peopleCnt={server.peopleCnt}
                 />
               </div>
             ))}
