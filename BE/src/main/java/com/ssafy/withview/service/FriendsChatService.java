@@ -31,11 +31,11 @@ public class FriendsChatService {
 	private final RedisTemplateRepository redisTemplateRepository;
 
 	public List<FriendsChatMessageDto> getFriendsChatMessagesByPage(Long friendsChatRoomSeq, int page) {
-		return friendsChatMessageRepository.findByFriendsChatRoomSeqOrderByMessageSeqAsc(friendsChatRoomSeq,
+		return friendsChatMessageRepository.findByFriendsChatRoomSeqOrderByMessageSeqDesc(friendsChatRoomSeq,
 				PageRequest.of(100 * (page - 1), 100 * page))
 			.stream()
 			.map(FriendsChatMessageEntity::toDto)
-			.sorted((a, b) -> b.getMessageSeq().compareTo(a.getMessageSeq()))
+			.sorted((a, b) -> a.getMessageSeq().compareTo(b.getMessageSeq()))
 			.collect(Collectors.toList());
 	}
 
