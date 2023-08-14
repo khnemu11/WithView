@@ -52,8 +52,10 @@
     height: 500px;
 }
 .friendlist-right-pane {
+    display: flex;
+    flex-direction: column;
     flex: 1;
-    height: 550px;
+    height: 500px;
 }
 
 .friend-box {
@@ -185,12 +187,6 @@
     font-weight: bold;
     font-size: 1.2em;
 }
-.friendlist-right-pane {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-  
   .chat-container {
     display: flex;
     flex-direction: column;
@@ -204,10 +200,13 @@
     flex-direction: column; /* 세로방향으로 메세지를 나열 */
     align-items: flex-start; /* 기본적으로 왼쪽 정렬 */
 }
+.messageBox{
+    display: flex;
+    margin-bottom: 10px;
+}
 .message {
     font-size: large;
-    margin-top: 10px;
-    margin-right: 10px;
+    margin: 10px;
     padding: 8px 12px;
     border-radius: 15px;
     max-width: 100%; /* 메세지의 최대 너비를 제한합니다. */
@@ -215,10 +214,26 @@
     align-self: flex-start; /* 기본적으로 왼쪽 정렬 */
 }
 
+.send-time {
+    font-size: 0.7em; /* 작은 글씨로 만듭니다. */
+    color: #aaa; /* 연한 글씨 색으로 설정합니다. */
+    white-space: nowrap; /* 한 줄에 나타나도록 설정합니다. */
+    vertical-align: middle; /* 문자 박스와 동일한 수준에 위치하도록 설정합니다. */
+    align-self: center;
+}
+.date, .time {
+    display: block; 
+    font-size: 0.7em; 
+    color: #aaa; 
+}
+
 /* 내가 보낸 메세지 */
 .me-chat {
-    align-self: flex-end; /* 오른쪽 정렬 */
     background-color: #D4F2FF;
+}
+
+.me{
+    align-self: flex-end;
 }
 .other-chat {
     margin-left: 10px;
