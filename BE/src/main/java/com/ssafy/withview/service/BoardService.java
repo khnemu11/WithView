@@ -8,9 +8,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.withview.dto.BoardDto;
 import com.ssafy.withview.entity.BoardEntity;
+import com.ssafy.withview.entity.PresetEntity;
 import com.ssafy.withview.entity.UserEntity;
 import com.ssafy.withview.exception.BadRequestException;
 import com.ssafy.withview.repository.BoardRepository;
+import com.ssafy.withview.repository.PresetRepository;
 import com.ssafy.withview.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -25,10 +27,12 @@ public class BoardService {
 
 	private final UserRepository userRepository;
 
+	private final PresetRepository presetRepository;
+
 	/**
 	 * 게시글 작성
 	 *
-	 * @param boardDto (작성자 pk 값, 제목, 내용, 프리셋 이름)
+	 * @param boardDto (제목, 내용, 작성자 pk 값, 프리셋 pk 값)
 	 */
 	@Transactional
 	public void insertBoardArticle(BoardDto boardDto) {
@@ -37,19 +41,23 @@ public class BoardService {
 		UserEntity userEntity = userRepository.findBySeq(boardDto.getUserSeq())
 			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
 
+		PresetEntity presetEntity = presetRepository.findById(boardDto.getPresetId())
+			.orElseThrow(() -> new IllegalArgumentException("일치하는 프리셋 정보가 없습니다."));
+
 		boardRepository.save(BoardEntity.builder()
-			.userSeq(boardDto.getUserSeq())
-			.nickname(userEntity.getNickname())
 			.title(boardDto.getTitle())
 			.content(boardDto.getContent())
-			.presetImgSearchName(boardDto.getPresetImgSearchName())
+			.userSeq(boardDto.getUserSeq())
+			.nickname(userEntity.getNickname())
+			.presetId(boardDto.getPresetId())
+			.presetImgSearchName(presetEntity.getPresetImgSearchName())
 			.build());
 	}
 
 	/**
 	 * 게시글 목록
 	 *
-	 * @return BoardDto List (게시글 pk 값, 작성자 닉네임, 제목, 내용, 등록일)
+	 * @return BoardDto List (게시글 pk 값, 제목, 작성자 닉네임, 프리셋 png)
 	 */
 	@Transactional
 	public List<BoardDto> getBoardArticles() {
@@ -57,12 +65,10 @@ public class BoardService {
 
 		return boardRepository.findAll().stream()
 			.map(b -> BoardDto.builder()
-				.seq(b.getSeq())
-				.nickname(b.getNickname())
+				.boardSeq(b.getSeq())
 				.title(b.getTitle())
-				.content(b.getContent())
+				.nickname(b.getNickname())
 				.presetImgSearchName(b.getPresetImgSearchName())
-				.registerTime(b.getRegisterTime())
 				.build())
 			.collect(Collectors.toList());
 	}
@@ -71,7 +77,7 @@ public class BoardService {
 	 * 게시글 상세 정보
 	 *
 	 * @param seq (게시글 seq)
-	 * @return BoardDto (작성자 닉네임, 제목, 내용, 등록일, 이미지 png 이름)
+	 * @return BoardDto (게시글 pk 값, 제목, 내용, 등록일, 작성자 pk 값, 닉네임, 프로필 png, 프리셋 png, stage)
 	 */
 	@Transactional
 	public BoardDto getBoardArticle(Long seq) {
@@ -83,31 +89,40 @@ public class BoardService {
 		UserEntity userEntity = userRepository.findBySeq(boardEntity.getUserSeq())
 			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원정보가 없습니다."));
 
+		PresetEntity presetEntity = presetRepository.findById(boardEntity.getPresetId())
+			.orElseThrow(() -> new IllegalArgumentException("일치하는 프리셋 정보가 없습니다."));
+
 		return BoardDto.builder()
-			.seq(boardEntity.getSeq())
-			.userSeq(boardEntity.getUserSeq())
-			.profileImgSearchName(userEntity.getProfileImgSearchName())
-			.nickname(boardEntity.getNickname())
+			.boardSeq(boardEntity.getSeq())
 			.title(boardEntity.getTitle())
 			.content(boardEntity.getContent())
 			.registerTime(boardEntity.getRegisterTime())
+			.userSeq(boardEntity.getUserSeq())
+			.nickname(boardEntity.getNickname())
+			.profileImgSearchName(userEntity.getProfileImgSearchName())
+			.presetId(boardEntity.getPresetId())
 			.presetImgSearchName(boardEntity.getPresetImgSearchName())
+			.stage(presetEntity.getStage())
 			.build();
 	}
 
 	/**
 	 * 게시글 수정
 	 *
-	 * @param boardDto (게시글 pk 값, 제목, 내용, 프리셋 이름)
+	 * @param boardDto (제목, 내용, 작성자 pk 값, 게시글 pk 값, 프리셋 pk 값)
 	 */
 	@Transactional
 	public void updateBoardArticle(BoardDto boardDto) {
 		log.debug("BoardService - updateBoardArticle 실행");
 
-		BoardEntity boardEntity = boardRepository.findBySeq(boardDto.getSeq())
+		BoardEntity boardEntity = boardRepository.findBySeq(boardDto.getBoardSeq())
 			.orElseThrow(() -> new IllegalArgumentException("일치하는 게시글 정보가 없습니다."));
 
-		boardEntity.updateBoardArticle(boardDto.getTitle(), boardDto.getContent(), boardDto.getPresetImgSearchName());
+		PresetEntity presetEntity = presetRepository.findById(boardDto.getPresetId())
+			.orElseThrow(() -> new IllegalArgumentException("일치하는 프리셋 정보가 없습니다."));
+
+		boardEntity.updateBoardArticle(boardDto.getTitle(), boardDto.getContent(), boardDto.getPresetId(),
+			presetEntity.getPresetImgSearchName());
 	}
 
 	/**
