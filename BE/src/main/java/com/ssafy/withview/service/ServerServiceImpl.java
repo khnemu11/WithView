@@ -156,7 +156,9 @@ public class ServerServiceImpl implements ServerService {
 		List<UserServerEntity> userServerEntityList = userServerRepository.findAllServerByUserEntity(userEntity);
 
 		for (UserServerEntity userServerEntity : userServerEntityList) {
-			userServerDtoList.add(ServerEntity.toDto(userServerEntity.getServerEntity()));
+			ServerDto serverDto= ServerEntity.toDto(userServerEntity.getServerEntity());
+			serverDto.setPeopleCnt(findAllUsersByServerSeq(serverDto.getSeq()).size());
+			userServerDtoList.add(serverDto);
 		}
 
 		return userServerDtoList;
