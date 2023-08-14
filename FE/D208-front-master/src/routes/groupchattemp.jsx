@@ -38,6 +38,7 @@ import maelong from "../assets/imo/maelong.png";
 import ghost from "../assets/imo/ghost.png";
 import santa from "../assets/imo/santa.png";
 import dino from "../assets/imo/dino.png";
+import withview from "../assets/withview.png";
 import "../css/groupchat.css";
 import axios from "axios";
 import StompJs from "stompjs";
@@ -46,6 +47,8 @@ import { useSelector } from "react-redux";
 import axiosInstance from "./axiosinstance";
 import PresetRegistModal from "./components/presetRegistModal";
 import PresetLoadModal from "./components/presetLoadModal";
+import Checkwebsocket from "./components/checkwebsocket";
+import { store } from "../redux/store";
 
 export default function GroupChat() {
   const [backClicked, setbackClicked] = useState(false);
@@ -71,6 +74,7 @@ export default function GroupChat() {
   const userNick = useSelector((state) => state.user.nickname);
   const userProfile = useSelector((state) => state.user.profile);
   const chatStomp = useSelector((state) => state.stomp);
+
   const Token = useSelector((state) => state.token);
   const [stickerAndBg, setstickerAndBg] = useState(false);
   const [fullscreen, setFullscreen] = useState(true);
@@ -220,9 +224,11 @@ export default function GroupChat() {
 
   const handleTempButtonClick = () => {
     if (window.event.keyCode == 13) {
+      console.log("내가 채팅 보내기");
       setChatLog((prevChatLog) => [...prevChatLog, inputText]);
       setInputText(""); // 입력 후 인풋 초기화
       fullscreenChatCss();
+      console.log(inputText);
       sendChatSocket(inputText);
     }
   };
@@ -263,6 +269,7 @@ export default function GroupChat() {
   let channelSeqRef = useRef(channelSeq);
   let currentShape;
 
+  Checkwebsocket();
   useEffect(() => {
     joinSession();
     const container = document.getElementById("channel-screen");
@@ -458,27 +465,27 @@ export default function GroupChat() {
       //영상 위치 변경
       else {
         target[0].setAttrs(object.getAttrs());
-        let triger = target[0].getAttr("cornerRadius");
-        if (triger === 149) {
-          const tempvideoElement = target[0].attrs.image;
-          camCutId.current = tempvideoElement.getAttribute("id");
-          console.log(camCutId.current);
-          console.log("캠꺼진상태");
-          const profileUrl =
-            "https://dm51j1y1p1ekp.cloudfront.net/sticker/sleep.png";
-          const profileElement = new Image();
-          profileElement.src = profileUrl;
-          target[0].image(profileElement);
-        } else {
-          console.log("캠켜진상태");
-          if (objectId != userNick) {
-            console.log("남의화면");
-            target[0].image(document.getElementById(camCutId.current));
-          } else {
-            console.log("내화면");
-            target[0].image(document.getElementById("local-video-undefined"));
-          }
-        }
+        // let triger = target[0].getAttr("cornerRadius");
+        // if (triger === 149) {
+        //   const tempvideoElement = target[0].attrs.image;
+        //   camCutId.current = tempvideoElement.getAttribute("id");
+        //   console.log(camCutId.current);
+        //   console.log("캠꺼진상태");
+        //   const profileUrl =
+        //     "https://dm51j1y1p1ekp.cloudfront.net/sticker/sleep.png";
+        //   const profileElement = new Image();
+        //   profileElement.src = profileUrl;
+        //   target[0].image(profileElement);
+        // } else {
+        //   console.log("캠켜진상태");
+        //   if (objectId != userNick) {
+        //     console.log("남의화면");
+        //     target[0].image(document.getElementById(camCutId.current));
+        //   } else {
+        //     console.log("내화면");
+        //     target[0].image(document.getElementById("local-video-undefined"));
+        //   }
+        // }
       }
     }
   }
@@ -514,6 +521,7 @@ export default function GroupChat() {
         }
       }
     );
+    chatConnect(); // 반응 없음
   }
 
   function deleteCanvasChange(data) {
@@ -679,8 +687,21 @@ export default function GroupChat() {
     }
   }
 
+  async function loadRedux() {
+    console.log("리덕스 로드 함수 실행");
+    let reduxValues = store.getState();
+    console.log(reduxValues);
+  }
+
   async function joinSession() {
+    const load = await loadRedux();
+
+    if (stompSocket.current) {
+      console.log("소켓 있음");
+      return;
+    }
     console.log("join !");
+
     let mySessionId = "channel" + "_" + channelSeqRef.current;
     userId = userNick;
 
@@ -750,32 +771,34 @@ export default function GroupChat() {
       console.log("비디오가 들어있는 div");
       console.log(document.querySelector("#" + videoId));
 
-      // const originalVideo = document.querySelector("#" + videoId);
-      // originalVideo.setAttribute("height", 200);
-      // originalVideo.setAttribute("width", 200);
+      const videoBox = document.getElementById("video-container");
+      const originalVideo = videoBox.querySelector("#" + videoId);
+      originalVideo.setAttribute("height", 200);
+      originalVideo.setAttribute("width", 200);
 
-      // console.log(originalVideo);
-
-      // const destinationContainer = document.getElementById("speakingdiv");
-      // destinationContainer.appendChild(originalVideo);
+      const destinationContainer = document.getElementById("speakingdiv");
+      destinationContainer.appendChild(originalVideo);
       // const clonedVideo = destinationContainer.childNodes;
       // clonedVideo.classList.add(`cloned-${videoId}`);
     });
 
     //말 끝나면 반응하는거
     session.current.on("publisherStopSpeaking", (event) => {
-      console.log(event);
       let speakUserId = JSON.parse(event.connection.data).clientData;
+      console.log(speakUserId + "말 안함");
       let videoId;
 
-      // if (speakUserId == userId) {
-      //   videoId = "local-video-undefined";
-      // } else {
-      //   videoId = "remote-video-" + event.streamId;
-      // }
+      if (speakUserId == userId) {
+        videoId = "local-video-undefined";
+      } else {
+        videoId = "remote-video-" + event.streamId;
+      }
 
-      // const clonedVideo = document.querySelector(".cloned-" + videoId);
+      const destinationContainer = document.getElementById("speakingdiv");
+      const clonedVideo = destinationContainer.querySelector("#" + videoId);
 
+      const videoBox = document.getElementById("video-container");
+      videoBox.appendChild(clonedVideo);
       // clonedVideo.style.display = "none";
 
       console.log(speakUserId + "가 말 끝남");
@@ -906,35 +929,34 @@ export default function GroupChat() {
           );
         });
     });
-    // catchChatSocket(); // 서브스크라이브는 나옴
-    // chatConnect(); // 반응 없음
+    console.log(stomp.current);
   }
-  // function chatConnect() {
-  //   console.log("connect CHAT");
-  //   const channelSubscribe = chatStomp.subscribe(
-  //     `/api/sub/chat/channel/${channelSeq}`,
-  //     (message) => {
-  //       const receivedMessage = JSON.parse(message.body);
-  //       recvMessage(receivedMessage); // 채팅내용을 처리하는 함수 호출
-  //     }
-  //   );
+  function chatConnect() {
+    console.log(channelSeqRef.current);
+    console.log("connect CHAT");
+    console.log(stomp.current);
+    const channelSubscribe = stomp.current.subscribe(
+      `/api/sub/chat/channel/${channelSeqRef.current}`,
+      (message) => {
+        console.log("구독 성공");
+        const receivedMessage = JSON.parse(message.body);
+        recvMessage(receivedMessage); // 채팅내용을 처리하는 함수 호출
+      }
+    );
+    stomp.current.send(
+      `/api/pub/chat/channel/message`,
+      {},
+      JSON.stringify({
+        channelSeq: channelSeqRef.current,
+        userSeq: userSeq,
+      })
+    );
 
-  //   stomp.send(
-  //     `/api/pub/server/${serverSeq}/channel/${channelSeq}/enter`,
-  //     {},
-  //     JSON.stringify({ userSeq: userSeq })
-  //   );
-
-  //   return () => {
-  //     channelSubscribe.unsubscribe(); // 컴포넌트 언마운트 시 구독 해제
-  //     stomp.disconnect(); // 컴포넌트 언마운트 시 연결 해제
-  //   };
-  // }
-
-  // 메시지 보내기 함수
-  // function sendChatMessage(message) {
-  //   stompChat.send("/app/sendChat", {}, JSON.stringify({ content: message }));
-  // }
+    return () => {
+      channelSubscribe.unsubscribe(); // 컴포넌트 언마운트 시 구독 해제
+      stomp.disconnect(); // 컴포넌트 언마운트 시 연결 해제
+    };
+  }
 
   //외부를 클릭하면 우클릭 메뉴가 없어지는 것
   window.addEventListener("click", () => {
@@ -1607,41 +1629,96 @@ export default function GroupChat() {
     setFullscreen(true);
   }
 
-  // function sendChatSocket(message) {
-  //   // 웹소켓에 채팅 전송하는 부분
-  //   stomp.current.send(
-  //     `/api/pub/chat/channel/message`,
-  //     {},
-  //     JSON.stringify({
-  //       userSeq: { userSeq },
-  //       channelSeq: { channelSeq },
-  //       message: { message },
-  //     })
-  //   );
-  // }
+  function sendChatSocket(message) {
+    // 웹소켓에 채팅 전송하는 부분
+    console.log(stomp.current);
+    console.log(message);
+    stomp.current.send(
+      "/api/pub/chat/channel/message",
+      {},
+      JSON.stringify({
+        userSeq: userSeq,
+        channelSeq: channelSeq,
+        message: message,
+      })
+    );
+  }
 
-  // function catchChatSocket() {
-  //   console.log("chatconnect");
-  //   stomp.current.subscribe(
-  //     `/api/sub/chat/channel/${channelSeqRef.current}`,
-  //     function (message) {
-  //       // 윗줄은 채널에 입장 했으니 해당 서버의 모든 인원에게 채널 변경 정보를 뿌려주는것, 2번 구독에서 받아서 씀
-  //       var recieve = JSON.parse(message.body); // message에 채팅내용이 담겨서 옴
-  //       recvMessage(recieve); // 채팅내용을 html로 바꿔주는 함수 실행
-  //     }
-  //   );
-  //   stomp.current.send(
-  //     `/api/pub/server/${serverSeq}/channel/${channelSeqRef.current}/enter`,
-  //     {},
-  //     JSON.stringify({ userSeq: { userSeq } })
-  //   );
-  //   // --> subscribe 함수로 해당 url의 웹소켓 연결을 구독하는 상태가 되며, 백엔드에서 해당
-  //   // url로 publish를 해주면 바로 응답을 받아 html로 처리함.
-  //   // 이 부분에서 전송된 메시지를 응답할텐데, 그걸로 채널채팅 부분에 메시지를 뿌려주면 됨.
-  // }
-  // function recvMessage(recieve) {
-  //   console.log(recieve);
-  // }
+  function recvMessage(recieve) {
+    console.log(recieve);
+    let chatMessage = recieve.message;
+    const chatOwner = recieve.userDto.nickname;
+    const chatTime = recieve.sendTime.substr(11, 5);
+    const chatImage = recieve.userDto.profileImgSearchName;
+    const chatLogSide = document.getElementById("chatLogSide");
+    if (chatOwner === userNick) {
+      const myChat = document.createElement("div");
+      const myChatHeader = document.createElement("div");
+      const myChatdiv = document.createElement("div");
+      const myChatText = document.createElement("div");
+      const myChatNick = document.createElement("div");
+      const myChatTime = document.createElement("div");
+      const myChatImage = document.createElement("img");
+      myChatText.textContent = chatMessage;
+      myChatNick.textContent = chatOwner;
+      myChatTime.textContent = chatTime;
+      if (chatImage) {
+        myChatImage.src =
+          "https://dm51j1y1p1ekp.cloudfront.net/profile/" + chatImage;
+        myChatImage.height = 30;
+        myChatImage.width = 30;
+        myChatImage.style.borderRadius = "50%";
+      } else {
+        myChatImage.src = withview;
+        myChatImage.height = 30;
+        myChatImage.width = 30;
+        myChatImage.style.borderRadius = "50%";
+      }
+      myChat.appendChild(myChatImage);
+      myChatHeader.appendChild(myChatNick);
+      myChatHeader.appendChild(myChatTime);
+      myChatdiv.appendChild(myChatHeader);
+      myChatdiv.appendChild(myChatText);
+      myChat.appendChild(myChatdiv);
+      myChat.classList.add("myChat");
+      myChatdiv.classList.add("myChatdiv");
+      myChatHeader.classList.add("myChatHeader");
+      chatLogSide.appendChild(myChat);
+    } else {
+      const yourChat = document.createElement("div");
+      const yourChatHeader = document.createElement("div");
+      const yourChatdiv = document.createElement("div");
+      const yourChatText = document.createElement("div");
+      const yourChatNick = document.createElement("div");
+      const yourChatTime = document.createElement("div");
+      const yourChatImage = document.createElement("img");
+      yourChatText.textContent = chatMessage;
+      yourChatNick.textContent = chatOwner;
+      yourChatTime.textContent = chatTime;
+      if (chatImage) {
+        yourChatImage.src =
+          "https://dm51j1y1p1ekp.cloudfront.net/profile/" + chatImage;
+        yourChatImage.height = 30;
+        yourChatImage.width = 30;
+        yourChatImage.style.borderRadius = "50%";
+      } else {
+        yourChatImage.src = withview;
+        yourChatImage.height = 30;
+        yourChatImage.width = 30;
+        yourChatImage.style.borderRadius = "50%";
+      }
+      yourChat.appendChild(yourChatImage);
+      yourChatHeader.appendChild(yourChatNick);
+      yourChatHeader.appendChild(yourChatTime);
+      yourChatdiv.appendChild(yourChatHeader);
+      yourChatdiv.appendChild(yourChatText);
+      yourChat.appendChild(yourChatdiv);
+      yourChat.classList.add("yourChat");
+      yourChatdiv.classList.add("yourChatdiv");
+      yourChatHeader.classList.add("yourChatHeader");
+      chatLogSide.appendChild(yourChat);
+    }
+  }
   return (
     <>
       {/* 전체 화면 */}
@@ -2021,12 +2098,7 @@ export default function GroupChat() {
           {/* 채팅 */}
           <div className={chatClicked ? "side-menu-div-on" : "side-menu-div"}>
             <div className="chat-menu-div">
-              <div className="groupchat-log-div">
-                {/* 채팅 로그 출력 */}
-                {chatLog.map((message, index) => (
-                  <div key={index}>{message}</div>
-                ))}
-              </div>
+              <div id="chatLogSide" className="groupchat-log-div"></div>
               <div id="chat-container" className="chat-input-div">
                 <input
                   type="text"
@@ -2215,4 +2287,1006 @@ export default function GroupChat() {
       </div>
     </>
   );
+}
+=============================================================================================================
+button {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0px;
+  margin: 0px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.groupchat {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+.canvas {
+  background-color: rgb(108, 108, 108);
+  position: relative;
+  width: 100%;
+}
+
+.groupchat-exit {
+  position: absolute;
+  transition-duration: 0.8s;
+  top: 10px;
+  right: 10px;
+  height: 71px;
+  width: 73px;
+  opacity: 0.5;
+}
+
+.groupchat-exit:active {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  height: 71px;
+  width: 73px;
+  opacity: 1;
+}
+
+.groupchat-exit-hidden {
+  transform: translateY(-200%);
+  transition-duration: 0.8s;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  height: 71px;
+  width: 73px;
+  opacity: 0.5;
+}
+
+.fullscreen-x {
+  position: absolute;
+  transition-duration: 0.8s;
+  top: 10px;
+  right: 10px;
+  height: 61px;
+  width: 63px;
+  opacity: 0.5;
+}
+
+.fullscreen-x-hidden {
+  transform: translatex(200%);
+  transition-duration: 0.8s;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  height: 61px;
+  width: 63px;
+  opacity: 0.5;
+}
+
+.side-menu-div {
+  transform: translateX(100%);
+  height: 89%;
+  width: 23%;
+  right: 0px;
+  position: absolute;
+  background-color: #000000cc;
+  transition-duration: 0.8s;
+}
+
+.side-menu-div-on {
+  color: #f7fbfc;
+  transform: translateX(0);
+  height: 89%;
+  width: 23%;
+  right: 0px;
+  position: absolute;
+  background-color: #00000080;
+  transition-duration: 0.8s;
+}
+
+.house-image {
+  overflow: auto;
+}
+
+.user-bg {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.settings-form-on {
+  position: absolute;
+  transform: translateX(0%);
+  color: #f7fbfc;
+  opacity: 1;
+}
+
+.sticker-form-on {
+  position: absolute;
+  transform: translateX(0%);
+  color: #f7fbfc;
+  opacity: 1;
+}
+
+.chat-form-on {
+  position: absolute;
+  transform: translateX(0%);
+  color: #f7fbfc;
+  opacity: 1;
+}
+
+.underbar-container {
+  transition-duration: 0.8s;
+  display: flex;
+  position: absolute;
+  height: 10%;
+  bottom: 0px;
+  width: 100%;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+
+.underbar-container-hidden {
+  transform: translateY(200%);
+  transition-duration: 0.8s;
+  display: flex;
+  position: absolute;
+  height: 10%;
+  bottom: 0px;
+  width: 100%;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+
+.left-menu-container {
+  display: flex;
+}
+
+.left-menu-in {
+  transform: translateX(-200%);
+  transition-duration: 0.8s;
+}
+
+.left-menu-out {
+  transform: translateX(0);
+  transition-duration: 0.8s;
+}
+
+.back {
+  margin-top: 5px;
+  height: 60px;
+  opacity: 0.5;
+  transition-duration: 0.3s;
+}
+
+.aback {
+  margin-top: 5px;
+  height: 60px;
+  opacity: 1;
+  transform: scaleX(-1);
+  transition-duration: 0.3s;
+}
+
+.profile-wrapper {
+  display: flex;
+  width: 150px;
+  justify-content: space-between;
+}
+
+.user {
+  height: 50px;
+  width: 50px;
+  border-radius: 100%;
+}
+
+.user-stat {
+  margin: 0px 20px 0px 0px;
+}
+
+.username {
+  font-weight: bold;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.onlinetf {
+  font-family: "Courier New", Courier, monospace;
+}
+
+.user-stat-control {
+  visibility: hidden;
+  width: 120px;
+  background-color: #f7fbfc;
+  color: #000;
+  text-align: center;
+  border-radius: 4px;
+  padding: 6px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.a-user-stat-control {
+  visibility: visible;
+  width: 120px;
+  background-color: #f7fbfc;
+  color: #000;
+  text-align: center;
+  border-radius: 4px;
+  padding: 6px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+.mic-control {
+  visibility: hidden;
+  width: 120px;
+  background-color: #f7fbfc;
+  color: #000;
+  text-align: center;
+  border-radius: 4px;
+  padding: 6px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.a-mic-control {
+  visibility: visible;
+  width: 120px;
+  background-color: #f7fbfc;
+  color: #000;
+  text-align: center;
+  border-radius: 4px;
+  padding: 6px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+.vol-control {
+  visibility: hidden;
+  width: 120px;
+  background-color: #f7fbfc;
+  color: #000;
+  text-align: center;
+  border-radius: 4px;
+  padding: 6px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.a-vol-control {
+  visibility: visible;
+  width: 120px;
+  background-color: #f7fbfc;
+  color: #000;
+  text-align: center;
+  border-radius: 4px;
+  padding: 6px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+.setting-menu-div {
+  padding: 0px 10px 0px 10px;
+}
+
+.chat-menu-div {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 10px;
+  justify-content: space-between;
+}
+
+.groupchat-log-div {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.groupchat-log-div::-webkit-scrollbar {
+  width: 10px;
+}
+
+.groupchat-log-div::-webkit-scrollbar-thumb {
+  height: 30%;
+  background-color: #bebebe; /* 스크롤바의 색상 */
+  border-radius: 10px;
+}
+
+.groupchat-log-div::-webkit-scrollbar-track {
+  background: #00000000; /* 스크롤바 뒷 배경 색상 */
+}
+
+.groupchat-log-div::-webkit-scrollbar-button {
+  display: none;
+}
+
+.chat-input-div {
+  padding-top: 5px;
+  display: flex;
+  position: relative;
+  height: 40px;
+  bottom: 0px;
+  border-top: 2px solid #ccc;
+  justify-content: space-between;
+}
+
+.chat-input-kan {
+  color: #f7fbfc;
+  height: 35px;
+  font-size: 15px;
+  color: #222222;
+  width: 100%;
+  border: none;
+  position: relative;
+  background: none;
+  z-index: 5;
+}
+
+.chat-input-kan::placeholder {
+  color: #bebebe;
+}
+
+.chat-input-kan:not(:placeholder-shown) {
+  color: #ffffff;
+}
+
+.add-imo {
+  height: 30px;
+  width: 30px;
+  margin-right: 5px;
+  margin-top: 3px;
+  cursor: pointer;
+}
+
+.send-message-plane {
+  height: 30px;
+  width: 30px;
+  margin-left: 5px;
+  margin-top: 1px;
+  cursor: pointer;
+}
+
+/* 아코디언 스타일 */
+.accordion {
+  width: 100%;
+  margin: 20px auto;
+}
+
+.accordion-item {
+  border-bottom: 1px solid #ccc;
+}
+
+.accordion-header {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.accordion-content {
+  padding: 10px;
+  visibility: hidden;
+  height: 0;
+}
+
+/* 아코디언 활성화 스타일 */
+.a-accordion-item .accordion-content {
+  display: block;
+  visibility: visible;
+  height: initial;
+  border-bottom: 1px solid #ccc;
+}
+
+.accordion-vol {
+  display: flex;
+}
+.accordion-ch {
+  display: flex;
+  justify-content: space-between;
+}
+
+.ch-name {
+  height: 1.5rem;
+  border-radius: 0.3rem;
+  width: 80%;
+}
+
+.ch-name-btn {
+  background-color: #f7fbfc;
+  height: 1.5rem;
+  width: 18%;
+  border: 0px;
+  padding: 0px;
+  opacity: 0.8;
+  border-radius: 0.8rem;
+}
+
+.ch-name-btn:active {
+  background-color: #f7fbfc;
+  height: 1.5rem;
+  width: 18%;
+  border: 0px;
+  padding: 0px;
+  opacity: 1;
+  border-radius: 0.8rem;
+}
+
+.cam-dev-block {
+  /* height: 0;
+  display: none; */
+}
+
+.sharingScreen {
+  height: 300px;
+  width: 300px;
+}
+
+.sticker-upload {
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.sticker-preview {
+  width: 100%;
+  margin: auto;
+  justify-content: center;
+  align-items: center;
+  padding: 0% 3% 0% 0%;
+  margin-bottom: 10%;
+}
+
+.file-label {
+  font-size: small;
+}
+
+.bg-tag {
+  font-size: 18px;
+  text-align: right;
+}
+
+.house-sticker {
+  margin: 6px 6px 0px 6px;
+  width: 20%;
+}
+
+.fullscreen-chat {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  animation: fadein 1s;
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  width: 25%;
+  height: 50%;
+}
+
+@keyframes fadein {
+  /* 효과를 동작시간 동안 0 ~ 1까지 */
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fullscreen-chatlog {
+  position: absolute;
+  animation: fadein 1s;
+  color: #f7fbfc;
+  background: #00000080;
+  left: 0px;
+  bottom: 30px;
+  padding: 0px 0px 0px 10px;
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  overflow: auto;
+}
+
+@keyframes fadein {
+  /* 효과를 동작시간 동안 0 ~ 1까지 */
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fullscreen-chatlog::-webkit-scrollbar {
+  width: 5px;
+}
+
+.fullscreen-chatlog::-webkit-scrollbar-thumb {
+  height: 30%;
+  background-color: #bebebe; /* 스크롤바의 색상 */
+  border-radius: 10px;
+}
+.fullscreen-chatlog::-webkit-scrollbar-track {
+  background: #00000000; /* 스크롤바 뒷 배경 색상 */
+}
+
+.fullscreen-chatlog::-webkit-scrollbar-button {
+  display: none;
+}
+
+.fullscreen-chat-input-kan-div {
+  display: flex;
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  width: 25%;
+  height: 30px;
+  border-top: 1px solid #f7fbfc;
+  background-color: #00000080;
+  bottom: 0px;
+}
+
+.fullscreen-chat-input-kan {
+  justify-content: space-between;
+  color: #f7fbfc;
+  font-size: 15px;
+  color: #222222;
+  width: 100%;
+  border: none;
+  background: none;
+  z-index: 5;
+}
+
+.fullscreen-chat-input-kan::placeholder {
+  color: #bebebe;
+}
+
+.fullscreen-chat-input-kan:not(:placeholder-shown) {
+  color: #ffffff;
+}
+
+.fullscreen-face {
+  animation: fadein 1s;
+  background-color: #00000080;
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  padding: 0 0 10px 10px;
+  height: 30%;
+  width: 60%;
+}
+
+@keyframes fadein {
+  /* 효과를 동작시간 동안 0 ~ 1까지 */
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fullscreen-chat-hidden {
+  animation: fadeout 1s;
+  display: none;
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  padding: 0 0 10px 10px;
+  width: 25%;
+  height: 50%;
+}
+
+@keyframes fadeout {
+  /* 효과를 동작시간 동안 0 ~ 1까지 */
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.fullscreen-chatlog-hidden {
+  position: absolute;
+  animation: fadeout 10s;
+  color: #f7fbfc;
+  background: #00000080;
+  left: 0px;
+  bottom: 30px;
+  padding: 0px 0px 0px 10px;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  overflow: auto;
+}
+
+@keyframes fadeout {
+  /* 효과를 동작시간 동안 0 ~ 1까지 */
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.fullscreen-chatlog-hidden::-webkit-scrollbar {
+  width: 5px;
+}
+
+.fullscreen-chatlog-hidden::-webkit-scrollbar-thumb {
+  height: 30%;
+  background-color: #bebebe; /* 스크롤바의 색상 */
+  border-radius: 10px;
+}
+.fullscreen-chatlog-hidden::-webkit-scrollbar-track {
+  background: #00000000; /* 스크롤바 뒷 배경 색상 */
+}
+
+.fullscreen-chatlog-hidden::-webkit-scrollbar-button {
+  display: none;
+}
+
+.fullscreen-chat-input-kan-div-hidden {
+  opacity: 0;
+  display: flex;
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  width: 25%;
+  height: 30px;
+  border-top: 1px solid #f7fbfc;
+  background-color: #00000080;
+  bottom: 0px;
+}
+
+.fullscreen-face-hidden {
+  animation: fadeout 1s;
+  display: none;
+  background-color: #00000080;
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  padding: 0 0 10px 10px;
+  height: 30%;
+  width: 60%;
+}
+
+@keyframes fadeout {
+  /* 효과를 동작시간 동안 0 ~ 1까지 */
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.speakingdiv {
+  display: grid;
+  overflow: hidden;
+}
+
+.chatLogSide {
+  display: flex;
+  flex-direction: column; /* 세로 방향으로 요소들을 배치 */
+  align-items: flex-start; /* 요소들을 왼쪽으로 정렬 */
+}
+
+.myChat,
+.yourChat {
+  display: flex;
+  margin: 5px; /* 요소들 사이의 간격 설정 */
+}
+
+.myChat {
+  flex-direction: row-reverse;
+  margin-left: 30px;
+}
+
+.yourChat {
+  margin-right: 30px;
+}
+
+.myChatdiv {
+  text-align: right;
+}
+
+.yourChatdiv {
+  text-align: left;
+}
+
+.myChatHeader,
+.yourChatHeader {
+  display: flex;
+}
+
+.myChatHeader {
+  flex-direction: row-reverse;
+}
+
+.myChat img,
+.yourChat img {
+  width: 30px; /* 이미지 너비 고정 */
+  height: 30px; /* 이미지 높이 고정 */
+  border-radius: 50%; /* 이미지를 둥글게 처리 */
+  margin: 0px 5px 0px 5px;
+}
+
+.myChat img {
+  flex-direction: row-reverse;
+}
+
+#profile {
+  background-color: #f7fbfc;
+  border: 0px;
+  padding: 0px;
+  margin: 0px 10px 0px 0px;
+  opacity: 0.8;
+  width: 180px;
+  height: 60px;
+  box-shadow: 3px 3px 5px rgb(0, 0, 0);
+  transition-duration: 0.3s;
+}
+
+#profile:active {
+  background-color: #f7fbfc;
+  border: 0px;
+  padding: 0px;
+  margin: 0px 10px 0px 0px;
+  opacity: 0.8;
+  width: 180px;
+  height: 60px;
+  box-shadow: inset 3px 3px 10px rgb(0, 0, 0);
+}
+
+#mic {
+  background-color: #f7fbfc;
+  border: 0px;
+  padding: 0px;
+  margin: 0px 10px 0px 0px;
+  opacity: 0.8;
+  width: 70px;
+  height: 60px;
+  box-shadow: 3px 3px 5px rgb(0, 0, 0);
+  transition-duration: 0.3s;
+}
+
+#mic:active {
+  background-color: #f7fbfc;
+  border: 0px;
+  padding: 0px;
+  margin: 0px 10px 0px 0px;
+  width: 70px;
+  height: 60px;
+  box-shadow: inset 3px 3px 10px rgb(0, 0, 0);
+}
+
+#vol {
+  background-color: #f7fbfc;
+  border: 0px;
+  padding: 0px;
+  margin: 0px 10px 0px 0px;
+  opacity: 0.8;
+  width: 70px;
+  height: 60px;
+  box-shadow: 3px 3px 5px rgb(0, 0, 0);
+  transition-duration: 0.3s;
+}
+
+#vol:active {
+  background-color: #f7fbfc;
+  border: 0px;
+  padding: 0px;
+  margin: 0px 10px 0px 0px;
+  width: 70px;
+  height: 60px;
+  box-shadow: inset 3px 3px 10px rgb(0, 0, 0);
+}
+
+#cam {
+  background-color: #f7fbfc;
+  border: 0px;
+  padding: 0px;
+  margin: 0px 10px 0px 0px;
+  opacity: 0.8;
+  width: 70px;
+  height: 60px;
+  box-shadow: 3px 3px 5px rgb(0, 0, 0);
+  transition-duration: 0.3s;
+}
+
+#cam:active {
+  background-color: #f7fbfc;
+  border: 0px;
+  padding: 0px;
+  margin: 0px 10px 0px 0px;
+  width: 70px;
+  height: 60px;
+  box-shadow: inset 3px 3px 10px rgb(0, 0, 0);
+}
+
+#new-message {
+  font-weight: bold;
+  justify-content: space-between;
+  background-color: #f7fbfc;
+  border: 0px;
+  padding: 0px 20px 0px 10px;
+  opacity: 0;
+  height: 60px;
+  width: 135px;
+  margin-right: 15px;
+  box-shadow: 3px 3px 5px rgb(0, 0, 0);
+  transition-duration: 0.3s;
+}
+
+#a-new-message {
+  font-weight: bold;
+  justify-content: space-between;
+  background-color: #f7fbfc;
+  border: 0px;
+  padding: 0px 20px 0px 10px;
+  opacity: 0.8;
+  height: 60px;
+  width: 135px;
+  margin-right: 15px;
+  box-shadow: 3px 3px 5px rgb(0, 0, 0);
+  transition-duration: 0.3s;
+}
+
+#settings {
+  height: 60px;
+  width: 60px;
+  opacity: 0.5;
+}
+
+#asettings {
+  height: 60px;
+  width: 60px;
+  opacity: 1;
+}
+
+#sticker {
+  margin: 0px 10px 0px 6px;
+  height: 60px;
+  width: 60px;
+  opacity: 0.5;
+}
+
+#asticker {
+  margin: 0px 10px 0px 6px;
+  height: 60px;
+  width: 60px;
+  opacity: 1;
+}
+
+#stickerimg {
+  height: 60px;
+  width: 60px;
+}
+
+#chat {
+  width: 60px;
+  height: 60px;
+  opacity: 0.5;
+}
+
+#achat {
+  width: 60px;
+  height: 60px;
+  opacity: 1;
+}
+
+#sticker-and-backimg {
+  margin: 10px 30px 20px 30px;
+  display: flex;
+  justify-content: space-around;
+  color: #f7fbfc;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.stk-bg-selecter {
+  color: #769fcd;
+}
+
+.sticker-menu {
+  width: 0;
+  height: 100%;
+  display: none;
+  transition-duration: 0.3s;
+  overflow: hidden;
+}
+
+.sticker-menu-on {
+  transition-duration: 0.3s;
+  height: 90%;
+  padding: 0px 40px 0px 50px;
+  overflow: auto;
+}
+
+.sticker-menu-on::-webkit-scrollbar {
+  width: 10px;
+}
+
+.sticker-menu-on::-webkit-scrollbar-thumb {
+  height: 30%;
+  background-color: #bebebe; /* 스크롤바의 색상 */
+  border-radius: 10px;
+}
+
+.sticker-menu-on::-webkit-scrollbar-track {
+  background: #00000000; /* 스크롤바 뒷 배경 색상 */
+}
+
+.sticker-menu-on::-webkit-scrollbar-button {
+  display: none;
+}
+
+#back-menu {
+  width: 0;
+  height: 100%;
+  display: none;
+  transition-duration: 0.3s;
+  overflow: hidden;
+}
+
+#back-menu-on {
+  transition-duration: 0.3s;
+  height: 90%;
+  padding: 0px 40px 0px 50px;
+  overflow: auto;
+}
+
+#back-menu-on::-webkit-scrollbar {
+  width: 10px;
+}
+
+#back-menu-on::-webkit-scrollbar-thumb {
+  height: 30%;
+  background-color: #bebebe; /* 스크롤바의 색상 */
+  border-radius: 10px;
+}
+
+#back-menu-on::-webkit-scrollbar-track {
+  background: #00000000; /* 스크롤바 뒷 배경 색상 */
+}
+
+#back-menu-on::-webkit-scrollbar-button {
+  display: none;
+}
+
+#delete-img-menu {
+  display: none;
+  position: absolute;
+  width: 60px;
+  background-color: white;
+  box-shadow: 0 0 5px grey;
+  border-radius: 3px;
 }
