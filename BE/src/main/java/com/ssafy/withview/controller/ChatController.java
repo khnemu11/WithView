@@ -9,6 +9,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ssafy.withview.dto.ChannelChatDto;
@@ -107,9 +108,15 @@ public class ChatController {
 	}
 
 	@MessageMapping("chat/friends/{friendsChatRoomSeq}/{userSeq}")
-	public void setUnreadMessageSeq(@DestinationVariable Long friendsChaRoomSeq, @DestinationVariable Long userSeq) {
-		FriendsChatMessageDto lastFriendsChatMessage = friendsChatService.getLastFriendsChatMessage(friendsChaRoomSeq);
+	public void setUnreadMessageSeq(@DestinationVariable Long friendsChatRoomSeq, @DestinationVariable Long userSeq) {
+		FriendsChatMessageDto lastFriendsChatMessage = friendsChatService.getLastFriendsChatMessage(friendsChatRoomSeq);
 		Long lastReadMessageSeq = lastFriendsChatMessage.getMessageSeq();
-		friendsChatService.setFriendsChatRoomLastMessageSeqJpa(friendsChaRoomSeq, userSeq, lastReadMessageSeq);
+		friendsChatService.setFriendsChatRoomLastMessageSeqJpa(friendsChatRoomSeq, userSeq, lastReadMessageSeq);
+	}
+
+	@GetMapping("/chat/test")
+	@ResponseBody
+	public List<FriendsChatMessageDto> test(@RequestParam Long test) {
+		return friendsChatService.getFriendsChatMessagesByPage(test, 1);
 	}
 }
