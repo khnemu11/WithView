@@ -10,7 +10,7 @@ import com.ssafy.withview.entity.FriendsChatMessageEntity;
 
 @Repository
 public interface FriendsChatMessageRepository extends MongoRepository<FriendsChatMessageEntity, Long> {
-	public List<FriendsChatMessageEntity> findByFriendsChatRoomSeqOrderByMessageSeqAsc(Long friendsChatRoomSeq,
+	public List<FriendsChatMessageEntity> findByFriendsChatRoomSeqOrderByMessageSeqDesc(Long friendsChatRoomSeq,
 		Pageable pageable);
 
 	public FriendsChatMessageEntity findTopByFriendsChatRoomSeqOrderByMessageSeqDesc(Long friendsChatRoomSeq);
