@@ -37,13 +37,15 @@ public class StickerEntity {
 	private Integer count;
 	@CreationTimestamp
 	private LocalDateTime createTime;
+	private Long userSeq;
 
 	@Builder
-	public StickerEntity(String originalName, String searchName, Integer count, String writer) {
+	public StickerEntity(String originalName, String searchName, Integer count, String writer,Long userSeq) {
 		this.originalName = originalName;
 		this.searchName = searchName;
 		this.count = count;
 		this.writer = writer;
+		this.userSeq = userSeq;
 	}
 
 	public static StickerDto toDto(StickerEntity stickerEntity){
@@ -57,6 +59,7 @@ public class StickerEntity {
 			.searchName(stickerEntity.getSearchName())
 			.count(stickerEntity.getCount())
 			.createTime(stickerEntity.getCreateTime())
+			.userSeq(stickerEntity.getUserSeq())
 			.build();
 	}
 
