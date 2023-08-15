@@ -17,6 +17,6 @@ public interface StickerService {
 
 	public List<StickerDto> findAllStickersByName(String keyword);
 
-	public List<StickerDto> findAllStickersByUserSeq(Long seq);
+	public List<StickerDto> findAllStickersByUserSeq(StickerDto stickerDto);
 }
 

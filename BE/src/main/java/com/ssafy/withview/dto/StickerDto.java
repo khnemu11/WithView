@@ -26,6 +26,7 @@ public class StickerDto {
     private Integer count;
     private LocalDateTime createTime;
     private Long userSeq;
+    private String keyword;
 
     public static StickerEntity toEntity(StickerDto stickerDto){
         if(stickerDto == null){
