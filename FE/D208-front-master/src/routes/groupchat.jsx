@@ -48,7 +48,6 @@ import axiosInstance from "./axiosinstance";
 import PresetRegistModal from "./components/presetRegistModal";
 import PresetLoadModal from "./components/presetLoadModal";
 import Checkwebsocket from "./components/checkwebsocket";
-import { store } from "../redux/store";
 
 export default function GroupChat() {
   const windowSize = useRef([window.innerWidth, window.innerHeight]);
@@ -74,6 +73,7 @@ export default function GroupChat() {
   const userSeq = useSelector((state) => state.user.seq);
   const userNick = useSelector((state) => state.user.nickname);
   const userProfile = useSelector((state) => state.user.profile);
+  const profileUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${userProfile}`;
   const chatStomp = useSelector((state) => state.stomp);
   const Token = useSelector((state) => state.token);
   const [stickerAndBg, setstickerAndBg] = useState(false);
@@ -224,16 +224,20 @@ export default function GroupChat() {
 
   const handleTempButtonClick = () => {
     if (window.event.keyCode == 13) {
-      setChatLog((prevChatLog) => [...prevChatLog, inputText]);
       setInputText(""); // 입력 후 인풋 초기화
-      fullscreenChatCss();
       sendChatSocket(inputText);
     }
   };
 
+  function sidebarChatCss() {
+    // 스크롤바를 맨 아래로 내림
+    let chatContainer = document.getElementById("chatLogSide");
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+
   function fullscreenChatCss() {
     // 스크롤바를 맨 아래로 내림
-    let chatContainer = document.getElementById("chat-container");
+    let chatContainer = document.getElementById("chatLogFull");
     chatContainer.scrollTop = chatContainer.scrollHeight;
     setFullscreenChatLog(true);
     setTimeout(() => {
@@ -302,6 +306,7 @@ export default function GroupChat() {
     let tr = new Konva.Transformer();
     videoLayer.add(tr);
     imageLayer.add(tr);
+    screenLayer.add(tr);
 
     videoLayer.on("click", function (e) {
       // 클릭한 요소를 가져오고 해당 요소를 Transformer에 설정
@@ -539,7 +544,7 @@ export default function GroupChat() {
         }
       }
     );
-    chatConnect(); // 반응 없음
+    chatConnect();
   }
 
   function deleteCanvasChange(data) {
@@ -788,8 +793,6 @@ export default function GroupChat() {
 
       const destinationContainer = document.getElementById("speakingdiv");
       destinationContainer.appendChild(originalVideo);
-      // const clonedVideo = destinationContainer.childNodes;
-      // clonedVideo.classList.add(`cloned-${videoId}`);
     });
 
     //말 끝나면 반응하는거
@@ -809,7 +812,6 @@ export default function GroupChat() {
 
       const videoBox = document.getElementById("video-container");
       videoBox.appendChild(clonedVideo);
-      // clonedVideo.style.display = "none";
 
       console.log(speakUserId + "가 말 끝남");
     });
@@ -952,6 +954,10 @@ export default function GroupChat() {
         console.log("구독 성공");
         const receivedMessage = JSON.parse(message.body);
         recvMessage(receivedMessage); // 채팅내용을 처리하는 함수 호출
+
+        // 채팅창 맨 밑으로
+        sidebarChatCss();
+        fullscreenChatCss();
       }
     );
     stomp.current.send(
@@ -1576,7 +1582,7 @@ export default function GroupChat() {
     });
   }
   function pushX() {
-    let targerlayer = stage.current.children[1];
+    let targerlayer = stage.current.children[3];
     let sharescreen = targerlayer.find((node) => node.id().endsWith("-share"));
     if (sharescreen[0]) {
       console.log(sharescreen[0]);
@@ -1615,7 +1621,9 @@ export default function GroupChat() {
     const chatTime = recieve.sendTime.substr(11, 5);
     const chatImage = recieve.userDto.profileImgSearchName;
     const chatLogSide = document.getElementById("chatLogSide");
+    const chatLogFull = document.getElementById("chatLogFull");
     if (chatOwner === userNick) {
+      // 나의 채팅
       const myChat = document.createElement("div");
       const myChatHeader = document.createElement("div");
       const myChatdiv = document.createElement("div");
@@ -1623,9 +1631,19 @@ export default function GroupChat() {
       const myChatNick = document.createElement("div");
       const myChatTime = document.createElement("div");
       const myChatImage = document.createElement("img");
+      const myFullName = document.createElement("div");
+      const myFullText = document.createElement("div");
+      const myFullTime = document.createElement("div");
+      const myFullDiv = document.createElement("div");
+      const myFullHeader = document.createElement("div");
+      const myFullChat = document.createElement("div");
       myChatText.textContent = chatMessage;
       myChatNick.textContent = chatOwner;
       myChatTime.textContent = chatTime;
+      myFullText.textContent = chatMessage;
+      myFullName.textContent = chatOwner + ":";
+      myFullTime.textContent = chatTime;
+      myChatTime.classList.add("ChatTime");
       if (chatImage) {
         myChatImage.src =
           "https://dm51j1y1p1ekp.cloudfront.net/profile/" + chatImage;
@@ -1638,6 +1656,7 @@ export default function GroupChat() {
         myChatImage.width = 30;
         myChatImage.style.borderRadius = "50%";
       }
+      // 사이드바 채팅
       myChat.appendChild(myChatImage);
       myChatHeader.appendChild(myChatNick);
       myChatHeader.appendChild(myChatTime);
@@ -1648,7 +1667,19 @@ export default function GroupChat() {
       myChatdiv.classList.add("myChatdiv");
       myChatHeader.classList.add("myChatHeader");
       chatLogSide.appendChild(myChat);
+
+      // 전체화면 채팅
+      myFullHeader.appendChild(myFullName);
+      // myFullHeader.appendChild(myFullTime);
+      myFullDiv.appendChild(myFullHeader);
+      myFullDiv.appendChild(myFullText);
+      myFullChat.appendChild(myFullDiv);
+      myFullChat.classList.add("myChatF");
+      myFullDiv.classList.add("myChatdivF");
+      myFullHeader.classList.add("myChatHeaderF");
+      chatLogFull.appendChild(myFullChat);
     } else {
+      // 남의 채팅
       const yourChat = document.createElement("div");
       const yourChatHeader = document.createElement("div");
       const yourChatdiv = document.createElement("div");
@@ -1656,9 +1687,19 @@ export default function GroupChat() {
       const yourChatNick = document.createElement("div");
       const yourChatTime = document.createElement("div");
       const yourChatImage = document.createElement("img");
+      const yourFullName = document.createElement("div");
+      const yourFullText = document.createElement("div");
+      const yourFullTime = document.createElement("div");
+      const yourFullDiv = document.createElement("div");
+      const yourFullHeader = document.createElement("div");
+      const yourFullChat = document.createElement("div");
       yourChatText.textContent = chatMessage;
       yourChatNick.textContent = chatOwner;
       yourChatTime.textContent = chatTime;
+      yourFullText.textContent = chatMessage;
+      yourFullName.textContent = chatOwner + ":";
+      yourFullTime.textContent = chatTime;
+      yourChatTime.classList.add("ChatTime");
       if (chatImage) {
         yourChatImage.src =
           "https://dm51j1y1p1ekp.cloudfront.net/profile/" + chatImage;
@@ -1671,6 +1712,7 @@ export default function GroupChat() {
         yourChatImage.width = 30;
         yourChatImage.style.borderRadius = "50%";
       }
+      // 사이드바 채팅
       yourChat.appendChild(yourChatImage);
       yourChatHeader.appendChild(yourChatNick);
       yourChatHeader.appendChild(yourChatTime);
@@ -1681,6 +1723,17 @@ export default function GroupChat() {
       yourChatdiv.classList.add("yourChatdiv");
       yourChatHeader.classList.add("yourChatHeader");
       chatLogSide.appendChild(yourChat);
+
+      // 전체화면 채팅
+      yourFullHeader.appendChild(yourFullName);
+      // yourFullHeader.appendChild(yourFullTime);
+      yourFullDiv.appendChild(yourFullHeader);
+      yourFullDiv.appendChild(yourFullText);
+      yourFullChat.appendChild(yourFullDiv);
+      yourFullChat.classList.add("yourChatF");
+      yourFullDiv.classList.add("yourChatdivF");
+      yourFullHeader.classList.add("yourChatHeaderF");
+      chatLogFull.appendChild(yourFullChat);
     }
   }
   return (
@@ -2063,7 +2116,7 @@ export default function GroupChat() {
           <div className={chatClicked ? "side-menu-div-on" : "side-menu-div"}>
             <div className="chat-menu-div">
               <div id="chatLogSide" className="groupchat-log-div"></div>
-              <div id="chat-container" className="chat-input-div">
+              <div className="chat-input-div">
                 <input
                   type="text"
                   value={inputText}
@@ -2103,32 +2156,13 @@ export default function GroupChat() {
               >
                 {/* 프로필 내용물 */}
                 <div className="profile-wrapper">
-                  <img src={man} alt="" className="user" />
+                  {userProfile ? (
+                    <img src={profileUrl} alt="" className="user" />
+                  ) : (
+                    <img src={withview} alt="" className="user" />
+                  )}
                   <div className="user-stat">
-                    <span className="username">이병민</span>
-                    <br />
-                    <span className="onlinetf">
-                      {localStorage.getItem("state")}
-                    </span>
-                  </div>
-                  {/* 프로필 팝오버 */}
-                  <div
-                    className={
-                      profileClicked
-                        ? "a-user-stat-control"
-                        : "user-stat-control"
-                    }
-                  >
-                    {/* 프로필 팝오버 내용물 */}
-                    <label className="radio">
-                      <input type="radio" name="answer" onClick={setOnline} />
-                      온라인
-                    </label>
-                    <br />
-                    <label className="radio">
-                      <input type="radio" name="answer" onClick={setOffline} />
-                      오프라인
-                    </label>
+                    <span className="username">{userNick}</span>
                   </div>
                 </div>
               </button>
@@ -2218,10 +2252,7 @@ export default function GroupChat() {
                 : "fullscreen-chatlog-hidden"
             }
           >
-            {/* 채팅 로그 출력 */}
-            {chatLog.map((message, index) => (
-              <div key={index}>{message}</div>
-            ))}
+            <div id="chatLogFull" className="groupchat-log-div"></div>
           </div>
         </div>
         {/* 임시 인풋 */}
@@ -2240,13 +2271,11 @@ export default function GroupChat() {
             onKeyUp={handleTempButtonClick}
             placeholder="메세지 보내기 !"
           />
-          {/* <button onClick={handleTempButtonClick}>temp</button> */}
         </div>
         {/* 얼굴 */}
         <div
           className={fullscreen ? "fullscreen-face-hidden" : "fullscreen-face"}
         >
-          <h1>얼굴들</h1>
           <div id="speakingdiv" className="speakingdiv"></div>
         </div>
       </div>
