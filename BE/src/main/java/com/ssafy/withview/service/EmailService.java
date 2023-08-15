@@ -2,7 +2,6 @@ package com.ssafy.withview.service;
 
 import java.util.Random;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
@@ -30,9 +29,6 @@ public class EmailService {
 
 	static final String SOURCE_EMAIL = "withview208@gmail.com";
 
-	@Value(value = "${DEFAULT_IMG}")
-	private String DEFAULT_IMG;
-
 	/**
 	 * 이메일로 인증코드 전송
 	 *
@@ -45,9 +41,6 @@ public class EmailService {
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div>");
-		sb.append("<img src=\"" + "https://dm51j1y1p1ekp.cloudfront.net" + "/logo.png\" height=\"24\">");
-		sb.append("<br>");
-		sb.append("<br>");
 		sb.append("<span style='white-space:nowrap'>안녕하세요.&nbsp;</span>");
 		sb.append("<span style='font-weight:bold;white-space:nowrap'>WithView</span><span> 입니다.</span>");
 		sb.append("<br>");
