@@ -94,6 +94,9 @@
 }
 .card-header-title{
   height: 100%;
+  white-space: nowrap;      /* 텍스트를 한 줄에 표시 */
+  overflow: hidden;         /* 초과하는 내용을 숨김 */
+  text-overflow: ellipsis;  /* 초과하는 텍스트를 ...로 표시 */
 }
 
   .card-container {
@@ -109,6 +112,7 @@
   .scrollable-area {
     max-height: 300px;
     overflow-y: auto;
+    overflow-x: auto;
   }
 
   .grid-container {
@@ -138,6 +142,9 @@
   }
   .scrollable-area {
     scrollbar-width: none;
+  }
+  .grid-item{
+    min-width: 100px;
   }
   
   .grid-item img {
@@ -199,4 +206,22 @@
   .serverSearchModal {
     left: 65%;
   }
+}
+
+.card-header-users{
+  display: flex;
+  height: fit-content;
+  align-self: flex-end;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-right: 5px;
+}
+
+.card-header-users span{
+  color: black;
+  
+}
+
+.cardUserIcon{
+  max-height: 18px;
 }

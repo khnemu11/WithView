@@ -305,7 +305,6 @@ public class ServerServiceImpl implements ServerService {
 		String jsonStr = (String)redisTemplate.opsForValue().get(inviteCode);
 		log.info("서버 정보 json ",jsonStr);
 
-
 		if(jsonStr == null){
 			throw new Exception("유효하지 않은 초대코드입니다.");
 		}

@@ -1,6 +1,7 @@
 package com.ssafy.withview.controller;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,12 +10,16 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ssafy.withview.dto.ChannelChatDto;
+import com.ssafy.withview.dto.ChannelChatSendDto;
 import com.ssafy.withview.dto.FriendsChatMessageDto;
 import com.ssafy.withview.dto.FriendsChatRoomsSeqDto;
 import com.ssafy.withview.dto.FriendsChatRoomsUserInfoDto;
 import com.ssafy.withview.dto.FriendsChatRoomsUserInfoForPubSendDto;
+import com.ssafy.withview.dto.UserDto;
 import com.ssafy.withview.dto.UserSeqDto;
 import com.ssafy.withview.service.ChannelChatService;
 import com.ssafy.withview.service.ChatPublisher;
@@ -38,18 +43,28 @@ public class ChatController {
 
 	// websocket "/api/pub/chat/channel/message"로 들어오는 메시징을 처리한다.
 	@MessageMapping("/chat/channel/message")
-	public void channelChatMessage(ChannelChatDto message) {
-		message.setSendTime(LocalDateTime.now());
-		channelChatService.insertChannelChat(message);
-		chatPublisher.sendChannelChatMessage(message.toJson());
+	public void channelChatMessage(ChannelChatDto channelChatDto) {
+		channelChatDto.setSendTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")));
+		UserDto profile = userService.getProfile(channelChatDto.getUserSeq());
+		ChannelChatSendDto channelChatSendDto = ChannelChatSendDto.builder()
+			.message(channelChatDto.getMessage())
+			.channelSeq(channelChatDto.getChannelSeq())
+			.sendTime(channelChatDto.getSendTime())
+			.userDto(profile)
+			.build();
+		channelChatService.insertChannelChat(channelChatDto);
+		chatPublisher.sendChannelChatMessage(channelChatSendDto.toJson());
 	}
 
 	// websocket "/api/pub/chat/friends/message"로 들어오는 메시징을 처리한다.
 	@MessageMapping("/chat/friends/message")
 	public void friendsChatMessage(FriendsChatMessageDto message) {
-		message.setMessageSeq(friendsChatService.getFriendsChatRoomLastMessageSeq(message.getFriendsChatRoomSeq()));
-		message.setSendTime(LocalDateTime.now());
+		Long friendsChatRoomLastMessageSeq = friendsChatService.getFriendsChatRoomLastMessageSeq(
+			message.getFriendsChatRoomSeq());
+		message.setMessageSeq(friendsChatRoomLastMessageSeq);
+		message.setSendTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")));
 		friendsChatService.insertFriendsChat(message);
+		friendsChatService.setFriendsChatRoomLastMessageSeqJpa(message.getFriendsChatRoomSeq(), message.getFromUserSeq(), friendsChatRoomLastMessageSeq);
 		chatPublisher.sendFriendsChatMessage(message.toJson());
 	}
 
@@ -101,12 +116,20 @@ public class ChatController {
 
 	@MessageMapping("/chat/friends/{friendsChatRoomSeq}")
 	public void setRecentChatMessageSeq(@DestinationVariable Long friendsChatRoomSeq) {
-		Long lastMessageSeq = friendsChatService.setFriendsChatRoomLastMessageSeq(friendsChatRoomSeq);
+		Long lastMessageSeq = friendsChatService.setFriendsChatRoomLastMessageSeqRedis(friendsChatRoomSeq);
 		log.info("{}번 1대1 채팅방 구독 시작, 마지막 메시지 seq: {}", friendsChatRoomSeq, lastMessageSeq);
 	}
 
-	@GetMapping("/chat/view")
-	public String chatView(ChannelChatDto message) {
-		return "chat";
+	@MessageMapping("chat/friends/{friendsChatRoomSeq}/{userSeq}")
+	public void setUnreadMessageSeq(@DestinationVariable Long friendsChatRoomSeq, @DestinationVariable Long userSeq) {
+		FriendsChatMessageDto lastFriendsChatMessage = friendsChatService.getLastFriendsChatMessage(friendsChatRoomSeq);
+		Long lastReadMessageSeq = lastFriendsChatMessage.getMessageSeq();
+		friendsChatService.setFriendsChatRoomLastMessageSeqJpa(friendsChatRoomSeq, userSeq, lastReadMessageSeq);
+	}
+
+	@GetMapping("/chat/test")
+	@ResponseBody
+	public List<FriendsChatMessageDto> test(@RequestParam Long test) {
+		return friendsChatService.getFriendsChatMessagesByPage(test, 1);
 	}
 }
