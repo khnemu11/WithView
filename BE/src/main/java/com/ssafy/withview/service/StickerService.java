@@ -10,7 +10,13 @@ import com.ssafy.withview.dto.StickerDto;
 
 public interface StickerService {
 	public StickerDto insertSticker(StickerDto stickerDto, MultipartFile file) throws Exception;
+
 	public void deleteSticker(Long seq) throws Exception;
+
 	public List<StickerDto> findAllStickers();
+
 	public List<StickerDto> findAllStickersByName(String keyword);
+
+	public List<StickerDto> findAllStickersByUserSeq(Long seq);
 }
+

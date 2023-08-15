@@ -13,4 +13,5 @@ import com.ssafy.withview.entity.StickerEntity;
 public interface StickerRepository extends JpaRepository<StickerEntity, Long> {
 	public List<StickerEntity> findAllByOriginalNameContains(String keyword);
 	public StickerEntity findBySeq(Long stickerSeq);
+	public List<StickerEntity> findAllByUserSeq(Long userSeq);
 }

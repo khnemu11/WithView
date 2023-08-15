@@ -121,4 +121,17 @@ public class StickerServiceImpl implements StickerService{
 
 		return stickerDtoList;
 	}
+
+	@Override
+	public List<StickerDto> findAllStickersByUserSeq(Long seq) {
+		List<StickerEntity> stickerEntityList = stickerRepository.findAllByUserSeq(seq);
+
+		List<StickerDto> stickerDtoList = new ArrayList<>();
+
+		for(int i=0;i<stickerEntityList.size();i++){
+			stickerDtoList.add(StickerEntity.toDto(stickerEntityList.get(i)));
+		}
+
+		return stickerDtoList;
+	}
 }
