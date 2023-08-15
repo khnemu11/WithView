@@ -57,6 +57,7 @@ public class CanvasMessagingController {
 				canvasMessageDto.setId(canvasDto.getId());
 				canvasService.updateCanvas(canvasMessageDto);
 			}
+
 			canvasService.sendCanvasMessage(canvasMessageDto.toJson());
 		}catch (Exception e){
 			e.printStackTrace();
