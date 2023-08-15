@@ -21,6 +21,7 @@ import com.ssafy.withview.dto.JoinDto;
 import com.ssafy.withview.dto.UserDto;
 import com.ssafy.withview.entity.LoginEntity;
 import com.ssafy.withview.entity.UserEntity;
+import com.ssafy.withview.exception.BadRequestException;
 import com.ssafy.withview.repository.LoginRepository;
 import com.ssafy.withview.repository.UserRepository;
 
@@ -123,6 +124,7 @@ public class UserService {
 
 	/**
 	 * email 을 이용해 유저 정보를 가져온다.
+	 *
 	 * @param email (유저 email)
 	 * @return UserDto (유저 pk 값)
 	 */
@@ -255,14 +257,22 @@ public class UserService {
 	/**
 	 * 회원 탈퇴
 	 *
-	 * @param seq (탈퇴할 유저 pk 값)
+	 * @param seq      (탈퇴할 유저 pk 값)
+	 * @param password (유저 password)
 	 */
 	@Transactional
-	public void withdraw(Long seq) {
+	public void withdraw(Long seq, String password) {
 		log.debug("UserService - withdraw 실행");
 
 		UserEntity userEntity = userRepository.findBySeq(seq)
 			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
+
+		LoginEntity loginEntity = loginRepository.findByUserSeq(seq)
+			.orElseThrow(() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."));
+
+		if (!bCryptPasswordEncoder.matches(password, loginEntity.getPassword())) {
+			throw new BadRequestException("비밀번호가 일치하지 않습니다.");
+		}
 
 		// DB 회원 탈퇴 처리
 		LocalDateTime time = LocalDateTime.now();
