@@ -30,8 +30,39 @@ import lombok.extern.slf4j.Slf4j;
 public class StickerController {
 	private final StickerService stickerService;
 
+	@GetMapping("/users/{userSeq}")
+	public ResponseEntity<?> findAllUserSticker(@PathVariable(name = "userSeq") Long userSeq) {
+		JSONObject jsonObject = new JSONObject();
+		log.info("==== 유저 스티커 검색 시작 ====");
+		try{
+			List<StickerDto> stickerDtoList = stickerService.findAllStickersByUserSeq(userSeq);
+			jsonObject.put("success",true);
+			jsonObject.put("stickers",stickerDtoList);
+		}catch (Exception e){
+			jsonObject.put("success",false);
+			jsonObject.put("msg",e.getMessage());
+			return new ResponseEntity<>(jsonObject, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<>(jsonObject, HttpStatus.OK);
+	}
+	@GetMapping("/basic")
+	public ResponseEntity<?> findAllBasicSticker() {
+		JSONObject jsonObject = new JSONObject();
+		log.info("==== 기본 스티커 검색 시작 ====");
+		try{
+			List<StickerDto> stickerDtoList = stickerService.findAllStickersByUserSeq(0L);
+			jsonObject.put("success",true);
+			jsonObject.put("stickers",stickerDtoList);
+		}catch (Exception e){
+			jsonObject.put("success",false);
+			jsonObject.put("msg",e.getMessage());
+			return new ResponseEntity<>(jsonObject, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<>(jsonObject, HttpStatus.OK);
+	}
+
 	@GetMapping("")
-	public ResponseEntity<?> findAllCanvas() {
+	public ResponseEntity<?> findAllSticker() {
 		JSONObject jsonObject = new JSONObject();
 		log.info("==== 모든 스티커 검색 시작 ====");
 		try{

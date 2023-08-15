@@ -25,6 +25,7 @@ public class StickerDto {
     private String searchName;
     private Integer count;
     private LocalDateTime createTime;
+    private Long userSeq;
 
     public static StickerEntity toEntity(StickerDto stickerDto){
         if(stickerDto == null){
@@ -34,6 +35,8 @@ public class StickerDto {
             .writer(stickerDto.getWriter())
             .count(stickerDto.getCount())
             .originalName(stickerDto.getOriginalName())
-            .searchName(stickerDto.getSearchName()).build();
+            .searchName(stickerDto.getSearchName())
+            .userSeq(stickerDto.getUserSeq())
+            .build();
     }
 }
