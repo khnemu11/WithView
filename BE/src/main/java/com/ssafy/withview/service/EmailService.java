@@ -2,6 +2,7 @@ package com.ssafy.withview.service;
 
 import java.util.Random;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
@@ -29,6 +30,9 @@ public class EmailService {
 
 	static final String SOURCE_EMAIL = "withview208@gmail.com";
 
+	@Value(value = "${DEFAULT_IMG}")
+	private String DEFAULT_IMG;
+
 	/**
 	 * 이메일로 인증코드 전송
 	 *
@@ -39,10 +43,34 @@ public class EmailService {
 
 		Destination destination = new Destination().withToAddresses(email.trim());
 
+		StringBuilder sb = new StringBuilder();
+		sb.append("<div>");
+		sb.append("<img src=\"" + "https://dm51j1y1p1ekp.cloudfront.net" + "/logo.png\" height=\"24\">");
+		sb.append("<br>");
+		sb.append("<br>");
+		sb.append("<span style='white-space:nowrap'>안녕하세요.&nbsp;</span>");
+		sb.append("<span style='font-weight:bold;white-space:nowrap'>WithView</span><span> 입니다.</span>");
+		sb.append("<br>");
+		sb.append("<br>");
+		sb.append("<span>아래  인증코드를 회원가입 창으로 돌아가 입력해주세요</span>");
+		sb.append("<br>");
+		sb.append("<br>");
+		sb.append(
+			"<span style='color:#39CCCC;font-size:24px;font-weight:bold'>" + generateEmailVerificationCode(email.trim())
+				+ "</span><br>"); // 메일에 인증번호 넣기
+		sb.append("<br>");
+		sb.append("<br>");
+		sb.append("<span style='font-weight:bold'>※주의 : </span><span>인증번호는 "
+			+ "</span><span style='font-weight:bold'>3분 이후에 만료&nbsp;</span>"
+			+ "<span>되므로 꼭 3분 이내에 입력해주시길 바랍니다.</span>");
+		sb.append("<br>");
+		sb.append("<br>");
+		sb.append("<p>감사합니다!<p>");
+
 		Message message = new Message()
 			.withSubject(createContent("WithView 이메일 인증 코드"))
 			.withBody(new Body()
-				.withHtml(createContent(generateEmailVerificationCode(email.trim()))));
+				.withHtml(createContent(sb.toString())));
 
 		SendEmailResult sendEmailResult = amazonSimpleEmailService.sendEmail(new SendEmailRequest()
 			.withSource(SOURCE_EMAIL)
