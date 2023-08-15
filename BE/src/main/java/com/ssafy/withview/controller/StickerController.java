@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,12 +31,14 @@ import lombok.extern.slf4j.Slf4j;
 public class StickerController {
 	private final StickerService stickerService;
 
-	@GetMapping("/users/{userSeq}")
-	public ResponseEntity<?> findAllUserSticker(@PathVariable(name = "userSeq") Long userSeq) {
+	@GetMapping("/users")
+	public ResponseEntity<?> findAllUserSticker(@ModelAttribute StickerDto stickerDto) {
 		JSONObject jsonObject = new JSONObject();
+
+
 		log.info("==== 유저 스티커 검색 시작 ====");
 		try{
-			List<StickerDto> stickerDtoList = stickerService.findAllStickersByUserSeq(userSeq);
+			List<StickerDto> stickerDtoList = stickerService.findAllStickersByUserSeq(stickerDto);
 			jsonObject.put("success",true);
 			jsonObject.put("stickers",stickerDtoList);
 		}catch (Exception e){
@@ -46,11 +49,11 @@ public class StickerController {
 		return new ResponseEntity<>(jsonObject, HttpStatus.OK);
 	}
 	@GetMapping("/basic")
-	public ResponseEntity<?> findAllBasicSticker() {
+	public ResponseEntity<?> findAllBasicSticker(StickerDto stickerDto) {
 		JSONObject jsonObject = new JSONObject();
 		log.info("==== 기본 스티커 검색 시작 ====");
 		try{
-			List<StickerDto> stickerDtoList = stickerService.findAllStickersByUserSeq(0L);
+			List<StickerDto> stickerDtoList = stickerService.findAllStickersByUserSeq(stickerDto);
 			jsonObject.put("success",true);
 			jsonObject.put("stickers",stickerDtoList);
 		}catch (Exception e){
