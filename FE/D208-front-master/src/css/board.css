@@ -1,5 +1,5 @@
 .board_input {
-    width: 60%;
+    width: 90%;
     height: 15%;
     display: flex;
     justify-content: space-between;
@@ -109,4 +109,12 @@ position: absolute;
 .board_modal_card_writebtn {
   display: flex;
   justify-content: center;
+}
+
+.board_search {
+  width: 40%;
+}
+
+.board_search_input {
+  border-radius: 10px;
 }

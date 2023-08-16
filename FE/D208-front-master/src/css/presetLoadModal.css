@@ -61,11 +61,11 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.card-image {
+/* .card-image {
   object-fit: cover;
   height: 50%;
   overflow: hidden;
-}
+} */
 .card-image figure {
   height: 100%;
 }

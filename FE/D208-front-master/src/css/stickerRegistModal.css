@@ -79,11 +79,12 @@ div:has(.regist-container)::-webkit-scrollbar {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.card-image {
+/* .card-image {
   object-fit: cover;
   height: 50%;
   overflow: hidden;
-}
+} */
+
 .card-image figure {
   height: 100%;
   margin-bottom: 20px;
@@ -94,6 +95,7 @@ div:has(.regist-container)::-webkit-scrollbar {
   height: 100%;
   overflow: hidden;
 }
+
 .flex {
   margin-bottom: 20px;
 }
