@@ -326,20 +326,21 @@ export default function GroupChat() {
   }, []);
 
   const resizeWindow = () => {
-    console.log(windowSize);
+    stage.current.width(window.innerWidth);
+    stage.current.height(window.innerHeight);
 
     if (
-      stage.current == null ||
-      stage.current.children[0].children.length > 0
+      stage.current === null ||
+      stage.current.children[0].children.length == 0
     ) {
-      console.log();
+      console.log("no stage");
       return;
     }
 
-    stage.current.width(windowSize.current[0]);
-    stage.current.height(windowSize.current[1]);
-    stage.current.children[0].children[0].width(windowSize.current[0]);
-    stage.current.children[0].children[0].height(windowSize.current[1]);
+    stage.current.children[0].children[0].width(window.innerWidth);
+    stage.current.children[0].children[0].height(window.innerHeight);
+
+    console.log(stage.current.width);
   };
 
   useEffect(() => {
