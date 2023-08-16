@@ -15,6 +15,7 @@ import com.ssafy.withview.dto.FriendsChatRoomLastReadDto;
 import com.ssafy.withview.entity.FriendsChatMessageEntity;
 import com.ssafy.withview.entity.FriendsChatRoomUserInfoEntity;
 import com.ssafy.withview.repository.FriendsChatMessageRepository;
+import com.ssafy.withview.repository.FriendsChatRoomRepository;
 import com.ssafy.withview.repository.FriendsChatRoomUserInfoRepository;
 import com.ssafy.withview.repository.RedisTemplateRepository;
 
@@ -28,6 +29,7 @@ public class FriendsChatService {
 
 	private final FriendsChatMessageRepository friendsChatMessageRepository;
 	private final FriendsChatRoomUserInfoRepository friendsChatRoomUserInfoRepository;
+	private final FriendsChatRoomRepository friendsChatRoomRepository;
 	private final RedisTemplateRepository redisTemplateRepository;
 
 	public List<FriendsChatMessageDto> getFriendsChatMessagesByPage(Long friendsChatRoomSeq, int page) {
@@ -49,7 +51,7 @@ public class FriendsChatService {
 				.messageSeq(0L)
 				.fromUserSeq(0L)
 				.toUserSeq(0L)
-				.sendTime(LocalDateTime.of(1990, 10, 1, 0, 0))
+				.sendTime(friendsChatRoomRepository.findTopBySeq(friendsChatSeq).getCreatedTime())
 				.build();
 		}
 		return FriendsChatMessageEntity.toDto(

@@ -8,4 +8,6 @@ import com.ssafy.withview.entity.FriendsChatRoomEntity;
 @Repository
 public interface FriendsChatRoomRepository extends JpaRepository<FriendsChatRoomEntity, String> {
 
+	public FriendsChatRoomEntity findTopBySeq(Long seq);
+
 }
