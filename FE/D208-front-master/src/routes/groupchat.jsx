@@ -79,9 +79,7 @@ export default function GroupChat() {
   }
 
   function profileSettings() {
-    setprofileClicked((prevprofileClicked) => !prevprofileClicked);
-    setmicClicked(false);
-    setvolClicked(false);
+    navigate("/profile");
   }
 
   function micSettings() {
@@ -338,6 +336,8 @@ export default function GroupChat() {
       return;
     }
 
+    stage.current.width(windowSize.current[0]);
+    stage.current.height(windowSize.current[1]);
     stage.current.children[0].children[0].width(windowSize.current[0]);
     stage.current.children[0].children[0].height(windowSize.current[1]);
   };
@@ -347,7 +347,7 @@ export default function GroupChat() {
     return () => {
       window.removeEventListener("resize", resizeWindow);
     };
-  }, []);
+  }, [windowSize]);
 
   // 배경에 이미지 추가
   function addBackImage(imageUrl) {
@@ -1004,7 +1004,7 @@ export default function GroupChat() {
     stomp.current.send(
       `/api/pub/server/${serverSeq}/channel/${channelSeqRef.current}/enter`,
       {},
-      JSON.stringify({ userSeq: { userSeq } })
+      JSON.stringify({ userSeq: userSeq })
     );
   }
 
@@ -1013,7 +1013,7 @@ export default function GroupChat() {
     stomp.current.send(
       `/api/pub/server/${serverSeq}/channel/${channelSeqRef.current}/leave`,
       {},
-      JSON.stringify({ userSeq: { userSeq } })
+      JSON.stringify({ userSeq: userSeq })
     );
   }
 
@@ -2044,10 +2044,6 @@ export default function GroupChat() {
                 onClick={micSettings}
               >
                 <img src={micClicked ? micoff : micon} alt="" />
-                {/* 마이크 조절 팝오버 */}
-                {/* <div className={micClicked ? "a-mic-control" : "mic-control"}>
-                  마이크 조절을 넣자
-                </div> */}
               </button>
               {/* 볼륨조절 */}
               <button
@@ -2056,10 +2052,6 @@ export default function GroupChat() {
                 onClick={volSettings}
               >
                 <img src={volClicked ? voloff : volon} alt="" />
-                {/* 볼륨조절 팝오버 */}
-                {/* <div className={volClicked ? "a-vol-control" : "vol-control"}>
-                  볼륨조절을 넣자
-                </div> */}
               </button>
               {/* 카메라 온/오프 */}
               <button
