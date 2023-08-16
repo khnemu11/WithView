@@ -556,6 +556,7 @@ export default function GroupChat() {
       }
     );
     chatConnect();
+    chatEnterMsg();
   }
 
   function deleteCanvasChange(data) {
@@ -998,6 +999,24 @@ export default function GroupChat() {
     };
   }
 
+  function chatEnterMsg() {
+    console.log("들어가는 메세지를 보내주자 !");
+    stomp.current.send(
+      `/api/pub/server/${serverSeq}/channel/${channelSeqRef.current}/enter`,
+      {},
+      JSON.stringify({ userSeq: { userSeq } })
+    );
+  }
+
+  function chatLeaveMsg() {
+    console.log("나가는 메세지를 보내주자 !");
+    stomp.current.send(
+      `/api/pub/server/${serverSeq}/channel/${channelSeqRef.current}/leave`,
+      {},
+      JSON.stringify({ userSeq: { userSeq } })
+    );
+  }
+
   //외부를 클릭하면 우클릭 메뉴가 없어지는 것
   window.addEventListener("click", () => {
     // hide menu
@@ -1056,6 +1075,7 @@ export default function GroupChat() {
     session.current.disconnect();
     sessionScreen.current.disconnect();
     if (stomp.current) stomp.current.disconnect();
+    chatLeaveMsg();
     // Removing all HTML elements with user's nicknames.
     // HTML videos are automatically removed when leaving a Session
 
