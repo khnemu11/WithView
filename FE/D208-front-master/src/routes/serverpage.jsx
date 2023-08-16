@@ -81,6 +81,7 @@ const Serverpage = () => {
     try {
       // 기존에 서버 구독이 있으면 해제
       if (currentSubscription) {
+        console.log("구독해제가 됐습니다!!!!!!!");
         currentSubscription.unsubscribe();
       }
 
@@ -111,6 +112,7 @@ const Serverpage = () => {
     // 컴포넌트가 언마운트될 때, 혹시나 구독이 남아있다면 해제하는 코드를 추가할 수 있습니다.
     return () => {
       if (currentSubscription) {
+        console.log("구독해제가 됐습니다!!!!!!!");
         currentSubscription.unsubscribe();
       }
     };
@@ -118,9 +120,8 @@ const Serverpage = () => {
 
   const [channelState, setChannelState] = useState({
     serverSeq: null,
-    channelMember: {}
+    channelMember: {},
   });
-  
 
   function recvMessage(data) {
     // 메시지 상태 업데이트
@@ -293,8 +294,10 @@ const Serverpage = () => {
     fetchMembers();
   }, [seq]); // seq 값이 변경될 때마다 새로운 요청을 보내도록 설정
 
-  const ChannelCard = ({ channel, isHost,channelMemberData }) => {
+  const ChannelCard = ({ channel, isHost, channelMemberData }) => {
     const membersCount = channelMemberData[channel.seq]?.length || 0; // 채널에 대한 참여자 수 가져오기
+    const channelMember = channelMemberData[channel.seq];
+    console.log("channelMember", channelMember);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const togglePopover = () => {
       setIsPopoverOpen(!isPopoverOpen);
@@ -370,7 +373,29 @@ const Serverpage = () => {
             </div>
           )}
         </div>
-        <p className="channelCard-members">참여자 {membersCount}명</p>
+        <p
+          className="channelCard-members"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          참여자 {membersCount}명
+        </p>
+        {showProfileList && (
+          <div
+            className="profilePopup"
+            style={{ left: position.x, top: position.y }}
+          >
+            {channelMember &&
+              channelMember.map((member) => (
+                <div key={member.seq}>
+                  <img
+                    src={member.profileImgSearchName}
+                    alt={member.nickname}
+                  />
+                </div>
+              ))}
+          </div>
+        )}
       </div>
     );
   };
@@ -558,6 +583,23 @@ const Serverpage = () => {
     }
   };
 
+  const [showProfileList, setShowProfileList] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  const handleMouseEnter = (event) => {
+    setShowProfileList(true);
+
+    // 현재 마우스 위치에 따라 팝업 위치 결정
+    setPosition({
+      x: event.clientX,
+      y: event.clientY,
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setShowProfileList(false);
+  };
+
   return (
     <div className="mainbox">
       <div className="innermain">
@@ -663,8 +705,10 @@ const Serverpage = () => {
                 <ChannelCard
                   channel={channel}
                   isHost={isHost}
-                  channelMemberData={(channelState && channelState.channelMember) || {}} 
-                  />
+                  channelMemberData={
+                    (channelState && channelState.channelMember) || {}
+                  }
+                />
               </div>
             ))}
           </Slider>

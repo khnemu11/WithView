@@ -32,9 +32,9 @@
     
 }
 .login_img{
-    
     height: 15%;
-
+    display: flex;
+    justify-content: center;
 }
 .login_inputs {
     height: 60%;
@@ -50,12 +50,14 @@
 
 .login_findes {
     /* width: 100%; */
+    margin-top: 20px;
     height: 10%;
     font-weight: bold;
-    font-size: 20px;
+    font-size: 30px;
     color: #80C4FF;
     display: flex;
     justify-content: center;
+    align-items: center;
 }
 
 
@@ -102,10 +104,10 @@
     }
 
     .login_label{
-        font-size: 2.5vw;
+        font-size: 3vw;
     }
     .login_findes {
-       font-size: 2.5vw;
+       font-size: 4vw;
     }
     .login_title{
         font-size: 6vw;
@@ -122,4 +124,11 @@
 
   }
 
+  .login_transition-enter {
+    transform: translateX(-100%); /* 초기에 오른쪽으로 이동 */
+  }
   
+  .login_transition-enter-active {
+    transform: translateX(0); /* 왼쪽으로 원래 위치로 이동 (0으로 설정) */
+    transition: transform 0.5s ease; /* 0.3초 동안 transition 효과 적용 */
+  }

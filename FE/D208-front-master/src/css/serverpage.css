@@ -104,6 +104,7 @@
   outline: none;
 }
 .channelCard-members{
+  position: relative;
     display: flex;
     justify-content: flex-end;
     padding-right: 9px;
@@ -245,4 +246,37 @@
   align-self: flex-start;
   margin-left: 3%;
   margin-right: 3%;
+}
+
+.profilePopup {
+  border: 1px solid #e1e1e1;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  background-color: #fff;
+  padding: 10px;
+  max-height: 200px; /* 원하는 높이로 조절하세요 */
+  overflow-y: auto; /* 프로필 목록이 많을 경우 스크롤이 생깁니다 */
+  z-index: 9999; /* 다른 요소 위에 올라오도록 설정합니다 */
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.profilePopup div {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.profilePopup img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%; /* 이미지를 원형으로 만듭니다 */
+  margin-right: 10px;
+  border: 2px solid #e1e1e1; /* 이미지 주변에 경계선을 추가합니다 */
+}
+
+.profilePopup div:hover {
+  background-color: #f7f7f7;
 }

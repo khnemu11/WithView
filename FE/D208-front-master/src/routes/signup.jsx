@@ -438,7 +438,16 @@ export default function Signup() {
           <div
             className="signup_back"
             onClick={() => {
-              navigate("/login");
+              const signupElement = document.querySelector(".signup_signup")
+    
+              if (signupElement) {
+                signupElement.classList.add("signup_transition-exit-active")
+    
+              }
+              setTimeout(() => {
+                navigate("/login");
+              }, 300);
+
             }}
           >
             이전 화면으로 돌아가기
