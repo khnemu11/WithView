@@ -1,7 +1,7 @@
 spring:
   datasource:
     username: S09P12D208
-    url: jdbc:mariadb://stg-yswa-kr-practice-db-master.mariadb.database.azure.com:3306/S09P12D208?serverTimezone=UTC&useUnicode=true&characterEncoding=utf8
+    url: jdbc:mariadb://stg-yswa-kr-practice-db-master.mariadb.database.azure.com:3306/S09P12D208?serverTimezone=Asia/Seoul&useUnicode=true&characterEncoding=utf8
     driverClassName: org.mariadb.jdbc.Driver
     password: Pmgwb2y284
     hikari:
