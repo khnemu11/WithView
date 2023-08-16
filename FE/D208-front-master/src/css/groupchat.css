@@ -973,29 +973,10 @@ button {
 
 .sticker-menu-on {
   transition-duration: 0.3s;
-  height: 90%;
-  padding: 0px 40px 0px 50px;
-  overflow: auto;
+  height: 100%;
+  padding: 0px 20px 0px 20px;
+  overflow: hidden;
 }
-
-.sticker-menu-on::-webkit-scrollbar {
-  width: 10px;
-}
-
-.sticker-menu-on::-webkit-scrollbar-thumb {
-  height: 30%;
-  background-color: #bebebe; /* 스크롤바의 색상 */
-  border-radius: 10px;
-}
-
-.sticker-menu-on::-webkit-scrollbar-track {
-  background: #00000000; /* 스크롤바 뒷 배경 색상 */
-}
-
-.sticker-menu-on::-webkit-scrollbar-button {
-  display: none;
-}
-
 #back-menu {
   width: 0;
   height: 100%;

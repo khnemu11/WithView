@@ -109,7 +109,7 @@ const router = createBrowserRouter([
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <AxiosInterceptor>
@@ -118,5 +118,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </AxiosInterceptor>
       </PersistGate>
     </Provider>
-  </React.StrictMode>
+  // </React.StrictMode>
 );
