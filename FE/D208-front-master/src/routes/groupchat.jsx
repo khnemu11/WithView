@@ -49,6 +49,7 @@ import PresetRegistModal from "./components/presetRegistModal";
 import PresetLoadModal from "./components/presetLoadModal";
 import Checkwebsocket from "./components/checkwebsocket";
 import { store } from "../redux/store";
+import StickerContainer from "./components/stickerContainer";
 
 export default function GroupChat() {
   const windowSize = useRef([window.innerWidth, window.innerHeight]);
@@ -302,6 +303,7 @@ export default function GroupChat() {
     let tr = new Konva.Transformer();
     videoLayer.add(tr);
     imageLayer.add(tr);
+    screenLayer.add(tr);
 
     videoLayer.on("click", function (e) {
       // 클릭한 요소를 가져오고 해당 요소를 Transformer에 설정
@@ -311,7 +313,14 @@ export default function GroupChat() {
       // 레이어 다시 그리기
       videoLayer.batchDraw();
     });
+    screenLayer.on("click", function (e) {
+      // 클릭한 요소를 가져오고 해당 요소를 Transformer에 설정
+      let clickedShape = e.target;
+      tr.nodes([clickedShape]);
 
+      // 레이어 다시 그리기
+      screenLayer.batchDraw();
+    });
     imageLayer.on("click", function (e) {
       // 클릭한 요소를 가져오고 해당 요소를 Transformer에 설정
       let clickedShape = e.target;
@@ -333,6 +342,27 @@ export default function GroupChat() {
     init();
   }, []);
 
+  const resizeWindow = () => {
+    console.log(windowSize);
+
+    if (
+      stage.current == null ||
+      stage.current.children[0].children.length > 0
+    ) {
+      console.log();
+      return;
+    }
+
+    stage.current.children[0].children[0].width(windowSize.current[0]);
+    stage.current.children[0].children[0].height(windowSize.current[1]);
+  };
+
+  useEffect(() => {
+    window.addEventListener("resize", resizeWindow);
+    return () => {
+      window.removeEventListener("resize", resizeWindow);
+    };
+  }, []);
   // 배경에 이미지 추가
   function addBackImage(imageUrl) {
     console.log("이미지 url");
@@ -348,10 +378,6 @@ export default function GroupChat() {
         width: windowSize.current[0],
         height: windowSize.current[1],
       });
-
-      stage.current.children[0].removeChildren(); // 모든 자식 제거
-      stage.current.children[0].add(backgroundImage);
-      stage.current.children[0].draw(); // 배경 레이어 다시 그리기
 
       console.log("이미지 로드!");
       console.log(session.current);
@@ -389,16 +415,17 @@ export default function GroupChat() {
     if (target.length == 0) {
       //이미지 삽입
       if (objectId.indexOf("img-") != -1) {
-        let tr = new Konva.Transformer();
-        // tr.nodes([object]);
-
         //이미지 변수 생성
         let imageObj = new Image();
         imageObj.crossOrigin = "anonymous";
 
-        let splitedImageId = objectId.split("-");
-        console.log(splitedImageId[2]);
-        let imageName = splitedImageId[2]; //img- 제거한 나머지를 이름으로 설정
+        // let splitedImageId = objectId.split("-");
+        console.log(
+          objectId.substring(objectId.indexOf("-", objectId.indexOf("-")) + 1)
+        );
+        let imageName = objectId.substring(
+          objectId.indexOf("-", objectId.indexOf("-") + 1) + 1
+        ); //img- 제거한 나머지를 이름으로 설정
         imageObj.src =
           "https://dm51j1y1p1ekp.cloudfront.net/sticker/" +
           imageName +
@@ -407,6 +434,8 @@ export default function GroupChat() {
         //로딩돠면
         imageObj.onload = function () {
           object.setAttr("image", imageObj);
+          object.setAttr("width", 100);
+          object.setAttr("height", 100);
         };
 
         //드래그 반응이 끝나면 캔버스 넘기기
@@ -445,7 +474,7 @@ export default function GroupChat() {
             4 +
             "px";
         });
-        stage.current.children[2].add(tr);
+        // stage.current.children[2].add(tr);
         stage.current.children[2].add(object);
       }
 
@@ -468,6 +497,8 @@ export default function GroupChat() {
         //로딩돠면
         backObj.onload = function () {
           object.setAttr("image", backObj);
+          object.setAttr("width", windowSize.current[0]);
+          object.setAttr("height", windowSize.current[1]);
         };
 
         stage.current.children[0].add(object);
@@ -553,18 +584,20 @@ export default function GroupChat() {
     console.log(stage.current);
 
     let target = stage.current.find("#" + objectId); //객체 탐색
-
-    for (let i = 0; i < stage.current.children[2].children.length; i++) {
-      let imageElement = stage.current.children[2].children[i];
-
-      if (imageElement.attrs.id == objectId) {
-        console.log("삭제 대상 객체");
-        console.log(imageElement);
-        imageElement.remove();
-        stage.current.children[2].children[i - 1];
-        break;
-      }
+    if (target.length > 0) {
+      target[0].remove();
     }
+
+    // for (let i = 0; i < stage.current.children[2].children.length; i++) {
+    //   let imageElement = stage.current.children[2].children[i];
+
+    //   if (imageElement.attrs.id == objectId) {
+    //     console.log("삭제 대상 객체");
+    //     console.log(imageElement);
+    //     imageElement.remove();
+    //     break;
+    //   }
+    // }
   }
 
   function onError() {
@@ -575,6 +608,8 @@ export default function GroupChat() {
   //제일 중요함
   /* OPENVIDU METHODS */
   function loadCanvas(data) {
+    console.log("캔버스 로드");
+    console.log(data);
     let backChildren = JSON.parse(data.background);
 
     if (backChildren.children.length > 0) {
@@ -619,12 +654,18 @@ export default function GroupChat() {
       let images = remoteImageLayer.find("Image");
 
       for (let i = 0; i < images.length; i++) {
-        let tr = new Konva.Transformer();
+        // let tr = new Konva.Transformer();
         //이미지 변수 생성
         let imageObj = new Image();
         imageObj.crossOrigin = "anonymous";
         let splitedName = images[i].getAttr("id").split("-");
-        let imageName = splitedName[2]; //img- 제거한 나머지를 이름으로 설정
+        let imageName = images[i]
+          .getAttr("id")
+          .substring(
+            images[i]
+              .getAttr("id")
+              .indexOf("-", images[i].getAttr("id").indexOf("-") + 1) + 1
+          ); //img- 제거한 나머지를 이름으로 설정
         console.log("최초 이미지 로드 대상");
 
         console.log(imageName);
@@ -699,8 +740,6 @@ export default function GroupChat() {
             4 +
             "px";
         });
-
-        stage.current.children[2].add(tr);
         stage.current.children[2].add(images[i]);
       }
     }
@@ -860,9 +899,6 @@ export default function GroupChat() {
       // Delete the HTML element with the user's nickname. HTML videos are automatically removed from DOM
       removeUserInCanvas(event.stream.connection.connectionId);
       removeUserData(event.stream.connection);
-      // } else {
-      //   removeShareInCanvas(event.stream.connection.connectionId);
-      // }
     });
 
     // On every asynchronous exception...
@@ -1049,18 +1085,18 @@ export default function GroupChat() {
   //오픈비두 예제 함수
   //페이지가 로드가 되면 기본값으로 채널 명과 랜덤한 유저 아이디를 생성해줌
   //사용 안할듯
-  window.addEventListener("load", function () {
-    generateParticipantInfo();
-  });
+  // window.addEventListener("load", function () {
+  //   generateParticipantInfo();
+  // });
 
   //오픈비두 예제 함수
   //채널 명과 랜덤한 유저 아이디를 생성해줌
   //사용 안할듯
-  function generateParticipantInfo() {
-    document.getElementById("sessionId").value = "mySession";
-    document.getElementById("userName").value =
-      "Participant" + Math.floor(Math.random() * 100);
-  }
+  // function generateParticipantInfo() {
+  //   document.getElementById("sessionId").value = "mySession";sen
+  //   document.getElementById("userName").value =
+  //     "Participant" + Math.floor(Math.random() * 100);
+  // }
 
   //오픈비두 예제 함수
   //현재 참가자 데이터, 영상을 video-container에 넣는다.
@@ -1114,18 +1150,23 @@ export default function GroupChat() {
     var targetId = dataNode.innerText;
     console.log(targetId);
     //트랜스포머랑 비디오 삭제
-    for (var i = 0; i < stage.current.children[1].children.length; i++) {
-      console.log(
-        stage.current.children[1].children[i].getAttr("id") + " vs " + targetId
-      );
-      if (stage.current.children[1].children[i].getAttr("id") == targetId) {
-        console.log(stage.current.children[1]);
-        stage.current.children[1].children[i - 1].remove();
-        console.log(stage.current.children[1]);
-        stage.current.children[1].children[i - 1].remove();
-        break;
-      }
+    let target = stage.current.find("#" + targetId);
+    if (target.length > 0) {
+      target[0].remove();
     }
+
+    // for (var i = 0; i < stage.current.children[1].children.length; i++) {
+    //   console.log(
+    //     stage.current.children[1].children[i].getAttr("id") + " vs " + targetId
+    //   );
+    //   if (stage.current.children[1].children[i].getAttr("id") == targetId) {
+    //     console.log(stage.current.children[1]);
+    //     stage.current.children[1].children[i - 1].remove();
+    //     console.log(stage.current.children[1]);
+    //     stage.current.children[1].children[i - 1].remove();
+    //     break;
+    //   }
+    // }
     updateCanvasOnlyServer();
   }
   function sendStageInfo(stage) {
@@ -1137,7 +1178,7 @@ export default function GroupChat() {
     jsonData["video"] = data.children[1];
     jsonData["image"] = data.children[2];
     jsonData["type"] = "load";
-    jsonData["channelSeq"] = channelSeq.current;
+    jsonData["channelSeq"] = channelSeqRef.current;
     jsonData["userSeq"] = userSeq;
     jsonData["stage"] = stage;
 
@@ -1145,7 +1186,7 @@ export default function GroupChat() {
     console.log(JSON.stringify(jsonData));
 
     stomp.current.send(
-      "/api/pub/canvas/channel/" + channelSeq.current,
+      "/api/pub/canvas/channel/" + channelSeqRef.current,
       {},
       JSON.stringify(jsonData)
     );
@@ -1234,10 +1275,6 @@ export default function GroupChat() {
         visible: true,
       });
     }
-
-    //비디오 크기 및 회전을 도와주는 객체
-    var tr = new Konva.Transformer();
-
     //비디오 실행
     var animation = new Konva.Animation(function () {}, layer);
 
@@ -1260,7 +1297,7 @@ export default function GroupChat() {
     video.dragBoundFunc(limitDragBounds);
 
     // video.add(baseImg);
-    layer.add(tr);
+    // layer.add(tr);
     layer.add(video);
     console.log("점프");
     console.log(video);
@@ -1392,18 +1429,23 @@ export default function GroupChat() {
     console.log("삭제 아이디");
     console.log(targetId);
 
-    for (var i = 0; i < stage.current.children[2].children.length; i++) {
-      console.log("현제 삭제 대상인지 판단하는 이미지");
-      console.log(stage.current.children[2].children[i].getAttr("id"));
-
-      if (stage.current.children[2].children[i].getAttr("id") == targetId) {
-        console.log("find " + stage.current.children[2].children[i]);
-        changeCanvas(stage.current.children[2].children[i], "delete");
-        stage.current.children[2].children[i].remove();
-        stage.current.children[2].children[i - 1].remove();
-        console.log("tarnsformer " + stage.current.children[2].children[i]);
-      }
+    let target = stage.current.find("#" + targetId);
+    if (target.length > 0) {
+      changeCanvas(target[0], "delete");
     }
+
+    // for (var i = 0; i < stage.current.children[2].children.length; i++) {
+    //   console.log("현제 삭제 대상인지 판단하는 이미지");
+    //   console.log(stage.current.children[2].children[i].getAttr("id"));
+
+    //   if (stage.current.children[2].children[i].getAttr("id") == targetId) {
+    //     console.log("find " + stage.current.children[2].children[i]);
+
+    //     stage.current.children[2].children[i].remove();
+    //     // stage.current.children[2].children[i - 1].remove();
+    //     console.log("tarnsformer " + stage.current.children[2].children[i]);
+    //   }
+    // }
   }
   //버튼을 누르면 이미지가 생성되는 함수
   function stickertemp(name) {
@@ -1515,7 +1557,7 @@ export default function GroupChat() {
     }
 
     //비디오 크기 및 회전을 도와주는 객체
-    var tr = new Konva.Transformer();
+    // var tr = new Konva.Transformer();
     // tr.nodes([video]);
 
     //비디오 실행
@@ -1539,7 +1581,7 @@ export default function GroupChat() {
     // 드래그 범위 제한 함수를 객체에 연결
     video.dragBoundFunc(limitDragBounds);
 
-    layer.add(tr);
+    // layer.add(tr);
     layer.add(video);
 
     //자기 자신의 비디오 경우 자동으로 실행이 되지 않는 오류가 있어 직접 실행
@@ -1602,7 +1644,7 @@ export default function GroupChat() {
       {},
       JSON.stringify({
         userSeq: userSeq,
-        channelSeq: channelSeq,
+        channelSeq: channelSeqRef.current,
         message: message,
       })
     );
@@ -1904,124 +1946,12 @@ export default function GroupChat() {
                 stickermenuClicked ? "sticker-menu-on" : "sticker-menu"
               }
             >
-              <div>
-                <img
-                  id="smile"
-                  className="house-sticker"
-                  src={smile}
-                  onClick={() => stickertemp("smile.png")}
-                ></img>
-                <img
-                  id="love"
-                  className="house-sticker"
-                  src={love}
-                  onClick={() => stickertemp("love.png")}
-                ></img>
-                <img
-                  id="normal"
-                  className="house-sticker"
-                  src={normal}
-                  onClick={() => stickertemp("normal.png")}
-                ></img>
-                <img
-                  id="sad"
-                  className="house-sticker"
-                  src={sad}
-                  onClick={() => stickertemp("sad.png")}
-                ></img>
-                <img
-                  id="sick"
-                  className="house-sticker"
-                  src={sick}
-                  onClick={() => stickertemp("sick.png")}
-                ></img>
-                <img
-                  id="anger"
-                  className="house-sticker"
-                  src={anger}
-                  onClick={() => stickertemp("anger.png")}
-                ></img>
-                <img
-                  id="sleep"
-                  className="house-sticker"
-                  src={sleep}
-                  onClick={() => stickertemp("sleep.png")}
-                ></img>
-                <img
-                  id="think"
-                  className="house-sticker"
-                  src={think}
-                  onClick={() => stickertemp("think.png")}
-                ></img>
-                <img
-                  id="vomit"
-                  className="house-sticker"
-                  src={vomit}
-                  onClick={() => stickertemp("vomit.png")}
-                ></img>
-                <img
-                  id="baby"
-                  className="house-sticker"
-                  src={baby}
-                  onClick={() => stickertemp("baby.png")}
-                ></img>
-                <img
-                  id="upset"
-                  className="house-sticker"
-                  src={upset}
-                  onClick={() => stickertemp("upset.png")}
-                ></img>
-                <img
-                  id="yummy"
-                  className="house-sticker"
-                  src={yummy}
-                  onClick={() => stickertemp("yummy.png")}
-                ></img>
-                <img
-                  id="maelong"
-                  className="house-sticker"
-                  src={maelong}
-                  onClick={() => stickertemp("maelong.png")}
-                ></img>
-                <img
-                  id="ghost"
-                  className="house-sticker"
-                  src={ghost}
-                  onClick={() => stickertemp("ghost.png")}
-                ></img>
-                <img
-                  id="santa"
-                  className="house-sticker"
-                  src={santa}
-                  onClick={() => stickertemp("santa.png")}
-                ></img>
-                <img
-                  id="dino"
-                  className="house-sticker"
-                  src={dino}
-                  onClick={() => stickertemp("dino.png")}
-                ></img>
-              </div>
-              <hr />
-              <p className="user-bg">사용자 지정 스티커</p>
-              <div className="sticker-upload">
-                <img
-                  src="/uploadimage.png"
-                  alt="Upload"
-                  className="sticker-preview"
-                />
-                <div className="file has-name is-right">
-                  <label className="file-label">
-                    <input className="file-input" type="file" name="resume" />
-                    <span className="file-cta">
-                      <span className="file-label">등록하기</span>
-                    </span>
-                    <span className="file-name">
-                      Screen Shot 2017-07-29 at 15.54.25.png
-                    </span>
-                  </label>
-                </div>
-              </div>
+              <StickerContainer
+                title="스티커"
+                table="stickers"
+                addFile={stickertemp}
+                imgDirectory="sticker"
+              ></StickerContainer>
             </div>
 
             <div id={stickermenuClicked ? "back-menu" : "back-menu-on"}>

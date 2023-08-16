@@ -80,8 +80,10 @@ const PresetRegistModal = (props) => {
     axiosInstance
     .post(`/preset`,formData,{headers})
     .then((response) => {
+      alert("프리셋이 성공적으로 저장되었습니다.");
       console.log(response);
     }).catch((err)=>{
+      alert("프리셋 저장을 실패했습니다.");
       console.log(err);
     })
   }
@@ -117,9 +119,9 @@ const PresetRegistModal = (props) => {
           borderRadius: '20px',
           margin :'20px'
         }}}>
-        <div className = "modal-container">
+        <div className = "modal-container regist-container">
           <div className="modal-title">프리셋 등록하기</div>
-          <div className="modal-form">
+          <div className="modal-form regist-form">
             <div className="modal-input">
                 <div className="modal-input-title">프리셋 이름</div>
                 <input className="modal-input-content" name="presetName" onChange={onChange} value={presetName}></input>
@@ -131,14 +133,14 @@ const PresetRegistModal = (props) => {
         ></span>
                 <img className={"modal-input-image" +imgUrl == '' ? 'hide' : 'show'} src={imgUrl == '' ? x: imgUrl}></img>
             </div>
-          </div>
-          <div className="w-100 flex">
+            <div className="w-100 flex">
             <button type="button" 
                 className ="model-input-btn" 
                 onClick={()=>{
                   insertPreset(props.stage);
                   props.onChange();
                 }}>등록하기</button>
+          </div>
           </div>
         </div>
     </Modal>
