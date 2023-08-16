@@ -27,6 +27,7 @@ public class RedisTemplateRepository {
 	private static final String USER_CONNECT_SESSION = "USER_CONNECT_SESSION_";
 	private static final String USER_ENTER_SERVER_USERSEQ = "USER_ENTER_SERVER_USERSEQ_";
 	private static final String FRIENDS_CHAT_ROOM_LAST_MESSAGE_SEQ = "FRIENDS_CHAT_ROOM_LAST_MESSAGE_SEQ_FOR_";
+	private static final String CHANNEL_USER_SET = "CHANNEL_USER_SET_";
 
 	@Resource(name = "redisTemplate")
 	private HashOperations<String, String, String> hashOpsUserEnterChatChannelInfo;
@@ -42,14 +43,14 @@ public class RedisTemplateRepository {
 	public Long userSubscribeChannelChat(Long userSeq, Long channelSeq, Long serverSeq) {
 		valOpsUserServerInfoOfNowChannel.set(USER_ENTER_SERVER_USERSEQ + userSeq, String.valueOf(serverSeq));
 		hashOpsUserEnterChatChannelInfo.put(ENTER_CHAT_CHANNEL, String.valueOf(userSeq), String.valueOf(channelSeq));
-		setOpsChatRoomMemberValue.add(String.valueOf(channelSeq), String.valueOf(userSeq));
+		setOpsChatRoomMemberValue.add(CHANNEL_USER_SET + String.valueOf(channelSeq), String.valueOf(userSeq));
 		return channelSeq;
 	}
 
 	public Long userUnsubscribeChannelChat(Long userSeq, Long channelSeq) {
 		valOpsUserServerInfoOfNowChannel.set(USER_ENTER_SERVER_USERSEQ + userSeq, "", 1, TimeUnit.MILLISECONDS);
 		hashOpsUserEnterChatChannelInfo.delete(ENTER_CHAT_CHANNEL, String.valueOf(userSeq));
-		setOpsChatRoomMemberValue.remove(String.valueOf(channelSeq), String.valueOf(userSeq));
+		setOpsChatRoomMemberValue.remove(CHANNEL_USER_SET + String.valueOf(channelSeq), String.valueOf(userSeq));
 		return channelSeq;
 	}
 
@@ -60,7 +61,7 @@ public class RedisTemplateRepository {
 	}
 
 	public Set<Long> getChannelMembers(Long channelSeq) {
-		return setOpsChatRoomMemberValue.members(String.valueOf(channelSeq))
+		return setOpsChatRoomMemberValue.members(CHANNEL_USER_SET + String.valueOf(channelSeq))
 			.stream()
 			.map(Long::parseLong)
 			.collect(Collectors.toSet());
