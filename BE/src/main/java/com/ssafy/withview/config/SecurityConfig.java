@@ -57,6 +57,7 @@ public class SecurityConfig {
 			.antMatchers("/api/users/email/validate").permitAll()
 			.antMatchers("/api/users/email/authenticate").permitAll()
 			.antMatchers("/api/users/*/password").permitAll()
+			.antMatchers("/api/invite/**").permitAll()
 			.antMatchers("/api/sub/**").permitAll()
 			.antMatchers("/api/pub/**").permitAll()
 			.antMatchers("/api/ws-stomp/**").permitAll()
