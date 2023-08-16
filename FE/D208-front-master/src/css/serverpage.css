@@ -103,6 +103,12 @@
 .channelPlusModal:focus {
   outline: none;
 }
+.channelCard-members{
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 9px;
+    padding-bottom: 2px;
+}
 
 .cPMOverlay{
   position: fixed;

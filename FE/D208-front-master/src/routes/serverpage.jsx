@@ -57,20 +57,20 @@ const Serverpage = () => {
   useEffect(() => {
     // ... 웹소켓 연결 로직 ...
     if (stomp) {
-    stomp.connect(
-      {
-        userSeq: userSeq,
-      },
-      (res) => {
-        setIsConnected(true);
-        console.log(res);
-      },
-      (err) => {
-        console.log(err);
-      }
-    );}
+      stomp.connect(
+        {
+          userSeq: userSeq,
+        },
+        (res) => {
+          setIsConnected(true);
+          console.log(res);
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    }
   }, [stomp]);
-
 
   const connectToServer = (serverSeq) => {
     if (!stomp) {
@@ -104,7 +104,6 @@ const Serverpage = () => {
   };
 
   useEffect(() => {
-
     if (isConnected) {
       connectToServer(seq);
     }
@@ -117,7 +116,11 @@ const Serverpage = () => {
     };
   }, [isConnected, seq]);
 
-  const [channelState, setChannelState] = useState(null);
+  const [channelState, setChannelState] = useState({
+    serverSeq: null,
+    channelMember: {}
+  });
+  
 
   function recvMessage(data) {
     // 메시지 상태 업데이트
@@ -290,7 +293,8 @@ const Serverpage = () => {
     fetchMembers();
   }, [seq]); // seq 값이 변경될 때마다 새로운 요청을 보내도록 설정
 
-  const ChannelCard = ({ channel, isHost }) => {
+  const ChannelCard = ({ channel, isHost,channelMemberData }) => {
+    const membersCount = channelMemberData[channel.seq]?.length || 0; // 채널에 대한 참여자 수 가져오기
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const togglePopover = () => {
       setIsPopoverOpen(!isPopoverOpen);
@@ -366,6 +370,7 @@ const Serverpage = () => {
             </div>
           )}
         </div>
+        <p className="channelCard-members">참여자 {membersCount}명</p>
       </div>
     );
   };
@@ -404,6 +409,7 @@ const Serverpage = () => {
       });
       const data = response.data;
       setChannels(data.channels);
+      console.log("채널목록입니다아앗!", channels);
     } catch (error) {
       console.error("Error fetching channels:", error);
     }
@@ -654,7 +660,11 @@ const Serverpage = () => {
           <Slider {...settings}>
             {channels.map((channel) => (
               <div key={channel.seq}>
-                <ChannelCard channel={channel} isHost={isHost} />
+                <ChannelCard
+                  channel={channel}
+                  isHost={isHost}
+                  channelMemberData={(channelState && channelState.channelMember) || {}} 
+                  />
               </div>
             ))}
           </Slider>

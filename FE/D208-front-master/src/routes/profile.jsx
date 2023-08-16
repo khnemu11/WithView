@@ -417,7 +417,7 @@ const Profile = () => {
 
   return (
     <div className="mainbox">
-      <div className="innermain">
+      <div className="innermain profile">
         <ServerOptions
           profileImage={profileImage}
           profileNickname={profileNickname}
