@@ -1,4 +1,4 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 // import { useCookies } from "react-cookie";
@@ -22,14 +22,14 @@ export default function Test() {
 
   useEffect(() => {
     // 페이지 진입 시 페이지 전환 애니메이션 클래스 추가...
-    const signupElement = document.querySelector(".login_wrap")
-    
-    if (signupElement) {
-      signupElement.classList.remove("login_transition-enter-active")
-      signupElement.classList.add("login_transition-enter");
+    const loginElement = document.querySelector(".login_wrap");
+
+    if (loginElement) {
+      loginElement.classList.remove("login_transition-enter-active");
+      loginElement.classList.add("login_transition-enter");
       setTimeout(() => {
-        signupElement.classList.remove("login_transition-enter");
-        signupElement.classList.add("login_transition-enter-active");
+        loginElement.classList.remove("login_transition-enter");
+        loginElement.classList.add("login_transition-enter-active");
       }, 100); // 애니메이션 시간과 일치하는 시간으로 설정 (0.1초)
     }
   }, []);
@@ -62,14 +62,19 @@ export default function Test() {
           dispatch(setUser(userInfo));
           const sock = new SockJS(`${url}/ws-stomp`); // 연결되는 웹소켓의 end-point
           const stomp = Stomp.over(sock); // Stomp 연결
-          stomp.connect({
-            "userSeq" : res.data.UserInfo.seq}, 
-            (res)=>{console.log(res)
-                      // dispatch(setStomp(stomp))
-                    },
-            (err)=>{console.log(err)},
+          stomp.connect(
+            {
+              userSeq: res.data.UserInfo.seq,
+            },
+            (res) => {
+              console.log(res);
+              // dispatch(setStomp(stomp))
+            },
+            (err) => {
+              console.log(err);
+            }
           );
-          dispatch(setStomp(stomp))
+          dispatch(setStomp(stomp));
           // 로비화면으로 이동
           navigate("/mainpage");
         } else {
@@ -112,74 +117,86 @@ export default function Test() {
     <div className="login_first">
       <div className="login_wrap">
         <div className="login_base columns is-multiline">
-            <div className="login_title column is-8">
-                돌아오셔서 반가워요!
+          <div className="login_title column is-8">돌아오셔서 반가워요!</div>
+          <div className="login_img column is-4">
+            <img
+              style={{ width: "15vw", height: "15vw", marginTop: "30px" }}
+              src={withview}
+              alt="그림 없음"
+            />
+          </div>
+          <div className="login_inputs column is-8">
+            <div>
+              <p className="login_label">아이디를 입력해 주세요 !</p>
+              <input
+                className="login_input input"
+                type="text"
+                value={Id}
+                onChange={(e) => {
+                  setId(e.target.value);
+                }}
+                onKeyDown={handleKeyPress}
+              />
             </div>
-            <div className="login_img column is-4">
-                <img style={{width : "15vw", height : "15vw", marginTop : "30px"}} src={withview} alt="그림 없음" />
+            <div>
+              <p className="login_label">비밀번호를 입력해 주세요 !</p>
+              <input
+                className="login_input input"
+                type="password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                }}
+                onKeyDown={handleKeyPress}
+              />
             </div>
-            <div className="login_inputs column is-8">
-                <div>
+          </div>
+          <div className="login_buttons column is-8">
+            <button
+              className="button login_button column is-full"
+              onClick={checkLogin}
+            >
+              로그인
+            </button>
+          </div>
+          <div className="login_buttons column is-4">
+            <button
+              className="button login_button column is-full"
+              onClick={() => {
+                const loginElement = document.querySelector(".login_wrap");
 
-                <p className="login_label">아이디를 입력해 주세요 !</p>
-                <input 
-                    className="login_input input" type="text"
-                    value={Id}
-                    onChange={(e) => {
-                        setId(e.target.value);
-                      }}
-                      onKeyDown={handleKeyPress} 
-                />
-                </div>
-                <div>
-
-                <p className="login_label">비밀번호를 입력해 주세요 !</p>
-                <input 
-                    className="login_input input" type="password"
-                    value={password} onChange={(e) => {
-                        setPassword(e.target.value);
-                      }}
-                      onKeyDown={handleKeyPress}
-                />
-                </div>
+                if (loginElement) {
+                  loginElement.classList.add("login_transition-exit-active");
+                  setTimeout(() => {
+                    navigate("/signup");
+                  }, 200); // 애니메이션 시간과 일치하는 시간으로 설정 (0.3초)
+                }
+              }}
+            >
+              회원가입
+            </button>
+          </div>
+          <div className="login_findes column">
+            <div style={{ marginRight: "35px" }}>
+              <a
+                onClick={() => {
+                  navigate("/findid");
+                }}
+              >
+                아이디 찾기
+              </a>
             </div>
-            <div className="login_buttons column is-8">
-                <button 
-                    className="button login_button column is-full"
-                    onClick={checkLogin}
-                >
-                    로그인
-                </button>
+            |
+            <div style={{ marginLeft: "35px" }}>
+              <a
+                onClick={() => {
+                  navigate("/findpassword");
+                }}
+              >
+                비밀번호 찾기
+              </a>
             </div>
-            <div className="login_buttons column is-4">
-                <button 
-                    className="button login_button column is-full"
-                    onClick={() => {
-                        navigate("/signup");
-                      }}
-                >
-                    회원가입
-                </button>
-
-            </div>
-            <div className="login_findes column">
-                <div style={{marginRight : "35px"}}>
-                <a 
-                    onClick={() => {
-                        navigate("/findid");
-                      }}
-                >아이디 찾기</a>
-                </div>
-                |
-                <div style={{marginLeft : "35px"}}>
-
-                <a 
-                    onClick={() => {
-                        navigate("/findpassword");
-                      }}
-                >비밀번호 찾기</a>
-                </div>
-            </div>
+          </div>
         </div>
       </div>
     </div>

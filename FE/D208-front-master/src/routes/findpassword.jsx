@@ -16,14 +16,13 @@ export default function FindPassword() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const url = "https://i9d208.p.ssafy.io/api";
-  
-  useEffect(()=> {
-    if(isModalActive === false){
-      setPassword("")
-      setPassword2("")
-    }
-  },[isModalActive])
 
+  useEffect(() => {
+    if (isModalActive === false) {
+      setPassword("");
+      setPassword2("");
+    }
+  }, [isModalActive]);
 
   function checkFindEmail() {
     axios({
@@ -45,32 +44,31 @@ export default function FindPassword() {
       });
   }
   function changePassword() {
-    if (password.includes(" ") ||
-    !/^(?=.*[a-zA-Z])(?=.*[!@#$%^&*()\-_=+[\]{};:'",.<>/?\\|~`])[a-zA-Z\d!@#$%^&*()\-_=+[\]{};:'",.<>/?\\|~`]{8,16}$/.test(
-      password
-    ) || password !== password2){
-
-      alert("비밀번호를 다시 입력해주세요!")
+    if (
+      password.includes(" ") ||
+      !/^(?=.*[a-zA-Z])(?=.*[!@#$%^&*()\-_=+[\]{};:'",.<>/?\\|~`])[a-zA-Z\d!@#$%^&*()\-_=+[\]{};:'",.<>/?\\|~`]{8,16}$/.test(
+        password
+      ) ||
+      password !== password2
+    ) {
+      alert("비밀번호를 다시 입력해주세요!");
+    } else {
+      axios({
+        method: "PUT",
+        url: `${url}/users/${seq}/password?var=1`,
+        data: { password: password },
+      })
+        .then((res) => {
+          console.log(res.data);
+          alert("비밀번호 변경이 완료되었습니다!!");
+          navigate("/login");
+        })
+        .catch((err) => {
+          console.log(err);
+          console.log(password, password2);
+        });
     }
-    else {
-      
-        axios({
-          method : "PUT",
-          url : `${url}/users/${seq}/password?var=1`,
-          data : {password : password}
-        })
-        .then((res)=>{
-          console.log(res.data)
-          alert("비밀번호 변경이 완료되었습니다!!")
-          navigate('/login')
-        })
-        .catch((err)=>{
-          console.log(err)
-          console.log(password,password2)
-        })
-      }
-    }
-
+  }
 
   const authenticateCode = (e) => {
     e.preventDefault();
@@ -80,7 +78,7 @@ export default function FindPassword() {
     })
       .then((res) => {
         console.log(res.data);
-        setSeq(res.data.seq)
+        setSeq(res.data.seq);
         alert("인증완료!!");
         setIsModalActive(true);
       })
@@ -199,7 +197,7 @@ export default function FindPassword() {
                       className="input"
                       value={password}
                       onChange={(e) => {
-                        setPassword(e.target.value)
+                        setPassword(e.target.value);
                       }}
                     />
                     <span>비밀번호 확인</span>
@@ -208,13 +206,15 @@ export default function FindPassword() {
                       className="input"
                       value={password2}
                       onChange={(e) => {
-                        setPassword2(e.target.value)
+                        setPassword2(e.target.value);
                       }}
                     />
                   </section>
 
                   <footer className="modal-card-foot">
-                    <button className="button is-info" onClick={changePassword}>비밀번호 변경</button>
+                    <button className="button is-info" onClick={changePassword}>
+                      비밀번호 변경
+                    </button>
 
                     <button
                       className="button"

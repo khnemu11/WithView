@@ -10,7 +10,7 @@ export default function FindId() {
   const [code, setCode] = useState("");
   const [maskedId, setMaskedId] = useState("");
   const [isModalActive, setIsModalActive] = useState(false);
-  
+
   const navigate = useNavigate();
   const url = "https://i9d208.p.ssafy.io/api";
 
@@ -44,10 +44,9 @@ export default function FindId() {
     })
       .then((res) => {
         console.log(res.data);
-        setMaskedId(res.data.id)
+        setMaskedId(res.data.id);
         alert("인증완료!!");
-        setIsModalActive(true)
-        
+        setIsModalActive(true);
       })
       .catch((err) => {
         if (err.response && err.response.status === 401) {
@@ -78,7 +77,7 @@ export default function FindId() {
           <div className="findid_inputs">
             <div style={{ width: "85%" }}>
               <label className="label findid_label">
-                제발 메일 주소 입력좀 
+                제발 메일 주소 입력좀
               </label>
               <div className="findid_input_button">
                 <input

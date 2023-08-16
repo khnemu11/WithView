@@ -40,10 +40,10 @@ export default function Signup() {
 
   useEffect(() => {
     // 페이지 진입 시 페이지 전환 애니메이션 클래스 추가...
-    const signupElement = document.querySelector(".signup_signup")
-    
+    const signupElement = document.querySelector(".signup_signup");
+
     if (signupElement) {
-      signupElement.classList.remove("signup_transition-enter-active")
+      signupElement.classList.remove("signup_transition-enter-active");
       signupElement.classList.add("signup_transition-enter");
       setTimeout(() => {
         signupElement.classList.remove("signup_transition-enter");
@@ -138,9 +138,8 @@ export default function Signup() {
         console.log(err);
         if (err.response && err.response.status === 409) {
           alert("이 Email로 가입한 계정이 존재합니다!");
-        }
-        else{
-          alert("올바른 이메일 형식이 아닙니다!")
+        } else {
+          alert("올바른 이메일 형식이 아닙니다!");
         }
       });
   };
@@ -430,7 +429,10 @@ export default function Signup() {
                   disabled={buttonDisabled2}
                 >
                   회원가입
-                  <i className="fa-solid fa-right-to-bracket fa-lg" style={{color: "#fcfcfd",marginLeft : "15px"}}></i>
+                  <i
+                    className="fa-solid fa-right-to-bracket fa-lg"
+                    style={{ color: "#fcfcfd", marginLeft: "15px" }}
+                  ></i>
                 </button>
               </div>
             </form>
@@ -438,16 +440,14 @@ export default function Signup() {
           <div
             className="signup_back"
             onClick={() => {
-              const signupElement = document.querySelector(".signup_signup")
-    
+              const signupElement = document.querySelector(".signup_signup");
+
               if (signupElement) {
-                signupElement.classList.add("signup_transition-exit-active")
-    
+                signupElement.classList.add("signup_transition-exit-active");
               }
               setTimeout(() => {
                 navigate("/login");
               }, 300);
-
             }}
           >
             이전 화면으로 돌아가기

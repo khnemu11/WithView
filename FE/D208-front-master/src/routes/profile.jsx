@@ -23,7 +23,7 @@ const Profile = () => {
   const profileNickname = useSelector((state) => state.user.nickname);
   const userPk = useSelector((state) => state.user.seq);
   const token = useSelector((state) => state.token);
-  const stomp = useSelector((state)=>state.stomp);
+  const stomp = useSelector((state) => state.stomp);
   const [profilePassword, setProfilePassword] = useState("");
   const [profilePasswordCheck, setProfilePasswordCheck] = useState("");
   const [profileLeaveCheck, setProfileLeaveCheck] = useState("");
@@ -40,24 +40,24 @@ const Profile = () => {
   const url = "https://i9d208.p.ssafy.io/api";
 
   const imageStyle = {
-    borderRadius: editedImageShow ? '50%' : '0%'
+    borderRadius: editedImageShow ? "50%" : "0%",
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     axiosInstance({
-      headers : {
-        "Authorization" : `Bearer ${token}`
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-      method : "GET",
-      url : `/users/${userPk}`
+      method: "GET",
+      url: `/users/${userPk}`,
     })
-    .then((res)=>{
-      setProfileMessage(res.data.UserInfo.profileMsg)
-    })
-    .catch((err)=>{
-      console.log(err)
-    })
-  },[profileMessage])
+      .then((res) => {
+        setProfileMessage(res.data.UserInfo.profileMsg);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [profileMessage]);
 
   useEffect(() => {
     // 만약 redux에서 프로필 이미지가 null이면 기본 이미지로 설정
@@ -81,12 +81,11 @@ const Profile = () => {
     return new Blob([uint8Array], { type: "image/png" });
   }
 
-  
   const checkLogout = (e) => {
     e.preventDefault();
     axiosInstance({
-      headers : {
-        "Authorization" : `Bearer ${token}`
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
       method: "POST",
       url: `/login/logout`,
@@ -96,18 +95,19 @@ const Profile = () => {
         console.log(res.data);
         if (res.data.success) {
           alert("로그아웃 되었습니다.");
-          if (stomp !== null){
-            
+          if (stomp !== null) {
             stomp.disconnect(
-              {"userSeq": userPk}, 
-              (res)=>{
-                console.log(res)
+              { userSeq: userPk },
+              (res) => {
+                console.log(res);
               },
-              (err) =>{console.log(err)},
-              );
+              (err) => {
+                console.log(err);
+              }
+            );
           }
-          
-          dispatch(clearStomp())
+
+          dispatch(clearStomp());
           dispatch(clearToken());
           dispatch(clearUser());
           navigate("/login");
@@ -122,18 +122,18 @@ const Profile = () => {
   const withdrawal = (e) => {
     e.preventDefault();
     axiosInstance({
-      headers : {
-        "Authorization" : `Bearer ${token}`
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
       method: "DELETE",
       url: `/users/${userPk}`,
-      data : {
-        password : profileLeaveCheck
-      }
+      data: {
+        password: profileLeaveCheck,
+      },
     })
       .then((res) => {
         console.log(res.data);
-        dispatch(clearStomp())
+        dispatch(clearStomp());
         dispatch(clearToken());
         dispatch(clearUser());
         navigate("/login");
@@ -142,36 +142,36 @@ const Profile = () => {
         console.log(err);
       });
   };
-  const handleModifyPassword = (e)=>{
-    e.preventDefault()
-    if (profilePassword.includes(" ") ||
-    !/^(?=.*[a-zA-Z])(?=.*[!@#$%^&*()\-_=+[\]{};:'",.<>/?\\|~`])[a-zA-Z\d!@#$%^&*()\-_=+[\]{};:'",.<>/?\\|~`]{8,16}$/.test(
-      profilePassword
-    ) || profilePassword !== profilePasswordCheck){
-
-      alert("비밀번호를 다시 입력해주세요!")
-    }
-    else {
+  const handleModifyPassword = (e) => {
+    e.preventDefault();
+    if (
+      profilePassword.includes(" ") ||
+      !/^(?=.*[a-zA-Z])(?=.*[!@#$%^&*()\-_=+[\]{};:'",.<>/?\\|~`])[a-zA-Z\d!@#$%^&*()\-_=+[\]{};:'",.<>/?\\|~`]{8,16}$/.test(
+        profilePassword
+      ) ||
+      profilePassword !== profilePasswordCheck
+    ) {
+      alert("비밀번호를 다시 입력해주세요!");
+    } else {
       axiosInstance({
         headers: {
-          "Authorization" : `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        method : "PUT",
-        url : `/users/${userPk}/password?var=2`,
-        data : {password : profilePassword}
+        method: "PUT",
+        url: `/users/${userPk}/password?var=2`,
+        data: { password: profilePassword },
       })
-      .then((res)=>{
-        console.log(res.data)
-        alert("비밀번호 변경 완료!")
-        setProfilePassword("")
-        setProfilePasswordCheck("")
-      })
-      .catch((err)=>{
-        console.log(err)
-        
-      })
+        .then((res) => {
+          console.log(res.data);
+          alert("비밀번호 변경 완료!");
+          setProfilePassword("");
+          setProfilePasswordCheck("");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
-  }
+  };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -188,14 +188,14 @@ const Profile = () => {
   const handleCropImage = () => {
     const imageElement = cropperRef?.current;
     const cropper = imageElement?.cropper;
-    
+
     const croppedImageDataURL = cropper
       .getCroppedCanvas({
         width: 300,
         height: 300,
       })
       .toDataURL("image/png");
-    
+
     // console.log(croppedImageDataURL)
     const blob = base64ToBlob(croppedImageDataURL);
 
@@ -218,59 +218,58 @@ const Profile = () => {
     axiosInstance({
       headers: {
         "Content-Type": "multipart/form-data",
-        "Authorization" : `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
-      method : "POST",
-      url : `/users/${userPk}`,
-      data : {file : editedImage, profileMsg : tempProfileMessage}
+      method: "POST",
+      url: `/users/${userPk}`,
+      data: { file: editedImage, profileMsg: tempProfileMessage },
     })
-    .then((res)=>{
-      console.log(res.data)
-      const userInfo = {
-        seq: userPk,
-        nickname: profileNickname,
-        profile: res.data.UserInfo.profileImgSearchName,
-      };
-      setProfileMessage(res.data.UserInfo.profileMsg)
-      dispatch(setUser(userInfo))
-      alert('프로필 변경 완료!')
-    })
-    .catch((err)=>{
-      console.log(err)
-    })
+      .then((res) => {
+        console.log(res.data);
+        const userInfo = {
+          seq: userPk,
+          nickname: profileNickname,
+          profile: res.data.UserInfo.profileImgSearchName,
+        };
+        setProfileMessage(res.data.UserInfo.profileMsg);
+        dispatch(setUser(userInfo));
+        alert("프로필 변경 완료!");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleConfirmNicknameButtonClick = (e) => {
-    e.preventDefault()
-    if(tempProfileNickname.includes(" ") ||
-    !/^[\u3131-\u318E\uAC00-\uD7A3a-zA-Z\d]{2,6}$/.test(
-      tempProfileNickname
-    )){
-      alert("닉네임을 다시 입력해 주세요!")
-      setTempProfileNickname("")
-    }
-    else {
+    e.preventDefault();
+    if (
+      tempProfileNickname.includes(" ") ||
+      !/^[\u3131-\u318E\uAC00-\uD7A3a-zA-Z\d]{2,6}$/.test(tempProfileNickname)
+    ) {
+      alert("닉네임을 다시 입력해 주세요!");
+      setTempProfileNickname("");
+    } else {
       axiosInstance({
         headers: {
-          "Authorization" : `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        method : "PUT",
-        url : `/users/${userPk}/nickname?nickname=${tempProfileNickname}`,
+        method: "PUT",
+        url: `/users/${userPk}/nickname?nickname=${tempProfileNickname}`,
       })
-      .then((res)=>{
-        console.log(res.data)
-        const userInfo = {
-          seq: userPk,
-          nickname: res.data.UserInfo.nickname,
-          profile: profileImageURL,
-        };
-        dispatch(setUser(userInfo))
-        alert('닉네임 변경 완료!')
-        setTempProfileNickname("")
-      })
-      .catch((err)=>{
-        console.log(err)
-      })
+        .then((res) => {
+          console.log(res.data);
+          const userInfo = {
+            seq: userPk,
+            nickname: res.data.UserInfo.nickname,
+            profile: profileImageURL,
+          };
+          dispatch(setUser(userInfo));
+          alert("닉네임 변경 완료!");
+          setTempProfileNickname("");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
   };
 
@@ -290,7 +289,7 @@ const Profile = () => {
             <p className="profile-text">새 프로필 사진을 올려주세요!</p>
             <label htmlFor="imageUpload">
               <img
-                src={editedImageShow ? editedImageShow : '/uploadimage.png'}
+                src={editedImageShow ? editedImageShow : "/uploadimage.png"}
                 className="image-upload"
                 style={imageStyle}
                 alt="Upload"
@@ -372,7 +371,8 @@ const Profile = () => {
             </div>
             <br></br>
             <div className="button-div">
-              <button className="button mt-2 has-text-white profile-ok-button"
+              <button
+                className="button mt-2 has-text-white profile-ok-button"
                 onClick={handleModifyPassword}
               >
                 확인

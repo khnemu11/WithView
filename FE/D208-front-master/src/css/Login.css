@@ -125,10 +125,15 @@
   }
 
   .login_transition-enter {
-    transform: translateX(-100%); /* 초기에 오른쪽으로 이동 */
+    transform: translateX(-100%); /* 초기에 왼쪽으로 이동 */
   }
   
   .login_transition-enter-active {
     transform: translateX(0); /* 왼쪽으로 원래 위치로 이동 (0으로 설정) */
     transition: transform 0.5s ease; /* 0.3초 동안 transition 효과 적용 */
+  }
+
+  .login_transition-exit-active {
+    transform: translateX(-100%); /* 초기에 왼쪽으로 이동 */
+    transition: transform 0.3s ease;
   }

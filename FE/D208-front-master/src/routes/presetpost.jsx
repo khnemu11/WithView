@@ -46,8 +46,8 @@ function Presetpost() {
       .then((res) => {
         console.log(res.data.BoardInfo);
         setPostContent(res.data.BoardInfo);
-        if (res.data.BoardInfo.userSeq === userPk){
-            setModifyButton(true)
+        if (res.data.BoardInfo.userSeq === userPk) {
+          setModifyButton(true);
         }
       })
       .catch((err) => {
@@ -96,24 +96,22 @@ function Presetpost() {
         setIsModalActive(false);
 
         axiosInstance({
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      method: "GET",
-      url: `/board/${seq}`,
-    })
-      .then((res) => {
-        console.log(res.data.BoardInfo);
-        setPostContent(res.data.BoardInfo);
-        if (res.data.BoardInfo.userSeq === userPk){
-            setModifyButton(true)
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-        
-
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          method: "GET",
+          url: `/board/${seq}`,
+        })
+          .then((res) => {
+            console.log(res.data.BoardInfo);
+            setPostContent(res.data.BoardInfo);
+            if (res.data.BoardInfo.userSeq === userPk) {
+              setModifyButton(true);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       })
       .catch((err) => {
         console.log(err);
@@ -124,17 +122,30 @@ function Presetpost() {
     const presetUrl = `https://dm51j1y1p1ekp.cloudfront.net/preset/${el.presetImgSearchName}`;
     const isSelected = selectedImageId.includes(el.id);
     return (
-        <div className="card" key = {el.id} style={{marginBottom : "30px"}}>
+      <div className="card" key={el.id} style={{ marginBottom: "30px" }}>
         <header className="card-header">
-
-        <p className="card-header-title" style={{fontSize : "22px" ,fontWeight : "bold"}}>{el.presetName}</p>
+          <p
+            className="card-header-title"
+            style={{ fontSize: "22px", fontWeight: "bold" }}
+          >
+            {el.presetName}
+          </p>
         </header>
-        <div className={`card-content board_modal_image is-21by9`} onClick={()=>handleImageClick(el.id)}>
-
-          <img className={`${isSelected ? 'board_modal_image_selected' : ''}`}src={presetUrl} alt="아오"/>
+        <div
+          className={`card-content board_modal_image is-21by9`}
+          onClick={() => handleImageClick(el.id)}
+        >
+          <img
+            className={`${isSelected ? "board_modal_image_selected" : ""}`}
+            src={presetUrl}
+            alt="아오"
+          />
           {isSelected && (
-            <i className="fa-solid fa-check fa-bounce fa-5x board_check_icon" style={{color: "#0aeb24"}}></i>
-        )}
+            <i
+              className="fa-solid fa-check fa-bounce fa-5x board_check_icon"
+              style={{ color: "#0aeb24" }}
+            ></i>
+          )}
         </div>
       </div>
     );
@@ -244,7 +255,7 @@ function Presetpost() {
           <div className="media">
             <div className="media-left" style={{ marginRight: "25px" }}>
               <figure className="image is-96x96">
-                <img src={profileImageUrl2} alt="Placeholder image"/>
+                <img src={profileImageUrl2} alt="Placeholder image" />
               </figure>
             </div>
 
@@ -254,21 +265,33 @@ function Presetpost() {
             </div>
           </div>
 
-          <div className="content" >
+          <div className="content">
             <blockquote>{postContent.content}</blockquote>
             <br />
             <p className="subtitle is-5">{postContent.registerTime}</p>
           </div>
 
           <div className="presetpost_buttons">
-            
-            <i className="fa-solid fa-chevron-left fa-3x presetpost_icon" onClick={() => navigate("/board")}></i>
-            
-            <i className="fa-solid fa-download fa-5x presetpost_icon" onClick={makeFileImg}></i>
+            <i
+              className="fa-solid fa-chevron-left fa-3x presetpost_icon"
+              onClick={() => navigate("/board")}
+            ></i>
+
+            <i
+              className="fa-solid fa-download fa-5x presetpost_icon"
+              onClick={makeFileImg}
+            ></i>
             <div className={`${modifyButton ? "" : "is-hidden"}`}>
-                <i className="fa-solid fa-pen-to-square fa-3x presetpost_icon" onClick={UpdateContent} style={{marginRight : "20px"}}></i>
-                <i className="fa-solid fa-trash-can fa-3x presetpost_icon" onClick={DeleteContent} style={{marginLeft : "20px"}}></i>
-              
+              <i
+                className="fa-solid fa-pen-to-square fa-3x presetpost_icon"
+                onClick={UpdateContent}
+                style={{ marginRight: "20px" }}
+              ></i>
+              <i
+                className="fa-solid fa-trash-can fa-3x presetpost_icon"
+                onClick={DeleteContent}
+                style={{ marginLeft: "20px" }}
+              ></i>
             </div>
           </div>
         </div>
@@ -282,8 +305,13 @@ function Presetpost() {
           }} // 모달 배경 클릭 시 모달 닫기
         ></div>
         <div className="modal-card board_modal_card">
-          <header className="modal-card-head" style={{backgroundColor : "white"}}>
-            <p className="modal-card-title board_modal_card_title">창작마당 수정</p>
+          <header
+            className="modal-card-head"
+            style={{ backgroundColor: "white" }}
+          >
+            <p className="modal-card-title board_modal_card_title">
+              창작마당 수정
+            </p>
             <button
               className="delete"
               aria-label="close"
@@ -306,7 +334,7 @@ function Presetpost() {
             <hr />
             <p className="board_modal_card_inputtitle">프리셋을 선택하세요!</p>
             {PresetImages}
-            
+
             <p className="board_modal_card_inputtitle">내용</p>
             <textarea
               className="textarea board_modal_card_content"
