@@ -296,11 +296,17 @@ const Serverpage = () => {
 
   const ChannelCard = ({ channel, isHost, channelMemberData }) => {
     const membersCount = channelMemberData[channel.seq]?.length || 0; // 채널에 대한 참여자 수 가져오기
-    const channelMember = channelMemberData[channel.seq];
-    console.log("channelMember", channelMember);
+    const channelMember = channelMemberData[channel.seq] || [];
+    console.log("channelMemberData", channelMemberData);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const togglePopover = () => {
       setIsPopoverOpen(!isPopoverOpen);
+    };
+
+    const [ProfilePopoverOpen, setProfilePopoverOpen] = useState(false);
+
+    const closeProfilePopover = () => {
+      setProfilePopoverOpen(false);
     };
 
     const popoverBody = (
@@ -325,6 +331,24 @@ const Serverpage = () => {
         >
           채널 삭제
         </button>
+      </div>
+    );
+
+    const popoverBody2 = (
+      <div
+        style={{
+          borderRadius: "10px",
+          padding: "10px",
+        }}
+      >
+        <div className="profilePopup">
+          {channelMember &&
+            channelMember.map((member) => (
+              <div key={member.seq}>
+                <img src={`https://dm51j1y1p1ekp.cloudfront.net/profile/${member.profileImgSearchName}`} alt={member.nickname} />
+              </div>
+            ))}
+        </div>
       </div>
     );
 
@@ -373,29 +397,21 @@ const Serverpage = () => {
             </div>
           )}
         </div>
-        <p
-          className="channelCard-members"
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+        <Popover
+          key={ProfilePopoverOpen}
+          isOpen={ProfilePopoverOpen}
+          body={popoverBody2}
+          place="right"
+          tipSize={0.01}
+          onOuterAction={closeProfilePopover} // 외부 클릭시 닫힘
         >
-          참여자 {membersCount}명
-        </p>
-        {showProfileList && (
-          <div
-            className="profilePopup"
-            style={{ left: position.x, top: position.y }}
+          <p
+            className="channelCard-members"
+            onClick={() => setProfilePopoverOpen(!ProfilePopoverOpen)}
           >
-            {channelMember &&
-              channelMember.map((member) => (
-                <div key={member.seq}>
-                  <img
-                    src={member.profileImgSearchName}
-                    alt={member.nickname}
-                  />
-                </div>
-              ))}
-          </div>
-        )}
+            참여자 {membersCount}명
+          </p>{" "}
+        </Popover>
       </div>
     );
   };
@@ -581,23 +597,6 @@ const Serverpage = () => {
     } catch (error) {
       console.error("Error creating invite link:", error);
     }
-  };
-
-  const [showProfileList, setShowProfileList] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-
-  const handleMouseEnter = (event) => {
-    setShowProfileList(true);
-
-    // 현재 마우스 위치에 따라 팝업 위치 결정
-    setPosition({
-      x: event.clientX,
-      y: event.clientY,
-    });
-  };
-
-  const handleMouseLeave = () => {
-    setShowProfileList(false);
   };
 
   return (
