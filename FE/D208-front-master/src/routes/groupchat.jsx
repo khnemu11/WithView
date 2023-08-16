@@ -1560,17 +1560,24 @@ export default function GroupChat() {
     });
 
     video.on("contextmenu", function (e) {
+      console.log(e.target);
       e.evt.preventDefault();
-      video.setAttrs({
-        x: -5,
-        y: -5,
-        draggable: false,
-        width: window.innerWidth + 10,
-        height: window.innerHeight + 10,
-      });
-      layer.draw();
-      console.log(video.attrs);
-      console.log(layer);
+      // video.setAttrs({
+      //   x: -5,
+      //   y: -5,
+      //   draggable: false,
+      //   width: window.innerWidth + 10,
+      //   height: window.innerHeight + 10,
+      // });
+      // layer.draw();
+      // console.log(video.attrs);
+      // console.log(layer);
+      const shaerVideoId = e.target.attrs.image.id;
+      const sharingVideoDiv = document.getElementById("container-screens");
+      const targetVideo = sharingVideoDiv.querySelector("#" + shaerVideoId);
+
+      const destinationContainer = document.getElementById("bigfulldiv");
+      destinationContainer.appendChild(targetVideo);
       setFullscreen(false);
       setsettingsClicked(false);
       setstickerClicked(false);
@@ -1578,20 +1585,24 @@ export default function GroupChat() {
     });
   }
   function pushX() {
-    let targerlayer = stage.current.children[3];
-    let sharescreen = targerlayer.find((node) => node.id().endsWith("-share"));
-    if (sharescreen[0]) {
-      console.log(sharescreen[0]);
-      console.log(sharescreen[0].attrs);
-      sharescreen[0].setAttrs({
-        x: 10,
-        y: 10,
-        width: 300,
-        height: 300,
-        draggable: true,
-      });
-      targerlayer.draw();
-    }
+    // let targerlayer = stage.current.children[3];
+    // let sharescreen = targerlayer.find((node) => node.id().endsWith("-share"));
+    // if (sharescreen[0]) {
+    //   console.log(sharescreen[0]);
+    //   console.log(sharescreen[0].attrs);
+    //   sharescreen[0].setAttrs({
+    //     x: 10,
+    //     y: 10,
+    //     width: 300,
+    //     height: 300,
+    //     draggable: true,
+    //   });
+    //   targerlayer.draw();
+    // }
+    const destinationContainer = document.getElementById("bigfulldiv");
+    const targetVideo = destinationContainer.querySelector("video");
+    const videoBox = document.getElementById("container-screens");
+    videoBox.appendChild(targetVideo);
     setFullscreen(true);
   }
 
@@ -1833,7 +1844,7 @@ export default function GroupChat() {
         {/* 전체화면 종료 */}
         <div>
           <img
-            src={x}
+            src={back}
             alt="엑스"
             onClick={pushX}
             className={fullscreen ? "fullscreen-x-hidden" : "fullscreen-x"}
@@ -2142,6 +2153,7 @@ export default function GroupChat() {
           <div id="speakingdiv" className="speakingdiv"></div>
           <div id="speakingName" className="speakingName"></div>
         </div>
+        <div id="bigfulldiv" className="bigfulldiv"></div>
       </div>
     </>
   );

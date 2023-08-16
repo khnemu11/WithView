@@ -9,7 +9,7 @@ button {
 }
 
 .cam-dev-block {
-  display: none;
+  /* display: none; */
 }
 
 .groupchat {
@@ -55,16 +55,19 @@ button {
 }
 
 .fullscreen-x {
+  transform: scaleX(-1);
   position: absolute;
   transition-duration: 0.8s;
   top: 10px;
   right: 10px;
   height: 61px;
   width: 63px;
-  opacity: 0.5;
+  opacity: 0.3;
+  z-index: 900;
 }
 
 .fullscreen-x-hidden {
+  transform: scaleX(-1);
   transform: translatex(200%);
   transition-duration: 0.8s;
   position: absolute;
@@ -72,7 +75,8 @@ button {
   right: 10px;
   height: 61px;
   width: 63px;
-  opacity: 0.5;
+  opacity: 0.3;
+  z-index: 900;
 }
 
 .side-menu-div {
@@ -497,6 +501,7 @@ button {
   bottom: 0px;
   width: 25%;
   height: 50%;
+  z-index: 900;
 }
 
 @keyframes fadein {
@@ -559,6 +564,7 @@ button {
   border-top: 1px solid #f7fbfc;
   background-color: #00000080;
   bottom: 0px;
+  z-index: 900;
 }
 
 .fullscreen-chat-input-kan {
@@ -589,6 +595,7 @@ button {
   bottom: 0px;
   padding: 10px 0 10px 10px;
   width: 60%;
+  z-index: 900;
 }
 
 @keyframes fadein {
@@ -610,6 +617,7 @@ button {
   padding: 0 0 10px 10px;
   width: 25%;
   height: 50%;
+  z-index: 900;
 }
 
 @keyframes fadeout {
@@ -673,6 +681,7 @@ button {
   border-top: 1px solid #f7fbfc;
   background-color: #00000080;
   bottom: 0px;
+  z-index: 900;
 }
 
 .fullscreen-face-hidden {
@@ -685,6 +694,7 @@ button {
   bottom: 0px;
   padding: 10px 0 10px 10px;
   width: 60%;
+  z-index: 900;
 }
 
 @keyframes fadeout {
@@ -784,12 +794,26 @@ button {
 .myChatdivF,
 .yourChatdivF {
   display: flex;
+  padding-top: 16px;
 }
 
 .myChatHeaderF,
 .yourChatHeaderF {
-  min-width: 55px;
+  min-width: 40px;
+  padding-top: initial;
   width: auto;
+}
+
+.bigfulldiv {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #000000cd;
+}
+
+.bigfulldiv video {
+  height: 100vh;
+  width: 100vw;
 }
 
 #profile {
