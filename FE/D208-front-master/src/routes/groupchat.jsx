@@ -81,7 +81,27 @@ export default function GroupChat() {
   function profileSettings() {
     navigate("/profile");
   }
-
+  const deleteChannel = () => {
+    console.log("채널 지우기 버튼 클릭");
+    const headers = {
+      Authorization: `Bearer ${Token}`,
+    };
+    if (confirm("정말 채널을 삭제하시겠습니까?")) {
+      axiosInstance
+        .delete(`/servers/${serverSeq}/channels/${channelSeqRef.current}`, {
+          headers,
+        })
+        .then((response) => {
+          alert("채널을 성공적으로 삭제하였습니다.");
+          navigate(`/server/${serverSeq}`);
+        })
+        .catch((err) => {
+          alert("채널 삭제를 실패했습니다.");
+          console.log("에러 발생");
+          console.log(err);
+        });
+    }
+  };
   function micSettings() {
     setmicClicked((prevmicClicked) => !prevmicClicked);
     if (publisher) {
@@ -179,13 +199,25 @@ export default function GroupChat() {
   };
 
   const chnameChange = () => {
-    axios
-      .put("https://api.example.com/channels/123", { name: acc_ch_name })
+    const headers = {
+      Authorization: `Bearer ${Token}`,
+    };
+    let formData = new FormData();
+    formData.append("name", acc_ch_name);
+
+    axiosInstance
+      .post(
+        `/servers/${serverSeq}/channels/${channelSeqRef.current}`,
+        formData,
+        { headers }
+      )
       .then((response) => {
+        alert("채널 이름을 변경하였습니다.");
         console.log(response);
       })
-      .catch((error) => {
-        console.log("PUT 요청 에러:", error);
+      .catch((err) => {
+        alert("채널 이름 변경을 실패하였습니다.");
+        console.log(err);
       });
   };
 
@@ -317,6 +349,13 @@ export default function GroupChat() {
     });
   };
 
+  const hideMenu = () => {
+    // hide menu
+    let deleteBtn = document.querySelector("#delete-button");
+    deleteBtn.setAttribute("data-imgid", "");
+    let menuNode = document.getElementById("delete-img-menu");
+    menuNode.style.display = "none";
+  };
   useEffect(() => {
     init();
 
@@ -345,8 +384,11 @@ export default function GroupChat() {
 
   useEffect(() => {
     window.addEventListener("resize", resizeWindow);
+    window.addEventListener("click", hideMenu);
+
     return () => {
       window.removeEventListener("resize", resizeWindow);
+      window.removeEventListener("click", hideMenu);
     };
   }, [windowSize]);
 
@@ -682,11 +724,6 @@ export default function GroupChat() {
         images[i].dragBoundFunc(limitDragBounds);
         var menuNode = document.getElementById("delete-img-menu");
 
-        window.addEventListener("click", () => {
-          // hide menu
-          menuNode.style.display = "none";
-        });
-
         // 우클릭 이벤트 핸들러 등록
         images[i].on("contextmenu", function (e) {
           e.evt.preventDefault();
@@ -1019,19 +1056,29 @@ export default function GroupChat() {
   }
 
   //외부를 클릭하면 우클릭 메뉴가 없어지는 것
-  window.addEventListener("click", () => {
-    // hide menu
-    let deleteBtn = document.querySelector("#delete-button");
-    deleteBtn.setAttribute("data-imgid", "");
-    let menuNode = document.getElementById("delete-img-menu");
-    menuNode.style.display = "none";
-  });
+  // window.addEventListener("click", () => {
+  //   if (location.pathname.indexOf("/groupchat") == -1) {
+  //     return;
+  //   }
+  //   // hide menu
+  //   let deleteBtn = document.querySelector("#delete-button");
+  //   deleteBtn.setAttribute("data-imgid", "");
+  //   let menuNode = document.getElementById("delete-img-menu");
+  //   menuNode.style.display = "none";
+  // });
 
   function publishScreenShare() {
     // --- 9.1) To create a publisherScreen set the property 'videoSource' to 'screen'
     console.log("스크린 ov");
     console.log(stage);
     console.log(ScreenOV.current);
+    if (ScreenOV.current != null && ScreenOV.current.publishers.length > 0) {
+      for (let i = 0; i < ScreenOV.current.publishers.length; i++) {
+        console.log("기존에 존재한 스트림");
+        console.log(ScreenOV.current.publishers[i]);
+        sessionScreen.current.unpublish(ScreenOV.current.publishers[i]);
+      }
+    }
     var publisherScreen = ScreenOV.current.initPublisher("container-screens", {
       videoSource: "screen",
     });
@@ -1903,7 +1950,7 @@ export default function GroupChat() {
                 </div>
               </div>
               <div className="accordion">
-                <div className="accordion-item">
+                <div className="accordion-item" onMouseUp={deleteChannel}>
                   <div className="accordion-header">채널 지우기</div>
                   <div className="accordion-content"></div>
                 </div>
