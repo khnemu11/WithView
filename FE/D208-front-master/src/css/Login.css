@@ -4,12 +4,15 @@
     align-items: center;
     width: 100vw;
     height: 100vh;
+    overflow: auto;
+    flex-wrap: wrap;
 }
 
 .login_wrap { 
     background-color: #F7FBFC;
     width: 70%;
     height: 80%;
+    min-height: 700px;
     border-radius: 20px;
     display: flex;
     justify-content: center;
@@ -87,10 +90,10 @@
     }
     
      .login_input{
-        font-size: 20px;
+        font-size: 30px;
     }
     .login_button{
-        font-size: 20px;
+        font-size: 30px;
     }
     .login_base{
         display: flex;
@@ -99,96 +102,24 @@
     }
 
     .login_label{
-        font-size: 2vw;
+        font-size: 2.5vw;
     }
     .login_findes {
-       font-size: 2vw;
+       font-size: 2.5vw;
     }
-    .login_wrap{
-        
+    .login_title{
+        font-size: 6vw;
     }
   }
 
   @media screen and (max-height : 800px) {
      .login_input{
-        font-size: 20px;
+        font-size: 35px;
     }
     .login_button{
-        font-size: 20px;
-    }
-    
-    .login_label{
-        font-size: 2vh;
-    }
-    .login_findes {
-       font-size: 2vh;
-    }
-    .login_title {
-        font-size: 3vh;
-    }
-  }
-/* @media screen and (max-height: 700px) {
-    .login_button {
-        font-size: 30px;
-      }
-    .login_input {
-        font-size : 30px;
-    }
-    .login_label{
-        font-size: 20px;
-    }
-    .login_hello{
-        font-size : 35px
-    }
-    .login_findes{
-        font-size: 15px;
-    }
-  } */
-/* @media screen and (max-width: 768px) {
-    .login_button {
-        font-size: 30px;
-      }
-    .login_input {
-        font-size : 30px;
-    }
-    .login_label{
-        font-size: 20px;
-    }
-    .login_hello{
-        font-size : 35px
-    }
-    .login_findes{
-        font-size: 15px;
-    }
-    
-    .login_inputs{
-        height: 40%;
-    }
-    .login_input2Wrap{
-        display: none;
+        font-size: 35px;
     }
 
-    .login_buttons{
-        height: 40%;
-    }
-  } */
-  
-  /* @media screen and (max-width : 570px){
-    .login_button {
-        font-size: 4vw;
-      }
-    .login_input {
-        font-size : 20px;
-    }
-    .login_label{
-        font-size: 4vw;
-    }
-    .login_hello{
-        font-size : 25px
-    }
-    .login_findes{
-        font-size: 13px;
-    }
-  }   */
+  }
 
   

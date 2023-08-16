@@ -1,0 +1,70 @@
+.board_input {
+    width: 60%;
+    height: 15%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: x-large;
+}
+
+.board_card {
+    width: 29%;
+    cursor: pointer;
+    border-radius: 5%;
+    
+}
+
+.board_card:hover {
+  transform: scale(1.05); /* 이미지 크기를 1.05배로 확대 */
+  filter: brightness(0.8); /* 이미지 어둡게 설정 (0.8은 어두운 정도, 1이 원래 밝기) */
+  transition: transform 0.3s, filter 0.3s;
+}
+.board_card_footer {
+  font-weight: bold;
+  margin-left: 5%;
+}
+.board_modal_card{
+    width: 50vw; /* 카드의 너비 설정 */
+  height: 80vh; /* 카드의 높이 설정 */
+  overflow: auto; /* 스크롤 가능한 영역으로 설정 */
+}
+
+.board_notice{
+    width: 100%;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-left: 20px;
+}
+.board_modal_image {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+.board_modal_image:hover {
+    transform: scale(1.05); /* 이미지 크기를 1.05배로 확대 */
+  filter: brightness(0.8); /* 이미지 어둡게 설정 (0.8은 어두운 정도, 1이 원래 밝기) */
+  transition: transform 0.3s, filter 0.3s;
+}
+
+.board_check_icon {
+position: absolute;
+  z-index: 1;
+}
+
+
+.board_modal_image_selected{
+    filter: brightness(0.6);
+}
+
+.board_write:hover {
+  cursor: pointer;
+  transform: scale(1.2); /* 이미지 크기를 1.05배로 확대 */
+  transition: transform 0.3s;
+
+}
