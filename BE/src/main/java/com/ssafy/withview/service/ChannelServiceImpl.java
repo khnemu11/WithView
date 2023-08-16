@@ -114,6 +114,9 @@ public class ChannelServiceImpl implements ChannelService{
 	@Override
 	public ChannelDto updateChannel(ChannelDto channelDto,MultipartFile multipartFile,Long serverSeq) throws Exception{
 		ChannelEntity channelEntity = channelRepository.findBySeq(channelDto.getSeq());
+		channelDto.setBackgroundImgOriginalName(channelEntity.getBackgroundImgOriginalName());
+		channelDto.setBackgroundImgSearchName(channelEntity.getBackgroundImgSearchName());
+
 		log.info("대상 채널 " + channelEntity);
 		if(channelEntity == null){
 			throw new Exception("대상 서버가 없음");
