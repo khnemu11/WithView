@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Konva from "konva";
 import { OpenVidu } from "openvidu-browser";
 import SockJS from "sockjs-client";
@@ -16,24 +16,6 @@ import chat from "../assets/chat.png";
 import back from "../assets/back.png";
 import exit from "../assets/exit.png";
 import x from "../assets/x.png";
-import room2 from "../assets/room2.jpg";
-import pool from "../assets/pool.png";
-import smile from "../assets/imo/smile.png";
-import love from "../assets/imo/love.png";
-import normal from "../assets/imo/normal.png";
-import sad from "../assets/imo/sad.png";
-import sick from "../assets/imo/sick.png";
-import anger from "../assets/imo/anger.png";
-import sleep from "../assets/imo/sleep.png";
-import think from "../assets/imo/think.png";
-import vomit from "../assets/imo/vomit.png";
-import baby from "../assets/imo/baby.png";
-import upset from "../assets/imo/upset.png";
-import yummy from "../assets/imo/yummy.png";
-import maelong from "../assets/imo/maelong.png";
-import ghost from "../assets/imo/ghost.png";
-import santa from "../assets/imo/santa.png";
-import dino from "../assets/imo/dino.png";
 import withview from "../assets/withview.png";
 import "../css/groupchat.css";
 import axios from "axios";
@@ -46,6 +28,7 @@ import PresetLoadModal from "./components/presetLoadModal";
 import StickerContainer from "./components/stickerContainer";
 
 export default function GroupChat() {
+  const navigate = useNavigate();
   const windowSize = useRef([window.innerWidth, window.innerHeight]);
   const [backClicked, setbackClicked] = useState(false);
   const [profileClicked, setprofileClicked] = useState(false);
@@ -79,6 +62,9 @@ export default function GroupChat() {
   const { state } = useLocation();
   const { serverSeq, channelSeq } = state;
   const [presetLoadClicked, setPresetLoadClicked] = useState(false);
+  const openFriendListInNewWindow = () => {
+    window.open("/friendlist", "_blank", "width=900,height=600");
+  };
 
   function presetLoadClickedChange() {
     setPresetLoadClicked((presetLoadClicked) => !presetLoadClicked);
@@ -258,6 +244,11 @@ export default function GroupChat() {
   let channelSeqRef = useRef(channelSeq);
   let currentShape;
 
+  const handleBackButton = () => {
+    if (stomp.current) stomp.current.disconnect();
+    console.log("뒤로가기 버튼이 눌렸습니다.");
+  };
+
   const init = () => {
     console.log("첫입장");
     joinSession();
@@ -330,6 +321,10 @@ export default function GroupChat() {
 
   useEffect(() => {
     init();
+
+    return () => {
+      leaveSession();
+    };
   }, []);
 
   const resizeWindow = () => {
@@ -987,8 +982,19 @@ export default function GroupChat() {
     );
 
     return () => {
-      channelSubscribe.unsubscribe(); // 컴포넌트 언마운트 시 구독 해제
-      stomp.disconnect(); // 컴포넌트 언마운트 시 연결 해제
+      console.log("채널 나감");
+      console.log(stomp);
+      channelSubscribe.unsubscribe(
+        `/api/sub/chat/channel/${channelSeqRef.current}`,
+        function () {
+          stomp.send(
+            `/api/pub/server/${serverSeq}/channel/${channelSeqRef.current}/leave`,
+            {},
+            JSON.stringify({ userSeq: { userSeq } })
+          );
+        }
+      );
+      stomp.current.disconnect(); // 컴포넌트 언마운트 시 연결 해제
     };
   }
 
@@ -1024,6 +1030,7 @@ export default function GroupChat() {
           console.log('User pressed the "Stop sharing" button');
           sessionScreen.current.unpublish(publisherScreen);
           screensharing = false;
+          setFullscreen(true);
         });
       sessionScreen.current.publish(publisherScreen);
     });
@@ -1048,14 +1055,11 @@ export default function GroupChat() {
     // sessionScreen.current.disconnect();
     session.current.disconnect();
     sessionScreen.current.disconnect();
+    if (stomp.current) stomp.current.disconnect();
     // Removing all HTML elements with user's nicknames.
     // HTML videos are automatically removed when leaving a Session
 
     removeAllUserData();
-    //그런데 이 밑은 화상 채팅과 채널명 입력을 바꾸는 곳이라 필요 없음
-    // Back to 'Join session' page
-    document.getElementById("join").style.display = "block";
-    document.getElementById("session").style.display = "none";
     screensharing = false;
   }
 
@@ -1065,6 +1069,7 @@ export default function GroupChat() {
   window.onbeforeunload = function () {
     if (session) session.current.disconnect();
     if (session) sessionScreen.current.disconnect();
+    if (stomp.current) stomp.current.disconnect();
   };
 
   //오픈비두 예제 함수
@@ -1730,6 +1735,12 @@ export default function GroupChat() {
       chatLogFull.appendChild(yourFullChat);
     }
   }
+
+  function goToCreateYard() {
+    leaveSession();
+    navigate("/board");
+  }
+
   return (
     <>
       {/* 전체 화면 */}
@@ -1815,39 +1826,22 @@ export default function GroupChat() {
           >
             <div className="setting-menu-div">
               <div className="accordion">
-                <div
-                  className={
-                    acc_volClicked ? "a-accordion-item" : "accordion-item"
-                  }
-                >
-                  <div className="accordion-header" onClick={acc_volSettings}>
-                    참가자 볼륨조절
-                  </div>
-                  <div className="accordion-content">
-                    <div className="accordion-vol">
-                      <img src="" alt="아직없어" />
-                      <p>김병건</p>
-                    </div>
-                    <div className="accordion-vol">
-                      <img src="" alt="아직없어" />
-                      <p>차호민</p>
-                    </div>
-                    <div className="accordion-vol">
-                      <img src="" alt="아직없어" />
-                      <p>최춘식</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="accordion">
                 <div className="accordion-item">
-                  <div className="accordion-header">내 친구</div>
+                  <div
+                    className="accordion-header"
+                    onClick={openFriendListInNewWindow}
+                    style={{ cursor: "pointer" }}
+                  >
+                    내 친구
+                  </div>
                   <div className="accordion-content"></div>
                 </div>
               </div>
               <div className="accordion">
                 <div className="accordion-item">
-                  <div className="accordion-header">창작 마당</div>
+                  <div className="accordion-header" onClick={goToCreateYard}>
+                    창작 마당
+                  </div>
                   <div className="accordion-content"></div>
                 </div>
               </div>
