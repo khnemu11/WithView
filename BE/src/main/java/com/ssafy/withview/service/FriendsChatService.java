@@ -46,7 +46,7 @@ public class FriendsChatService {
 			friendsChatSeq);
 		if (returnVal == null) {
 			return FriendsChatMessageDto.builder()
-				.friendsChatRoomSeq(0L)
+				.friendsChatRoomSeq(friendsChatSeq)
 				.message("")
 				.messageSeq(0L)
 				.fromUserSeq(0L)
