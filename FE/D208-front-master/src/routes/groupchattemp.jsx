@@ -59,6 +59,7 @@ export default function GroupChat() {
   const [settingsClicked, setsettingsClicked] = useState(false);
   const [presetRegisterClicked, setPresetRegisterClicked] = useState(false);
   const [stickerClicked, setstickerClicked] = useState(false);
+  const [backgroundClicked, setBackgroundClicked] = useState(false);
   const [stickermenuClicked, setstickermenuClicked] = useState(false);
   const [chatClicked, setchatClicked] = useState(false);
   const [msgClicked, setmsgClicked] = useState(false);
@@ -164,6 +165,10 @@ export default function GroupChat() {
     setsettingsClicked((prevsettingsClicked) => !prevsettingsClicked);
     setstickerClicked(false);
     setchatClicked(false);
+  }
+
+  function backgroundSettings() {
+    backgroundClicked((backgroundClicked) => !backgroundClicked);
   }
 
   function stickerSettings() {

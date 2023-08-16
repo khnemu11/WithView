@@ -2,9 +2,27 @@
 .modal-title {
   padding: 30px;
 }
+.regist-form {
+  height: 100%;
+}
+.regist-container {
+  height: 90%;
+}
+div:has(.regist-container)::-webkit-scrollbar {
+  width: 0px !important;
+}
+.modal-sticker-name {
+  background-color: #d6e6f2;
+  height: 40px;
+  font-size: 18px;
+  border-radius: 20px;
+  margin-bottom: 28px;
+  display: flex;
+  padding-left: 10px;
+  align-items: center;
+}
 .modal-container {
-  height: 60%;
-  max-height: 800px;
+  height: 100%;
 }
 .modal-title {
   font-size: 30px;
@@ -68,10 +86,17 @@
 }
 .card-image figure {
   height: 100%;
+  margin-bottom: 20px;
 }
 .card-image figure img {
   object-fit: fill;
   background-size: cover;
   height: 100%;
   overflow: hidden;
+}
+.flex {
+  margin-bottom: 20px;
+}
+.sticker-menu-on {
+  height: 90% !important;
 }

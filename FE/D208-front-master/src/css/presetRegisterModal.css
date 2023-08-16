@@ -1,6 +1,10 @@
 .modal-form, .modal-title{
     padding:30px;
 }
+.modal-form{
+    margin-bottom:30px;
+}
+
 .modal-title{
     font-size:30px;
     color:#3077AA;
@@ -49,17 +53,19 @@
 .modal-input-image{
     object-fit: cover;
 }
-.preset-list::-webkit-scrollbar{
-    width: 15px; /* 스크롤바 너비 */
-}
-
-.preset-list::-webkit-scrollbar-thumb {
-    border:200px solid #808080;
-    /* border-radius: 20px; */
-}
-.preset-list::-webkit-scrollbar-track {   
-    background-color: transparent; /* 스크롤바 트랙 색상 */
-}
-.preset-list{
+.regist-form{
     overflow-y: scroll;
-} 
+    height:90%;
+    max-height:1200px;
+}
+.regist-container{
+    height:95% !important;
+    overflow: hidden;
+}
+.regist-form::-webkit-scrollbar{
+    width:7px;
+}
+.regist-form::-webkit-scrollbar-thumb{
+    background-color: #d3d3d3;
+    border-radius: 20px;
+}
