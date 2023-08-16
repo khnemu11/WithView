@@ -328,7 +328,7 @@ export default function Signup() {
                             setIsModalActive(false);
                           }}
                         >
-                          Cancel
+                          취소
                         </button>
                       </footer>
                     </div>
