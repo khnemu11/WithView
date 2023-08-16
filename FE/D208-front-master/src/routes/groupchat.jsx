@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import Modal from "react-modal";
 import Konva from "konva";
 import { OpenVidu } from "openvidu-browser";
 import SockJS from "sockjs-client";
@@ -44,8 +43,6 @@ import { useSelector } from "react-redux";
 import axiosInstance from "./axiosinstance";
 import PresetRegistModal from "./components/presetRegistModal";
 import PresetLoadModal from "./components/presetLoadModal";
-import Checkwebsocket from "./components/checkwebsocket";
-import { store } from "../redux/store";
 import StickerContainer from "./components/stickerContainer";
 
 export default function GroupChat() {
@@ -60,7 +57,7 @@ export default function GroupChat() {
   const [stickerClicked, setstickerClicked] = useState(false);
   const [stickermenuClicked, setstickermenuClicked] = useState(false);
   const [chatClicked, setchatClicked] = useState(false);
-  const [msgClicked, setmsgClicked] = useState(false);
+  const [msgClicked, setmsgClicked] = useState(true);
   const [acc_volClicked, setacc_volClicked] = useState(false);
   const [acc_chClicked, setacc_chClicked] = useState(false);
   const [acc_ch_name, setacc_ch_name] = useState();
@@ -356,6 +353,7 @@ export default function GroupChat() {
       window.removeEventListener("resize", resizeWindow);
     };
   }, []);
+
   // 배경에 이미지 추가
   function addBackImage(imageUrl) {
     console.log("이미지 url");
@@ -467,7 +465,6 @@ export default function GroupChat() {
             4 +
             "px";
         });
-        // stage.current.children[2].add(tr);
         stage.current.children[2].add(object);
       }
 
@@ -507,7 +504,7 @@ export default function GroupChat() {
       }
       //영상 위치 변경
       else {
-        // target[0].setAttrs(object.getAttrs());
+        target[0].setAttrs(object.getAttrs());
         // let triger = target[0].getAttr("cornerRadius");
         // if (triger === 149) {
         //   const tempvideoElement = target[0].attrs.image;
@@ -543,6 +540,8 @@ export default function GroupChat() {
         console.log(data.type);
 
         if (data.type == "update") {
+          console.log("세션");
+          console.log(session.current);
           console.log("캔버스 변화");
           console.log(data);
           loadCanvasChange(data.object);
@@ -578,17 +577,6 @@ export default function GroupChat() {
     if (target.length > 0) {
       target[0].remove();
     }
-
-    // for (let i = 0; i < stage.current.children[2].children.length; i++) {
-    //   let imageElement = stage.current.children[2].children[i];
-
-    //   if (imageElement.attrs.id == objectId) {
-    //     console.log("삭제 대상 객체");
-    //     console.log(imageElement);
-    //     imageElement.remove();
-    //     break;
-    //   }
-    // }
   }
 
   function onError() {
@@ -599,8 +587,6 @@ export default function GroupChat() {
   //제일 중요함
   /* OPENVIDU METHODS */
   function loadCanvas(data) {
-    console.log("캔버스 로드");
-    console.log(data);
     let backChildren = JSON.parse(data.background);
 
     if (backChildren.children.length > 0) {
@@ -645,7 +631,6 @@ export default function GroupChat() {
       let images = remoteImageLayer.find("Image");
 
       for (let i = 0; i < images.length; i++) {
-        // let tr = new Konva.Transformer();
         //이미지 변수 생성
         let imageObj = new Image();
         imageObj.crossOrigin = "anonymous";
@@ -1082,23 +1067,6 @@ export default function GroupChat() {
     if (session) sessionScreen.current.disconnect();
   };
 
-  /* APPLICATION SPECIFIC METHODS */
-  //오픈비두 예제 함수
-  //페이지가 로드가 되면 기본값으로 채널 명과 랜덤한 유저 아이디를 생성해줌
-  //사용 안할듯
-  // window.addEventListener("load", function () {
-  //   generateParticipantInfo();
-  // });
-
-  //오픈비두 예제 함수
-  //채널 명과 랜덤한 유저 아이디를 생성해줌
-  //사용 안할듯
-  // function generateParticipantInfo() {
-  //   document.getElementById("sessionId").value = "mySession";sen
-  //   document.getElementById("userName").value =
-  //     "Participant" + Math.floor(Math.random() * 100);
-  // }
-
   //오픈비두 예제 함수
   //현재 참가자 데이터, 영상을 video-container에 넣는다.
   function appendUserData(videoElement, connection) {
@@ -1155,19 +1123,6 @@ export default function GroupChat() {
     if (target.length > 0) {
       target[0].remove();
     }
-
-    // for (var i = 0; i < stage.current.children[1].children.length; i++) {
-    //   console.log(
-    //     stage.current.children[1].children[i].getAttr("id") + " vs " + targetId
-    //   );
-    //   if (stage.current.children[1].children[i].getAttr("id") == targetId) {
-    //     console.log(stage.current.children[1]);
-    //     stage.current.children[1].children[i - 1].remove();
-    //     console.log(stage.current.children[1]);
-    //     stage.current.children[1].children[i - 1].remove();
-    //     break;
-    //   }
-    // }
     updateCanvasOnlyServer();
   }
   function sendStageInfo(stage) {
@@ -1296,9 +1251,6 @@ export default function GroupChat() {
 
     // 드래그 범위 제한 함수를 객체에 연결
     video.dragBoundFunc(limitDragBounds);
-
-    // video.add(baseImg);
-    // layer.add(tr);
     layer.add(video);
     console.log("점프");
     console.log(video);
@@ -1434,19 +1386,6 @@ export default function GroupChat() {
     if (target.length > 0) {
       changeCanvas(target[0], "delete");
     }
-
-    // for (var i = 0; i < stage.current.children[2].children.length; i++) {
-    //   console.log("현제 삭제 대상인지 판단하는 이미지");
-    //   console.log(stage.current.children[2].children[i].getAttr("id"));
-
-    //   if (stage.current.children[2].children[i].getAttr("id") == targetId) {
-    //     console.log("find " + stage.current.children[2].children[i]);
-
-    //     stage.current.children[2].children[i].remove();
-    //     // stage.current.children[2].children[i - 1].remove();
-    //     console.log("tarnsformer " + stage.current.children[2].children[i]);
-    //   }
-    // }
   }
   //버튼을 누르면 이미지가 생성되는 함수
   function stickertemp(name) {
@@ -1557,10 +1496,6 @@ export default function GroupChat() {
       });
     }
 
-    //비디오 크기 및 회전을 도와주는 객체
-    // var tr = new Konva.Transformer();
-    // tr.nodes([video]);
-
     //비디오 실행
     var animation = new Konva.Animation(function () {}, layer);
 
@@ -1581,8 +1516,6 @@ export default function GroupChat() {
 
     // 드래그 범위 제한 함수를 객체에 연결
     video.dragBoundFunc(limitDragBounds);
-
-    // layer.add(tr);
     layer.add(video);
 
     //자기 자신의 비디오 경우 자동으로 실행이 되지 않는 오류가 있어 직접 실행
@@ -2033,38 +1966,6 @@ export default function GroupChat() {
                 addFile={addBackImageClick}
                 imgDirectory="channel-background"
               ></StickerContainer>
-              {/* <div className="house-image">
-                <img
-                  src={room2}
-                  onClick={() => addBackImageClick("room2.jpg")}
-                ></img>
-                <div className="bg-tag">회의실</div>
-                <img
-                  src={pool}
-                  onClick={() => addBackImageClick("pool.png")}
-                ></img>
-                <div className="bg-tag">수영장</div>
-              </div>
-              <hr />
-              <p className="user-bg">사용자 지정 배경화면</p>
-              <div className="sticker-upload">
-                <img
-                  src="/uploadimage.png"
-                  alt="Upload"
-                  className="sticker-preview"
-                />
-                <div className="file has-name is-right">
-                  <label className="file-label">
-                    <input className="file-input" type="file" name="resume" />
-                    <span className="file-cta">
-                      <span className="file-label">등록하기</span>
-                    </span>
-                    <span className="file-name">
-                      Screen Shot 2017-07-29 at 15.54.25.png
-                    </span>
-                  </label>
-                </div>
-              </div> */}
             </div>
           </div>
           {/* 채팅 */}
