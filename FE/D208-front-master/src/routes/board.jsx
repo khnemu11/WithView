@@ -88,7 +88,23 @@ function Board() {
       setContent('')
       setSelectedImageId([])
       setIsModalActive(false)
-    
+      alert("작성 완료!")
+      axiosInstance({
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
+        method: "GET",
+        url: `/board`,  
+      })
+      .then((res)=>{
+        console.log(res.data)
+        setPresetCard(res.data.BoardListInfo)
+        setSearchCard(res.data.BoardListInfo)
+        
+      })
+      .catch((err)=>{
+        console.log(err)
+      })
     })
     .catch((err)=>{
       console.log(err)

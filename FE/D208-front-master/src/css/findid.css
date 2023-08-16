@@ -12,6 +12,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: auto;
 }
 
 .findid_titleWrap { 
@@ -23,6 +24,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    min-height: 700px;
 }
 
 
@@ -36,7 +38,7 @@
 
 .findid_title{
     width: 85%;
-    height: 35%;
+    height: 40%;
     display: flex;
     justify-content: space-between;
 }
@@ -68,7 +70,7 @@
 
 .findid_inputs {
     width: 100%;
-    height: 55%;
+    height: 50%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -88,7 +90,7 @@
     border-radius: 20px;
     font-size: 30px;
     width: 70%;
-    height: 10vh;
+    height: 88px;
 }
 
 .findid_button{
@@ -98,7 +100,7 @@
     border-radius: 20px;
     font-size: 1.5vw;
     width: 25%;
-    height: 10vh;
+    height: 88px;
 }
 
 .findid_findpass{
@@ -113,3 +115,46 @@
     font-weight: bold;
 }
 
+@media screen and (max-width : 1600px) {
+    .findid_hello {
+        font-size: 45px;
+      }
+    .findid_hello2 {
+        font-size: 20px;
+      }
+    .findid_input{
+        font-size: 25px;
+    }
+    .findid_button{
+    }
+  }
+@media screen and (max-width : 1200px) {
+    .findid_hello {
+        font-size: 35px;
+      }
+    .findid_hello2 {
+        
+      }
+    .findid_input{
+    
+    }
+    .findid_button{
+        font-size: 20px;
+    }
+  }
+@media screen and (max-width : 900px) {
+    
+    .findid_hello2 {
+        font-size: 15px;
+      }
+
+    .findid_label{
+        font-size: large;
+    }
+    .findid_input{
+    
+    }
+    .findid_button{
+        font-size: 2vw;
+    }
+  }
