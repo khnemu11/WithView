@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 // import { useCookies } from "react-cookie";
@@ -20,18 +20,19 @@ export default function Test() {
   const dispatch = useDispatch();
   const url = "https://i9d208.p.ssafy.io/api";
 
-  // redux 저장 테스트용
-  // const checktoken = useSelector((state) => state.token);
-  // const userInfotest = useSelector((state) => state.user);
-  // useEffect(() => {
-  //   console.log(checktoken); // 토큰 값이 변경될 때마다 출력...
-  //   console.log(userInfotest); // 토큰 값이 변경될 때마다 출력...
-  // }, []);
-
-  // useEffect(() => {
-  //   dispatch(clearToken())
-  //   dispatch(clearUser())
-  // },[]);
+  useEffect(() => {
+    // 페이지 진입 시 페이지 전환 애니메이션 클래스 추가...
+    const signupElement = document.querySelector(".login_wrap")
+    
+    if (signupElement) {
+      signupElement.classList.remove("login_transition-enter-active")
+      signupElement.classList.add("login_transition-enter");
+      setTimeout(() => {
+        signupElement.classList.remove("login_transition-enter");
+        signupElement.classList.add("login_transition-enter-active");
+      }, 100); // 애니메이션 시간과 일치하는 시간으로 설정 (0.1초)
+    }
+  }, []);
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
@@ -115,7 +116,7 @@ export default function Test() {
                 돌아오셔서 반가워요!
             </div>
             <div className="login_img column is-4">
-                <img src={withview} alt="그림 없음" />
+                <img style={{width : "15vw", height : "15vw", marginTop : "30px"}} src={withview} alt="그림 없음" />
             </div>
             <div className="login_inputs column is-8">
                 <div>
@@ -162,7 +163,7 @@ export default function Test() {
 
             </div>
             <div className="login_findes column">
-                <div style={{marginRight : "20px"}}>
+                <div style={{marginRight : "35px"}}>
                 <a 
                     onClick={() => {
                         navigate("/findid");
@@ -170,7 +171,7 @@ export default function Test() {
                 >아이디 찾기</a>
                 </div>
                 |
-                <div style={{marginLeft : "20px"}}>
+                <div style={{marginLeft : "35px"}}>
 
                 <a 
                     onClick={() => {

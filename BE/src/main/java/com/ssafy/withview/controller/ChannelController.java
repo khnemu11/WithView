@@ -51,7 +51,7 @@ public class ChannelController {
 		return new ResponseEntity<>(result,HttpStatus.OK);
 	}
 	@PostMapping("/{channelSeq}")
-	public ResponseEntity<?> updateChannel(@PathVariable(name = "serverSeq") Long serverSeq,@PathVariable(name = "channelSeq") Long channelSeq, @ModelAttribute ChannelDto channelDto,@RequestParam(name = "file") MultipartFile multipartFile){
+	public ResponseEntity<?> updateChannel(@PathVariable(name = "serverSeq") Long serverSeq,@PathVariable(name = "channelSeq") Long channelSeq, @ModelAttribute ChannelDto channelDto,@RequestParam(name = "file", required = false) MultipartFile multipartFile){
 		JSONObject result = new JSONObject();
 		log.info("====== 채널 수정 시작 ======");
 		try {

@@ -8,6 +8,10 @@ button {
   cursor: pointer;
 }
 
+.cam-dev-block {
+  display: none;
+}
+
 .groupchat {
   display: flex;
   height: 100%;
@@ -726,7 +730,7 @@ button {
 
 .ChatTime {
   font-size: 12px;
-  margin: 0px 15px;
+  margin: 0px 10px;
 }
 
 .myChat,
@@ -746,15 +750,19 @@ button {
 
 .myChatdiv {
   text-align: right;
+  margin-bottom: 15px;
 }
 
 .yourChatdiv {
   text-align: left;
+  margin-bottom: 15px;
 }
 
 .myChatHeader,
 .yourChatHeader {
   display: flex;
+  align-items: flex-end; /* 아래로 정렬 */
+  height: 27px;
 }
 
 .myChatHeader {

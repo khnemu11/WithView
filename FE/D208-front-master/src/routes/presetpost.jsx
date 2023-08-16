@@ -95,12 +95,24 @@ function Presetpost() {
         setSelectedImageId([]);
         setIsModalActive(false);
 
-        setPostContent((prevPostContent) => ({
-            ...prevPostContent,
-            title: title,
-            content: content,
-            presetId: selectedImageId[0],
-          }));
+        axiosInstance({
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      method: "GET",
+      url: `/board/${seq}`,
+    })
+      .then((res) => {
+        console.log(res.data.BoardInfo);
+        setPostContent(res.data.BoardInfo);
+        if (res.data.BoardInfo.userSeq === userPk){
+            setModifyButton(true)
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+        
 
       })
       .catch((err) => {

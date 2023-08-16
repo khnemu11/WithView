@@ -113,7 +113,7 @@ export default function FindPassword() {
           <div className="findpassword_inputs">
             <div style={{ width: "85%" }}>
               <label className="label findpassword_label">
-                아이디 입력좀 해라 진짜
+                아이디를 입력해 주세요
               </label>
               <div className="findpassword_input_button">
                 <input
@@ -128,7 +128,7 @@ export default function FindPassword() {
             </div>
             <div style={{ width: "85%" }}>
               <label className="label findpassword_label">
-                메일 주소 입력좀 ㅠㅠ
+                메일 주소를 입력해 주세요
               </label>
               <div className="findpassword_input_button">
                 <input
