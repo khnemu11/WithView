@@ -179,6 +179,12 @@ const FriendList = () => {
       );
 
       console.log("요청 성공:", response.data); // 서버 응답 출력
+
+      stomp.send(
+        `/api/pub/chat/friends/chatroominfo`,
+        {},
+        JSON.stringify({ userSeq: userSeq })
+      );
     } catch (error) {
       console.error("Error creating new chat:", error);
     }
