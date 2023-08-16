@@ -34,7 +34,7 @@ const ServerOptions = ({ profileImage, profileNickname }) => {
         </Link>
       </div>
       <div className="ml-auto is-flex">
-        <img src={profileImage} className="profile-bar-image" alt="Profile" />
+        <img src={profileImage} className="profile-bar-image" alt="Profile"  onClick={()=>navigate('/profile')} style={{ cursor: "pointer" }}/>
         <p className="profileNameTop">{profileNickname}</p>
       </div>
     </div>
