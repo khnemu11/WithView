@@ -1955,7 +1955,13 @@ export default function GroupChat() {
             </div>
 
             <div id={stickermenuClicked ? "back-menu" : "back-menu-on"}>
-              <div className="house-image">
+              <StickerContainer
+                title="배경화면"
+                table="backgrounds"
+                addFile={addBackImageClick}
+                imgDirectory="channel-background"
+              ></StickerContainer>
+              {/* <div className="house-image">
                 <img
                   src={room2}
                   onClick={() => addBackImageClick("room2.jpg")}
@@ -1986,7 +1992,7 @@ export default function GroupChat() {
                     </span>
                   </label>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
           {/* 채팅 */}
