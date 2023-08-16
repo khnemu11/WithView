@@ -12,7 +12,6 @@ export default function FindId() {
   const [isModalActive, setIsModalActive] = useState(false);
   
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const url = "https://i9d208.p.ssafy.io/api";
 
   function checkFindEmail() {
@@ -160,7 +159,7 @@ export default function FindId() {
                         setIsModalActive(false);
                       }}
                     >
-                      Cancel
+                      닫기
                     </button>
                   </footer>
                 </div>

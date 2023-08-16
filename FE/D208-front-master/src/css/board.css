@@ -29,6 +29,35 @@
   overflow: auto; /* 스크롤 가능한 영역으로 설정 */
 }
 
+.board_modal_card_title {
+    font-size:30px;
+    color:#3077AA;
+    font-weight:bold;
+}
+
+.board_modal_card_inputtitle{
+  font-size:26px;
+    color:#80C4FF;
+    margin-bottom:15px;
+}
+
+.board_modal_card_input {
+  border-radius: 10px;
+    height:60px;
+    margin-bottom:20px;
+    background-color: #D6E6F2;
+    font-size:24px;
+    
+    width: 100%;
+}
+
+.board_modal_card_content {
+  border-radius: 10px;
+  background-color: #D6E6F2;
+  font-size: 15px;
+
+}
+
 .board_notice{
     width: 100%;
     overflow: auto;
@@ -67,4 +96,17 @@ position: absolute;
   transform: scale(1.2); /* 이미지 크기를 1.05배로 확대 */
   transition: transform 0.3s;
 
+}
+
+.board_modal_button {
+  width: 50%;
+  background-color: #769FCD;
+    border-radius: 20px;
+    font-size:24px;
+    color:white;
+}
+
+.board_modal_card_writebtn {
+  display: flex;
+  justify-content: center;
 }

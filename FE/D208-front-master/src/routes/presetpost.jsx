@@ -112,23 +112,17 @@ function Presetpost() {
     const presetUrl = `https://dm51j1y1p1ekp.cloudfront.net/preset/${el.presetImgSearchName}`;
     const isSelected = selectedImageId.includes(el.id);
     return (
-      <div key={el.id}>
-        <p>{el.presetName}</p>
-        <div
-          className={`board_modal_image is-21by9`}
-          onClick={() => handleImageClick(el.id)}
-        >
-          <img
-            className={`${isSelected ? "board_modal_image_selected" : ""}`}
-            src={presetUrl}
-            alt="아오"
-          />
+        <div className="card" key = {el.id} style={{marginBottom : "30px"}}>
+        <header className="card-header">
+
+        <p className="card-header-title" style={{fontSize : "22px" ,fontWeight : "bold"}}>{el.presetName}</p>
+        </header>
+        <div className={`card-content board_modal_image is-21by9`} onClick={()=>handleImageClick(el.id)}>
+
+          <img className={`${isSelected ? 'board_modal_image_selected' : ''}`}src={presetUrl} alt="아오"/>
           {isSelected && (
-            <i
-              className="fa-solid fa-check fa-bounce fa-5x board_check_icon"
-              style={{ color: "#0aeb24" }}
-            ></i>
-          )}
+            <i className="fa-solid fa-check fa-bounce fa-5x board_check_icon" style={{color: "#0aeb24"}}></i>
+        )}
         </div>
       </div>
     );
@@ -276,8 +270,8 @@ function Presetpost() {
           }} // 모달 배경 클릭 시 모달 닫기
         ></div>
         <div className="modal-card board_modal_card">
-          <header className="modal-card-head">
-            <p className="modal-card-title">창작마당 수정</p>
+          <header className="modal-card-head" style={{backgroundColor : "white"}}>
+            <p className="modal-card-title board_modal_card_title">창작마당 수정</p>
             <button
               className="delete"
               aria-label="close"
@@ -288,23 +282,23 @@ function Presetpost() {
           </header>
 
           <section className="modal-card-body">
-            <p>제목</p>
+            <p className="board_modal_card_inputtitle">제목</p>
             <input
               type="text"
-              className="input"
+              className="input board_modal_card_input"
               value={title}
               onChange={(e) => {
                 setTitle(e.target.value);
               }}
             />
             <hr />
-            <p>프리셋</p>
+            <p className="board_modal_card_inputtitle">프리셋을 선택하세요!</p>
             {PresetImages}
-            <br />
-            <p>내용</p>
+            
+            <p className="board_modal_card_inputtitle">내용</p>
             <textarea
-              className="textarea is-info"
-              placeholder="Info textarea"
+              className="textarea board_modal_card_content"
+              placeholder="내용"
               value={content}
               onChange={(e) => {
                 setContent(e.target.value);
@@ -312,18 +306,9 @@ function Presetpost() {
             ></textarea>
           </section>
 
-          <footer className="modal-card-foot">
-            <button className="button is-info" onClick={UpdatePost}>
+          <footer className="modal-card-foot board_modal_card_writebtn">
+            <button className="button board_modal_button" onClick={UpdatePost}>
               작성
-            </button>
-
-            <button
-              className="button"
-              onClick={() => {
-                setIsModalActive(false);
-              }}
-            >
-              취소
             </button>
           </footer>
         </div>

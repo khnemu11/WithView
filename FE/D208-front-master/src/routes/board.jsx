@@ -17,6 +17,7 @@ function Board() {
   const [content, setContent] = useState("")
   const [presetList, setPresetList] = useState([])
   const [presetCard, setPresetCard] = useState([])
+  const [searchCard, setSearchCard] = useState([])
   const [selectedImageId, setSelectedImageId] = useState([]);
   const navigate = useNavigate()
   
@@ -111,9 +112,12 @@ function Board() {
     const presetUrl = `https://dm51j1y1p1ekp.cloudfront.net/preset/${el.presetImgSearchName}`;
     const isSelected = selectedImageId.includes(el.id);
     return (
-      <div key = {el.id}>
-        <p>{el.presetName}</p>
-        <div className={`board_modal_image is-21by9`} onClick={()=>handleImageClick(el.id)}>
+      <div className="card" key = {el.id} style={{marginBottom : "30px"}}>
+        <header className="card-header">
+
+        <p className="card-header-title" style={{fontSize : "22px" ,fontWeight : "bold"}}>{el.presetName}</p>
+        </header>
+        <div className={`card-content board_modal_image is-21by9`} onClick={()=>handleImageClick(el.id)}>
 
           <img className={`${isSelected ? 'board_modal_image_selected' : ''}`}src={presetUrl} alt="아오"/>
           {isSelected && (
@@ -169,8 +173,8 @@ function Board() {
           }} // 모달 배경 클릭 시 모달 닫기
         ></div>
         <div className="modal-card board_modal_card">
-          <header className="modal-card-head">
-            <p className="modal-card-title">창작마당 글쓰기</p>
+          <header className="modal-card-head" style={{backgroundColor : "white"}}>
+            <p className="modal-card-title board_modal_card_title">창작마당 글쓰기</p>
             <button
               className="delete"
               aria-label="close"
@@ -185,23 +189,22 @@ function Board() {
           </header>
 
           <section className="modal-card-body">
-            <p>제목</p>
+            <p className="board_modal_card_inputtitle">제목</p>
             <input
               type="text"
-              className="input"
+              className="input board_modal_card_input"
               value={title}
               onChange={(e) => {
                 setTitle(e.target.value)
               }}
             />
             <hr />
-            <p>프리셋</p>
+            <p className="board_modal_card_inputtitle">프리셋을 선택하세요!</p>
               {PresetImages}
-            <br />
-            <p>내용</p>
-            <textarea className="textarea is-info" 
+            <p className="board_modal_card_inputtitle">내용</p>
+            <textarea className="textarea board_modal_card_content" 
               value={content}
-              placeholder="Info textarea"
+              placeholder="내용"
               onChange={(e)=>{
                 setContent(e.target.value)
               }}
@@ -209,39 +212,28 @@ function Board() {
             </textarea>
           </section>
 
-          <footer className="modal-card-foot">
-            <button className="button is-info" onClick={WritePost}>
+          <footer className="modal-card-foot board_modal_card_writebtn">
+            <button className="button board_modal_button" onClick={WritePost}>
               작성
             </button>
 
-            <button
-              className="button"
-              onClick={() => {
-                setContent('')
-                setTitle('')
-                setSelectedImageId([])
-                setIsModalActive(false);
-              }}
-            >
-              닫기
-            </button>
           </footer>
         </div>
       </div>
       <div className="board_input">
         
 
-        <i className="fa-solid fa-file-pen board_write" style={{fontSize : "2em"}} onClick={createContentStart}></i>
+        <i className="fa-solid fa-file-pen board_write" style={{fontSize : "1.7em"}} onClick={createContentStart}></i>
         
         <div>
           검색
           <input className="intput" type="text"
             onChange={(e)=>{
 
-              // const searchCard = presetList.filter((el)=>{
-              //   console.log(el.title)
-              //   return el.title.includes(e.target.value)
-              // })
+              setSearchCard(presetCard.filter((el)=>{
+                console.log(el.title)
+                return el.title.includes(e.target.value)
+              }))
               // e.target.value
               console.log(e.target.value)
               
