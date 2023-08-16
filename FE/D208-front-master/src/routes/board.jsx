@@ -59,6 +59,7 @@ function Board() {
     .then((res)=>{
       console.log(res.data)
       setPresetCard(res.data.BoardListInfo)
+      setSearchCard(res.data.BoardListInfo)
       
     })
     .catch((err)=>{
@@ -128,7 +129,7 @@ function Board() {
     );
   });
 
-  const PresetCardImages = presetCard.map((el)=>{
+  const PresetCardImages = searchCard.map((el)=>{
     // console.log(el)
     const presetUrl = `https://dm51j1y1p1ekp.cloudfront.net/preset/${el.presetImgSearchName}`
     
@@ -225,21 +226,25 @@ function Board() {
 
         <i className="fa-solid fa-file-pen board_write" style={{fontSize : "1.7em"}} onClick={createContentStart}></i>
         
-        <div>
-          검색
-          <input className="intput" type="text"
-            onChange={(e)=>{
 
-              setSearchCard(presetCard.filter((el)=>{
-                console.log(el.title)
-                return el.title.includes(e.target.value)
-              }))
-              // e.target.value
-              console.log(e.target.value)
-              
-            }}
-          />
-        </div>
+      <p className="control has-icons-left board_search">
+      <input className="input board_search_input" type="text" placeholder="Search"
+        onChange={(e)=>{
+
+          setSearchCard(presetCard.filter((el)=>{
+            console.log(el.title)
+            return el.title.includes(e.target.value)
+          }))
+          
+          console.log(e.target.value)
+          console.log(searchCard)
+        }}
+      />
+      <span className="icon is-left">
+        <i className="fas fa-search" aria-hidden="true"></i>
+      </span>
+      </p>
+
       </div>
       <div className="board_notice">
 

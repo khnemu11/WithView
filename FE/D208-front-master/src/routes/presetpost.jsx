@@ -224,7 +224,7 @@ function Presetpost() {
 
       <div className="card presetpost_card">
         <div className="card-image">
-          <figure className="image is-21by9">
+          <figure className="image is-16by9">
             <img src={presetPostImageUrl} alt="Placeholder image" />
           </figure>
         </div>
@@ -232,7 +232,7 @@ function Presetpost() {
           <div className="media">
             <div className="media-left" style={{ marginRight: "25px" }}>
               <figure className="image is-96x96">
-                <img src={profileImageUrl2} alt="Placeholder image" />
+                <img src={profileImageUrl2} alt="Placeholder image"/>
               </figure>
             </div>
 
