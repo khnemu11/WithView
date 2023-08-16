@@ -126,10 +126,4 @@ public class ChatController {
 		Long lastReadMessageSeq = lastFriendsChatMessage.getMessageSeq();
 		friendsChatService.setFriendsChatRoomLastMessageSeqJpa(friendsChatRoomSeq, userSeq, lastReadMessageSeq);
 	}
-
-	@GetMapping("/chat/test")
-	@ResponseBody
-	public List<FriendsChatMessageDto> test(@RequestParam Long test) {
-		return friendsChatService.getFriendsChatMessagesByPage(test, 1);
-	}
 }
