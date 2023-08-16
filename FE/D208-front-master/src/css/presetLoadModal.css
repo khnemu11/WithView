@@ -28,7 +28,7 @@
   grid-template-rows: auto;
   row-gap: 20px;
 }
-.card {
+.preset-load-card {
   margin-right: 10px;
   margin-bottom: 30px;
 }

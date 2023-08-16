@@ -14,6 +14,10 @@ const StickerRegistModal = (props) => {
   const [filename, setFileName] = useState("");
   const writer = useSelector((state) => state.user.nickname);
 
+  const nameSettings = (e) => {
+    setFileName(e.target.value);
+  };
+
   const headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -44,7 +48,7 @@ const StickerRegistModal = (props) => {
   const preview = (e) => {
     const reader = new FileReader();
     reader.readAsDataURL(e.target.files[0]);
-    setFileName(e.target.files[0].name);
+    // setFileName(e.target.files[0].name);
     setFile(e.target.files[0]);
     reader.onload = () => {
       setImgSrc(reader.result);
@@ -88,7 +92,7 @@ const StickerRegistModal = (props) => {
         <div className="modal-form regist-form">
           <div className="modal-input">
             <div className="modal-input-title">{props.title} 이름</div>
-            <div className="modal-sticker-name">{filename}</div>
+            <input className="modal-sticker-name" value={filename}></input>
           </div>
           <div className="modal-input">
             <div className={"modal-input-title"}>{props.title} 미리보기</div>
