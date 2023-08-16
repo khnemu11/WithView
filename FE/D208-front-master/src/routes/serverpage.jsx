@@ -14,6 +14,7 @@ import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
 import Popover from "react-popover";
 import axiosInstance from "./axiosinstance";
+import Checkwebsocket from "./components/checkwebsocket";
 
 Modal.setAppElement("#root");
 
@@ -47,6 +48,85 @@ const Serverpage = () => {
   const [inviteLinkModalOpen, setInviteLinkModalOpen] = useState(false);
   const [inviteLink, setInviteLink] = useState("");
 
+  Checkwebsocket();
+
+  const stomp = useSelector((state) => state.stomp);
+  const [currentSubscription, setCurrentSubscription] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
+
+  useEffect(() => {
+    // ... 웹소켓 연결 로직 ...
+    if (stomp) {
+    stomp.connect(
+      {
+        userSeq: userSeq,
+      },
+      (res) => {
+        setIsConnected(true);
+        console.log(res);
+      },
+      (err) => {
+        console.log(err);
+      }
+    );}
+  }, [stomp]);
+
+
+  const connectToServer = (serverSeq) => {
+    if (!stomp) {
+      console.error("Stomp 객체가 초기화되지 않았습니다.");
+      return;
+    }
+
+    try {
+      // 기존에 서버 구독이 있으면 해제
+      if (currentSubscription) {
+        currentSubscription.unsubscribe();
+      }
+
+      // 새로운 서버에 구독
+      const newSubscription = stomp.subscribe(
+        `/api/sub/server/${serverSeq}`,
+        (message) => {
+          const received = JSON.parse(message.body);
+          recvMessage(received); // 받아온 메시지를 처리하는 함수 (HTML 변환 등)
+        }
+      );
+
+      // 현재 구독을 상태에 저장 (필요한 경우에 추후 해제하기 위해)
+      setCurrentSubscription(newSubscription);
+
+      // 서버에 입장 알림
+      stomp.send(`/api/pub/server/${serverSeq}/enter`);
+    } catch (error) {
+      console.error("서버에 연결하는 도중 에러 발생:", error);
+    }
+  };
+
+  useEffect(() => {
+
+    if (isConnected) {
+      connectToServer(seq);
+    }
+
+    // 컴포넌트가 언마운트될 때, 혹시나 구독이 남아있다면 해제하는 코드를 추가할 수 있습니다.
+    return () => {
+      if (currentSubscription) {
+        currentSubscription.unsubscribe();
+      }
+    };
+  }, [isConnected, seq]);
+
+  const [channelState, setChannelState] = useState(null);
+
+  function recvMessage(data) {
+    // 메시지 상태 업데이트
+    setChannelState(data);
+  }
+  useEffect(() => {
+    console.log("참여인원테스트입니다.", channelState);
+  }, [channelState]);
+
   //서버 이름
   useEffect(() => {
     const fetchServerName = async () => {
@@ -76,7 +156,7 @@ const Serverpage = () => {
 
     const togglePopover = (e) => {
       setIsPopoverOpen((prev) => !prev);
-      e.stopPropagation(); // 이 부분 추가: 버블링 방지
+      e.pPropagation(); // 이 부분 추가: 버블링 방지
       setIsPopoverOpen(!isPopoverOpen);
       if (isPopoverOpen) {
         setShowFriendAddPopover(false);
@@ -583,7 +663,7 @@ const Serverpage = () => {
           맴버 목록
           <img
             className="plusIcon"
-            src="/plus.png"
+            src="/plus2.png"
             alt="Create Channel"
             onClick={createInviteLink}
           />
