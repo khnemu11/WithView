@@ -1,21 +1,17 @@
 package com.ssafy.withview.entity;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
-import com.ssafy.withview.dto.ServerDto;
+import com.ssafy.withview.dto.BackgroundDto;
 import com.ssafy.withview.dto.StickerDto;
 
 import lombok.Builder;
@@ -25,8 +21,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @Entity
-@Table(name = "sticker")
-public class StickerEntity {
+@Table(name = "background")
+public class BackgroundEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long seq;
@@ -40,7 +36,7 @@ public class StickerEntity {
 	private Long userSeq;
 
 	@Builder
-	public StickerEntity(String originalName, String searchName, Integer count, String writer,Long userSeq) {
+	public BackgroundEntity(String originalName, String searchName, Integer count, String writer,Long userSeq) {
 		this.originalName = originalName;
 		this.searchName = searchName;
 		this.count = count;
@@ -48,11 +44,11 @@ public class StickerEntity {
 		this.userSeq = userSeq;
 	}
 
-	public static StickerDto toDto(StickerEntity stickerEntity){
+	public static BackgroundDto toDto(BackgroundEntity stickerEntity){
 		if(stickerEntity == null){
 			return null;
 		}
-		return StickerDto.builder()
+		return BackgroundDto.builder()
 				.seq(stickerEntity.getSeq())
 			.writer(stickerEntity.getWriter())
 			.originalName(stickerEntity.getOriginalName())

@@ -122,11 +122,18 @@ const Profile = () => {
   const withdrawal = (e) => {
     e.preventDefault();
     axiosInstance({
+      headers : {
+        "Authorization" : `Bearer ${token}`
+      },
       method: "DELETE",
       url: `/users/${userPk}`,
+      data : {
+        password : profileLeaveCheck
+      }
     })
       .then((res) => {
         console.log(res.data);
+        dispatch(clearStomp())
         dispatch(clearToken());
         dispatch(clearUser());
         navigate("/login");
@@ -188,7 +195,8 @@ const Profile = () => {
         height: 300,
       })
       .toDataURL("image/png");
-
+    
+    // console.log(croppedImageDataURL)
     const blob = base64ToBlob(croppedImageDataURL);
 
     const file = new File([blob], "croppedServerImage.png", {

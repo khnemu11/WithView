@@ -2,7 +2,7 @@ package com.ssafy.withview.dto;
 
 import java.time.LocalDateTime;
 
-import com.ssafy.withview.entity.ServerEntity;
+import com.ssafy.withview.entity.BackgroundEntity;
 import com.ssafy.withview.entity.StickerEntity;
 
 import lombok.AllArgsConstructor;
@@ -18,7 +18,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @Builder
 @ToString
-public class StickerDto {
+public class BackgroundDto {
     private Long seq;
     private String writer;
     private String originalName;
@@ -28,11 +28,11 @@ public class StickerDto {
     private Long userSeq;
     private String keyword;
 
-    public static StickerEntity toEntity(StickerDto stickerDto){
+    public static BackgroundEntity toEntity(BackgroundDto stickerDto){
         if(stickerDto == null){
             return null;
         }
-        return StickerEntity.builder()
+        return BackgroundEntity.builder()
             .writer(stickerDto.getWriter())
             .count(stickerDto.getCount())
             .originalName(stickerDto.getOriginalName())

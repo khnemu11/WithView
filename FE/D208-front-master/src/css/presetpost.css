@@ -1,0 +1,25 @@
+.presetpost_card{
+    height : 100%;
+    width: 90%;
+    overflow: auto;
+}
+
+.presetpost_buttons{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+
+.presetpost_icon:hover{
+    cursor: pointer;
+    transform: scale(1.2); /* 이미지 크기를 1.05배로 확대 */
+    transition: transform 0.3s;
+}
+
+.presetpost_media-content{
+    height: 96px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}

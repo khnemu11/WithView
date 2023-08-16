@@ -22,6 +22,7 @@ import ServerEdit from "./routes/serveredit";
 import PrivateRoute from "./routes/privateroute";
 import FriendList from "./routes/friendlist";
 import Board from "./routes/board";
+import Presetpost from "./routes/presetpost";
 
 import { AxiosInterceptor } from "./routes/axiosinstance";
 const router = createBrowserRouter([
@@ -98,6 +99,10 @@ const router = createBrowserRouter([
       {
         path:"/board",
         element: <Board/>,
+      },
+      {
+        path: "board/:seq",
+        element: <Presetpost/>,
       },
     ],
   },

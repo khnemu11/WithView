@@ -50,9 +50,9 @@ public class LoginController {
 			// 로그인 유저 정보
 			UserDto userDto = loginService.getUserInfo(loginDto.getId());
 			log.debug("UserInfo pk: {}", userDto.getSeq());
-			loginService.checkDuplicateLogin(userDto.getSeq()); // 중복 로그인 방지
-			loginService.hasBeenWithdrawn(userDto.getSeq()); // 탈퇴한 회원 로그인 방지
 			Authentication authentication = jwtService.createAuthentication(userDto.getSeq(), loginDto.getPassword());
+			loginService.checkDuplicateLogin(userDto.getSeq()); // 중복 로그인 방지x
+			loginService.hasBeenWithdrawn(userDto.getSeq()); // 탈퇴한 회원 로그인 방지
 			if (authentication != null) {
 				// AccessToken 발급
 				Role role = loginService.getRoles(userDto.getSeq());
@@ -120,6 +120,7 @@ public class LoginController {
 
 	/**
 	 * 로그아웃 (기존 pc 로그아웃)
+	 *
 	 * @param loginDto (로그인 id)
 	 * @return ResponseEntity (true / false, 상태코드)
 	 */

@@ -275,7 +275,7 @@ export default function Signup() {
                     onClick={validateMail}
                     disabled={buttonDisabled3}
                   >
-                    인증메일발송
+                    <i className="fa-regular fa-envelope fa-lg"></i>
                   </button>
                   <div
                     className={`modal ${isModalActive ? "is-active" : ""}`}
@@ -430,6 +430,7 @@ export default function Signup() {
                   disabled={buttonDisabled2}
                 >
                   회원가입
+                  <i className="fa-solid fa-right-to-bracket fa-lg" style={{color: "#fcfcfd",marginLeft : "15px"}}></i>
                 </button>
               </div>
             </form>

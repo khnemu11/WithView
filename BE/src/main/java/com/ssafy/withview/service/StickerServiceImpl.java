@@ -121,4 +121,27 @@ public class StickerServiceImpl implements StickerService{
 
 		return stickerDtoList;
 	}
+
+	@Override
+	public List<StickerDto> findAllStickersByUserSeq(StickerDto stickerDto) {
+		List<StickerEntity> stickerEntityList;
+
+
+		if(stickerDto.getKeyword() == null || stickerDto.getKeyword().length() == 0){
+			log.info("유저의 모든 스티커 검색");
+			stickerEntityList = stickerRepository.findAllByUserSeq(stickerDto.getUserSeq());
+		}else{
+			log.info("유저의 특정 스티커 검색");
+			stickerEntityList = stickerRepository.findAllByUserSeqAndOriginalNameContains(stickerDto.getUserSeq(),stickerDto.getKeyword());
+
+		}
+
+		List<StickerDto> stickerDtoList = new ArrayList<>();
+
+		for(int i=0;i<stickerEntityList.size();i++){
+			stickerDtoList.add(StickerEntity.toDto(stickerEntityList.get(i)));
+		}
+
+		return stickerDtoList;
+	}
 }

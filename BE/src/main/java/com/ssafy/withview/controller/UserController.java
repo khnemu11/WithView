@@ -347,9 +347,9 @@ public class UserController {
 	/**
 	 * 마이페이지 - 비밀번호 변경
 	 *
-	 * @param seq            (변경할 유저 pk 값)
-	 * @param passwordMap    (변경할 비밀번호)
-	 * @param var            (1: 비밀번호 찾기, 2: 마이페이지 - 비밀번호 변경)
+	 * @param seq         (변경할 유저 pk 값)
+	 * @param passwordMap (변경할 비밀번호)
+	 * @param var         (1: 비밀번호 찾기, 2: 마이페이지 - 비밀번호 변경)
 	 * @return ResponseEntity(true / false, 상태코드)
 	 */
 	@PutMapping("/{seq}/password")
@@ -398,11 +398,13 @@ public class UserController {
 	/**
 	 * 회원 탈퇴
 	 *
-	 * @param seq (탈퇴할 유저 pk 값)
+	 * @param seq         (탈퇴할 유저 pk 값)
+	 * @param passwordMap (유저 password)
 	 * @return ResponseEntity(true / false, 상태코드)
 	 */
 	@DeleteMapping("/{seq}")
 	public ResponseEntity<Map<String, Object>> withdraw(@PathVariable(value = "seq") Long seq,
+		@RequestBody Map<String, String> passwordMap,
 		HttpServletRequest request) {
 		log.debug("UserController - withdraw: 회원탈퇴");
 		Map<String, Object> resultMap = new HashMap<>();
@@ -414,7 +416,7 @@ public class UserController {
 			if (loginDto.getUserSeq() != seq) {
 				throw new BadRequestException("BAD_REQUEST");
 			}
-			userService.withdraw(seq);
+			userService.withdraw(seq, passwordMap.get("password"));
 			jwtService.removeRefreshToken(seq);
 			resultMap.put("success", true);
 			status = HttpStatus.OK;
@@ -428,7 +430,7 @@ public class UserController {
 			resultMap.put("success", false);
 			resultMap.put("message", e.getMessage());
 			status = HttpStatus.BAD_REQUEST;
-			log.warn("[Error] 로그인 유저와 수정할 회원정보의 seq 값이 다름: {}", e.getMessage());
+			log.warn("[Error] 로그인 유저와 수정할 회원정보의 seq 값이 다르거나 비밀번호 불일치: {}", e.getMessage());
 		} catch (Exception e) {
 			resultMap.put("success", false);
 			resultMap.put("message", e.getMessage());
