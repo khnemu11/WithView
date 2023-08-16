@@ -1,3 +1,50 @@
+body {
+  font-family: 'NanumGothic', sans-serif !important;
+}
+
+.bold-text {
+  font-weight: bold;
+}
+
+.extrabold-text {
+  font-weight: 800;
+}
+
+.light-text {
+  font-weight: 300;
+}
+@font-face {
+  font-family: 'NanumGothic';
+  src: url('/fonts/NanumGothic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* 나눔고딕 Bold */
+@font-face {
+  font-family: 'NanumGothic';
+  src: url('/fonts/NanumGothicBold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+/* 나눔고딕 ExtraBold */
+@font-face {
+  font-family: 'NanumGothic';
+  src: url('/fonts/NanumGothicExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+}
+
+/* 나눔고딕 Light */
+@font-face {
+  font-family: 'NanumGothic';
+  src: url('/fonts/NanumGothicLight.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+
 .innermain {
     display: flex;
     flex-direction: column;
