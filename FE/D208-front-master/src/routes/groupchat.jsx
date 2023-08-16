@@ -16,10 +16,7 @@ import sticker from "../assets/sticker.png";
 import chat from "../assets/chat.png";
 import back from "../assets/back.png";
 import exit from "../assets/exit.png";
-import plane from "../assets/Plane.png";
-import plus from "../assets/plus.png";
 import x from "../assets/x.png";
-// import room from "../assets/room.png";
 import room2 from "../assets/room2.jpg";
 import pool from "../assets/pool.png";
 import smile from "../assets/imo/smile.png";
@@ -47,7 +44,7 @@ import { useSelector } from "react-redux";
 import axiosInstance from "./axiosinstance";
 import PresetRegistModal from "./components/presetRegistModal";
 import PresetLoadModal from "./components/presetLoadModal";
-import Checkwebsocket from "./components/checkwebsocket";
+// import Checkwebsocket from "./components/checkwebsocket";
 
 export default function GroupChat() {
   const windowSize = useRef([window.innerWidth, window.innerHeight]);
@@ -74,12 +71,11 @@ export default function GroupChat() {
   const userNick = useSelector((state) => state.user.nickname);
   const userProfile = useSelector((state) => state.user.profile);
   const profileUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${userProfile}`;
-  const chatStomp = useSelector((state) => state.stomp);
+  // const chatStomp = useSelector((state) => state.stomp);
   const Token = useSelector((state) => state.token);
   const [stickerAndBg, setstickerAndBg] = useState(false);
   const [fullscreen, setFullscreen] = useState(true);
   const [inputText, setInputText] = useState("");
-  const [chatLog, setChatLog] = useState([]);
   const [fullsceenChatLog, setFullscreenChatLog] = useState([]);
   const { state } = useLocation();
   const { serverSeq, channelSeq } = state;
@@ -193,14 +189,6 @@ export default function GroupChat() {
 
   function acc_chSettings() {
     setacc_chClicked((prevacc_chClicked) => !prevacc_chClicked);
-  }
-
-  function setOnline() {
-    localStorage.setItem("state", "온라인");
-  }
-
-  function setOffline() {
-    localStorage.setItem("state", "오프라인");
   }
 
   const handleInputChange = (event) => {
@@ -488,17 +476,15 @@ export default function GroupChat() {
       }
       //영상 위치 변경
       else {
-        target[0].setAttrs(object.getAttrs());
+        // target[0].setAttrs(object.getAttrs());
         // let triger = target[0].getAttr("cornerRadius");
         // if (triger === 149) {
         //   const tempvideoElement = target[0].attrs.image;
         //   camCutId.current = tempvideoElement.getAttribute("id");
         //   console.log(camCutId.current);
         //   console.log("캠꺼진상태");
-        //   const profileUrl =
-        //     "https://dm51j1y1p1ekp.cloudfront.net/sticker/sleep.png";
         //   const profileElement = new Image();
-        //   profileElement.src = profileUrl;
+        //   profileElement.src = withview;
         //   target[0].image(profileElement);
         // } else {
         //   console.log("캠켜진상태");
@@ -788,11 +774,17 @@ export default function GroupChat() {
 
       const videoBox = document.getElementById("video-container");
       const originalVideo = videoBox.querySelector("#" + videoId);
-      originalVideo.setAttribute("height", 200);
+      originalVideo.setAttribute("height", 150);
       originalVideo.setAttribute("width", 200);
 
       const destinationContainer = document.getElementById("speakingdiv");
       destinationContainer.appendChild(originalVideo);
+
+      const nameTag = document.createElement("div");
+      nameTag.textContent = speakUserId;
+      nameTag.classList.add(speakUserId);
+      const destinationNameContainer = document.getElementById("speakingName");
+      destinationNameContainer.appendChild(nameTag);
     });
 
     //말 끝나면 반응하는거
@@ -809,6 +801,9 @@ export default function GroupChat() {
 
       const destinationContainer = document.getElementById("speakingdiv");
       const clonedVideo = destinationContainer.querySelector("#" + videoId);
+      const destinationNameContainer = document.getElementById("speakingName");
+      const nameTag = destinationNameContainer.querySelector("." + speakUserId);
+      destinationNameContainer.removeChild(nameTag);
 
       const videoBox = document.getElementById("video-container");
       videoBox.appendChild(clonedVideo);
@@ -1631,7 +1626,7 @@ export default function GroupChat() {
       const myChatNick = document.createElement("div");
       const myChatTime = document.createElement("div");
       const myChatImage = document.createElement("img");
-      const myFullName = document.createElement("div");
+      const myFullImage = document.createElement("img");
       const myFullText = document.createElement("div");
       const myFullTime = document.createElement("div");
       const myFullDiv = document.createElement("div");
@@ -1640,9 +1635,6 @@ export default function GroupChat() {
       myChatText.textContent = chatMessage;
       myChatNick.textContent = chatOwner;
       myChatTime.textContent = chatTime;
-      myFullText.textContent = chatMessage;
-      myFullName.textContent = chatOwner + ":";
-      myFullTime.textContent = chatTime;
       myChatTime.classList.add("ChatTime");
       if (chatImage) {
         myChatImage.src =
@@ -1656,6 +1648,21 @@ export default function GroupChat() {
         myChatImage.width = 30;
         myChatImage.style.borderRadius = "50%";
       }
+      myFullText.textContent = `: ${chatMessage}`;
+      myFullTime.textContent = chatTime;
+      if (chatImage) {
+        myFullImage.src =
+          "https://dm51j1y1p1ekp.cloudfront.net/profile/" + chatImage;
+        myFullImage.height = 30;
+        myFullImage.width = 30;
+        myFullImage.style.borderRadius = "50%";
+      } else {
+        myFullImage.src = withview;
+        myFullImage.height = 30;
+        myFullImage.width = 30;
+        myFullImage.style.borderRadius = "50%";
+      }
+
       // 사이드바 채팅
       myChat.appendChild(myChatImage);
       myChatHeader.appendChild(myChatNick);
@@ -1669,7 +1676,7 @@ export default function GroupChat() {
       chatLogSide.appendChild(myChat);
 
       // 전체화면 채팅
-      myFullHeader.appendChild(myFullName);
+      myFullHeader.appendChild(myFullImage);
       // myFullHeader.appendChild(myFullTime);
       myFullDiv.appendChild(myFullHeader);
       myFullDiv.appendChild(myFullText);
@@ -1687,7 +1694,7 @@ export default function GroupChat() {
       const yourChatNick = document.createElement("div");
       const yourChatTime = document.createElement("div");
       const yourChatImage = document.createElement("img");
-      const yourFullName = document.createElement("div");
+      const yourFullImage = document.createElement("img");
       const yourFullText = document.createElement("div");
       const yourFullTime = document.createElement("div");
       const yourFullDiv = document.createElement("div");
@@ -1696,9 +1703,6 @@ export default function GroupChat() {
       yourChatText.textContent = chatMessage;
       yourChatNick.textContent = chatOwner;
       yourChatTime.textContent = chatTime;
-      yourFullText.textContent = chatMessage;
-      yourFullName.textContent = chatOwner + ":";
-      yourFullTime.textContent = chatTime;
       yourChatTime.classList.add("ChatTime");
       if (chatImage) {
         yourChatImage.src =
@@ -1712,6 +1716,21 @@ export default function GroupChat() {
         yourChatImage.width = 30;
         yourChatImage.style.borderRadius = "50%";
       }
+      yourFullText.textContent = `: ${chatMessage}`;
+      yourFullTime.textContent = chatTime;
+      if (chatImage) {
+        yourFullImage.src =
+          "https://dm51j1y1p1ekp.cloudfront.net/profile/" + chatImage;
+        yourFullImage.height = 30;
+        yourFullImage.width = 30;
+        yourFullImage.style.borderRadius = "50%";
+      } else {
+        yourFullImage.src = withview;
+        yourFullImage.height = 30;
+        yourFullImage.width = 30;
+        yourFullImage.style.borderRadius = "50%";
+      }
+
       // 사이드바 채팅
       yourChat.appendChild(yourChatImage);
       yourChatHeader.appendChild(yourChatNick);
@@ -1725,7 +1744,7 @@ export default function GroupChat() {
       chatLogSide.appendChild(yourChat);
 
       // 전체화면 채팅
-      yourFullHeader.appendChild(yourFullName);
+      yourFullHeader.appendChild(yourFullImage);
       // yourFullHeader.appendChild(yourFullTime);
       yourFullDiv.appendChild(yourFullHeader);
       yourFullDiv.appendChild(yourFullText);
@@ -2277,6 +2296,7 @@ export default function GroupChat() {
           className={fullscreen ? "fullscreen-face-hidden" : "fullscreen-face"}
         >
           <div id="speakingdiv" className="speakingdiv"></div>
+          <div id="speakingName" className="speakingName"></div>
         </div>
       </div>
     </>

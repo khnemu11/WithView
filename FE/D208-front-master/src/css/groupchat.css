@@ -318,6 +318,7 @@ button {
 
 .groupchat-log-div {
   height: 100%;
+  overflow: initial;
   overflow-y: auto;
 }
 
@@ -520,7 +521,6 @@ button {
   width: 100%;
   height: 100%;
   opacity: 1;
-  overflow: auto;
 }
 
 @keyframes fadein {
@@ -582,13 +582,13 @@ button {
 }
 
 .fullscreen-face {
+  border-radius: 15px 0px 0px 0px;
   animation: fadein 1s;
   background-color: #00000080;
   position: absolute;
   right: 0px;
   bottom: 0px;
   padding: 10px 0 10px 10px;
-  height: 30%;
   width: 60%;
 }
 
@@ -634,7 +634,6 @@ button {
   width: 100%;
   height: 100%;
   opacity: 0;
-  overflow: auto;
 }
 
 @keyframes fadeout {
@@ -678,14 +677,14 @@ button {
 }
 
 .fullscreen-face-hidden {
+  border-radius: 15px 0px 0px 0px;
   animation: fadeout 1s;
   display: none;
   background-color: #00000080;
   position: absolute;
   right: 0px;
   bottom: 0px;
-  padding: 0 0 10px 10px;
-  height: 30%;
+  padding: 10px 0 10px 10px;
   width: 60%;
 }
 
@@ -699,17 +698,29 @@ button {
   }
 }
 
+.speakingName {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min-content, 200px));
+}
+
+.speakingName div {
+  color: #f7fbfc;
+  text-align: center;
+  font-size: 13px;
+}
+
 .speakingdiv {
-  height: 210px;
+  height: 150px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min-content, 200px));
   overflow: hidden;
 }
 
 .speakingdiv video {
-  clip-path: circle(37% at 50% 50%);
-  height: 200px;
+  clip-path: circle(42% at 50% 50%);
+  height: 150px;
   max-width: 200px;
+  margin: auto;
 }
 
 .chatLogSide {
@@ -774,8 +785,8 @@ button {
 
 .myChatHeaderF,
 .yourChatHeaderF {
+  min-width: 55px;
   width: auto;
-  padding-right: 10px;
 }
 
 #profile {
