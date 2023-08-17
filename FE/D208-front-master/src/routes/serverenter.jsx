@@ -39,7 +39,6 @@ const ServerEnter = () => {
         setServerImage(backgroundImageUrl);
         setServerName(response.data.server.name);
         setServerSeq(response.data.server.seq);
-        console.log(response2.data)
         setServerMembersNumber(response2.data.users.length);
       } catch (error) {
         console.error("Error fetching server data", error);
@@ -75,7 +74,6 @@ const ServerEnter = () => {
     } catch (error) {
       console.error("Error joining server:", error);
       alert('이미 가입한 서버입니다.');
-      console.log(userSeq, serverSeq)
     }
   };
 

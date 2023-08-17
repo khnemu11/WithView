@@ -82,7 +82,6 @@ const Serverpage = () => {
     try {
       // 기존에 서버 구독이 있으면 해제
       if (currentSubscription) {
-        console.log("구독해제가 됐습니다!!!!!!!");
         currentSubscription.unsubscribe();
       }
 
@@ -113,7 +112,6 @@ const Serverpage = () => {
     // 컴포넌트가 언마운트될 때, 혹시나 구독이 남아있다면 해제하는 코드를 추가할 수 있습니다.
     return () => {
       if (currentSubscription) {
-        console.log("구독해제가 됐습니다!!!!!!!");
         currentSubscription.unsubscribe();
       }
     };
@@ -128,9 +126,6 @@ const Serverpage = () => {
     // 메시지 상태 업데이트
     setChannelState(data);
   }
-  useEffect(() => {
-    console.log("참여인원테스트입니다.", channelState);
-  }, [channelState]);
 
   //서버 이름
   useEffect(() => {
@@ -190,8 +185,6 @@ const Serverpage = () => {
           alert("이미 친구 추가된 상대입니다!");
         }
 
-        console.log(member);
-        console.log(member.seq);
       } catch (error) {
         console.error("Error adding friend:", error);
       }
@@ -298,7 +291,6 @@ const Serverpage = () => {
   const ChannelCard = ({ channel, isHost, channelMemberData }) => {
     const membersCount = channelMemberData[channel.seq]?.length || 0; // 채널에 대한 참여자 수 가져오기
     const channelMember = channelMemberData[channel.seq] || [];
-    console.log("channelMemberData", channelMemberData);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const togglePopover = () => {
       setIsPopoverOpen(!isPopoverOpen);
@@ -357,9 +349,6 @@ const Serverpage = () => {
       e.stopPropagation(); // 이 부분 추가: 버블링 방지
       // 그룹채팅 화면으로 이동하는 경로를 설정합니다.
       const groupchatLinkPath = `/groupchat`;
-      // 클릭 시 그룹채팅로 이동합니다.
-      console.log(channel);
-      console.log(channel.seq);
       navigate(groupchatLinkPath, {
         state: {
           serverSeq: seq,
@@ -451,7 +440,6 @@ const Serverpage = () => {
       });
       const data = response.data;
       setChannels(data.channels);
-      console.log("채널목록입니다아앗!", channels);
     } catch (error) {
       console.error("Error fetching channels:", error);
     }

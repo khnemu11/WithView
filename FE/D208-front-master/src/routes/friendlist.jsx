@@ -25,8 +25,6 @@ const FriendList = () => {
   Checkwebsocket();
 
   const stomp = useSelector((state) => state.stomp);
-  console.log("ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ", stomp);
-  console.log("유저세크", userSeq);
 
   useEffect(() => {
     document.body.style.backgroundImage = "none";
@@ -48,7 +46,6 @@ const FriendList = () => {
           }
         );
         setFriends(response.data.userList);
-        console.log("친구목록 불러와졌습니다.");
       } catch (error) {
         console.error("Error fetching friends:", error);
       }
@@ -74,7 +71,6 @@ const FriendList = () => {
             userSeq: userSeq,
           },
           () => {
-            console.log("STOMP 연결 성공");
             resolve(stomp);
           },
           (error) => {
@@ -92,13 +88,11 @@ const FriendList = () => {
   //1대1 채팅 목록에 들어간다.
   useEffect(() => {
     if (!stomp) {
-      console.log("STOMP 객체가 아직 초기화되지 않았습니다.");
       return;
     }
     let chatRoomInfoSubscription;
 
     const recvchatroom = (recieve) => {
-      console.log("setChatRoom 작동 중 작동 중");
       setChatRooms(recieve); // 받아온 정보를 chatRooms 상태에 저장
     };
 
@@ -111,14 +105,11 @@ const FriendList = () => {
           (message) => {
             var recieve = JSON.parse(message.body);
             recvchatroom(recieve);
-            console.log("채팅방 목록 구독 중");
           },
           (error) => {
             console.error("구독 중 에러 발생:", error);
           }
         );
-
-        console.log("userSeq", userSeq);
 
         // 최초 메시지 요청
         stomp.send(
@@ -134,16 +125,9 @@ const FriendList = () => {
     fetchChatRoomInfo();
 
     return () => {
-      console.log("채팅방 목록 구독 취소");
       chatRoomInfoSubscription && chatRoomInfoSubscription.unsubscribe(); // 컴포넌트가 언마운트될 때 구독 취소
     };
   }, [stomp, userSeq]);
-
-  console.log("챗룸", chatRooms);
-
-  console.log("챗룸 테스트", chatRooms.friendsChatRoomsUserInfoDtos);
-
-  console.log("친구 테스트", friends);
 
   const filteredFriends = friends.filter((friend) =>
     friend.nickname.includes(searchTerm)
@@ -154,8 +138,6 @@ const FriendList = () => {
         chat.userDto.nickname.includes(searchTerm)
       )
     : [];
-
-  console.log("filteredChatRooms", filteredChatRooms);
 
   const handleSearch = (event) => {
     if (event.key === "Enter") {
@@ -183,7 +165,6 @@ const FriendList = () => {
         JSON.stringify({ userSeq: userSeq })
       );
 
-      console.log("요청 성공:", response.data); // 서버 응답 출력
       setSelectedTab("채팅");
       stomp.send(
         `/api/pub/chat/friends/chatroominfo`,
@@ -204,10 +185,6 @@ const FriendList = () => {
     const friendsChatRoomSeq = chat.chatRoomSeq;
 
     setChatData(chat);
-    console.log(
-      "currentSubscriptioncurrentSubscriptioncurrentSubscription",
-      currentSubscription
-    );
     if (currentSubscription) {
       currentSubscription.unsubscribe();
       setInputMessage("");
@@ -227,7 +204,6 @@ const FriendList = () => {
         },
       })
       .then((response) => {
-        console.log("리스폰스데이터", response.data);
         const chatList = response.data.messages;
         if (Array.isArray(chatList) && chatList.length) {
           // chatList가 배열인지와 내용이 있는지 확인
@@ -274,16 +250,11 @@ const FriendList = () => {
     });
   }
 
-  useEffect(() => {
-    console.log("최신 chatMessages 값:", chatMessages);
-  }, [chatMessages]);
+
 
   const [inputMessage, setInputMessage] = useState("");
 
   const sendMessage = () => {
-    console.log("이것은 챗데이터다", chatData);
-    console.log("sendMessage 함수가 호출되었습니다.");
-
     const toUserSeq = chatData.userDto.seq;
 
     if (inputMessage.trim() !== "") {
@@ -307,7 +278,6 @@ const FriendList = () => {
         {},
         JSON.stringify({ userSeq: userSeq })
       );
-      console.log("메시지 보내기 성공!");
       setInputMessage(""); // 메시지 전송 후 input 비우기
     }
   };

@@ -195,8 +195,7 @@ const Profile = () => {
         height: 300,
       })
       .toDataURL("image/png");
-
-    // console.log(croppedImageDataURL)
+      
     const blob = base64ToBlob(croppedImageDataURL);
 
     const file = new File([blob], "croppedServerImage.png", {

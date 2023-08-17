@@ -78,9 +78,6 @@ const ServerPlus = () => {
             },
         });
 
-        // 서버 생성 성공 처리
-        console.log(editedImage);
-        console.log("서버 생성 성공:", response.data);
         const serverSeq = response.data.server.seq;
         navigate(`/server/${serverSeq}`);
     } catch (error) {

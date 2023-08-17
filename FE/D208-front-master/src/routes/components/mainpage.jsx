@@ -78,7 +78,6 @@ const Mainpage = () => {
           }
         );
         const data = response.data;
-        console.log(data);
         setJoinServerData(data.servers);
       } catch (error) {
         console.error("Error:", error);
