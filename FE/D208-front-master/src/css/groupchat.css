@@ -905,7 +905,7 @@ button {
   box-shadow: inset 3px 3px 10px rgb(0, 0, 0);
 }
 
-#new-message {
+.new-message {
   font-weight: bold;
   justify-content: space-between;
   background-color: #f7fbfc;
@@ -913,13 +913,13 @@ button {
   padding: 0px 20px 0px 10px;
   opacity: 0;
   height: 60px;
-  width: 135px;
   margin-right: 15px;
   box-shadow: 3px 3px 5px rgb(0, 0, 0);
   transition-duration: 0.3s;
+  max-width: 250px;
 }
 
-#a-new-message {
+.a-new-message {
   font-weight: bold;
   justify-content: space-between;
   background-color: #f7fbfc;
@@ -927,10 +927,10 @@ button {
   padding: 0px 20px 0px 10px;
   opacity: 0.8;
   height: 60px;
-  width: 135px;
   margin-right: 15px;
   box-shadow: 3px 3px 5px rgb(0, 0, 0);
   transition-duration: 0.3s;
+  max-width: 250px;
 }
 
 #screenshot {
@@ -1026,4 +1026,14 @@ button {
   background-color: white;
   box-shadow: 0 0 5px grey;
   border-radius: 3px;
+}
+.last-message {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.user {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
 }

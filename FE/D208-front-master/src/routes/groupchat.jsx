@@ -29,6 +29,7 @@ import StickerContainer from "./components/stickerContainer";
 export default function GroupChat() {
   const navigate = useNavigate();
   const windowSize = useRef([window.innerWidth, window.innerHeight]);
+  const [lastChat, setLastChat] = useState(null);
   const [backClicked, setbackClicked] = useState(false);
   const [profileClicked, setprofileClicked] = useState(false);
   const [micClicked, setmicClicked] = useState(false);
@@ -39,7 +40,7 @@ export default function GroupChat() {
   const [stickerClicked, setstickerClicked] = useState(false);
   const [stickermenuClicked, setstickermenuClicked] = useState(false);
   const [chatClicked, setchatClicked] = useState(false);
-  const [msgClicked, setmsgClicked] = useState(false);
+  const [msgClicked, setmsgClicked] = useState(true);
   const [acc_chClicked, setacc_chClicked] = useState(false);
   const [acc_ch_name, setacc_ch_name] = useState();
   const [isCameraOn, setIsCameraOn] = useState(true);
@@ -179,9 +180,12 @@ export default function GroupChat() {
     setstickerClicked(false);
     setsettingsClicked(false);
   }
+  function msgFalseSettings() {
+    setmsgClicked((prevmsgClicked) => false);
+  }
 
-  function msgSettings() {
-    setmsgClicked((prevmsgClicked) => !prevmsgClicked);
+  function msgTrueSettings() {
+    setmsgClicked((prevmsgClicked) => true);
   }
 
   function acc_chSettings() {
@@ -568,6 +572,7 @@ export default function GroupChat() {
       function (msg) {
         console.log("캔버스 메세지 도착!");
         console.log(msg);
+
         let data = JSON.parse(msg.body);
         console.log(data.type);
 
@@ -997,6 +1002,12 @@ export default function GroupChat() {
       (message) => {
         console.log("구독 성공");
         const receivedMessage = JSON.parse(message.body);
+        console.log(receivedMessage);
+        setLastChat(receivedMessage);
+
+        if (!chatClicked && receivedMessage.userDto.nickname != userNick) {
+          setmsgClicked(false);
+        }
         recvMessage(receivedMessage); // 채팅내용을 처리하는 함수 호출
 
         // 채팅창 맨 밑으로
@@ -1693,6 +1704,7 @@ export default function GroupChat() {
   }
 
   function recvMessage(recieve) {
+    console.log("채팅 날라옴");
     console.log(recieve);
     let chatMessage = recieve.message;
     const chatOwner = recieve.userDto.nickname;
@@ -2153,16 +2165,30 @@ export default function GroupChat() {
           {/* 오른쪽 메뉴들 */}
           <div className="rightmenu">
             {/* 새로운 1대1 메세지 */}
+
             <button
-              className="underbar button is-rounded"
-              id={msgClicked ? "new-message" : "a-new-message"}
-              onClick={msgSettings}
+              className={
+                msgClicked
+                  ? "underbar button is-rounded new-message"
+                  : "underbar button is-rounded a-new-message"
+              }
+              onClick={() => setmsgClicked(true)}
             >
-              <img src={man} alt="" className="user" />
-              <div>
-                <p>New !</p>
+              <img
+                src={
+                  lastChat == null ||
+                  lastChat.userDto.profileImgSearchName == null
+                    ? withview
+                    : `https://dm51j1y1p1ekp.cloudfront.net/profile/${lastChat.userDto.profileImgSearchName}`
+                }
+                alt=""
+                className="user"
+              />
+              <div className="last-message">
+                {lastChat == null ? "" : lastChat.message}
               </div>
             </button>
+
             {/* 스크린 샷 */}
             <button
               className="underbar"
@@ -2191,7 +2217,9 @@ export default function GroupChat() {
             {/* 채팅버튼 */}
             <button
               className="underbar"
-              onClick={chatSettings}
+              onClick={() => {
+                chatSettings();
+              }}
               id={chatClicked ? "achat" : "chat"}
             >
               <img src={chat} alt="" />
