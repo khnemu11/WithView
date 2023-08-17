@@ -73,6 +73,7 @@ body {
     padding: 3px;
     margin-right: 20px;
     background-color: white;
+    align-items: center;
   }
   
   .searchContainer input {
@@ -177,10 +178,16 @@ body {
       grid-template-columns: repeat(4, 1fr);
     }
   }
-  
-  @media screen and (min-width: 1400px) {
+
+  @media screen and (min-width: 1200px) {
     .grid-container {
       grid-template-columns: repeat(5, 1fr);
+    }
+  }
+  
+  @media screen and (min-width: 1600px) {
+    .grid-container {
+      grid-template-columns: repeat(6, 1fr);
     }
   }
 

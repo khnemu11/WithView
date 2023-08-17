@@ -27,9 +27,7 @@ const PresetRegistModal = (props) => {
     stage.children[1].hide();
     setImgUrl(stage.toDataURL());
   };
-  const enterKey = () => {
-    console.log(window.event.keyCode);
-  };
+
   const onClose = (stage) => {
     if (stage == null) {
       return;
@@ -135,7 +133,6 @@ const PresetRegistModal = (props) => {
             <input
               className="modal-input-content"
               name="presetName"
-              onKeyUp={enterKey()}
               onChange={onChange}
               value={presetName}
             ></input>

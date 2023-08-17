@@ -3,26 +3,25 @@
     align-items: flex-start;
     align-self: stretch; /* add this line */
     margin-top: 1%;
-
   }
   
   .backArrowIcon {
     cursor: pointer;
-    margin-left: 4%; /* Adjust the spacing as needed */
-    margin-right: 30%;
+    margin-left: 4%;
     margin-top: 0.2%;
     max-width: 3%;
+    margin-right: 35%;
   }
 
 .channelServerNameText{
-    font-size: 20pt;
-    font-weight: 600;
+    font-size: xx-large;
+    font-weight: bolder;
 }
 
 .channelNameText{
   display: flex;
   margin-top: 1%;
-  align-self: flex-start; /* add this line */
+  align-self: flex-start;
   font-size: x-large;
   font-weight: 600;
   margin-left: 5%;
