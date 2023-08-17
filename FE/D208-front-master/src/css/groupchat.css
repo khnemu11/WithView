@@ -933,13 +933,27 @@ button {
   transition-duration: 0.3s;
 }
 
+#screenshot {
+  height: 60px;
+  width: 60px;
+  opacity: 0.5;
+}
+
+#screenshot:active {
+  height: 60px;
+  width: 60px;
+  opacity: 1;
+}
+
 #settings {
+  margin: 0px 0px 0px 6px;
   height: 60px;
   width: 60px;
   opacity: 0.5;
 }
 
 #asettings {
+  margin: 0px 0px 0px 6px;
   height: 60px;
   width: 60px;
   opacity: 1;

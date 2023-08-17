@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import Konva from "konva";
 import { OpenVidu } from "openvidu-browser";
 import SockJS from "sockjs-client";
-import man from "../assets/man.jpg";
 import micon from "../assets/micon.png";
 import micoff from "../assets/micoff.png";
 import volon from "../assets/volon.png";
@@ -16,6 +15,7 @@ import chat from "../assets/chat.png";
 import back from "../assets/back.png";
 import exit from "../assets/exit.png";
 import withview from "../assets/withview.png";
+import camera from "../assets/camera.png";
 import "../css/groupchat.css";
 import StompJs from "stompjs";
 import $ from "jquery";
@@ -38,7 +38,6 @@ export default function GroupChat() {
   const [stickerClicked, setstickerClicked] = useState(false);
   const [stickermenuClicked, setstickermenuClicked] = useState(false);
   const [chatClicked, setchatClicked] = useState(false);
-  const [msgClicked, setmsgClicked] = useState(true);
   const [acc_chClicked, setacc_chClicked] = useState(false);
   const [acc_ch_name, setacc_ch_name] = useState();
   const [isCameraOn, setIsCameraOn] = useState(true);
@@ -177,10 +176,6 @@ export default function GroupChat() {
     setchatClicked((prevchatClicked) => !prevchatClicked);
     setstickerClicked(false);
     setsettingsClicked(false);
-  }
-
-  function msgSettings() {
-    setmsgClicked((prevmsgClicked) => !prevmsgClicked);
   }
 
   function acc_chSettings() {
@@ -2151,17 +2146,15 @@ export default function GroupChat() {
           </div>
           {/* 오른쪽 메뉴들 */}
           <div className="rightmenu">
-            {/* 새로운 1대1 메세지 */}
+            {/* 스트린 샷 */}
             <button
-              className="underbar button is-rounded"
-              id={msgClicked ? "new-message" : "a-new-message"}
-              onClick={msgSettings}
+              className="underbar"
+              onClick={"function-here"}
+              id={"screenshot"}
             >
-              <img src={man} alt="" className="user" />
-              <div>
-                <p>New !</p>
-              </div>
+              <img src={camera} alt="" />
             </button>
+
             {/* 세팅버튼 */}
             <button
               className="underbar"
