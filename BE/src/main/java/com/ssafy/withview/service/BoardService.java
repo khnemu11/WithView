@@ -69,6 +69,8 @@ public class BoardService {
 				.title(b.getTitle())
 				.nickname(b.getNickname())
 				.presetImgSearchName(b.getPresetImgSearchName())
+				.userDto(UserEntity.toDto(userRepository.findBySeq(b.getUserSeq()).orElseThrow(
+					() -> new IllegalArgumentException("일치하는 회원 정보가 없습니다."))))
 				.build())
 			.collect(Collectors.toList());
 	}

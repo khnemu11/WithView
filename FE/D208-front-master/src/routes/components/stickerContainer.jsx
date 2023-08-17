@@ -21,7 +21,12 @@ const StickerContainer = (props) => {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-
+  const keyPressHandler = (e) => {
+    if (e.code == "Enter") {
+      setMyStickers();
+      setBasicStickers();
+    }
+  };
   const isOpenSettings = () => {
     setIsOpen(!isOpen);
   };
@@ -86,6 +91,7 @@ const StickerContainer = (props) => {
             ref={keyword}
             name="keyword"
             placeholder="검색어를 입력해주세요."
+            onKeyUp={keyPressHandler}
           ></input>
           <FontAwesomeIcon
             className="s-icon"

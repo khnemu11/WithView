@@ -12,5 +12,7 @@ public interface PresetRepository extends MongoRepository<PresetEntity, String> 
 	Optional<PresetEntity> findById(String id);
 
 	List<PresetEntity> findAllByUserSeq(Long userSeq);
+
+	List<PresetEntity> findAllByUserSeqAndPresetName(Long UserSeq, String keyword);
 }
 

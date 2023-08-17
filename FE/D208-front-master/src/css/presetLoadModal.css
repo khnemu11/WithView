@@ -61,17 +61,21 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-/* .card-image {
+.preset-card-image {
   object-fit: cover;
   height: 50%;
   overflow: hidden;
-} */
-.card-image figure {
+}
+.preset-card-image figure {
   height: 100%;
 }
-.card-image figure img {
+.cpreset-card-image figure img {
   object-fit: fill;
   background-size: cover;
   height: 100%;
   overflow: hidden;
+}
+.preset-card {
+  max-height: 280px;
+  max-width: 360px;
 }

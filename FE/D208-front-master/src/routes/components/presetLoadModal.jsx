@@ -7,6 +7,7 @@ import axiosInstance from "../axiosinstance";
 
 const PresetLoadModal = (props) => {
   const [presetList, setPresetList] = useState([]);
+  const [searchList, setSearchList] = useState([]);
   const userSeq = useSelector((state) => state.user.seq);
   const token = useSelector((state) => state.token);
   const headers = {
@@ -23,6 +24,7 @@ const PresetLoadModal = (props) => {
         }
 
         setPresetList(response.data.PresetListInfo);
+        setSearchList(response.data.PresetListInfo);
       })
       .catch((err) => {
         console.log(err);
@@ -71,13 +73,24 @@ const PresetLoadModal = (props) => {
               className="modal-input-content"
               name="keyword"
               placeholder="검색어를 입력해주세요."
+              onChange={(e) => {
+                if (e.target.value == "") {
+                  setSearchList(presetList);
+                } else {
+                  setSearchList(
+                    presetList.filter((preset) => {
+                      return preset.presetName.includes(e.target.value);
+                    })
+                  );
+                }
+              }}
             ></input>
           </div>
           <div className="preset-list">
-            {presetList.map((preset, index) => (
+            {searchList.map((preset, index) => (
               <div
                 key={index}
-                className="card"
+                className="card preset-card"
                 style={{ position: "relative" }}
                 onClick={() => {
                   console.log("선택한 스테이지");
@@ -86,7 +99,7 @@ const PresetLoadModal = (props) => {
                   props.onChange();
                 }}
               >
-                <div className="card-image">
+                <div className="card-image preset-card-image">
                   <figure className="image">
                     <img
                       src={`https://dm51j1y1p1ekp.cloudfront.net/preset/${preset.presetImgSearchName}`}

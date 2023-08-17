@@ -35,7 +35,6 @@ public class StickerController {
 	public ResponseEntity<?> findAllUserSticker(@ModelAttribute StickerDto stickerDto) {
 		JSONObject jsonObject = new JSONObject();
 
-
 		log.info("==== 유저 스티커 검색 시작 ====");
 		try{
 			List<StickerDto> stickerDtoList = stickerService.findAllStickersByUserSeq(stickerDto);
