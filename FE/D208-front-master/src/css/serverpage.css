@@ -241,7 +241,7 @@
 
 .scrollable-area-members{
   max-height: 300px;
-  overflow-y: auto;
+  overflow-y: hidden;
   align-self: flex-start;
   margin-left: 3%;
   margin-right: 3%;
