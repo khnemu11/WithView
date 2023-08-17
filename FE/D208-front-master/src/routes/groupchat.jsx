@@ -1871,6 +1871,7 @@ export default function GroupChat() {
           <div id="delete-img-menu">
             <div>
               <button
+                className="delete-button-class"
                 onClick={deleteClickListener}
                 id="delete-button"
                 data-imgid=""
