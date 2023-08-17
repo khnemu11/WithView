@@ -1024,10 +1024,17 @@ button {
   display: none;
   position: absolute;
   width: 60px;
-  background-color: white;
+  background-color: #222222;
   box-shadow: 0 0 5px grey;
   border-radius: 3px;
 }
+
+.delete-button-class {
+  width: 100%;
+  font-size: 14px;
+  color: #f7fbfc;
+}
+
 .last-message {
   overflow: hidden;
   text-overflow: ellipsis;
