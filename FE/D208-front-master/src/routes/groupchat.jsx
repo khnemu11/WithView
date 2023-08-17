@@ -347,6 +347,14 @@ export default function GroupChat() {
     });
   };
 
+  const screenShot = () => {
+    console.log(stage.current.toDataURL());
+    let downloadLink = document.createElement("a");
+    downloadLink.href = stage.current.toDataURL();
+    downloadLink.download = "스크린샷.png";
+    downloadLink.click();
+  };
+
   const hideMenu = () => {
     // hide menu
     let deleteBtn = document.querySelector("#delete-button");
@@ -647,6 +655,8 @@ export default function GroupChat() {
       //로딩돠면
       imageObj.onload = function () {
         backgroundObj.setAttr("image", imageObj);
+        stage.current.width(windowSize.current[0]);
+        stage.current.height(windowSize.current[1]);
         backgroundObj.setAttr("width", windowSize.current[0]);
         backgroundObj.setAttr("height", windowSize.current[1]);
       };
@@ -2190,11 +2200,7 @@ export default function GroupChat() {
             </button>
 
             {/* 스크린 샷 */}
-            <button
-              className="underbar"
-              onClick={"function-here"}
-              id={"screenshot"}
-            >
+            <button className="underbar" onClick={screenShot} id={"screenshot"}>
               <img src={camera} alt="" />
             </button>
 
