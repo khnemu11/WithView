@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import Konva from "konva";
 import { OpenVidu } from "openvidu-browser";
 import SockJS from "sockjs-client";
+import man from "../assets/man.jpg";
 import micon from "../assets/micon.png";
 import micoff from "../assets/micoff.png";
 import volon from "../assets/volon.png";
@@ -38,6 +39,7 @@ export default function GroupChat() {
   const [stickerClicked, setstickerClicked] = useState(false);
   const [stickermenuClicked, setstickermenuClicked] = useState(false);
   const [chatClicked, setchatClicked] = useState(false);
+  const [msgClicked, setmsgClicked] = useState(false);
   const [acc_chClicked, setacc_chClicked] = useState(false);
   const [acc_ch_name, setacc_ch_name] = useState();
   const [isCameraOn, setIsCameraOn] = useState(true);
@@ -176,6 +178,10 @@ export default function GroupChat() {
     setchatClicked((prevchatClicked) => !prevchatClicked);
     setstickerClicked(false);
     setsettingsClicked(false);
+  }
+
+  function msgSettings() {
+    setmsgClicked((prevmsgClicked) => !prevmsgClicked);
   }
 
   function acc_chSettings() {
@@ -2146,7 +2152,18 @@ export default function GroupChat() {
           </div>
           {/* 오른쪽 메뉴들 */}
           <div className="rightmenu">
-            {/* 스트린 샷 */}
+            {/* 새로운 1대1 메세지 */}
+            <button
+              className="underbar button is-rounded"
+              id={msgClicked ? "new-message" : "a-new-message"}
+              onClick={msgSettings}
+            >
+              <img src={man} alt="" className="user" />
+              <div>
+                <p>New !</p>
+              </div>
+            </button>
+            {/* 스크린 샷 */}
             <button
               className="underbar"
               onClick={"function-here"}
