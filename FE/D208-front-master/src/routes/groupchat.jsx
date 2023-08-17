@@ -15,10 +15,8 @@ import sticker from "../assets/sticker.png";
 import chat from "../assets/chat.png";
 import back from "../assets/back.png";
 import exit from "../assets/exit.png";
-import x from "../assets/x.png";
 import withview from "../assets/withview.png";
 import "../css/groupchat.css";
-import axios from "axios";
 import StompJs from "stompjs";
 import $ from "jquery";
 import { useSelector } from "react-redux";
@@ -41,7 +39,6 @@ export default function GroupChat() {
   const [stickermenuClicked, setstickermenuClicked] = useState(false);
   const [chatClicked, setchatClicked] = useState(false);
   const [msgClicked, setmsgClicked] = useState(true);
-  const [acc_volClicked, setacc_volClicked] = useState(false);
   const [acc_chClicked, setacc_chClicked] = useState(false);
   const [acc_ch_name, setacc_ch_name] = useState();
   const [isCameraOn, setIsCameraOn] = useState(true);
@@ -186,10 +183,6 @@ export default function GroupChat() {
     setmsgClicked((prevmsgClicked) => !prevmsgClicked);
   }
 
-  function acc_volSettings() {
-    setacc_volClicked((prevacc_volClicked) => !prevacc_volClicked);
-  }
-
   function acc_chSettings() {
     setacc_chClicked((prevacc_chClicked) => !prevacc_chClicked);
   }
@@ -270,7 +263,7 @@ export default function GroupChat() {
   let screensharing = false;
   let CamOV = useRef(null); //오픈비두 변수
   let ScreenOV = useRef(null); //오픈비두 변수
-  let camCutId = useRef(null);
+  // let camCutId = useRef(null);
   let channelSeqRef = useRef(channelSeq);
   let currentShape;
 
@@ -1653,6 +1646,36 @@ export default function GroupChat() {
     setFullscreen(true);
   }
 
+  const divRef = useRef(null);
+  useEffect(() => {
+    const observerCallback = (mutationsList) => {
+      for (const mutation of mutationsList) {
+        if (mutation.type === "childList") {
+          console.log("Child nodes have changed:", mutation.addedNodes);
+          if (mutation.addedNodes.length === 0) {
+            setFullscreen(true);
+          }
+        }
+      }
+    };
+
+    const observerOptions = {
+      childList: true,
+    };
+
+    const observer = new MutationObserver(observerCallback);
+
+    if (divRef.current) {
+      observer.observe(divRef.current, observerOptions);
+    }
+
+    return () => {
+      if (divRef.current) {
+        observer.disconnect();
+      }
+    };
+  }, []);
+
   function sendChatSocket(message) {
     // 웹소켓에 채팅 전송하는 부분
     console.log(stomp.current);
@@ -2200,7 +2223,7 @@ export default function GroupChat() {
           <div id="speakingdiv" className="speakingdiv"></div>
           <div id="speakingName" className="speakingName"></div>
         </div>
-        <div id="bigfulldiv" className="bigfulldiv"></div>
+        <div ref={divRef} id="bigfulldiv" className="bigfulldiv"></div>
       </div>
     </>
   );
