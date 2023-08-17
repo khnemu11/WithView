@@ -102,3 +102,7 @@ div:has(.regist-container)::-webkit-scrollbar {
 .sticker-menu-on {
   height: 90% !important;
 }
+.modal-sticker-name {
+  width: 100%;
+  border: none;
+}

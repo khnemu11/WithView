@@ -12,6 +12,7 @@ const StickerRegistModal = (props) => {
   const [imgSrc, setImgSrc] = useState("");
   const [file, setFile] = useState(null);
   const [filename, setFileName] = useState("");
+  const [name, setName] = useState("");
   const writer = useSelector((state) => state.user.nickname);
 
   const headers = {
@@ -28,16 +29,17 @@ const StickerRegistModal = (props) => {
     formData.append("file", file);
     formData.append("userSeq", userSeq);
     formData.append("writer", writer);
+    formData.append("name", name);
 
     axiosInstance
       .post(`/${props.table}`, formData, { headers })
       .then((response) => {
-        alert("스티커가 성공적으로 저장되었습니다.");
+        alert(`${props.title}가 성공적으로 저장되었습니다.`);
         props.updateMyStickers();
         console.log(response);
       })
       .catch((err) => {
-        alert("스티커 저장을 실패했습니다.");
+        alert(`${props.title} 저장을 실패했습니다.`);
         console.log(err);
       });
   };
@@ -49,6 +51,10 @@ const StickerRegistModal = (props) => {
     reader.onload = () => {
       setImgSrc(reader.result);
     };
+  };
+
+  const nameSetting = (e) => {
+    setName(e.target.value);
   };
   return (
     <Modal
@@ -87,8 +93,15 @@ const StickerRegistModal = (props) => {
         <div className="modal-title">{props.title} 등록하기</div>
         <div className="modal-form regist-form">
           <div className="modal-input">
-            <div className="modal-input-title">{props.title} 이름</div>
-            <div className="modal-sticker-name">{filename}</div>
+            <div className="modal-input-title sticker-input-title">
+              {props.title} 이름
+            </div>
+            <input
+              className="modal-sticker-name"
+              onChange={(e) => {
+                setName(e.target.value);
+              }}
+            ></input>
           </div>
           <div className="modal-input">
             <div className={"modal-input-title"}>{props.title} 미리보기</div>

@@ -69,7 +69,7 @@
 .preset-card-image figure {
   height: 100%;
 }
-.cpreset-card-image figure img {
+.preset-card-image figure img {
   object-fit: fill;
   background-size: cover;
   height: 100%;
