@@ -11,7 +11,7 @@ function Board() {
   const userPk = useSelector((state) => state.user.seq);
   const token = useSelector((state) => state.token);
   const [profileImage, setProfileImage] = useState(null);
-  
+
   const [isModalActive, setIsModalActive] = useState(false);
   const profileImageURL = useSelector((state) => state.user.profile);
   const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImageURL}`;
@@ -31,7 +31,7 @@ function Board() {
       setProfileImage(profileImageUrl);
     }
   }, [profileImageURL]);
-  
+
   useEffect(() => {
     axiosInstance({
       headers: {
@@ -66,7 +66,6 @@ function Board() {
         console.log(err);
       });
   }, []);
-
 
   function WritePost() {
     console.log(selectedImageId[0]);
@@ -134,15 +133,14 @@ function Board() {
     const presetUrl = `https://dm51j1y1p1ekp.cloudfront.net/preset/${el.presetImgSearchName}`;
     const isSelected = selectedImageId.includes(el.id);
     return (
-      <div key={el.id} className="board_modal_temp">
+      <div key={el.id} className="board_modal_temp" onClick={() => handleImageClick(el.id)}>
         <div
           className={`${
             isSelected ? "board_modal_image_selected" : ""
           } board_modal_image card`}
           style={{ marginBottom: "30px" }}
-          onClick={() => handleImageClick(el.id)}
         >
-          <header className="card-header" style={{width : "100%"}}>
+          <header className="card-header" style={{ width: "100%" }}>
             <p
               className="card-header-title"
               style={{ fontSize: "22px", fontWeight: "bold" }}
@@ -157,7 +155,7 @@ function Board() {
         {isSelected && (
           <i
             className="fa-solid fa-check fa-bounce fa-5x board_check_icon"
-            style={{ color: "#0aeb24" }}
+            style={{ color: "#0aeb24" , cursor : "pointer"}}
           ></i>
         )}
       </div>
@@ -167,8 +165,8 @@ function Board() {
   const PresetCardImages = searchCard.map((el) => {
     // console.log(el)
     const presetUrl = `https://dm51j1y1p1ekp.cloudfront.net/preset/${el.presetImgSearchName}`;
-    const check = el.userDto.profileImgSearchName
-    const profileImageUrl2 = `https://dm51j1y1p1ekp.cloudfront.net/profile/${el.userDto.profileImgSearchName}`
+    const check = el.userDto.profileImgSearchName;
+    const profileImageUrl2 = `https://dm51j1y1p1ekp.cloudfront.net/profile/${el.userDto.profileImgSearchName}`;
     return (
       <div
         className="card board_card"
@@ -255,7 +253,13 @@ function Board() {
             />
             <hr />
             <p className="board_modal_card_inputtitle">프리셋을 선택하세요!</p>
-            {PresetImages}
+  
+            {PresetImages.length > 0 ? (
+              PresetImages
+            ) : (
+              <img src="/nullPreset.png" alt="아오" />
+            )}
+
             <p className="board_modal_card_inputtitle">내용</p>
             <textarea
               className="textarea board_modal_card_content"

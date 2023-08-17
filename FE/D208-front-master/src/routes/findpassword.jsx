@@ -29,9 +29,9 @@ export default function FindPassword() {
       method: "GET",
       url: `${url}/users/email/validate?email=${email}&id=${id}&var=3`,
     })
-      .then((res) => {
-        console.log("이메일 전송 완료");
-        console.log(res.data);
+      .then(() => {
+        
+        
         alert("이메일로 인증번호를 전송했습니다.");
       })
       .catch((err) => {
@@ -58,14 +58,14 @@ export default function FindPassword() {
         url: `${url}/users/${seq}/password?var=1`,
         data: { password: password },
       })
-        .then((res) => {
-          console.log(res.data);
+        .then(() => {
+          
           alert("비밀번호 변경이 완료되었습니다!!");
           navigate("/login");
         })
         .catch((err) => {
           console.log(err);
-          console.log(password, password2);
+          
         });
     }
   }
@@ -77,7 +77,7 @@ export default function FindPassword() {
       url: `${url}/users/email/authenticate?email=${email}&code=${code}&var=3`,
     })
       .then((res) => {
-        console.log(res.data);
+        
         setSeq(res.data.seq);
         alert("인증완료!!");
         setIsModalActive(true);
@@ -118,7 +118,7 @@ export default function FindPassword() {
                   className="input findpassword_input"
                   type="email"
                   onChange={(e) => {
-                    console.log(e.target.value);
+                    
                     setId(e.target.value);
                   }}
                 />
@@ -133,7 +133,7 @@ export default function FindPassword() {
                   className="input findpassword_input"
                   type="email"
                   onChange={(e) => {
-                    console.log(e.target.value);
+                    
                     setEmail(e.target.value);
                   }}
                 />

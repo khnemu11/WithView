@@ -130,8 +130,8 @@ export default function Signup() {
       method: "GET",
       url: `${url}/users/email/validate?email=${email}&var=1`,
     })
-      .then((res) => {
-        console.log(res.data);
+      .then(() => {
+        
         setIsModalActive(true);
       })
       .catch((err) => {
@@ -150,8 +150,8 @@ export default function Signup() {
       method: "GET",
       url: `${url}/users/email/authenticate?email=${email}&code=${code}`,
     })
-      .then((res) => {
-        console.log(res.data);
+      .then(() => {
+        
         alert("인증완료!!");
         setCheckEmail(true);
         setButtonDisabled3(true);
@@ -170,13 +170,13 @@ export default function Signup() {
       url: `${url}/users`,
       data: { id: Id, email: email, password: password1, nickname: nickname },
     })
-      .then((res) => {
-        console.log(res.data);
+      .then(() => {
+        
         alert("회원가입 완료!");
         navigate("/login");
       })
       .catch((err) => {
-        // console.log(id)
+        
         console.log(err);
         alert("회원가입에 실패하였습니다!");
       });
@@ -188,8 +188,8 @@ export default function Signup() {
       method: "GET",
       url: `${url}/users/check-id?id=${Id}`,
     })
-      .then((res) => {
-        console.log(res.data);
+      .then(() => {
+        
         setCheckID(true);
       })
       .catch((err) => {
@@ -223,7 +223,7 @@ export default function Signup() {
                     placeholder="아이디"
                     onChange={(e) => {
                       setId(e.target.value);
-                      console.log(e.target.value);
+                      
 
                       if (
                         e.target.value.includes(" ") ||

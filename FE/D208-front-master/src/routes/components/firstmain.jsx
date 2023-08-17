@@ -12,7 +12,7 @@ const FirstMain = () => {
   const profileImageURL = useSelector((state) => state.user.profile);
   const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImageURL}`;
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     // 만약 redux에서 프로필 이미지가 null이면 기본 이미지로 설정
@@ -36,25 +36,6 @@ const FirstMain = () => {
         <div className="content">
           <p>WithView에 오신 걸 환영합니다!</p>
           <p>다양한 사람들과의 만남과 이야기를 즐겨보세요.</p>
-        </div>
-        <div className="columns is-centered is-gapless is-vcentered m-4">
-          <div className="column mr-3">
-            <img
-              className="userplusImage"
-              src="/userplus.png"
-              alt="User Plus"
-            />
-            <p className="addFriendText">친구를 추가해보세요 !</p>
-          </div>
-          <div className="column ml-3">
-            <img
-              className="serverplusImage"
-              src="/serverplus.png"
-              alt="Server Plus"
-              onClick={() => navigate("/serverplus")}
-            />
-            <p className="addServerText">서버를 만들어보세요 !</p>
-          </div>
         </div>
       </div>
     </div>

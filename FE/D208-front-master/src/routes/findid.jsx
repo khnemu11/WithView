@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState} from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 import "../css/findid.css";
 import axios from "axios";
 import withview from "../assets/withview.png";
@@ -20,10 +19,9 @@ export default function FindId() {
       url: `${url}/users/email/validate?email=${email}&var=2`,
     })
       .then((res) => {
-        console.log(res.data);
         if (res.data.success) {
           alert("이메일로 인증번호를 전송했습니다!!");
-          console.log("이메일 전송 완료");
+          
         } else {
           alert("이메일 전송 실패");
           setEmail("");
@@ -43,7 +41,6 @@ export default function FindId() {
       url: `${url}/users/email/authenticate?email=${email}&code=${code}&var=2`,
     })
       .then((res) => {
-        console.log(res.data);
         setMaskedId(res.data.id);
         alert("인증완료!!");
         setIsModalActive(true);
@@ -84,7 +81,7 @@ export default function FindId() {
                   className="input findid_input"
                   type="email"
                   onChange={(e) => {
-                    console.log(e.target.value);
+                    
                     setEmail(e.target.value);
                   }}
                 />

@@ -48,8 +48,6 @@ export default function Test() {
     })
       .then((res) => {
         if (res.data.success) {
-          console.log("토큰 받아라");
-          console.log(res.data);
           const accessToken = res.data.AccessToken.accessToken;
           const userInfo = {
             seq: res.data.UserInfo.seq,
@@ -66,8 +64,8 @@ export default function Test() {
             {
               userSeq: res.data.UserInfo.seq,
             },
-            (res) => {
-              console.log(res);
+            () => {
+              
               // dispatch(setStomp(stomp))
             },
             (err) => {
@@ -90,8 +88,8 @@ export default function Test() {
                   id: Id,
                 },
               })
-                .then((res) => {
-                  console.log(res.data);
+                .then(() => {
+                  
                   checkLogin();
                 })
                 .catch((err) => {

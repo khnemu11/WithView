@@ -24,7 +24,7 @@ function Presetpost() {
   const [content, setContent] = useState("");
   const [modifyButton, setModifyButton] = useState(false);
   const [presetList, setPresetList] = useState([]);
-  const check = postContent.profileImgSearchName
+  const check = postContent.profileImgSearchName;
   useEffect(() => {
     // 만약 redux에서 프로필 이미지가 null이면 기본 이미지로 설정
     if (profileImageURL === null) {
@@ -33,7 +33,7 @@ function Presetpost() {
       setProfileImage(profileImageUrl);
     }
   }, [profileImageURL]);
-  
+
   useEffect(() => {
     axiosInstance({
       headers: {
@@ -70,65 +70,69 @@ function Presetpost() {
       });
   }, []);
 
-
   function UpdatePost() {
-    axiosInstance({
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      method: "PUT",
-      url: `/board`,
-      data: {
-        boardSeq: seq,
-        title: title,
-        content: content,
-        presetId: selectedImageId[0],
-      },
-    })
-      .then((res) => {
-        console.log(res.data);
-        alert("수정 완료!");
-        setTitle("");
-        setContent("");
-        setSelectedImageId([]);
-        setIsModalActive(false);
-
-        axiosInstance({
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          method: "GET",
-          url: `/board/${seq}`,
-        })
-          .then((res) => {
-            console.log(res.data.BoardInfo);
-            setPostContent(res.data.BoardInfo);
-            if (res.data.BoardInfo.userSeq === userPk) {
-              setModifyButton(true);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+    if (!selectedImageId[0]) {
+      alert("프리셋을 선택해주세요!");
+    } else if (title === "") {
+      alert("제목을 입력해주세요!");
+    } else {
+      axiosInstance({
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        method: "PUT",
+        url: `/board`,
+        data: {
+          boardSeq: seq,
+          title: title,
+          content: content,
+          presetId: selectedImageId[0],
+        },
       })
-      .catch((err) => {
-        console.log(err);
-      });
+        .then(() => {
+          
+          alert("수정 완료!");
+          setTitle("");
+          setContent("");
+          setSelectedImageId([]);
+          setIsModalActive(false);
+
+          axiosInstance({
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            method: "GET",
+            url: `/board/${seq}`,
+          })
+            .then((res) => {
+              
+              setPostContent(res.data.BoardInfo);
+              if (res.data.BoardInfo.userSeq === userPk) {
+                setModifyButton(true);
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
   }
 
   const PresetImages = presetList.map((el) => {
     const presetUrl = `https://dm51j1y1p1ekp.cloudfront.net/preset/${el.presetImgSearchName}`;
     const isSelected = selectedImageId.includes(el.id);
     return (
-      <div key={el.id} className="board_modal_temp">
+      <div key={el.id} className="board_modal_temp" onClick={() => handleImageClick(el.id)}>
         <div
           className={`${
             isSelected ? "board_modal_image_selected" : ""
           } board_modal_image card`}
-          style={{ marginBottom: "30px"}}
-          onClick={() => handleImageClick(el.id)}
+          style={{ marginBottom: "30px" }}
         >
-          <header className="card-header" style={{width : "100%"}}>
+          <header className="card-header" style={{ width: "100%" }}>
             <p
               className="card-header-title"
               style={{ fontSize: "22px", fontWeight: "bold" }}
@@ -143,7 +147,7 @@ function Presetpost() {
         {isSelected && (
           <i
             className="fa-solid fa-check fa-bounce fa-5x board_check_icon"
-            style={{ color: "#0aeb24" }}
+            style={{ color: "#0aeb24", cursor : "pointer" }}
           ></i>
         )}
       </div>
@@ -158,7 +162,7 @@ function Presetpost() {
     } else {
       setSelectedImageId([name]);
     }
-    console.log(selectedImageId);
+    
   };
 
   const UpdateContent = () => {
@@ -176,8 +180,8 @@ function Presetpost() {
       method: "DELETE",
       url: `/board/${seq}`,
     })
-      .then((res) => {
-        console.log(res.data);
+      .then(() => {
+        
         alert("삭제완료!");
         navigate("/board");
       })
@@ -223,8 +227,8 @@ function Presetpost() {
           file: file,
         },
       })
-        .then((res) => {
-          console.log(res.data);
+        .then(() => {
+         
           alert("저장완료 !!");
         })
         .catch((err) => {
@@ -243,26 +247,35 @@ function Presetpost() {
       />
 
       <hr className="serverOptionsLine_profile" />
-      <div className="card presetpost_card" style={{marginTop : "30px"}}>
+      <div className="card presetpost_card" style={{ marginTop: "30px" }}>
         <div className="card-image">
           <figure className="image is-4by3">
-            <img src={presetPostImageUrl}/>
+            <img src={presetPostImageUrl} />
           </figure>
         </div>
         <div className="card-content">
           <div className="media">
             <div className="media-left" style={{ marginRight: "25px" }}>
               <figure className="image is-96x96">
-                <img src={check ? profileImageUrl2 : "/withView2.png"}/>
+                <img src={check ? profileImageUrl2 : "/withView2.png"} />
               </figure>
             </div>
 
             <div className="media-content presetpost_media-content">
-              <p className="title is-2">{postContent.title}</p>
-              <div style={{display : "flex", justifyContent : "space-between", height:"35%"}}>
-
+              <p className="title is-3">{postContent.title}</p>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  height: "35%",
+                }}
+              >
                 <p className="subtitle is-5">작성자 : {postContent.nickname}</p>
-                <p className="subtitle is-5">{postContent.registerTime ? postContent.registerTime.substring(0,10) : ''}</p>
+                <p className="subtitle is-5">
+                  {postContent.registerTime
+                    ? postContent.registerTime.substring(0, 10)
+                    : ""}
+                </p>
               </div>
             </div>
           </div>
@@ -277,15 +290,22 @@ function Presetpost() {
               onClick={() => navigate("/board")}
             ></i>
 
-
-            <button className="button presetpost_icon" 
-            style={{height :"60px", fontSize : "20px", borderRadius : "10px", fontWeight :"bold", backgroundColor : "#769FCD", color :"white"}} 
-            onClick={makeFileImg}
+            <button
+              className="button presetpost_icon"
+              style={{
+                height: "60px",
+                fontSize: "20px",
+                borderRadius: "10px",
+                fontWeight: "bold",
+                backgroundColor: "#769FCD",
+                color: "white",
+              }}
+              onClick={makeFileImg}
             >
               프리셋 저장하기
               <i
                 className="fa-solid fa-download fa-lg"
-                style={{marginLeft : "10px"}}
+                style={{ marginLeft: "10px" }}
               ></i>
             </button>
 
