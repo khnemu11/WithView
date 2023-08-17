@@ -633,6 +633,7 @@ export default function GroupChat() {
   //제일 중요함
   /* OPENVIDU METHODS */
   function loadCanvas(data) {
+    console.log("캔버스 로드");
     let backChildren = JSON.parse(data.background);
 
     if (backChildren.children.length > 0) {
@@ -816,10 +817,14 @@ export default function GroupChat() {
 
     // --- 1) Get an OpenVidu object ---
     CamOV.current = new OpenVidu();
+    console.log("카메라 오픈비두 객체 생성");
     ScreenOV.current = new OpenVidu();
 
     // --- 2) Init a session ---
+
+    console.log("카메라 오픈비두 세션 생성");
     session.current = CamOV.current.initSession();
+
     sessionScreen.current = ScreenOV.current.initSession();
 
     //말하면 반응하는거
