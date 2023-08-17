@@ -21,4 +21,5 @@ public class PresetDto {
 	private String presetImgSearchName;
 	private String stage;
 	private LocalDateTime registerTime;
+	private String keyword;
 }

@@ -30,4 +30,5 @@ public class BoardDto {
 	private String presetId;
 	private String presetImgSearchName;
 	private String stage;
+	private UserDto userDto;
 }
