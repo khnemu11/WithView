@@ -34,14 +34,16 @@ public class BackgroundEntity {
 	@CreationTimestamp
 	private LocalDateTime createTime;
 	private Long userSeq;
+	private String name;
 
 	@Builder
-	public BackgroundEntity(String originalName, String searchName, Integer count, String writer,Long userSeq) {
+	public BackgroundEntity(String originalName, String searchName, Integer count, String writer,Long userSeq,String name) {
 		this.originalName = originalName;
 		this.searchName = searchName;
 		this.count = count;
 		this.writer = writer;
 		this.userSeq = userSeq;
+		this.name = name;
 	}
 
 	public static BackgroundDto toDto(BackgroundEntity stickerEntity){
@@ -56,6 +58,7 @@ public class BackgroundEntity {
 			.count(stickerEntity.getCount())
 			.createTime(stickerEntity.getCreateTime())
 			.userSeq(stickerEntity.getUserSeq())
+			.name(stickerEntity.getName())
 			.build();
 	}
 

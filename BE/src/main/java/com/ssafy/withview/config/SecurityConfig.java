@@ -18,9 +18,9 @@ import com.ssafy.withview.service.JwtService;
 
 import lombok.RequiredArgsConstructor;
 
-@Configuration
-@EnableWebSecurity
-@EnableGlobalMethodSecurity(securedEnabled = true)
+// @Configuration
+// @EnableWebSecurity
+// @EnableGlobalMethodSecurity(securedEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 

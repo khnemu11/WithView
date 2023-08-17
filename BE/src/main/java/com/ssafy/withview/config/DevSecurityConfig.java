@@ -12,8 +12,8 @@ import org.springframework.web.filter.CorsFilter;
 
 import lombok.RequiredArgsConstructor;
 
-// @Configuration
-// @EnableWebSecurity
+@Configuration
+@EnableWebSecurity
 @RequiredArgsConstructor
 public class DevSecurityConfig {
 

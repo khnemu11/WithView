@@ -37,6 +37,7 @@ public class BoardEntity {
 	private String presetId;
 	private String presetImgSearchName;
 
+
 	@Builder
 	public BoardEntity(String title, String content, Long userSeq, String nickname, String presetId,
 		String presetImgSearchName) {

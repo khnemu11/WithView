@@ -15,10 +15,9 @@ import sticker from "../assets/sticker.png";
 import chat from "../assets/chat.png";
 import back from "../assets/back.png";
 import exit from "../assets/exit.png";
-import x from "../assets/x.png";
 import withview from "../assets/withview.png";
+import camera from "../assets/camera.png";
 import "../css/groupchat.css";
-import axios from "axios";
 import StompJs from "stompjs";
 import $ from "jquery";
 import { useSelector } from "react-redux";
@@ -30,6 +29,7 @@ import StickerContainer from "./components/stickerContainer";
 export default function GroupChat() {
   const navigate = useNavigate();
   const windowSize = useRef([window.innerWidth, window.innerHeight]);
+  const [lastChat, setLastChat] = useState(null);
   const [backClicked, setbackClicked] = useState(false);
   const [profileClicked, setprofileClicked] = useState(false);
   const [micClicked, setmicClicked] = useState(false);
@@ -41,7 +41,6 @@ export default function GroupChat() {
   const [stickermenuClicked, setstickermenuClicked] = useState(false);
   const [chatClicked, setchatClicked] = useState(false);
   const [msgClicked, setmsgClicked] = useState(true);
-  const [acc_volClicked, setacc_volClicked] = useState(false);
   const [acc_chClicked, setacc_chClicked] = useState(false);
   const [acc_ch_name, setacc_ch_name] = useState();
   const [isCameraOn, setIsCameraOn] = useState(true);
@@ -181,13 +180,12 @@ export default function GroupChat() {
     setstickerClicked(false);
     setsettingsClicked(false);
   }
-
-  function msgSettings() {
-    setmsgClicked((prevmsgClicked) => !prevmsgClicked);
+  function msgFalseSettings() {
+    setmsgClicked((prevmsgClicked) => false);
   }
 
-  function acc_volSettings() {
-    setacc_volClicked((prevacc_volClicked) => !prevacc_volClicked);
+  function msgTrueSettings() {
+    setmsgClicked((prevmsgClicked) => true);
   }
 
   function acc_chSettings() {
@@ -270,7 +268,7 @@ export default function GroupChat() {
   let screensharing = false;
   let CamOV = useRef(null); //오픈비두 변수
   let ScreenOV = useRef(null); //오픈비두 변수
-  let camCutId = useRef(null);
+  // let camCutId = useRef(null);
   let channelSeqRef = useRef(channelSeq);
   let currentShape;
 
@@ -574,6 +572,7 @@ export default function GroupChat() {
       function (msg) {
         console.log("캔버스 메세지 도착!");
         console.log(msg);
+
         let data = JSON.parse(msg.body);
         console.log(data.type);
 
@@ -1003,6 +1002,12 @@ export default function GroupChat() {
       (message) => {
         console.log("구독 성공");
         const receivedMessage = JSON.parse(message.body);
+        console.log(receivedMessage);
+        setLastChat(receivedMessage);
+
+        if (!chatClicked && receivedMessage.userDto.nickname != userNick) {
+          setmsgClicked(false);
+        }
         recvMessage(receivedMessage); // 채팅내용을 처리하는 함수 호출
 
         // 채팅창 맨 밑으로
@@ -1653,6 +1658,36 @@ export default function GroupChat() {
     setFullscreen(true);
   }
 
+  const divRef = useRef(null);
+  useEffect(() => {
+    const observerCallback = (mutationsList) => {
+      for (const mutation of mutationsList) {
+        if (mutation.type === "childList") {
+          console.log("Child nodes have changed:", mutation.addedNodes);
+          if (mutation.addedNodes.length === 0) {
+            setFullscreen(true);
+          }
+        }
+      }
+    };
+
+    const observerOptions = {
+      childList: true,
+    };
+
+    const observer = new MutationObserver(observerCallback);
+
+    if (divRef.current) {
+      observer.observe(divRef.current, observerOptions);
+    }
+
+    return () => {
+      if (divRef.current) {
+        observer.disconnect();
+      }
+    };
+  }, []);
+
   function sendChatSocket(message) {
     // 웹소켓에 채팅 전송하는 부분
     console.log(stomp.current);
@@ -1669,6 +1704,7 @@ export default function GroupChat() {
   }
 
   function recvMessage(recieve) {
+    console.log("채팅 날라옴");
     console.log(recieve);
     let chatMessage = recieve.message;
     const chatOwner = recieve.userDto.nickname;
@@ -2032,7 +2068,11 @@ export default function GroupChat() {
               ></StickerContainer>
             </div>
 
-            <div id={stickermenuClicked ? "back-menu" : "back-menu-on"}>
+            <div
+              className={
+                stickermenuClicked ? "sticker-menu" : "sticker-menu-on"
+              }
+            >
               <StickerContainer
                 title="배경화면"
                 table="backgrounds"
@@ -2125,16 +2165,39 @@ export default function GroupChat() {
           {/* 오른쪽 메뉴들 */}
           <div className="rightmenu">
             {/* 새로운 1대1 메세지 */}
+
             <button
-              className="underbar button is-rounded"
-              id={msgClicked ? "new-message" : "a-new-message"}
-              onClick={msgSettings}
+              className={
+                msgClicked
+                  ? "underbar button is-rounded new-message"
+                  : "underbar button is-rounded a-new-message"
+              }
+              onClick={() => setmsgClicked(true)}
             >
-              <img src={man} alt="" className="user" />
-              <div>
-                <p>New !</p>
+              <img
+                src={
+                  lastChat == null ||
+                  lastChat.userDto.profileImgSearchName == null
+                    ? withview
+                    : `https://dm51j1y1p1ekp.cloudfront.net/profile/${lastChat.userDto.profileImgSearchName}`
+                }
+                alt=""
+                className="user"
+              />
+              <div className="last-message">
+                {lastChat == null ? "" : lastChat.message}
               </div>
             </button>
+
+            {/* 스크린 샷 */}
+            <button
+              className="underbar"
+              onClick={"function-here"}
+              id={"screenshot"}
+            >
+              <img src={camera} alt="" />
+            </button>
+
             {/* 세팅버튼 */}
             <button
               className="underbar"
@@ -2154,7 +2217,9 @@ export default function GroupChat() {
             {/* 채팅버튼 */}
             <button
               className="underbar"
-              onClick={chatSettings}
+              onClick={() => {
+                chatSettings();
+              }}
               id={chatClicked ? "achat" : "chat"}
             >
               <img src={chat} alt="" />
@@ -2200,7 +2265,7 @@ export default function GroupChat() {
           <div id="speakingdiv" className="speakingdiv"></div>
           <div id="speakingName" className="speakingName"></div>
         </div>
-        <div id="bigfulldiv" className="bigfulldiv"></div>
+        <div ref={divRef} id="bigfulldiv" className="bigfulldiv"></div>
       </div>
     </>
   );

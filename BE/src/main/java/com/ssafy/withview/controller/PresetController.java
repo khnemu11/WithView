@@ -68,12 +68,16 @@ public class PresetController {
 	 * @return ResponseEntity (true / false, 상태코드, PresetInfo - 프리셋의 id, 이름, png 이름, 등록일)
 	 */
 	@GetMapping("/{userSeq}/list")
-	public ResponseEntity<Map<String, Object>> getPresetList(@PathVariable(value = "userSeq") Long userSeq) {
+	public ResponseEntity<Map<String, Object>> getPresetList(@PathVariable(value = "userSeq") Long userSeq,
+		@RequestParam(required = false, name = "keyword") String keyword) {
 		log.debug("PresetController - getPresetList 실행: 저장한 프리셋 목록 확인");
 		Map<String, Object> resultMap = new HashMap<>();
 		HttpStatus status;
 		try {
-			List<PresetDto> presetDtos = presetService.getPresetList(userSeq);
+			PresetDto presetDto = PresetDto.builder().build();
+			presetDto.setKeyword(keyword);
+			presetDto.setUserSeq(userSeq);
+			List<PresetDto> presetDtos = presetService.getPresetList(presetDto);
 			resultMap.put("PresetListInfo", presetDtos);
 			resultMap.put("success", true);
 			status = HttpStatus.OK;

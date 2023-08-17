@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import Modal from "react-modal";
 import Konva from "konva";
 import { OpenVidu } from "openvidu-browser";
 import SockJS from "sockjs-client";
@@ -16,10 +15,9 @@ import sticker from "../assets/sticker.png";
 import chat from "../assets/chat.png";
 import back from "../assets/back.png";
 import exit from "../assets/exit.png";
-import x from "../assets/x.png";
 import withview from "../assets/withview.png";
+import camera from "../assets/camera.png";
 import "../css/groupchat.css";
-import axios from "axios";
 import StompJs from "stompjs";
 import $ from "jquery";
 import { useSelector } from "react-redux";
@@ -29,6 +27,7 @@ import PresetLoadModal from "./components/presetLoadModal";
 import StickerContainer from "./components/stickerContainer";
 
 export default function GroupChat() {
+  const navigate = useNavigate();
   const windowSize = useRef([window.innerWidth, window.innerHeight]);
   const [backClicked, setbackClicked] = useState(false);
   const [profileClicked, setprofileClicked] = useState(false);
@@ -41,7 +40,6 @@ export default function GroupChat() {
   const [stickermenuClicked, setstickermenuClicked] = useState(false);
   const [chatClicked, setchatClicked] = useState(false);
   const [msgClicked, setmsgClicked] = useState(false);
-  const [acc_volClicked, setacc_volClicked] = useState(false);
   const [acc_chClicked, setacc_chClicked] = useState(false);
   const [acc_ch_name, setacc_ch_name] = useState();
   const [isCameraOn, setIsCameraOn] = useState(true);
@@ -52,7 +50,6 @@ export default function GroupChat() {
   const userSeq = useSelector((state) => state.user.seq);
   const userNick = useSelector((state) => state.user.nickname);
   const userProfile = useSelector((state) => state.user.profile);
-  const [isScreenFullScreen, setIsScreenFullScreen] = useState(false);
   const profileUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${userProfile}`;
   // const chatStomp = useSelector((state) => state.stomp);
   const Token = useSelector((state) => state.token);
@@ -63,8 +60,9 @@ export default function GroupChat() {
   const { state } = useLocation();
   const { serverSeq, channelSeq } = state;
   const [presetLoadClicked, setPresetLoadClicked] = useState(false);
-  const location = useLocation();
-  const navigate = useNavigate();
+  const openFriendListInNewWindow = () => {
+    window.open("/friendlist", "_blank", "width=900,height=600");
+  };
 
   function presetLoadClickedChange() {
     setPresetLoadClicked((presetLoadClicked) => !presetLoadClicked);
@@ -79,12 +77,13 @@ export default function GroupChat() {
   }
 
   function profileSettings() {
-    setprofileClicked((prevprofileClicked) => !prevprofileClicked);
-    setmicClicked(false);
-    setvolClicked(false);
+    navigate("/profile");
   }
   const deleteChannel = () => {
     console.log("채널 지우기 버튼 클릭");
+    const headers = {
+      Authorization: `Bearer ${Token}`,
+    };
     if (confirm("정말 채널을 삭제하시겠습니까?")) {
       axiosInstance
         .delete(`/servers/${serverSeq}/channels/${channelSeqRef.current}`, {
@@ -185,10 +184,6 @@ export default function GroupChat() {
     setmsgClicked((prevmsgClicked) => !prevmsgClicked);
   }
 
-  function acc_volSettings() {
-    setacc_volClicked((prevacc_volClicked) => !prevacc_volClicked);
-  }
-
   function acc_chSettings() {
     setacc_chClicked((prevacc_chClicked) => !prevacc_chClicked);
   }
@@ -198,13 +193,25 @@ export default function GroupChat() {
   };
 
   const chnameChange = () => {
-    axios
-      .put("https://api.example.com/channels/123", { name: acc_ch_name })
+    const headers = {
+      Authorization: `Bearer ${Token}`,
+    };
+    let formData = new FormData();
+    formData.append("name", acc_ch_name);
+
+    axiosInstance
+      .post(
+        `/servers/${serverSeq}/channels/${channelSeqRef.current}`,
+        formData,
+        { headers }
+      )
       .then((response) => {
+        alert("채널 이름을 변경하였습니다.");
         console.log(response);
       })
-      .catch((error) => {
-        console.log("PUT 요청 에러:", error);
+      .catch((err) => {
+        alert("채널 이름 변경을 실패하였습니다.");
+        console.log(err);
       });
   };
 
@@ -257,12 +264,13 @@ export default function GroupChat() {
   let screensharing = false;
   let CamOV = useRef(null); //오픈비두 변수
   let ScreenOV = useRef(null); //오픈비두 변수
-  let camCutId = useRef(null);
+  // let camCutId = useRef(null);
   let channelSeqRef = useRef(channelSeq);
   let currentShape;
-  const headers = {
-    Authorization: `Bearer ${Token}`,
-    "Content-Type": "application/json",
+
+  const handleBackButton = () => {
+    if (stomp.current) stomp.current.disconnect();
+    console.log("뒤로가기 버튼이 눌렸습니다.");
   };
 
   const init = () => {
@@ -335,31 +343,49 @@ export default function GroupChat() {
     });
   };
 
+  const hideMenu = () => {
+    // hide menu
+    let deleteBtn = document.querySelector("#delete-button");
+    deleteBtn.setAttribute("data-imgid", "");
+    let menuNode = document.getElementById("delete-img-menu");
+    menuNode.style.display = "none";
+  };
   useEffect(() => {
     init();
+
+    return () => {
+      leaveSession();
+    };
   }, []);
 
   const resizeWindow = () => {
-    console.log(windowSize);
+    stage.current.width(window.innerWidth);
+    stage.current.height(window.innerHeight);
 
     if (
-      stage.current == null ||
-      stage.current.children[0].children.length > 0
+      stage.current === null ||
+      stage.current.children[0].children.length == 0
     ) {
-      console.log();
+      console.log("no stage");
       return;
     }
 
-    stage.current.children[0].children[0].width(windowSize.current[0]);
-    stage.current.children[0].children[0].height(windowSize.current[1]);
+    stage.current.children[0].children[0].width(window.innerWidth);
+    stage.current.children[0].children[0].height(window.innerHeight);
+
+    console.log(stage.current.width);
   };
 
   useEffect(() => {
     window.addEventListener("resize", resizeWindow);
+    window.addEventListener("click", hideMenu);
+
     return () => {
       window.removeEventListener("resize", resizeWindow);
+      window.removeEventListener("click", hideMenu);
     };
-  }, []);
+  }, [windowSize]);
+
   // 배경에 이미지 추가
   function addBackImage(imageUrl) {
     console.log("이미지 url");
@@ -471,7 +497,6 @@ export default function GroupChat() {
             4 +
             "px";
         });
-        // stage.current.children[2].add(tr);
         stage.current.children[2].add(object);
       }
 
@@ -507,13 +532,11 @@ export default function GroupChat() {
       }
       //공유화면 위치 변경
       else if (objectId.indexOf("screen-") != -1) {
-        if (!isScreenFullScreen) {
-          target[0].setAttrs(object.getAttrs());
-        }
+        target[0].setAttrs(object.getAttrs());
       }
       //영상 위치 변경
       else {
-        // target[0].setAttrs(object.getAttrs());
+        target[0].setAttrs(object.getAttrs());
         // let triger = target[0].getAttr("cornerRadius");
         // if (triger === 149) {
         //   const tempvideoElement = target[0].attrs.image;
@@ -549,6 +572,8 @@ export default function GroupChat() {
         console.log(data.type);
 
         if (data.type == "update") {
+          console.log("세션");
+          console.log(session.current);
           console.log("캔버스 변화");
           console.log(data);
           loadCanvasChange(data.object);
@@ -568,6 +593,7 @@ export default function GroupChat() {
       }
     );
     chatConnect();
+    chatEnterMsg();
   }
 
   function deleteCanvasChange(data) {
@@ -584,17 +610,6 @@ export default function GroupChat() {
     if (target.length > 0) {
       target[0].remove();
     }
-
-    // for (let i = 0; i < stage.current.children[2].children.length; i++) {
-    //   let imageElement = stage.current.children[2].children[i];
-
-    //   if (imageElement.attrs.id == objectId) {
-    //     console.log("삭제 대상 객체");
-    //     console.log(imageElement);
-    //     imageElement.remove();
-    //     break;
-    //   }
-    // }
   }
 
   function onError() {
@@ -605,8 +620,6 @@ export default function GroupChat() {
   //제일 중요함
   /* OPENVIDU METHODS */
   function loadCanvas(data) {
-    console.log("캔버스 로드");
-    console.log(data);
     let backChildren = JSON.parse(data.background);
 
     if (backChildren.children.length > 0) {
@@ -651,7 +664,6 @@ export default function GroupChat() {
       let images = remoteImageLayer.find("Image");
 
       for (let i = 0; i < images.length; i++) {
-        // let tr = new Konva.Transformer();
         //이미지 변수 생성
         let imageObj = new Image();
         imageObj.crossOrigin = "anonymous";
@@ -705,11 +717,6 @@ export default function GroupChat() {
         // 드래그 범위 제한 함수를 객체에 연결
         images[i].dragBoundFunc(limitDragBounds);
         var menuNode = document.getElementById("delete-img-menu");
-
-        window.addEventListener("click", () => {
-          // hide menu
-          menuNode.style.display = "none";
-        });
 
         // 우클릭 이벤트 핸들러 등록
         images[i].on("contextmenu", function (e) {
@@ -1008,29 +1015,57 @@ export default function GroupChat() {
     );
 
     return () => {
-      channelSubscribe.unsubscribe(); // 컴포넌트 언마운트 시 구독 해제
-      stomp.disconnect(); // 컴포넌트 언마운트 시 연결 해제
+      console.log("채널 나감");
+      console.log(stomp);
+      channelSubscribe.unsubscribe(
+        `/api/sub/chat/channel/${channelSeqRef.current}`,
+        function () {
+          stomp.send(
+            `/api/pub/server/${serverSeq}/channel/${channelSeqRef.current}/leave`,
+            {},
+            JSON.stringify({ userSeq: { userSeq } })
+          );
+        }
+      );
+      stomp.current.disconnect(); // 컴포넌트 언마운트 시 연결 해제
     };
   }
 
+  function chatEnterMsg() {
+    console.log("들어가는 메세지를 보내주자 !");
+    stomp.current.send(
+      `/api/pub/server/${serverSeq}/channel/${channelSeqRef.current}/enter`,
+      {},
+      JSON.stringify({ userSeq: userSeq })
+    );
+  }
+
+  function chatLeaveMsg() {
+    console.log("나가는 메세지를 보내주자 !");
+    stomp.current.send(
+      `/api/pub/server/${serverSeq}/channel/${channelSeqRef.current}/leave`,
+      {},
+      JSON.stringify({ userSeq: userSeq })
+    );
+  }
+
   //외부를 클릭하면 우클릭 메뉴가 없어지는 것
-  window.addEventListener("click", () => {
-    if (location.pathname.indexOf("/groupchat") == -1) {
-      return;
-    }
-    // hide menu
-    let deleteBtn = document.querySelector("#delete-button");
-    deleteBtn.setAttribute("data-imgid", "");
-    let menuNode = document.getElementById("delete-img-menu");
-    menuNode.style.display = "none";
-  });
+  // window.addEventListener("click", () => {
+  //   if (location.pathname.indexOf("/groupchat") == -1) {
+  //     return;
+  //   }
+  //   // hide menu
+  //   let deleteBtn = document.querySelector("#delete-button");
+  //   deleteBtn.setAttribute("data-imgid", "");
+  //   let menuNode = document.getElementById("delete-img-menu");
+  //   menuNode.style.display = "none";
+  // });
 
   function publishScreenShare() {
     // --- 9.1) To create a publisherScreen set the property 'videoSource' to 'screen'
     console.log("스크린 ov");
     console.log(stage);
     console.log(ScreenOV.current);
-
     if (ScreenOV.current != null && ScreenOV.current.publishers.length > 0) {
       for (let i = 0; i < ScreenOV.current.publishers.length; i++) {
         console.log("기존에 존재한 스트림");
@@ -1038,7 +1073,6 @@ export default function GroupChat() {
         sessionScreen.current.unpublish(ScreenOV.current.publishers[i]);
       }
     }
-
     var publisherScreen = ScreenOV.current.initPublisher("container-screens", {
       videoSource: "screen",
     });
@@ -1057,6 +1091,7 @@ export default function GroupChat() {
           console.log('User pressed the "Stop sharing" button');
           sessionScreen.current.unpublish(publisherScreen);
           screensharing = false;
+          setFullscreen(true);
         });
       sessionScreen.current.publish(publisherScreen);
     });
@@ -1081,14 +1116,12 @@ export default function GroupChat() {
     // sessionScreen.current.disconnect();
     session.current.disconnect();
     sessionScreen.current.disconnect();
+    if (stomp.current) stomp.current.disconnect();
+    chatLeaveMsg();
     // Removing all HTML elements with user's nicknames.
     // HTML videos are automatically removed when leaving a Session
 
     removeAllUserData();
-    //그런데 이 밑은 화상 채팅과 채널명 입력을 바꾸는 곳이라 필요 없음
-    // Back to 'Join session' page
-    document.getElementById("join").style.display = "block";
-    document.getElementById("session").style.display = "none";
     screensharing = false;
   }
 
@@ -1098,24 +1131,8 @@ export default function GroupChat() {
   window.onbeforeunload = function () {
     if (session) session.current.disconnect();
     if (session) sessionScreen.current.disconnect();
+    if (stomp.current) stomp.current.disconnect();
   };
-
-  /* APPLICATION SPECIFIC METHODS */
-  //오픈비두 예제 함수
-  //페이지가 로드가 되면 기본값으로 채널 명과 랜덤한 유저 아이디를 생성해줌
-  //사용 안할듯
-  // window.addEventListener("load", function () {
-  //   generateParticipantInfo();
-  // });
-
-  //오픈비두 예제 함수
-  //채널 명과 랜덤한 유저 아이디를 생성해줌
-  //사용 안할듯
-  // function generateParticipantInfo() {
-  //   document.getElementById("sessionId").value = "mySession";sen
-  //   document.getElementById("userName").value =
-  //     "Participant" + Math.floor(Math.random() * 100);
-  // }
 
   //오픈비두 예제 함수
   //현재 참가자 데이터, 영상을 video-container에 넣는다.
@@ -1173,19 +1190,6 @@ export default function GroupChat() {
     if (target.length > 0) {
       target[0].remove();
     }
-
-    // for (var i = 0; i < stage.current.children[1].children.length; i++) {
-    //   console.log(
-    //     stage.current.children[1].children[i].getAttr("id") + " vs " + targetId
-    //   );
-    //   if (stage.current.children[1].children[i].getAttr("id") == targetId) {
-    //     console.log(stage.current.children[1]);
-    //     stage.current.children[1].children[i - 1].remove();
-    //     console.log(stage.current.children[1]);
-    //     stage.current.children[1].children[i - 1].remove();
-    //     break;
-    //   }
-    // }
     updateCanvasOnlyServer();
   }
   function sendStageInfo(stage) {
@@ -1314,9 +1318,6 @@ export default function GroupChat() {
 
     // 드래그 범위 제한 함수를 객체에 연결
     video.dragBoundFunc(limitDragBounds);
-
-    // video.add(baseImg);
-    // layer.add(tr);
     layer.add(video);
     console.log("점프");
     console.log(video);
@@ -1452,19 +1453,6 @@ export default function GroupChat() {
     if (target.length > 0) {
       changeCanvas(target[0], "delete");
     }
-
-    // for (var i = 0; i < stage.current.children[2].children.length; i++) {
-    //   console.log("현제 삭제 대상인지 판단하는 이미지");
-    //   console.log(stage.current.children[2].children[i].getAttr("id"));
-
-    //   if (stage.current.children[2].children[i].getAttr("id") == targetId) {
-    //     console.log("find " + stage.current.children[2].children[i]);
-
-    //     stage.current.children[2].children[i].remove();
-    //     // stage.current.children[2].children[i - 1].remove();
-    //     console.log("tarnsformer " + stage.current.children[2].children[i]);
-    //   }
-    // }
   }
   //버튼을 누르면 이미지가 생성되는 함수
   function stickertemp(name) {
@@ -1523,12 +1511,8 @@ export default function GroupChat() {
     //다른사람의 커넥션 아이디 : 커넥션 고유 번호
     //자기 자신인 경우
     //공유 영상 레이어 꺼내기
-
     let layer = stage.current.children[3];
-    // if (layer.children.length > 0) {
-    //   console.log("기존 공유화면 삭제");
-    //   layer.removeChildren();
-    // }
+
     //공유 영상 초기 디자인
     var video;
     console.log("connectionId");
@@ -1579,10 +1563,6 @@ export default function GroupChat() {
       });
     }
 
-    //비디오 크기 및 회전을 도와주는 객체
-    // var tr = new Konva.Transformer();
-    // tr.nodes([video]);
-
     //비디오 실행
     var animation = new Konva.Animation(function () {}, layer);
 
@@ -1603,8 +1583,6 @@ export default function GroupChat() {
 
     // 드래그 범위 제한 함수를 객체에 연결
     video.dragBoundFunc(limitDragBounds);
-
-    // layer.add(tr);
     layer.add(video);
 
     //자기 자신의 비디오 경우 자동으로 실행이 되지 않는 오류가 있어 직접 실행
@@ -1623,42 +1601,81 @@ export default function GroupChat() {
     });
 
     video.on("contextmenu", function (e) {
+      console.log(e.target);
       e.evt.preventDefault();
-      video.setAttrs({
-        x: -5,
-        y: -5,
-        draggable: false,
-        width: window.innerWidth + 10,
-        height: window.innerHeight + 10,
-      });
-      layer.draw();
-      console.log(video.attrs);
-      console.log(layer);
+      // video.setAttrs({
+      //   x: -5,
+      //   y: -5,
+      //   draggable: false,
+      //   width: window.innerWidth + 10,
+      //   height: window.innerHeight + 10,
+      // });
+      // layer.draw();
+      // console.log(video.attrs);
+      // console.log(layer);
+      const shaerVideoId = e.target.attrs.image.id;
+      const sharingVideoDiv = document.getElementById("container-screens");
+      const targetVideo = sharingVideoDiv.querySelector("#" + shaerVideoId);
+
+      const destinationContainer = document.getElementById("bigfulldiv");
+      destinationContainer.appendChild(targetVideo);
       setFullscreen(false);
       setsettingsClicked(false);
       setstickerClicked(false);
       setchatClicked(false);
-      setIsScreenFullScreen(true);
     });
   }
   function pushX() {
-    let targerlayer = stage.current.children[3];
-    let sharescreen = targerlayer.find((node) => node.id().endsWith("-share"));
-    if (sharescreen[0]) {
-      // console.log(sharescreen[0]);
-      // console.log(sharescreen[0].attrs);
-      sharescreen[0].setAttrs({
-        x: 10,
-        y: 10,
-        width: 300,
-        height: 300,
-        draggable: true,
-      });
-      targerlayer.draw();
-    }
+    // let targerlayer = stage.current.children[3];
+    // let sharescreen = targerlayer.find((node) => node.id().endsWith("-share"));
+    // if (sharescreen[0]) {
+    //   console.log(sharescreen[0]);
+    //   console.log(sharescreen[0].attrs);
+    //   sharescreen[0].setAttrs({
+    //     x: 10,
+    //     y: 10,
+    //     width: 300,
+    //     height: 300,
+    //     draggable: true,
+    //   });
+    //   targerlayer.draw();
+    // }
+    const destinationContainer = document.getElementById("bigfulldiv");
+    const targetVideo = destinationContainer.querySelector("video");
+    const videoBox = document.getElementById("container-screens");
+    videoBox.appendChild(targetVideo);
     setFullscreen(true);
-    setIsScreenFullScreen(false);
   }
+
+  const divRef = useRef(null);
+  useEffect(() => {
+    const observerCallback = (mutationsList) => {
+      for (const mutation of mutationsList) {
+        if (mutation.type === "childList") {
+          console.log("Child nodes have changed:", mutation.addedNodes);
+          if (mutation.addedNodes.length === 0) {
+            setFullscreen(true);
+          }
+        }
+      }
+    };
+
+    const observerOptions = {
+      childList: true,
+    };
+
+    const observer = new MutationObserver(observerCallback);
+
+    if (divRef.current) {
+      observer.observe(divRef.current, observerOptions);
+    }
+
+    return () => {
+      if (divRef.current) {
+        observer.disconnect();
+      }
+    };
+  }, []);
 
   function sendChatSocket(message) {
     // 웹소켓에 채팅 전송하는 부분
@@ -1821,6 +1838,12 @@ export default function GroupChat() {
       chatLogFull.appendChild(yourFullChat);
     }
   }
+
+  function goToCreateYard() {
+    leaveSession();
+    navigate("/board");
+  }
+
   return (
     <>
       {/* 전체 화면 */}
@@ -1892,7 +1915,7 @@ export default function GroupChat() {
         {/* 전체화면 종료 */}
         <div>
           <img
-            src={x}
+            src={back}
             alt="엑스"
             onClick={pushX}
             className={fullscreen ? "fullscreen-x-hidden" : "fullscreen-x"}
@@ -1906,39 +1929,22 @@ export default function GroupChat() {
           >
             <div className="setting-menu-div">
               <div className="accordion">
-                <div
-                  className={
-                    acc_volClicked ? "a-accordion-item" : "accordion-item"
-                  }
-                >
-                  <div className="accordion-header" onClick={acc_volSettings}>
-                    참가자 볼륨조절
-                  </div>
-                  <div className="accordion-content">
-                    <div className="accordion-vol">
-                      <img src="" alt="아직없어" />
-                      <p>김병건</p>
-                    </div>
-                    <div className="accordion-vol">
-                      <img src="" alt="아직없어" />
-                      <p>차호민</p>
-                    </div>
-                    <div className="accordion-vol">
-                      <img src="" alt="아직없어" />
-                      <p>최춘식</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="accordion">
                 <div className="accordion-item">
-                  <div className="accordion-header">내 친구</div>
+                  <div
+                    className="accordion-header"
+                    onClick={openFriendListInNewWindow}
+                    style={{ cursor: "pointer" }}
+                  >
+                    내 친구
+                  </div>
                   <div className="accordion-content"></div>
                 </div>
               </div>
               <div className="accordion">
                 <div className="accordion-item">
-                  <div className="accordion-header">창작 마당</div>
+                  <div className="accordion-header" onClick={goToCreateYard}>
+                    창작 마당
+                  </div>
                   <div className="accordion-content"></div>
                 </div>
               </div>
@@ -2050,45 +2056,17 @@ export default function GroupChat() {
               ></StickerContainer>
             </div>
 
-            <div id={stickermenuClicked ? "back-menu" : "back-menu-on"}>
+            <div
+              className={
+                stickermenuClicked ? "sticker-menu" : "sticker-menu-on"
+              }
+            >
               <StickerContainer
                 title="배경화면"
                 table="backgrounds"
                 addFile={addBackImageClick}
                 imgDirectory="channel-background"
               ></StickerContainer>
-              {/* <div className="house-image">
-                <img
-                  src={room2}
-                  onClick={() => addBackImageClick("room2.jpg")}
-                ></img>
-                <div className="bg-tag">회의실</div>
-                <img
-                  src={pool}
-                  onClick={() => addBackImageClick("pool.png")}
-                ></img>
-                <div className="bg-tag">수영장</div>
-              </div>
-              <hr />
-              <p className="user-bg">사용자 지정 배경화면</p>
-              <div className="sticker-upload">
-                <img
-                  src="/uploadimage.png"
-                  alt="Upload"
-                  className="sticker-preview"
-                />
-                <div className="file has-name is-right">
-                  <label className="file-label">
-                    <input className="file-input" type="file" name="resume" />
-                    <span className="file-cta">
-                      <span className="file-label">등록하기</span>
-                    </span>
-                    <span className="file-name">
-                      Screen Shot 2017-07-29 at 15.54.25.png
-                    </span>
-                  </label>
-                </div>
-              </div> */}
             </div>
           </div>
           {/* 채팅 */}
@@ -2153,10 +2131,6 @@ export default function GroupChat() {
                 onClick={micSettings}
               >
                 <img src={micClicked ? micoff : micon} alt="" />
-                {/* 마이크 조절 팝오버 */}
-                {/* <div className={micClicked ? "a-mic-control" : "mic-control"}>
-                  마이크 조절을 넣자
-                </div> */}
               </button>
               {/* 볼륨조절 */}
               <button
@@ -2165,10 +2139,6 @@ export default function GroupChat() {
                 onClick={volSettings}
               >
                 <img src={volClicked ? voloff : volon} alt="" />
-                {/* 볼륨조절 팝오버 */}
-                {/* <div className={volClicked ? "a-vol-control" : "vol-control"}>
-                  볼륨조절을 넣자
-                </div> */}
               </button>
               {/* 카메라 온/오프 */}
               <button
@@ -2193,6 +2163,15 @@ export default function GroupChat() {
                 <p>New !</p>
               </div>
             </button>
+            {/* 스크린 샷 */}
+            <button
+              className="underbar"
+              onClick={"function-here"}
+              id={"screenshot"}
+            >
+              <img src={camera} alt="" />
+            </button>
+
             {/* 세팅버튼 */}
             <button
               className="underbar"
@@ -2258,6 +2237,7 @@ export default function GroupChat() {
           <div id="speakingdiv" className="speakingdiv"></div>
           <div id="speakingName" className="speakingName"></div>
         </div>
+        <div ref={divRef} id="bigfulldiv" className="bigfulldiv"></div>
       </div>
     </>
   );

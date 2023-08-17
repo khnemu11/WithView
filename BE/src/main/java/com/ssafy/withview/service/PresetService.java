@@ -81,10 +81,17 @@ public class PresetService {
 	 * @param userSeq (프리셋을 저장한 유저의 pk값)
 	 * @return PresetDto List (PresetDto - 프리셋의 id, 이름, png 이름, 등록일)
 	 */
-	public List<PresetDto> getPresetList(Long userSeq) {
+	public List<PresetDto> getPresetList(PresetDto presetDto) {
 		log.debug("PresetService - getPresetList 실행");
+		List<PresetEntity> presetEntities;
 
-		List<PresetEntity> presetEntities = presetRepository.findAllByUserSeq(userSeq);
+		if(presetDto.getKeyword() == null || presetDto.getKeyword().length() == 0){
+			presetEntities = presetRepository.findAllByUserSeq(presetDto.getUserSeq());
+		}else{
+			presetEntities = presetRepository.findAllByUserSeqAndPresetName(presetDto.getUserSeq(),
+				presetDto.getKeyword());
+		}
+
 
 		return presetEntities.stream()
 			.map(PresetEntity::toDto)

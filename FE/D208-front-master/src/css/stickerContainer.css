@@ -59,7 +59,7 @@
   overflow-y: scroll;
   display: grid;
   grid-template-columns: repeat(auto-fill, 70px);
-  max-height: 89%;
+  max-height: 82%;
   gap: 20px;
   margin-top: 30px;
   overflow-y: scroll;

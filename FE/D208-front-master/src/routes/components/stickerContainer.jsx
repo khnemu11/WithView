@@ -13,15 +13,22 @@ import StickerRegistModal from "./stickerRegistModal";
 
 const StickerContainer = (props) => {
   const [basicStickerList, setBasicStickerList] = useState([]);
+  const [basicStickerSearchList, setBasicStickerSearchList] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [myStickerList, setMyStickerList] = useState([]);
+  const [myStickerSearchList, setMyStickerSearchList] = useState([]);
   const userSeq = useSelector((state) => state.user.seq);
   const token = useSelector((state) => state.token);
   const keyword = useRef();
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-
+  const keyPressHandler = (e) => {
+    if (e.code == "Enter") {
+      setMyStickers();
+      setBasicStickers();
+    }
+  };
   const isOpenSettings = () => {
     setIsOpen(!isOpen);
   };
@@ -43,6 +50,7 @@ const StickerContainer = (props) => {
         console.log("유저가 등록한 스티커");
         console.log(response);
         setMyStickerList(response.data.stickers);
+        setMyStickerSearchList(response.data.stickers);
       })
       .catch((err) => {
         console.log("내 스티커 로드를 실패했습니다.");
@@ -67,6 +75,7 @@ const StickerContainer = (props) => {
         console.log("기본 스티커");
         console.log(response);
         setBasicStickerList(response.data.stickers);
+        setBasicStickerSearchList(response.data.stickers);
       })
       .catch((err) => {
         console.log("스티커 로드를 실패했습니다.");
@@ -86,15 +95,35 @@ const StickerContainer = (props) => {
             ref={keyword}
             name="keyword"
             placeholder="검색어를 입력해주세요."
+            onChange={(e) => {
+              console.log(e.target.value);
+              console.log(basicStickerList);
+              if (e.target.value == "") {
+                setBasicStickerSearchList(basicStickerList);
+                setMyStickerSearchList(myStickerList);
+              } else {
+                setBasicStickerSearchList(
+                  basicStickerList.filter((sticker) => {
+                    console.log(sticker);
+                    return sticker.name.includes(e.target.value);
+                  })
+                );
+                setMyStickerSearchList(
+                  myStickerList.filter((sticker) => {
+                    return sticker.name.includes(e.target.value);
+                  })
+                );
+              }
+            }}
           ></input>
           <FontAwesomeIcon
             className="s-icon"
             icon={faMagnifyingGlass}
             style={{ color: "#6AA4E8", margin: "7px" }}
-            onClick={() => {
-              setMyStickers();
-              setBasicStickers();
-            }}
+            // onClick={() => {
+            //   setMyStickers();
+            //   setBasicStickers();
+            // }}
           />
         </div>
         <button
@@ -121,7 +150,7 @@ const StickerContainer = (props) => {
           <span className="user-bg">내 {props.title} 목록</span>
         </div>
 
-        {myStickerList.map((sticker, index) => (
+        {myStickerSearchList.map((sticker, index) => (
           <img
             key={index}
             id={sticker.originalName.substring(
@@ -140,7 +169,7 @@ const StickerContainer = (props) => {
         <div className="sticker-list-title">
           <span className="user-bg">기본 {props.title} 목록</span>
         </div>
-        {basicStickerList.map((sticker, index) => (
+        {basicStickerSearchList.map((sticker, index) => (
           <img
             key={index}
             id={sticker.originalName.substring(
