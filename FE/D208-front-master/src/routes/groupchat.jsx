@@ -2055,7 +2055,11 @@ export default function GroupChat() {
               ></StickerContainer>
             </div>
 
-            <div id={stickermenuClicked ? "back-menu" : "back-menu-on"}>
+            <div
+              className={
+                stickermenuClicked ? "sticker-menu" : "sticker-menu-on"
+              }
+            >
               <StickerContainer
                 title="배경화면"
                 table="backgrounds"

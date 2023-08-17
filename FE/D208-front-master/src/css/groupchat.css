@@ -1005,39 +1005,6 @@ button {
   overflow: hidden;
 }
 
-#back-menu {
-  width: 0;
-  height: 100%;
-  display: none;
-  transition-duration: 0.3s;
-  overflow: hidden;
-}
-
-#back-menu-on {
-  transition-duration: 0.3s;
-  height: 90%;
-  padding: 0px 40px 0px 50px;
-  overflow: auto;
-}
-
-#back-menu-on::-webkit-scrollbar {
-  width: 10px;
-}
-
-#back-menu-on::-webkit-scrollbar-thumb {
-  height: 30%;
-  background-color: #bebebe; /* 스크롤바의 색상 */
-  border-radius: 10px;
-}
-
-#back-menu-on::-webkit-scrollbar-track {
-  background: #00000000; /* 스크롤바 뒷 배경 색상 */
-}
-
-#back-menu-on::-webkit-scrollbar-button {
-  display: none;
-}
-
 #delete-img-menu {
   display: none;
   position: absolute;
