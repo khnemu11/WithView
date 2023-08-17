@@ -136,13 +136,13 @@
 
   @media screen and (max-height : 700px) {
     .signup_input{
-       font-size: 15px;
+       font-size: 19px;
    }
    .signup_button{
-       font-size: 15px;
+       font-size: 19px;
    }
    .signup_id_email_input{
-     font-size: 15px;
+     font-size: 19px;
    }
    
  }
