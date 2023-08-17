@@ -250,8 +250,6 @@ const FriendList = () => {
     });
   }
 
-
-
   const [inputMessage, setInputMessage] = useState("");
 
   const sendMessage = () => {
@@ -370,11 +368,11 @@ const FriendList = () => {
         >
           채팅
         </button>
-        <img
+        {/* <img
           src={friendAddIcon}
           alt="Add Friend"
           className="friendlist-add-icon"
-        />
+        /> */}
       </div>
       <div className="friendlist-content">
         <div className="friendlist-left-pane">
