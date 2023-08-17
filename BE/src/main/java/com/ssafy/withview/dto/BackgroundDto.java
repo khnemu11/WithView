@@ -27,6 +27,7 @@ public class BackgroundDto {
     private LocalDateTime createTime;
     private Long userSeq;
     private String keyword;
+    private String name;
 
     public static BackgroundEntity toEntity(BackgroundDto stickerDto){
         if(stickerDto == null){
@@ -38,6 +39,7 @@ public class BackgroundDto {
             .originalName(stickerDto.getOriginalName())
             .searchName(stickerDto.getSearchName())
             .userSeq(stickerDto.getUserSeq())
+            .name(stickerDto.getName())
             .build();
     }
 }
