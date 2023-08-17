@@ -49,13 +49,13 @@
     padding: 0px 8px 0px 8px;
     border-right: none;
     overflow-y: scroll; 
-    height: 500px;
+    height: 85vh;
 }
 .friendlist-right-pane {
     display: flex;
     flex-direction: column;
     flex: 1;
-    height: 500px;
+    height: 85vh;
 }
 
 .friend-box {
@@ -153,6 +153,9 @@
 
 .NoChatImg{
     opacity: 0.5;
+    max-height: 80vh;
+    max-width: 80vh;
+    align-self: center;
 }
 
 /* .friendlist-left-pane 내부의 스크롤 바 전체의 너비 설정 */

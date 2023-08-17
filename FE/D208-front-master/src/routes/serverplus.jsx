@@ -10,8 +10,6 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "./axiosinstance";
 
-
-
 const ServerPlus = () => {
   const profileNickname = useSelector((state) => state.user.nickname);
   const [profileImage, setProfileImage] = useState("null");
@@ -26,8 +24,6 @@ const ServerPlus = () => {
   const profileImageURL = useSelector((state) => state.user.profile);
   const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImageURL}`;
   const token = useSelector((state) => state.token);
-
-
 
   const navigate = useNavigate();
 
@@ -53,35 +49,45 @@ const ServerPlus = () => {
     return new Blob([uint8Array], { type: "image/png" });
   }
 
-  const handleServerCreateButtonClick = () => {
+  const handleServerCreateButtonClick = async () => {
     const formData = new FormData();
+
     formData.append("hostSeq", hostSeqRef.current);
     formData.append("name", serverName);
-    formData.append("file", editedImage);
 
-    // axiosInstance를 사용하므로 기본 URL은 생략 가능
-    axiosInstance
-      .post("/servers", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          "Authorization": `Bearer ${token}`
-        },
-      })
-      .then((response) => {
+    // editedImage가 null이면 기본 이미지 사용, 아니면 editedImage 사용
+    if (editedImage) {
+        formData.append("file", editedImage);
+    } else {
+        try {
+            const response = await fetch("/withView3.png");
+            const blob = await response.blob();
+            const defaultImageFile = new File([blob], "withView3.png", { type: "image/png" });
+            formData.append("file", defaultImageFile);
+        } catch (error) {
+            console.error("기본 이미지 불러오기 실패:", error);
+            return;  // 이미지 불러오기에 실패하면 함수를 종료
+        }
+    }
+
+    try {
+        const response = await axiosInstance.post("/servers", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+                "Authorization": `Bearer ${token}`
+            },
+        });
+
         // 서버 생성 성공 처리
         console.log(editedImage);
         console.log("서버 생성 성공:", response.data);
-        // ... (추가적인 처리 로직)
         const serverSeq = response.data.server.seq;
         navigate(`/server/${serverSeq}`);
-      })
-      .catch((error) => {
+    } catch (error) {
         // 서버 생성 실패 처리
         console.error("서버 생성 실패:", error);
-        // ... (에러 처리 로직)
-      });
-  };
-
+    }
+};
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
