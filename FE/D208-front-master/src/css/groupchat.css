@@ -759,11 +759,12 @@ button {
 }
 
 .myChatdiv {
-  text-align: right;
+  white-space: normal;
   margin-bottom: 15px;
 }
 
 .yourChatdiv {
+  white-space: normal;
   text-align: left;
   margin-bottom: 15px;
 }
