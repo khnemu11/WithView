@@ -189,8 +189,8 @@ function Board() {
                 />
               </figure>
             </div>
-            <div className="media-content">
-              <p className="title is-4">{el.title}</p>
+            <div className="media-content board_content">
+              <p className="title is-6">{el.title}</p>
               <p className="subtitle is-6">{el.nickname}</p>
             </div>
           </div>

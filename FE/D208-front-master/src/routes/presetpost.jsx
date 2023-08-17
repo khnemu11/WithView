@@ -262,7 +262,7 @@ function Presetpost() {
             </div>
 
             <div className="media-content presetpost_media-content">
-              <p className="title is-3">{postContent.title}</p>
+              <p className="title is-4">{postContent.title}</p>
               <div
                 style={{
                   display: "flex",
@@ -270,8 +270,8 @@ function Presetpost() {
                   height: "35%",
                 }}
               >
-                <p className="subtitle is-5">작성자 : {postContent.nickname}</p>
-                <p className="subtitle is-5">
+                <p className="subtitle is-6">작성자 : {postContent.nickname}</p>
+                <p className="subtitle is-6">
                   {postContent.registerTime
                     ? postContent.registerTime.substring(0, 10)
                     : ""}
@@ -281,7 +281,7 @@ function Presetpost() {
           </div>
 
           <div className="content">
-            <blockquote>{postContent.content}</blockquote>
+            <blockquote style={{wordWrap:"break-word"}}>{postContent.content}</blockquote>
           </div>
 
           <div className="presetpost_buttons">

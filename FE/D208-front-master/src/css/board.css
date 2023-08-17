@@ -122,6 +122,13 @@ position: absolute;
   justify-content: center;
 }
 
+.board_content{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 48px;
+}
+
 .board_search {
   width: 40%;
 }
