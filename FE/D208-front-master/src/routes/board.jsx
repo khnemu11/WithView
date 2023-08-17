@@ -5,11 +5,13 @@ import { useEffect, useState } from "react";
 import "../css/board.css";
 import axiosInstance from "./axiosinstance";
 import { useNavigate } from "react-router";
+
 function Board() {
   const profileNickname = useSelector((state) => state.user.nickname);
   const userPk = useSelector((state) => state.user.seq);
   const token = useSelector((state) => state.token);
   const [profileImage, setProfileImage] = useState(null);
+  
   const [isModalActive, setIsModalActive] = useState(false);
   const profileImageURL = useSelector((state) => state.user.profile);
   const profileImageUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${profileImageURL}`;
@@ -29,24 +31,7 @@ function Board() {
       setProfileImage(profileImageUrl);
     }
   }, [profileImageURL]);
-
-  useEffect(() => {
-    axiosInstance({
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      method: "GET",
-      url: `/preset/${userPk}/list`,
-    })
-      .then((res) => {
-        console.log(res.data.PresetListInfo);
-        setPresetList(res.data.PresetListInfo);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
-
+  
   useEffect(() => {
     axiosInstance({
       headers: {
@@ -65,47 +50,73 @@ function Board() {
       });
   }, []);
 
-  function WritePost() {
-    console.log(selectedImageId[0]);
+  useEffect(() => {
     axiosInstance({
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      method: "POST",
-      url: `/board`,
-      data: {
-        userSeq: userPk,
-        title: title,
-        content: content,
-        presetId: selectedImageId[0],
-      },
+      method: "GET",
+      url: `/preset/${userPk}/list`,
     })
       .then((res) => {
-        console.log(res.data);
-        setTitle("");
-        setContent("");
-        setSelectedImageId([]);
-        setIsModalActive(false);
-        alert("작성 완료!");
-        axiosInstance({
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          method: "GET",
-          url: `/board`,
-        })
-          .then((res) => {
-            console.log(res.data);
-            setPresetCard(res.data.BoardListInfo);
-            setSearchCard(res.data.BoardListInfo);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+        console.log(res.data.PresetListInfo);
+        setPresetList(res.data.PresetListInfo);
       })
       .catch((err) => {
         console.log(err);
       });
+  }, []);
+
+
+  function WritePost() {
+    console.log(selectedImageId[0]);
+
+    if (!selectedImageId[0]) {
+      alert("프리셋을 선택해주세요!");
+    } else if (title === "") {
+      alert("제목을 입력해주세요!");
+    } else {
+      axiosInstance({
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        method: "POST",
+        url: `/board`,
+        data: {
+          userSeq: userPk,
+          title: title,
+          content: content,
+          presetId: selectedImageId[0],
+        },
+      })
+        .then((res) => {
+          console.log(res.data);
+          setTitle("");
+          setContent("");
+          setSelectedImageId([]);
+          setIsModalActive(false);
+          alert("작성 완료!");
+
+          axiosInstance({
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            method: "GET",
+            url: `/board`,
+          })
+            .then((res) => {
+              console.log(res.data);
+              setPresetCard(res.data.BoardListInfo);
+              setSearchCard(res.data.BoardListInfo);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
   }
 
   const handleImageClick = (name) => {
@@ -123,31 +134,32 @@ function Board() {
     const presetUrl = `https://dm51j1y1p1ekp.cloudfront.net/preset/${el.presetImgSearchName}`;
     const isSelected = selectedImageId.includes(el.id);
     return (
-      <div className="card" key={el.id} style={{ marginBottom: "30px" }}>
-        <header className="card-header">
-          <p
-            className="card-header-title"
-            style={{ fontSize: "22px", fontWeight: "bold" }}
-          >
-            {el.presetName}
-          </p>
-        </header>
+      <div key={el.id} className="board_modal_temp">
         <div
-          className={`card-content board_modal_image is-21by9`}
+          className={`${
+            isSelected ? "board_modal_image_selected" : ""
+          } board_modal_image card`}
+          style={{ marginBottom: "30px" }}
           onClick={() => handleImageClick(el.id)}
         >
-          <img
-            className={`${isSelected ? "board_modal_image_selected" : ""}`}
-            src={presetUrl}
-            alt="아오"
-          />
-          {isSelected && (
-            <i
-              className="fa-solid fa-check fa-bounce fa-5x board_check_icon"
-              style={{ color: "#0aeb24" }}
-            ></i>
-          )}
+          <header className="card-header" style={{width : "100%"}}>
+            <p
+              className="card-header-title"
+              style={{ fontSize: "22px", fontWeight: "bold" }}
+            >
+              {el.presetName}
+            </p>
+          </header>
+          <div className={`is-16by9`}>
+            <img src={presetUrl} alt="아오" />
+          </div>
         </div>
+        {isSelected && (
+          <i
+            className="fa-solid fa-check fa-bounce fa-5x board_check_icon"
+            style={{ color: "#0aeb24" }}
+          ></i>
+        )}
       </div>
     );
   });
@@ -155,22 +167,36 @@ function Board() {
   const PresetCardImages = searchCard.map((el) => {
     // console.log(el)
     const presetUrl = `https://dm51j1y1p1ekp.cloudfront.net/preset/${el.presetImgSearchName}`;
-
+    const check = el.userDto.profileImgSearchName
+    const profileImageUrl2 = `https://dm51j1y1p1ekp.cloudfront.net/profile/${el.userDto.profileImgSearchName}`
     return (
       <div
-        className="board_card card"
+        className="card board_card"
         key={el.boardSeq}
         onClick={() => navigate(`/board/${el.boardSeq}`)}
       >
-        <header className="card-header">
-          <p className="card-header-title">{el.title}</p>
-        </header>
-        <div className="card-content image is-4by3">
-          <img src={presetUrl} alt="없음" />
+        <div className="card-image">
+          <figure className="image is-4by3">
+            <img src={presetUrl ? presetUrl : "/withView2.png"} alt="없음" />
+          </figure>
         </div>
-        <footer className="card-footer board_card_footer">
-          <p>작성자 : {el.nickname}</p>
-        </footer>
+
+        <div className="card-content" style={{ marginBottom: "5px" }}>
+          <div className="media">
+            <div className="media-left">
+              <figure className="image is-48x48">
+                <img
+                  src={check ? profileImageUrl2 : "/withView2.png"}
+                  alt="없음"
+                />
+              </figure>
+            </div>
+            <div className="media-content">
+              <p className="title is-4">{el.title}</p>
+              <p className="subtitle is-6">{el.nickname}</p>
+            </div>
+          </div>
+        </div>
       </div>
     );
   });
@@ -217,7 +243,7 @@ function Board() {
             ></button>
           </header>
 
-          <section className="modal-card-body">
+          <section className="modal-card-body board_modal_cardbody">
             <p className="board_modal_card_inputtitle">제목</p>
             <input
               type="text"
@@ -250,7 +276,7 @@ function Board() {
       </div>
       <div className="board_input">
         <i
-          className="fa-solid fa-file-pen board_write"
+          className="fa-solid fa-file-circle-plus board_write"
           style={{ fontSize: "1.7em" }}
           onClick={createContentStart}
         ></i>

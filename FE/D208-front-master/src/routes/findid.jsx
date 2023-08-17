@@ -77,7 +77,7 @@ export default function FindId() {
           <div className="findid_inputs">
             <div style={{ width: "85%" }}>
               <label className="label findid_label">
-                제발 메일 주소 입력좀
+                메일 주소를 입력해 주세요
               </label>
               <div className="findid_input_button">
                 <input

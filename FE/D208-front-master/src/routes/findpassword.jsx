@@ -148,7 +148,7 @@ export default function FindPassword() {
 
             <div style={{ width: "85%" }}>
               <label className="label findpassword_label">
-                이메일로 발송된 인증번호를 입력해주세요
+                이메일로 발송된 인증번호를 입력해 주세요
               </label>
               <div className="findpassword_input_button">
                 <input

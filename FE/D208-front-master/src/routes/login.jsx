@@ -127,7 +127,7 @@ export default function Test() {
           </div>
           <div className="login_inputs column is-8">
             <div>
-              <p className="login_label">아이디를 입력해 주세요 !</p>
+              <p className="login_label">아이디</p>
               <input
                 className="login_input input"
                 type="text"
@@ -139,7 +139,7 @@ export default function Test() {
               />
             </div>
             <div>
-              <p className="login_label">비밀번호를 입력해 주세요 !</p>
+              <p className="login_label">비밀번호</p>
               <input
                 className="login_input input"
                 type="password"

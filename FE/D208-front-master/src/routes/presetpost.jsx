@@ -24,7 +24,7 @@ function Presetpost() {
   const [content, setContent] = useState("");
   const [modifyButton, setModifyButton] = useState(false);
   const [presetList, setPresetList] = useState([]);
-
+  const check = postContent.profileImgSearchName
   useEffect(() => {
     // 만약 redux에서 프로필 이미지가 null이면 기본 이미지로 설정
     if (profileImageURL === null) {
@@ -33,6 +33,22 @@ function Presetpost() {
       setProfileImage(profileImageUrl);
     }
   }, [profileImageURL]);
+  
+  useEffect(() => {
+    axiosInstance({
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      method: "GET",
+      url: `/preset/${userPk}/list`,
+    })
+      .then((res) => {
+        setPresetList(res.data.PresetListInfo);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   // 개별 게시물 get
   useEffect(() => {
@@ -44,7 +60,6 @@ function Presetpost() {
       url: `/board/${seq}`,
     })
       .then((res) => {
-        console.log(res.data.BoardInfo);
         setPostContent(res.data.BoardInfo);
         if (res.data.BoardInfo.userSeq === userPk) {
           setModifyButton(true);
@@ -55,25 +70,8 @@ function Presetpost() {
       });
   }, []);
 
-  useEffect(() => {
-    axiosInstance({
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      method: "GET",
-      url: `/preset/${userPk}/list`,
-    })
-      .then((res) => {
-        console.log(res.data.PresetListInfo);
-        setPresetList(res.data.PresetListInfo);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
 
   function UpdatePost() {
-    console.log(selectedImageId[0]);
     axiosInstance({
       headers: {
         Authorization: `Bearer ${token}`,
@@ -122,31 +120,32 @@ function Presetpost() {
     const presetUrl = `https://dm51j1y1p1ekp.cloudfront.net/preset/${el.presetImgSearchName}`;
     const isSelected = selectedImageId.includes(el.id);
     return (
-      <div className="card" key={el.id} style={{ marginBottom: "30px" }}>
-        <header className="card-header">
-          <p
-            className="card-header-title"
-            style={{ fontSize: "22px", fontWeight: "bold" }}
-          >
-            {el.presetName}
-          </p>
-        </header>
+      <div key={el.id} className="board_modal_temp">
         <div
-          className={`card-content board_modal_image is-21by9`}
+          className={`${
+            isSelected ? "board_modal_image_selected" : ""
+          } board_modal_image card`}
+          style={{ marginBottom: "30px"}}
           onClick={() => handleImageClick(el.id)}
         >
-          <img
-            className={`${isSelected ? "board_modal_image_selected" : ""}`}
-            src={presetUrl}
-            alt="아오"
-          />
-          {isSelected && (
-            <i
-              className="fa-solid fa-check fa-bounce fa-5x board_check_icon"
-              style={{ color: "#0aeb24" }}
-            ></i>
-          )}
+          <header className="card-header" style={{width : "100%"}}>
+            <p
+              className="card-header-title"
+              style={{ fontSize: "22px", fontWeight: "bold" }}
+            >
+              {el.presetName}
+            </p>
+          </header>
+          <div className={`is-16by9`}>
+            <img src={presetUrl} alt="아오" />
+          </div>
         </div>
+        {isSelected && (
+          <i
+            className="fa-solid fa-check fa-bounce fa-5x board_check_icon"
+            style={{ color: "#0aeb24" }}
+          ></i>
+        )}
       </div>
     );
   });
@@ -244,31 +243,32 @@ function Presetpost() {
       />
 
       <hr className="serverOptionsLine_profile" />
-
-      <div className="card presetpost_card">
+      <div className="card presetpost_card" style={{marginTop : "30px"}}>
         <div className="card-image">
-          <figure className="image is-16by9">
-            <img src={presetPostImageUrl} alt="Placeholder image" />
+          <figure className="image is-4by3">
+            <img src={presetPostImageUrl}/>
           </figure>
         </div>
         <div className="card-content">
           <div className="media">
             <div className="media-left" style={{ marginRight: "25px" }}>
               <figure className="image is-96x96">
-                <img src={profileImageUrl2} alt="Placeholder image" />
+                <img src={check ? profileImageUrl2 : "/withView2.png"}/>
               </figure>
             </div>
 
             <div className="media-content presetpost_media-content">
               <p className="title is-2">{postContent.title}</p>
-              <p className="subtitle is-5">작성자 : {postContent.nickname}</p>
+              <div style={{display : "flex", justifyContent : "space-between", height:"35%"}}>
+
+                <p className="subtitle is-5">작성자 : {postContent.nickname}</p>
+                <p className="subtitle is-5">{postContent.registerTime ? postContent.registerTime.substring(0,10) : ''}</p>
+              </div>
             </div>
           </div>
 
           <div className="content">
             <blockquote>{postContent.content}</blockquote>
-            <br />
-            <p className="subtitle is-5">{postContent.registerTime}</p>
           </div>
 
           <div className="presetpost_buttons">
@@ -277,10 +277,18 @@ function Presetpost() {
               onClick={() => navigate("/board")}
             ></i>
 
-            <i
-              className="fa-solid fa-download fa-5x presetpost_icon"
-              onClick={makeFileImg}
-            ></i>
+
+            <button className="button presetpost_icon" 
+            style={{height :"60px", fontSize : "20px", borderRadius : "10px", fontWeight :"bold", backgroundColor : "#769FCD", color :"white"}} 
+            onClick={makeFileImg}
+            >
+              프리셋 저장하기
+              <i
+                className="fa-solid fa-download fa-lg"
+                style={{marginLeft : "10px"}}
+              ></i>
+            </button>
+
             <div className={`${modifyButton ? "" : "is-hidden"}`}>
               <i
                 className="fa-solid fa-pen-to-square fa-3x presetpost_icon"
@@ -321,7 +329,7 @@ function Presetpost() {
             ></button>
           </header>
 
-          <section className="modal-card-body">
+          <section className="modal-card-body board_modal_cardbody">
             <p className="board_modal_card_inputtitle">제목</p>
             <input
               type="text"

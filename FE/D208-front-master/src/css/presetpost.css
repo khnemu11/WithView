@@ -1,6 +1,6 @@
 .presetpost_card{
-    height : 100%;
-    width: 90%;
+    height : 90%;
+    width: 50%;
     overflow: auto;
 }
 
@@ -23,3 +23,15 @@
     flex-direction: column;
     justify-content: space-between;
 }
+
+.presetpost_card::-webkit-scrollbar {
+    width: 7px; /* 스크롤바 너비 */
+  }
+  .presetpost_card::-webkit-scrollbar-thumb {
+    /* background-clip: border-box; */
+    background-color: #d3d3d3 !important;
+    border-radius: 20px !important;
+  }
+  .presetpost_card::-webkit-scrollbar-track {
+    background-color: transparent;
+  }

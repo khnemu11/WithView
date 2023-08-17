@@ -17,12 +17,12 @@ export default function Signup() {
   const [checkEmail, setCheckEmail] = useState(false);
   const [checkNickname, setCheckNickname] = useState(false);
 
-  const [idLabel, setIdLabel] = useState("아이디");
-  const [emailLabel, setEmailLabel] = useState("이메일");
+  const [idLabel, setIdLabel] = useState("");
+  const [emailLabel, setEmailLabel] = useState("");
   const [emailLabelColor, setEmailLabelColor] = useState({ color: "#80C4FF" });
-  const [passwordLabel, setPasswordLabel] = useState("비밀번호");
-  const [passwordLabel2, setPasswordLabel2] = useState("비밀번호 확인");
-  const [nicknameLabel, setNicknameLabel] = useState("닉네임");
+  const [passwordLabel, setPasswordLabel] = useState("");
+  const [passwordLabel2, setPasswordLabel2] = useState("");
+  const [nicknameLabel, setNicknameLabel] = useState("");
   const [idLabelColor, setIdLabelColor] = useState({ color: "#80C4FF" });
   const [passwordLableColor, setPasswordLableColor] = useState({
     color: "#80C4FF",
@@ -54,7 +54,7 @@ export default function Signup() {
 
   useEffect(() => {
     // 아이디 필드가 변경되었을 때 실행되는 함수
-    if (Id === "" || idLabel === "아이디를 다시한번 확인해주세요!") {
+    if (Id === "" || idLabel === "5~20자, 영어와 숫자만 가능, 빈칸 X") {
       setButtonDisabled(true); // 아이디 빈칸 또는 유효성 검사 실패 시 버튼 비활성화
     } else if (checkID) {
       setIdLabel("중복 확인 완료!");
@@ -76,7 +76,7 @@ export default function Signup() {
       setEmailLabel("이메일 인증 완료!");
       setEmailLabelColor({ color: "lightgreen" });
     } else {
-      setEmailLabel("이메일");
+      setEmailLabel("");
       setEmailLabelColor({ color: "#80C4FF" });
     }
   }, [checkEmail]);
@@ -101,11 +101,11 @@ export default function Signup() {
       setPasswordLableColor2({ color: "#80C4FF" });
       setCheckPass2(true);
     } else if (password2 === "") {
-      setPasswordLabel2("비밀번호 확인");
+      setPasswordLabel2("");
       setPasswordLableColor2({ color: "#80C4FF" });
       setCheckPass2(false);
     } else if (password1 === "") {
-      setPasswordLabel("비밀번호");
+      setPasswordLabel("");
       setPasswordLableColor({ color: "#80C4FF" });
       setCheckPass(false);
     } else {
@@ -159,7 +159,6 @@ export default function Signup() {
       })
       .catch((err) => {
         alert("인증에 실패하셨습니다!");
-        setIsModalActive(false);
         console.log(err);
       });
   };
@@ -215,16 +214,13 @@ export default function Signup() {
               }}
             >
               <div style={{ width: "85%" }}>
-                <label className="label signup_label" style={idLabelColor}>
-                  {idLabel}
-                </label>
-
+                
                 <div className="signup_inputs_div">
                   <input
                     type="text"
                     className="input signup_id_email_input"
                     value={Id}
-                    placeholder="5~20자, 영어와 숫자만 가능, 빈칸 X"
+                    placeholder="아이디"
                     onChange={(e) => {
                       setId(e.target.value);
                       console.log(e.target.value);
@@ -235,7 +231,7 @@ export default function Signup() {
                         e.target.value.length > 20 ||
                         !/^[A-Za-z0-9]*$/.test(e.target.value)
                       ) {
-                        setIdLabel("아이디를 다시한번 확인해주세요!");
+                        setIdLabel("5~20자, 영어와 숫자만 가능, 빈칸 X");
                         setIdLabelColor({ color: "red" });
                         setCheckID(false);
                       } else {
@@ -253,17 +249,18 @@ export default function Signup() {
                     중복 확인
                   </button>
                 </div>
+
+                <label className="label signup_label" style={idLabelColor}>
+                  {idLabel}
+                </label>
               </div>
 
               <div style={{ width: "85%" }}>
-                <label className="label signup_label" style={emailLabelColor}>
-                  {emailLabel}
-                </label>
-
                 <div className="signup_inputs_div">
                   <input
                     type="email"
                     className="input signup_id_email_input"
+                    placeholder="이메일"
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
@@ -333,19 +330,18 @@ export default function Signup() {
                     </div>
                   </div>
                 </div>
+
+                <label className="label signup_label" style={emailLabelColor}>
+                  {emailLabel}
+                </label>
               </div>
 
               <div style={{ width: "85%" }}>
-                <label
-                  className="label signup_label"
-                  style={passwordLableColor}
-                >
-                  {passwordLabel}
-                </label>
+                
                 <input
                   type="password"
                   className="input signup_input"
-                  placeholder="8~16자, 특수문자 최소 1자 포함, 빈칸 X"
+                  placeholder="비밀번호"
                   value={password1}
                   onChange={(e) => {
                     setPassword1(e.target.value);
@@ -355,7 +351,7 @@ export default function Signup() {
                         e.target.value
                       )
                     ) {
-                      setPasswordLabel("사용할 수 없는 비밀번호 입니다!");
+                      setPasswordLabel("8~16자, 특수문자 최소 1자 포함, 빈칸 X");
                       setPasswordLableColor({ color: "red" });
                       setCheckPass(false);
                     } else {
@@ -365,36 +361,37 @@ export default function Signup() {
                     }
                   }}
                 />
+                <label
+                  className="label signup_label"
+                  style={passwordLableColor}
+                >
+                  {passwordLabel}
+                </label>
               </div>
 
               <div style={{ width: "85%" }}>
+                <input
+                  type="password"
+                  className="input signup_input"
+                  placeholder="비밀번호 확인"
+                  value={password2}
+                  onChange={(e) => {
+                    setPassword2(e.target.value);
+                  }}
+                />
                 <label
                   className="label signup_label"
                   style={passwordLableColor2}
                 >
                   {passwordLabel2}
                 </label>
-                <input
-                  type="password"
-                  className="input signup_input"
-                  value={password2}
-                  onChange={(e) => {
-                    setPassword2(e.target.value);
-                  }}
-                />
               </div>
 
               <div style={{ width: "85%" }}>
-                <label
-                  className="label signup_label"
-                  style={nicknameLabelColor}
-                >
-                  {nicknameLabel}
-                </label>
                 <input
                   type="text"
                   className="input signup_input"
-                  placeholder="2~6자, 특수문자 x"
+                  placeholder="닉네임"
                   value={nickname}
                   onChange={(e) => {
                     setNickname(e.target.value);
@@ -405,7 +402,7 @@ export default function Signup() {
                         e.target.value
                       )
                     ) {
-                      setNicknameLabel("사용할수 없는 닉네임 입니다!");
+                      setNicknameLabel("2~6자, 특수문자 x");
                       setNicknameLabelColor({ color: "red" });
                       setCheckNickname(false);
                     } else {
@@ -415,6 +412,12 @@ export default function Signup() {
                     }
                   }}
                 />
+                <label
+                  className="label signup_label"
+                  style={nicknameLabelColor}
+                >
+                  {nicknameLabel}
+                </label>
               </div>
               <div
                 style={{
