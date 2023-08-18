@@ -1,0 +1,163 @@
+.board_input {
+    width: 90%;
+    min-height: 11vh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: x-large;
+}
+
+.board_card {
+    width: 29%;
+    cursor: pointer;
+    
+}
+
+.board_card:hover {
+  transform: scale(1.05); /* 이미지 크기를 1.05배로 확대 */
+  filter: brightness(0.8); /* 이미지 어둡게 설정 (0.8은 어두운 정도, 1이 원래 밝기) */
+  transition: transform 0.3s, filter 0.3s;
+}
+.board_card_footer {
+  font-weight: bold;
+  margin-left: 5%;
+}
+.board_modal_card{
+    width: 50vw; /*카드의 너비 설정*/
+  height: 90vh; /*카드의 높이 설정*/
+  /* overflow: auto; 스크롤 가능한 영역으로 설정 */
+}
+
+.board_modal_card_title {
+    font-size:30px;
+    color:#3077AA;
+    font-weight:bold;
+}
+
+.board_modal_card_inputtitle{
+  font-size:26px;
+    color:#80C4FF;
+    margin-bottom:15px;
+}
+
+.board_modal_card_input {
+  border-radius: 10px;
+    height:60px;
+    margin-bottom:20px;
+    background-color: #D6E6F2;
+    font-size:24px;
+    
+    width: 100%;
+}
+
+.board_modal_card_content {
+  border-radius: 10px;
+  background-color: #D6E6F2;
+  font-size: 15px;
+
+}
+
+.board_notice{
+    width: 100%;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-left: 20px;
+}
+.board_modal_image {
+    position: relative;
+    /* overflow: hidden; */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    width: 90%;
+}
+
+.board_modal_temp {
+    position: relative;
+    /* overflow: hidden; */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.board_modal_image:hover {
+    transform: scale(1.05); /* 이미지 크기를 1.05배로 확대 */
+  filter: brightness(0.8); /* 이미지 어둡게 설정 (0.8은 어두운 정도, 1이 원래 밝기) */
+  transition: transform 0.3s, filter 0.3s;
+}
+
+.board_check_icon {
+position: absolute;
+  z-index: 1;
+
+}
+
+
+.board_modal_image_selected{
+    filter: brightness(0.6);
+}
+
+.board_write:hover {
+  cursor: pointer;
+  transform: scale(1.2); /* 이미지 크기를 1.05배로 확대 */
+  transition: transform 0.3s;
+
+}
+
+.board_modal_button {
+  width: 50%;
+  background-color: #769FCD;
+    border-radius: 20px;
+    font-size:24px;
+    color:white;
+}
+
+.board_modal_card_writebtn {
+  display: flex;
+  justify-content: center;
+}
+
+.board_content{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 48px;
+}
+
+.board_search {
+  width: 40%;
+}
+
+.board_search_input {
+  border-radius: 10px;
+}
+
+.board_notice::-webkit-scrollbar {
+  width: 7px; /* 스크롤바 너비 */
+}
+.board_notice::-webkit-scrollbar-thumb {
+  /* background-clip: border-box; */
+  background-color: #d3d3d3 !important;
+  border-radius: 20px !important;
+}
+.board_notice::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+
+.board_modal_cardbody::-webkit-scrollbar {
+  width: 7px; /* 스크롤바 너비 */
+}
+.board_modal_cardbody::-webkit-scrollbar-thumb {
+  /* background-clip: border-box; */
+  background-color: #d3d3d3 !important;
+  border-radius: 20px !important;
+}
+.board_modal_cardbody::-webkit-scrollbar-track {
+  background-color: transparent;
+}

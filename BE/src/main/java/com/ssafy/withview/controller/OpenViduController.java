@@ -21,14 +21,15 @@ import io.openvidu.java.client.OpenViduHttpException;
 import io.openvidu.java.client.OpenViduJavaClientException;
 import io.openvidu.java.client.Session;
 import io.openvidu.java.client.SessionProperties;
-
+import lombok.extern.slf4j.Slf4j;
 
 //오픈비두 원리 : 소켓을 이용하여 세션(채널) 관리
 //creatSession : 소켓에 채널 생성(단순 해시에 put하는 형식)
-//getActivateSesion(채널 ID) : 해당 채널ㄴ을 가져오는 메
+//getActivateSesion(채널 ID) : 해당 채널을 가져오는 메
 
 @CrossOrigin(origins = "*")
 @RestController
+@Slf4j
 public class OpenViduController {
 	@Value("${OPENVIDU_URL}")
 	private String OPENVIDU_URL;
@@ -50,8 +51,9 @@ public class OpenViduController {
 	@PostMapping("/api/sessions")
 	public ResponseEntity<String> initializeSession(@RequestBody(required = false) Map<String, Object> params)
 		throws OpenViduJavaClientException, OpenViduHttpException {
-		System.out.println("세션 생성 시작");
-		System.out.println(OPENVIDU_URL+" "+OPENVIDU_SECRET);
+		log.info("세션 생성 시작");
+		log.info(OPENVIDU_URL+" "+OPENVIDU_SECRET);
+		log.info(params.keySet()+" ");
 		SessionProperties properties = SessionProperties.fromJson(params).build();
 		Session session = openvidu.createSession(properties);
 		return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
@@ -61,15 +63,17 @@ public class OpenViduController {
 	 * @param params    The Connection properties
 	 * @return The Token associated to the Connection
 	 */
+
 	@PostMapping("/api/sessions/{sessionId}/connections")
 	public ResponseEntity<String> createConnection(@PathVariable("sessionId") String sessionId,
 		@RequestBody(required = false) Map<String, Object> params)
 		throws OpenViduJavaClientException, OpenViduHttpException {
-		System.out.println("커넥션 생성 시작");
+		log.info("커넥션 생성 시작");
 
 		Session session = openvidu.getActiveSession(sessionId);
 
 		if (session == null) {
+			log.info("해당 세션 찾지 못함");
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		ConnectionProperties properties = ConnectionProperties.fromJson(params).build();

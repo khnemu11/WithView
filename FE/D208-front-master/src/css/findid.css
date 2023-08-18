@@ -1,0 +1,160 @@
+.findid_first {
+    display: flex;
+    justify-content: center;
+}
+.findid_findid {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: auto;
+}
+
+.findid_titleWrap { 
+    background-color: #F7FBFC;
+    box-sizing: border-box;
+    width: 70%;
+    height: 80%;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 700px;
+}
+
+
+
+.findid_label{
+    color: #80C4FF;
+    font-size: x-large;
+    
+}
+
+
+.findid_title{
+    width: 85%;
+    height: 40%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.findid_title_word{
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.findid_hello{
+    color: #1E4C80;
+    font-size: 60px;
+    font-weight: bold;
+}
+
+.findid_hello2{
+    color: #1E4C80;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.findid_title_logo{
+    display: flex;
+    align-items: center;
+    width: 15vw;
+    margin-top: 30px;
+}
+
+.findid_inputs {
+    width: 100%;
+    height: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    
+}
+
+.findid_input_button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+.findid_input{
+    background-color: #D6E6F2;
+    border-radius: 20px;
+    font-size: 30px;
+    width: 70%;
+    height: 88px;
+}
+
+.findid_button{
+    background-color: #769FCD;
+    color: white;
+    font-weight: bold;
+    border-radius: 20px;
+    font-size: 1.5vw;
+    width: 25%;
+    height: 88px;
+}
+
+.findid_findpass{
+    width: 30%;
+    height: 10%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    color: #1E4C80;
+    font-size: 1.5vw;
+    font-weight: bold;
+}
+
+@media screen and (max-width : 1600px) {
+    .findid_hello {
+        font-size: 45px;
+      }
+    .findid_hello2 {
+        font-size: 20px;
+      }
+    .findid_input{
+        font-size: 25px;
+    }
+    .findid_button{
+    }
+  }
+@media screen and (max-width : 1200px) {
+    .findid_hello {
+        font-size: 35px;
+      }
+    .findid_hello2 {
+        
+      }
+    .findid_input{
+    
+    }
+    .findid_button{
+        font-size: 20px;
+    }
+  }
+@media screen and (max-width : 900px) {
+    
+    .findid_hello2 {
+        font-size: 15px;
+      }
+
+    .findid_label{
+        font-size: large;
+    }
+    .findid_input{
+    
+    }
+    .findid_button{
+        font-size: 2vw;
+    }
+  }
