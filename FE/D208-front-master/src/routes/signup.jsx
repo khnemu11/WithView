@@ -6,9 +6,10 @@ import axios from "axios";
 export default function Signup() {
   const [email, setEmail] = useState("");
   const [password1, setPassword1] = useState("");
-  const [id, setId] = useState("");
+  const [Id, setId] = useState("");
   const [password2, setPassword2] = useState("");
   const [nickname, setNickname] = useState("");
+  const [code, setCode] = useState("");
 
   const [checkPass, setCheckPass] = useState(false);
   const [checkID, setCheckID] = useState(false);
@@ -16,10 +17,12 @@ export default function Signup() {
   const [checkEmail, setCheckEmail] = useState(false);
   const [checkNickname, setCheckNickname] = useState(false);
 
-  const [idLabel, setIdLabel] = useState("아이디");
-  const [passwordLabel, setPasswordLabel] = useState("비밀번호");
-  const [passwordLabel2, setPasswordLabel2] = useState("비밀번호 확인");
-  const [nicknameLabel, setNicknameLabel] = useState("닉네임");
+  const [idLabel, setIdLabel] = useState("");
+  const [emailLabel, setEmailLabel] = useState("");
+  const [emailLabelColor, setEmailLabelColor] = useState({ color: "#80C4FF" });
+  const [passwordLabel, setPasswordLabel] = useState("");
+  const [passwordLabel2, setPasswordLabel2] = useState("");
+  const [nicknameLabel, setNicknameLabel] = useState("");
   const [idLabelColor, setIdLabelColor] = useState({ color: "#80C4FF" });
   const [passwordLableColor, setPasswordLableColor] = useState({
     color: "#80C4FF",
@@ -32,31 +35,60 @@ export default function Signup() {
   });
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const [buttonDisabled2, setButtonDisabled2] = useState(false);
+  const [buttonDisabled3, setButtonDisabled3] = useState(false);
+  const [isModalActive, setIsModalActive] = useState(false);
 
   useEffect(() => {
     // 페이지 진입 시 페이지 전환 애니메이션 클래스 추가...
-    document.body.classList.remove("signup_transition-enter-active");
-    document.body.classList.add("signup_transition-enter");
-    // 페이지 진입 시 활성화 애니메이션 클래스 추가
+    const signupElement = document.querySelector(".signup_signup");
 
-    // 애니메이션이 끝난 후에 활성화 애니메이션 클래스 제거
-    setTimeout(() => {
-      document.body.classList.remove("signup_transition-enter");
-      document.body.classList.add("signup_transition-enter-active");
-    }, 300); // 애니메이션 시간과 일치하는 시간으로 설정 (0.3초)
+    if (signupElement) {
+      signupElement.classList.remove("signup_transition-enter-active");
+      signupElement.classList.add("signup_transition-enter");
+      setTimeout(() => {
+        signupElement.classList.remove("signup_transition-enter");
+        signupElement.classList.add("signup_transition-enter-active");
+      }, 100); // 애니메이션 시간과 일치하는 시간으로 설정 (0.1초)
+    }
   }, []);
 
   useEffect(() => {
     // 아이디 필드가 변경되었을 때 실행되는 함수
-    if (id === "" || idLabel === "아이디를 다시한번 확인해주세요!") {
+    if (Id === "" || idLabel === "5~20자, 영어와 숫자만 가능, 빈칸 X") {
       setButtonDisabled(true); // 아이디 빈칸 또는 유효성 검사 실패 시 버튼 비활성화
+    } else if (checkID) {
+      setIdLabel("중복 확인 완료!");
+      setIdLabelColor({ color: "lightgreen" });
     } else {
       setButtonDisabled(false); // 그 외의 경우 버튼 활성화
     }
-  }, [id, idLabel]);
+  }, [Id, idLabel, checkID]);
 
   useEffect(() => {
-    if (!checkPass || !checkPass2 || !checkNickname) {
+    if (checkEmail) {
+      setButtonDisabled3(false);
+      setCheckEmail(false);
+    }
+  }, [email]);
+
+  useEffect(() => {
+    if (checkEmail) {
+      setEmailLabel("이메일 인증 완료!");
+      setEmailLabelColor({ color: "lightgreen" });
+    } else {
+      setEmailLabel("");
+      setEmailLabelColor({ color: "#80C4FF" });
+    }
+  }, [checkEmail]);
+
+  useEffect(() => {
+    if (
+      !checkPass ||
+      !checkPass2 ||
+      !checkNickname ||
+      !checkEmail ||
+      !checkID
+    ) {
       setButtonDisabled2(true);
     } else {
       setButtonDisabled2(false);
@@ -69,11 +101,11 @@ export default function Signup() {
       setPasswordLableColor2({ color: "#80C4FF" });
       setCheckPass2(true);
     } else if (password2 === "") {
-      setPasswordLabel2("비밀번호 확인");
+      setPasswordLabel2("");
       setPasswordLableColor2({ color: "#80C4FF" });
       setCheckPass2(false);
     } else if (password1 === "") {
-      setPasswordLabel("비밀번호");
+      setPasswordLabel("");
       setPasswordLableColor({ color: "#80C4FF" });
       setCheckPass(false);
     } else {
@@ -83,22 +115,68 @@ export default function Signup() {
     }
   }, [password1, password2]);
 
+  useEffect(() => {
+    if (!isModalActive) {
+      setCode("");
+    }
+  }, [isModalActive]);
+
   const navigate = useNavigate();
-  const url = "https://i9d208.p.ssafy.io/:9091/api/";
+  const url = "https://i9d208.p.ssafy.io/api";
+
+  const validateMail = (e) => {
+    e.preventDefault();
+    axios({
+      method: "GET",
+      url: `${url}/users/email/validate?email=${email}&var=1`,
+    })
+      .then(() => {
+        
+        setIsModalActive(true);
+      })
+      .catch((err) => {
+        console.log(err);
+        if (err.response && err.response.status === 409) {
+          alert("이 Email로 가입한 계정이 존재합니다!");
+        } else {
+          alert("올바른 이메일 형식이 아닙니다!");
+        }
+      });
+  };
+
+  const authenticateCode = (e) => {
+    e.preventDefault();
+    axios({
+      method: "GET",
+      url: `${url}/users/email/authenticate?email=${email}&code=${code}`,
+    })
+      .then(() => {
+        
+        alert("인증완료!!");
+        setCheckEmail(true);
+        setButtonDisabled3(true);
+        setIsModalActive(false);
+      })
+      .catch((err) => {
+        alert("인증에 실패하셨습니다!");
+        console.log(err);
+      });
+  };
 
   const checkSignUp = (e) => {
     e.preventDefault();
     axios({
       method: "POST",
       url: `${url}/users`,
-      data: { id, password1, nickname, email },
+      data: { id: Id, email: email, password: password1, nickname: nickname },
     })
-      .then((res) => {
-        console.log(res);
+      .then(() => {
+        
+        alert("회원가입 완료!");
         navigate("/login");
       })
       .catch((err) => {
-        // console.log(id)
+        
         console.log(err);
         alert("회원가입에 실패하였습니다!");
       });
@@ -108,15 +186,18 @@ export default function Signup() {
     e.preventDefault();
     axios({
       method: "GET",
-      url: `${url}/users/check-id`,
-      data: { id },
+      url: `${url}/users/check-id?id=${Id}`,
     })
-      .then((res) => {
-        console.log(res);
+      .then(() => {
+        
         setCheckID(true);
       })
       .catch((err) => {
         console.log(err);
+        if (err.response && err.response.status === 409) {
+          setIdLabel("이미 존재하는 id입니다!!");
+          setIdLabelColor({ color: "red" });
+        }
       });
   };
 
@@ -126,21 +207,23 @@ export default function Signup() {
         <div className="signup_titleWrap">
           <div className="signup_hello">환영합니다 !</div>
           <div className="signup_inputwrap">
-            <form className="signup_form" action="#">
+            <form
+              className="signup_form"
+              onSubmit={(e) => {
+                e.preventDefault();
+              }}
+            >
               <div style={{ width: "85%" }}>
-                <label className="label signup_label" style={idLabelColor}>
-                  {idLabel}
-                </label>
-
+                
                 <div className="signup_inputs_div">
                   <input
                     type="text"
                     className="input signup_id_email_input"
-                    value={id}
-                    placeholder="5~20자, 영어와 숫자만 가능, 빈칸 X"
+                    value={Id}
+                    placeholder="아이디"
                     onChange={(e) => {
                       setId(e.target.value);
-                      console.log(e.target.value);
+                      
 
                       if (
                         e.target.value.includes(" ") ||
@@ -148,11 +231,13 @@ export default function Signup() {
                         e.target.value.length > 20 ||
                         !/^[A-Za-z0-9]*$/.test(e.target.value)
                       ) {
-                        setIdLabel("아이디를 다시한번 확인해주세요!");
+                        setIdLabel("5~20자, 영어와 숫자만 가능, 빈칸 X");
                         setIdLabelColor({ color: "red" });
+                        setCheckID(false);
                       } else {
                         setIdLabel("중복 확인 가능!");
                         setIdLabelColor({ color: "#80C4FF" });
+                        setCheckID(false);
                       }
                     }}
                   />
@@ -164,37 +249,99 @@ export default function Signup() {
                     중복 확인
                   </button>
                 </div>
+
+                <label className="label signup_label" style={idLabelColor}>
+                  {idLabel}
+                </label>
               </div>
 
               <div style={{ width: "85%" }}>
-                <label className="label signup_label">이메일</label>
-
                 <div className="signup_inputs_div">
                   <input
                     type="email"
                     className="input signup_id_email_input"
+                    placeholder="이메일"
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
                     }}
                   />
-                  <button className="button signup_inputs_buttons">
-                    인증메일발송
+                  <button
+                    className="button is-info signup_inputs_buttons"
+                    onClick={validateMail}
+                    disabled={buttonDisabled3}
+                  >
+                    <i className="fa-regular fa-envelope fa-lg"></i>
                   </button>
+                  <div
+                    className={`modal ${isModalActive ? "is-active" : ""}`}
+                    id="myModal"
+                  >
+                    <div
+                      className={`modal-background ${
+                        isModalActive ? "is-active" : ""
+                      }`}
+                      onClick={() => {
+                        setIsModalActive(false);
+                      }} // 모달 배경 클릭 시 모달 닫기
+                    ></div>
+                    <div className="modal-card">
+                      <header className="modal-card-head">
+                        <p className="modal-card-title">
+                          인증번호를 입력해주세요.
+                        </p>
+                        <button
+                          className="delete"
+                          aria-label="close"
+                          onClick={() => {
+                            setIsModalActive(false);
+                          }} // 모달 닫기 버튼 클릭 시 setIsModalActive(false) 호출
+                        ></button>
+                      </header>
+
+                      <section className="modal-card-body">
+                        <input
+                          type="text"
+                          className="input"
+                          value={code}
+                          onChange={(e) => {
+                            setCode(e.target.value);
+                          }}
+                        />
+                      </section>
+
+                      <footer className="modal-card-foot">
+                        <button
+                          className="button is-info"
+                          onClick={authenticateCode}
+                        >
+                          인증 확인
+                        </button>
+
+                        <button
+                          className="button"
+                          onClick={() => {
+                            setIsModalActive(false);
+                          }}
+                        >
+                          취소
+                        </button>
+                      </footer>
+                    </div>
+                  </div>
                 </div>
+
+                <label className="label signup_label" style={emailLabelColor}>
+                  {emailLabel}
+                </label>
               </div>
 
               <div style={{ width: "85%" }}>
-                <label
-                  className="label signup_label"
-                  style={passwordLableColor}
-                >
-                  {passwordLabel}
-                </label>
+                
                 <input
                   type="password"
                   className="input signup_input"
-                  placeholder="8~16자, 특수문자 최소 1자 포함, 빈칸 X"
+                  placeholder="비밀번호"
                   value={password1}
                   onChange={(e) => {
                     setPassword1(e.target.value);
@@ -204,7 +351,7 @@ export default function Signup() {
                         e.target.value
                       )
                     ) {
-                      setPasswordLabel("사용할 수 없는 비밀번호 입니다!");
+                      setPasswordLabel("8~16자, 특수문자 최소 1자 포함, 빈칸 X");
                       setPasswordLableColor({ color: "red" });
                       setCheckPass(false);
                     } else {
@@ -214,36 +361,37 @@ export default function Signup() {
                     }
                   }}
                 />
+                <label
+                  className="label signup_label"
+                  style={passwordLableColor}
+                >
+                  {passwordLabel}
+                </label>
               </div>
 
               <div style={{ width: "85%" }}>
+                <input
+                  type="password"
+                  className="input signup_input"
+                  placeholder="비밀번호 확인"
+                  value={password2}
+                  onChange={(e) => {
+                    setPassword2(e.target.value);
+                  }}
+                />
                 <label
                   className="label signup_label"
                   style={passwordLableColor2}
                 >
                   {passwordLabel2}
                 </label>
-                <input
-                  type="password"
-                  className="input signup_input"
-                  value={password2}
-                  onChange={(e) => {
-                    setPassword2(e.target.value);
-                  }}
-                />
               </div>
 
               <div style={{ width: "85%" }}>
-                <label
-                  className="label signup_label"
-                  style={nicknameLabelColor}
-                >
-                  {nicknameLabel}
-                </label>
                 <input
                   type="text"
                   className="input signup_input"
-                  placeholder="2~6자, 특수문자 x"
+                  placeholder="닉네임"
                   value={nickname}
                   onChange={(e) => {
                     setNickname(e.target.value);
@@ -254,7 +402,7 @@ export default function Signup() {
                         e.target.value
                       )
                     ) {
-                      setNicknameLabel("사용할수 없는 닉네임 입니다!");
+                      setNicknameLabel("2~6자, 특수문자 x");
                       setNicknameLabelColor({ color: "red" });
                       setCheckNickname(false);
                     } else {
@@ -264,6 +412,12 @@ export default function Signup() {
                     }
                   }}
                 />
+                <label
+                  className="label signup_label"
+                  style={nicknameLabelColor}
+                >
+                  {nicknameLabel}
+                </label>
               </div>
               <div
                 style={{
@@ -278,6 +432,10 @@ export default function Signup() {
                   disabled={buttonDisabled2}
                 >
                   회원가입
+                  <i
+                    className="fa-solid fa-right-to-bracket fa-lg"
+                    style={{ color: "#fcfcfd", marginLeft: "15px" }}
+                  ></i>
                 </button>
               </div>
             </form>
@@ -285,7 +443,14 @@ export default function Signup() {
           <div
             className="signup_back"
             onClick={() => {
-              navigate("/login");
+              const signupElement = document.querySelector(".signup_signup");
+
+              if (signupElement) {
+                signupElement.classList.add("signup_transition-exit-active");
+              }
+              setTimeout(() => {
+                navigate("/login");
+              }, 300);
             }}
           >
             이전 화면으로 돌아가기

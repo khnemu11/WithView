@@ -22,10 +22,9 @@ public class DevSecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.csrf().disable();
-		// 시큐리티는 기본적으로 세션을 사용
+
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and()
-			// httpBasic -> Bearer(Authorizatoin key의 value에 id, pw를 암호화한 토큰을 들고 요청)
 			.formLogin().disable()
 			.httpBasic().disable();
 
