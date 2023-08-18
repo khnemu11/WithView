@@ -1,5 +1,5 @@
 body {
-  font-family: 'NanumGothic', sans-serif !important;
+  font-family: "NanumGothic", sans-serif !important;
 }
 
 .bold-text {
@@ -14,125 +14,124 @@ body {
   font-weight: 300;
 }
 @font-face {
-  font-family: 'NanumGothic';
-  src: url('/fonts/NanumGothic.ttf') format('truetype');
+  font-family: "NanumGothic";
+  src: url("/fonts/NanumGothic.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 /* 나눔고딕 Bold */
 @font-face {
-  font-family: 'NanumGothic';
-  src: url('/fonts/NanumGothicBold.ttf') format('truetype');
+  font-family: "NanumGothic";
+  src: url("/fonts/NanumGothicBold.ttf") format("truetype");
   font-weight: bold;
   font-style: normal;
 }
 
 /* 나눔고딕 ExtraBold */
 @font-face {
-  font-family: 'NanumGothic';
-  src: url('/fonts/NanumGothicExtraBold.ttf') format('truetype');
+  font-family: "NanumGothic";
+  src: url("/fonts/NanumGothicExtraBold.ttf") format("truetype");
   font-weight: 800;
   font-style: normal;
 }
 
 /* 나눔고딕 Light */
 @font-face {
-  font-family: 'NanumGothic';
-  src: url('/fonts/NanumGothicLight.ttf') format('truetype');
+  font-family: "NanumGothic";
+  src: url("/fonts/NanumGothicLight.ttf") format("truetype");
   font-weight: 300;
   font-style: normal;
 }
 
-
 .innermain {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: rgba(247, 251, 252, 0.8);
-    border-radius: 20px;
-    padding: 10px;
-    max-width: 80%;
-    height: 80vh;
-    width: 180vh;
-    margin: 10vh auto;
-    position: relative;
-  }
-  .searchlayer{
-    display: flex;
-    height: 5vh;
-    width: 100%;
-    display: flex;
-    justify-content: flex-end;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgba(247, 251, 252, 0.8);
+  border-radius: 20px;
+  padding: 10px;
+  max-width: 80%;
+  height: 80vh;
+  width: 180vh;
+  margin: 10vh auto;
+  position: relative;
+}
+.searchlayer {
+  display: flex;
+  height: 5vh;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
 
 .searchContainer {
-    display: flex;
-    border: 1px solid #3077AA;
-    border-radius: 5px;
-    padding: 3px;
-    margin-right: 20px;
-    background-color: white;
-    align-items: center;
-  }
-  
-  .searchContainer input {
-    flex: 1;
-    height: 100%;
-    border: none;
-    outline: none;
-    padding-left: 5px;
-  }
-  
-  .searchIcon {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-  }
-  .serverSearchText{
-    font-size: medium;
-    font-weight: bold;
-    margin-top: 5px;
-    margin-bottom: 10px;
-    margin-left: 5px;
-  }
+  display: flex;
+  border: 1px solid #3077aa;
+  border-radius: 5px;
+  padding: 3px;
+  margin-right: 20px;
+  background-color: white;
+  align-items: center;
+}
 
-  .lefttextlayer {
-    display: flex;
-    height: 5vh;
-    width: 100%;
-    display: flex;
-    justify-content: flex-start;
-    margin-top: 15px;
-    margin-left: 20px;
-    font-size: 24px; /* 글자 크기 설정 */
-    font-weight: bold; /* 굵게 설정 */
-  }
+.searchContainer input {
+  flex: 1;
+  height: 100%;
+  border: none;
+  outline: none;
+  padding-left: 5px;
+}
 
-  .favoriteLine{
-    width: 100%;
-    border-bottom: 1px solid #3077AA;
-    margin-top: 1px;
-    margin-bottom: 10px; 
-  }
+.searchIcon {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+.serverSearchText {
+  font-size: medium;
+  font-weight: bold;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  margin-left: 5px;
+}
 
-  .sliderContainer{
-    width:100%;
-  }
+.lefttextlayer {
+  display: flex;
+  height: 5vh;
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 15px;
+  margin-left: 20px;
+  font-size: 24px; /* 글자 크기 설정 */
+  font-weight: bold; /* 굵게 설정 */
+}
 
-  .sliderChannelContainer .slick-list{
-    width: 100%;
-    padding-bottom: 15px;
-  }
-  .sliderContainer .slick-list{
-    padding-bottom: 15px;
-  }
+.favoriteLine {
+  width: 100%;
+  border-bottom: 1px solid #3077aa;
+  margin-top: 1px;
+  margin-bottom: 10px;
+}
 
-  .custom-card-height {
-    max-width: 400px; /* 카드의 최대 너비를 500px로 설정 */
-    margin: 0 auto; /* 중앙에 카드를 정렬 */
-  }
-  
+.sliderContainer {
+  width: 100%;
+}
+
+.sliderChannelContainer .slick-list {
+  width: 100%;
+  padding-bottom: 15px;
+}
+.sliderContainer .slick-list {
+  padding-bottom: 15px;
+}
+
+.custom-card-height {
+  max-width: 400px; /* 카드의 최대 너비를 500px로 설정 */
+  margin: 0 auto; /* 중앙에 카드를 정렬 */
+}
+
 .custom-card-height .card-image img {
   width: 100%; /* 이미지를 100% 폭으로 설정하여 가로 폭을 부모 요소에 맞춤 */
   min-height: 100px;
@@ -140,81 +139,81 @@ body {
   object-fit: cover; /* 이미지가 화면을 가득 채우면서 비율을 유지 */
   background-color: transparent;
 }
-.card-header-title{
+.card-header-title {
   height: 100%;
-  white-space: nowrap;      /* 텍스트를 한 줄에 표시 */
-  overflow: hidden;         /* 초과하는 내용을 숨김 */
-  text-overflow: ellipsis;  /* 초과하는 텍스트를 ...로 표시 */
+  white-space: nowrap; /* 텍스트를 한 줄에 표시 */
+  overflow: hidden; /* 초과하는 내용을 숨김 */
+  text-overflow: ellipsis; /* 초과하는 텍스트를 ...로 표시 */
 }
 
-  .card-container {
-    display: flex;
-    flex-direction: column;
-    height: 30px; /* 카드의 높이를 설정합니다. */
-  }
-  
-  .card-header {
-    margin-top: auto; /* 헤더를 아래쪽으로 이동시킵니다. */
-  }
+.card-container {
+  display: flex;
+  flex-direction: column;
+  height: 30px; /* 카드의 높이를 설정합니다. */
+}
 
-  .scrollable-area {
-    max-height: 300px;
-    overflow-y: auto;
-    overflow-x: auto;
-  }
+.card-header {
+  margin-top: auto; /* 헤더를 아래쪽으로 이동시킵니다. */
+}
 
+.scrollable-area {
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-gap: 10px;
+}
+
+.grid-container-modal {
+  max-height: 300px;
+}
+
+@media screen and (min-width: 800px) {
   .grid-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    grid-gap: 10px;
+    grid-template-columns: repeat(4, 1fr);
   }
+}
 
-  .grid-container-modal{
-    max-height: 300px;
+@media screen and (min-width: 1200px) {
+  .grid-container {
+    grid-template-columns: repeat(5, 1fr);
   }
+}
 
-  @media screen and (min-width: 800px) {
-    .grid-container {
-      grid-template-columns: repeat(4, 1fr);
-    }
+@media screen and (min-width: 1600px) {
+  .grid-container {
+    grid-template-columns: repeat(6, 1fr);
   }
+}
 
-  @media screen and (min-width: 1200px) {
-    .grid-container {
-      grid-template-columns: repeat(5, 1fr);
-    }
-  }
-  
-  @media screen and (min-width: 1600px) {
-    .grid-container {
-      grid-template-columns: repeat(6, 1fr);
-    }
-  }
+.scrollable-area::-webkit-scrollbar {
+  display: none;
+}
+.scrollable-area {
+  scrollbar-width: none;
+}
+.grid-item {
+  min-width: 100px;
+}
 
-  .scrollable-area::-webkit-scrollbar {
-    display: none;
-  }
-  .scrollable-area {
-    scrollbar-width: none;
-  }
-  .grid-item{
-    min-width: 100px;
-  }
-  
-  .grid-item img {
-    height: 120px;
-  }
+.grid-item img {
+  height: 120px;
+}
 
-  .star-button {
-    position: absolute;
-    top: 5px;  /* 원하는 위치에 따라 변경 가능 */
-    right: 5px;  /* 원하는 위치에 따라 변경 가능 */
-    width: 30px;
-    height: 30px;
-    background: transparent;
-    border: none;
-    padding: 0;
-    margin: 0;
+.star-button {
+  position: absolute;
+  top: 5px; /* 원하는 위치에 따라 변경 가능 */
+  right: 5px; /* 원하는 위치에 따라 변경 가능 */
+  width: 30px;
+  height: 30px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
 }
 .star-button img {
   width: 100%;
@@ -233,7 +232,7 @@ body {
   justify-content: center;
 }
 
-.serverSearchModal{
+.serverSearchModal {
   width: 300px;
   position: absolute;
   top: 190px;
@@ -262,7 +261,7 @@ body {
   }
 }
 
-.card-header-users{
+.card-header-users {
   display: flex;
   height: fit-content;
   align-self: flex-end;
@@ -271,11 +270,20 @@ body {
   padding-right: 5px;
 }
 
-.card-header-users span{
+.card-header-users span {
   color: black;
-  
 }
 
-.cardUserIcon{
+.cardUserIcon {
   max-height: 18px;
+}
+
+.main-server-card-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 350px;
+  width: 200px;
+  white-space: nowrap;
+  margin-right: 10px;
+  display: block;
 }

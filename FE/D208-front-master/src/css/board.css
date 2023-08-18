@@ -1,6 +1,6 @@
 .board_input {
     width: 90%;
-    height: 40%;
+    min-height: 11vh;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -10,7 +10,6 @@
 .board_card {
     width: 29%;
     cursor: pointer;
-    border-radius: 5%;
     
 }
 
@@ -24,9 +23,9 @@
   margin-left: 5%;
 }
 .board_modal_card{
-    width: 50vw; /* 카드의 너비 설정 */
-  height: 80vh; /* 카드의 높이 설정 */
-  overflow: auto; /* 스크롤 가능한 영역으로 설정 */
+    width: 50vw; /*카드의 너비 설정*/
+  height: 90vh; /*카드의 높이 설정*/
+  /* overflow: auto; 스크롤 가능한 영역으로 설정 */
 }
 
 .board_modal_card_title {
@@ -69,11 +68,22 @@
 }
 .board_modal_image {
     position: relative;
-    overflow: hidden;
+    /* overflow: hidden; */
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     cursor: pointer;
+    width: 90%;
+}
+
+.board_modal_temp {
+    position: relative;
+    /* overflow: hidden; */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 .board_modal_image:hover {
     transform: scale(1.05); /* 이미지 크기를 1.05배로 확대 */
@@ -84,6 +94,7 @@
 .board_check_icon {
 position: absolute;
   z-index: 1;
+
 }
 
 
@@ -111,10 +122,42 @@ position: absolute;
   justify-content: center;
 }
 
+.board_content{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 48px;
+}
+
 .board_search {
   width: 40%;
 }
 
 .board_search_input {
   border-radius: 10px;
+}
+
+.board_notice::-webkit-scrollbar {
+  width: 7px; /* 스크롤바 너비 */
+}
+.board_notice::-webkit-scrollbar-thumb {
+  /* background-clip: border-box; */
+  background-color: #d3d3d3 !important;
+  border-radius: 20px !important;
+}
+.board_notice::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+
+.board_modal_cardbody::-webkit-scrollbar {
+  width: 7px; /* 스크롤바 너비 */
+}
+.board_modal_cardbody::-webkit-scrollbar-thumb {
+  /* background-clip: border-box; */
+  background-color: #d3d3d3 !important;
+  border-radius: 20px !important;
+}
+.board_modal_cardbody::-webkit-scrollbar-track {
+  background-color: transparent;
 }

@@ -53,6 +53,7 @@ const Profile = () => {
     })
       .then((res) => {
         setProfileMessage(res.data.UserInfo.profileMsg);
+        setTempProfileMessage(res.data.UserInfo.profileMsg);
       })
       .catch((err) => {
         console.log(err);

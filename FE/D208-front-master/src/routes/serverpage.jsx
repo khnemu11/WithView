@@ -16,7 +16,6 @@ import Popover from "react-popover";
 import axiosInstance from "./axiosinstance";
 import Checkwebsocket from "./components/checkwebsocket";
 
-
 Modal.setAppElement("#root");
 
 const Serverpage = () => {
@@ -184,7 +183,6 @@ const Serverpage = () => {
         } else {
           alert("이미 친구 추가된 상대입니다!");
         }
-
       } catch (error) {
         console.error("Error adding friend:", error);
       }
@@ -319,7 +317,26 @@ const Serverpage = () => {
         <button
           style={{ display: "block" }}
           onClick={() => {
-            /* 채널 삭제 로직 */
+            if (confirm("정말로 채널을 삭제하시겠습니까?")) {
+              axiosInstance
+                .delete(`servers/${seq}/channels/${channel.seq}`, {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                })
+                .then((response) => {
+                  console.log(response);
+                  if (response.data.success == true) {
+                    alert("채널 삭제를 성공했습니다.");
+                  } else {
+                    alert("채널 삭제를 실패했습니다.");
+                  }
+                  fetchChannels();
+                })
+                .catch((err) => {
+                  console.log(err);
+                });
+            }
           }}
         >
           채널 삭제
@@ -338,7 +355,10 @@ const Serverpage = () => {
           {channelMember &&
             channelMember.map((member) => (
               <div key={member.seq}>
-                <img src={`https://dm51j1y1p1ekp.cloudfront.net/profile/${member.profileImgSearchName}`} alt={member.nickname} />
+                <img
+                  src={`https://dm51j1y1p1ekp.cloudfront.net/profile/${member.profileImgSearchName}`}
+                  alt={member.nickname}
+                />
               </div>
             ))}
         </div>
@@ -447,59 +467,59 @@ const Serverpage = () => {
 
   const createChannel = async () => {
     if (cropperRef.current && cropperRef.current.cropper) {
-        const cropper = cropperRef.current.cropper;
-        const croppedCanvas = cropper.getCroppedCanvas();
+      const cropper = cropperRef.current.cropper;
+      const croppedCanvas = cropper.getCroppedCanvas();
 
-        croppedCanvas.toBlob(async (blob) => {
-            const formData = new FormData();
-            const file = new File([blob], "newFile.png", { type: blob.type });
-
-            formData.append("file", file);
-            formData.append("name", channelName);
-
-            await sendCreateFormData(formData);
-        });
-    } else {
-        const response = await fetch('/withView3.png');
-        const blob = await response.blob();
-
+      croppedCanvas.toBlob(async (blob) => {
         const formData = new FormData();
-        const file = new File([blob], "withView3.png", { type: 'image/png' });
+        const file = new File([blob], "newFile.png", { type: blob.type });
 
         formData.append("file", file);
         formData.append("name", channelName);
 
         await sendCreateFormData(formData);
-    }
-};
+      });
+    } else {
+      const response = await fetch("/withView3.png");
+      const blob = await response.blob();
 
-const sendCreateFormData = async (formData) => {
+      const formData = new FormData();
+      const file = new File([blob], "withView3.png", { type: "image/png" });
+
+      formData.append("file", file);
+      formData.append("name", channelName);
+
+      await sendCreateFormData(formData);
+    }
+  };
+
+  const sendCreateFormData = async (formData) => {
     for (let entry of formData.entries()) {
-        console.log(entry);
+      console.log(entry);
     }
 
     try {
-        const response = await axiosInstance.post(
-            `/servers/${seq}/channels`,
-            formData,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "multipart/form-data",
-                },
-            }
-        );
-
-        if (response.status === 200) {
-            // 채널 생성 후 바로 채널 목록을 다시 불러옵니다.
-            await fetchChannels();
-            setIsModalOpen(false);
-            resetModal();
+      const response = await axiosInstance.post(
+        `/servers/${seq}/channels`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
         }
+      );
+
+      if (response.status === 200) {
+        // 채널 생성 후 바로 채널 목록을 다시 불러옵니다.
+        await fetchChannels();
+        setIsModalOpen(false);
+        resetModal();
+      }
     } catch (error) {
-        console.error("Error creating channel:", error);
+      console.error("Error creating channel:", error);
     }
-};
+  };
 
   const handleServerMenuClick = () => {
     // TODO: 여기에 서버 수정 및 삭제 메뉴를 띄우는 로직을 추가합니다.
@@ -522,7 +542,7 @@ const sendCreateFormData = async (formData) => {
     setEditingChannel(null);
     if (cropperRef.current && cropperRef.current.cropper) {
       cropperRef.current.cropper.destroy();
-  }
+    }
   };
 
   //채널 수정' 버튼이 눌렸을 때 setEditingChannel를 사용해 수정하려는 채널의 정보를 설정
@@ -535,59 +555,59 @@ const sendCreateFormData = async (formData) => {
 
   const editChannel = async () => {
     if (cropperRef.current && cropperRef.current.cropper) {
-        const cropper = cropperRef.current.cropper;
-        const croppedCanvas = cropper.getCroppedCanvas();
+      const cropper = cropperRef.current.cropper;
+      const croppedCanvas = cropper.getCroppedCanvas();
 
-        croppedCanvas.toBlob(async (blob) => {
-            const formData = new FormData();
-            const file = new File([blob], "newFile.png", { type: blob.type });
-
-            formData.append("file", file);
-            formData.append("name", channelName);
-
-            await sendFormData(formData);
-        });
-    } else {
-        const response = await fetch('/withView3.png');
-        const blob = await response.blob();
-
+      croppedCanvas.toBlob(async (blob) => {
         const formData = new FormData();
-        const file = new File([blob], "withView3.png", { type: 'image/png' });
+        const file = new File([blob], "newFile.png", { type: blob.type });
 
         formData.append("file", file);
         formData.append("name", channelName);
 
         await sendFormData(formData);
-    }
-};
+      });
+    } else {
+      const response = await fetch("/withView3.png");
+      const blob = await response.blob();
 
-const sendFormData = async (formData) => {
+      const formData = new FormData();
+      const file = new File([blob], "withView3.png", { type: "image/png" });
+
+      formData.append("file", file);
+      formData.append("name", channelName);
+
+      await sendFormData(formData);
+    }
+  };
+
+  const sendFormData = async (formData) => {
     for (let entry of formData.entries()) {
-        console.log(entry);
+      console.log(entry);
     }
 
     try {
-        const response = await axiosInstance.post(
-            `/servers/${seq}/channels/${editingChannel.seq}`,
-            formData,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "multipart/form-data",
-                },
-            }
-        );
-
-        if (response.status === 200) {
-            await fetchChannels();
-            setIsModalOpen(false);
-            setEditingChannel(null);
-            resetModal();
+      const response = await axiosInstance.post(
+        `/servers/${seq}/channels/${editingChannel.seq}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
         }
+      );
+
+      if (response.status === 200) {
+        await fetchChannels();
+        setIsModalOpen(false);
+        setEditingChannel(null);
+        resetModal();
+      }
     } catch (error) {
-        console.error("Error editing channel:", error);
+      console.error("Error editing channel:", error);
     }
-};
+  };
 
   const copyToClipboard = (text) => {
     navigator.clipboard

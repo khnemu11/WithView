@@ -8,7 +8,7 @@ import "../../css/mainpage.css"; // CSS 파일 임포트
 import ServerOptions from "./serveroptions";
 import { useSelector } from "react-redux";
 import axios from "axios";
-import { Link, useNavigate  } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../axiosinstance";
 import Checkwebsocket from "./checkwebsocket";
 
@@ -153,7 +153,7 @@ const Mainpage = () => {
     const handleCardClick = () => {
       const serverLinkPath = `/server/${seq}`;
       navigate(serverLinkPath);
-  };
+    };
 
     const handleFavoriteButtonClick = (e) => {
       e.stopPropagation();
@@ -179,7 +179,9 @@ const Mainpage = () => {
         </button>
         <Link to={`/server/${seq}`} style={{ textDecoration: "none" }}>
           <header className="card-header">
-            <p className="card-header-title">{name}</p>
+            <div className="card-header-title main-server-card-title">
+              {name}
+            </div>
             <div className="card-header-users">
               <img
                 src="/usersicon.png"

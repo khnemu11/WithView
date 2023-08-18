@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import Konva from "konva";
 import { OpenVidu } from "openvidu-browser";
 import SockJS from "sockjs-client";
-import man from "../assets/man.jpg";
 import micon from "../assets/micon.png";
 import micoff from "../assets/micoff.png";
 import volon from "../assets/volon.png";
@@ -52,7 +51,6 @@ export default function GroupChat() {
   const userNick = useSelector((state) => state.user.nickname);
   const userProfile = useSelector((state) => state.user.profile);
   const profileUrl = `https://dm51j1y1p1ekp.cloudfront.net/profile/${userProfile}`;
-  // const chatStomp = useSelector((state) => state.stomp);
   const Token = useSelector((state) => state.token);
   const [stickerAndBg, setstickerAndBg] = useState(false);
   const [fullscreen, setFullscreen] = useState(true);
@@ -67,7 +65,6 @@ export default function GroupChat() {
 
   function presetLoadClickedChange() {
     setPresetLoadClicked((presetLoadClicked) => !presetLoadClicked);
-    console.log(presetLoadClicked);
   }
 
   function backSettings() {
@@ -81,7 +78,6 @@ export default function GroupChat() {
     navigate("/profile");
   }
   const deleteChannel = () => {
-    console.log("채널 지우기 버튼 클릭");
     const headers = {
       Authorization: `Bearer ${Token}`,
     };
@@ -96,7 +92,6 @@ export default function GroupChat() {
         })
         .catch((err) => {
           alert("채널 삭제를 실패했습니다.");
-          console.log("에러 발생");
           console.log(err);
         });
     }
@@ -127,14 +122,10 @@ export default function GroupChat() {
       const isCameraOn = !camPublisherRef.current.stream.videoActive;
       camPublisherRef.current.publishVideo(isCameraOn);
       setIsCameraOn(isCameraOn);
-      console.log(isCameraOn);
 
       let myCam; // 변수를 선언한 후, for 루프 내에서 할당
       let myCamID = userNick;
       for (var i = 0; i < stage.current.children[1].children.length; i++) {
-        console.log(
-          stage.current.children[1].children[i].getAttr("id") + " vs " + myCamID
-        );
         if (stage.current.children[1].children[i].getAttr("id") == myCamID) {
           myCam = stage.current.children[1].children[i];
           break;
@@ -145,8 +136,6 @@ export default function GroupChat() {
       } else {
         myCam.setAttr("cornerRadius", 149);
       }
-      console.log(camPublisherRef.current.stream.streamId);
-      console.log(myCam);
       myCam.moveToTop();
       changeCanvas(myCam, "update");
     }
@@ -155,7 +144,6 @@ export default function GroupChat() {
 
   function presetRegistSettings() {
     setPresetRegisterClicked((presetRegisterClicked) => !presetRegisterClicked);
-    console.log(presetRegisterClicked);
   }
 
   function settingsSettings() {
@@ -179,13 +167,6 @@ export default function GroupChat() {
     setchatClicked((prevchatClicked) => !prevchatClicked);
     setstickerClicked(false);
     setsettingsClicked(false);
-  }
-  function msgFalseSettings() {
-    setmsgClicked((prevmsgClicked) => false);
-  }
-
-  function msgTrueSettings() {
-    setmsgClicked((prevmsgClicked) => true);
   }
 
   function acc_chSettings() {
@@ -252,8 +233,6 @@ export default function GroupChat() {
 
   // let session; //현재 채널 이름(오픈비두에선 채팅방 단위를 'session'이라고 부름)
   let videoContainer = document.querySelector("#video-container"); //오픈비두로 받은 영상을 담은 컨테이너
-  // let port = 9091; //백엔드 포트 번호
-  // let domain = "http://localhost:9091"; //도메인 주소
   let domain = "https://i9d208.p.ssafy.io"; //도메인 주소;
   let userId = useRef(null); //유저 아이디
   let remoteBGLayer = new Konva.Layer(); //소켓에 저장된 비디오 레이어(최초 접속시 한번 사용)
@@ -272,13 +251,7 @@ export default function GroupChat() {
   let channelSeqRef = useRef(channelSeq);
   let currentShape;
 
-  const handleBackButton = () => {
-    if (stomp.current) stomp.current.disconnect();
-    console.log("뒤로가기 버튼이 눌렸습니다.");
-  };
-
   const init = () => {
-    console.log("첫입장");
     joinSession();
 
     const container = document.getElementById("channel-screen");
@@ -348,7 +321,6 @@ export default function GroupChat() {
   };
 
   const screenShot = () => {
-    console.log(stage.current.toDataURL());
     let downloadLink = document.createElement("a");
     downloadLink.href = stage.current.toDataURL();
     downloadLink.download = "스크린샷.png";
@@ -378,14 +350,11 @@ export default function GroupChat() {
       stage.current === null ||
       stage.current.children[0].children.length == 0
     ) {
-      console.log("no stage");
       return;
     }
 
     stage.current.children[0].children[0].width(window.innerWidth);
     stage.current.children[0].children[0].height(window.innerHeight);
-
-    console.log(stage.current.width);
   };
 
   useEffect(() => {
@@ -400,9 +369,6 @@ export default function GroupChat() {
 
   // 배경에 이미지 추가
   function addBackImage(imageUrl) {
-    console.log("이미지 url");
-    console.log(imageUrl);
-
     const backObj = new Image();
     backObj.crossOrigin = "anonymous";
 
@@ -414,9 +380,6 @@ export default function GroupChat() {
         height: windowSize.current[1],
       });
 
-      console.log("이미지 로드!");
-      console.log(session.current);
-
       changeCanvas(backgroundImage, "update");
     };
     backObj.src =
@@ -426,25 +389,15 @@ export default function GroupChat() {
   }
 
   const addBackImageClick = (imageUrl) => {
-    console.log("배경 이미지 변환");
-    console.log(session.current);
-
     addBackImage(imageUrl);
   };
 
   //켄버스에 변경 내용을 저장하는 함수
   function loadCanvasChange(data) {
-    console.log(data);
     let object = Konva.Node.create(data); //변경된 오브젝트
     let objectId = object.getAttr("id");
-    console.log("소캣에서 넘어온 객체 아이디");
-    console.log(objectId);
-    console.log(stage.current);
 
     let target = stage.current.find("#" + objectId); //객체 탐색
-
-    console.log("현재 대상 객체");
-    console.log(target);
 
     //기존 스테이지에 없는경우(이미지가 추가된 경우)
     if (target.length == 0) {
@@ -453,11 +406,6 @@ export default function GroupChat() {
         //이미지 변수 생성
         let imageObj = new Image();
         imageObj.crossOrigin = "anonymous";
-
-        // let splitedImageId = objectId.split("-");
-        console.log(
-          objectId.substring(objectId.indexOf("-", objectId.indexOf("-")) + 1)
-        );
         let imageName = objectId.substring(
           objectId.indexOf("-", objectId.indexOf("-") + 1) + 1
         ); //img- 제거한 나머지를 이름으로 설정
@@ -487,7 +435,6 @@ export default function GroupChat() {
         // 우클릭 이벤트 핸들러 등록
         object.on("contextmenu", function (e) {
           e.evt.preventDefault();
-          console.log("우클릭 입력");
           if (e.target === stage.current) {
             // if we are on empty place of the stage we will do nothing
             return;
@@ -499,7 +446,6 @@ export default function GroupChat() {
           currentShape = e.target;
           menuNode.style.display = "initial";
           menuNode.style.zIndex = "1";
-          console.log(menuNode);
           var containerRect = stage.current.container().getBoundingClientRect();
           menuNode.style.top =
             containerRect.top + stage.current.getPointerPosition().y + 4 + "px";
@@ -519,9 +465,6 @@ export default function GroupChat() {
         let backObj = new Image();
         backObj.crossOrigin = "anonymous";
         let imageName = objectId.substring(3); // 임시 어차피 바꿔야함
-
-        console.log("배경 이미지 이름");
-        console.log(imageName);
 
         backObj.src =
           "https://dm51j1y1p1ekp.cloudfront.net/channel-background/" +
@@ -549,58 +492,25 @@ export default function GroupChat() {
       //영상 위치 변경
       else {
         target[0].setAttrs(object.getAttrs());
-        // let triger = target[0].getAttr("cornerRadius");
-        // if (triger === 149) {
-        //   const tempvideoElement = target[0].attrs.image;
-        //   camCutId.current = tempvideoElement.getAttribute("id");
-        //   console.log(camCutId.current);
-        //   console.log("캠꺼진상태");
-        //   const profileElement = new Image();
-        //   profileElement.src = withview;
-        //   target[0].image(profileElement);
-        // } else {
-        //   console.log("캠켜진상태");
-        //   if (objectId != userNick) {
-        //     console.log("남의화면");
-        //     target[0].image(document.getElementById(camCutId.current));
-        //   } else {
-        //     console.log("내화면");
-        //     target[0].image(document.getElementById("local-video-undefined"));
-        //   }
-        // }
       }
     }
   }
 
   function onConnected() {
-    console.log("소켓 연결 성공");
-
     stomp.current.subscribe(
       "/api/sub/canvas/channel/" + channelSeqRef.current,
       function (msg) {
-        console.log("캔버스 메세지 도착!");
-        console.log(msg);
-
         let data = JSON.parse(msg.body);
-        console.log(data.type);
 
         if (data.type == "update") {
-          console.log("세션");
-          console.log(session.current);
-          console.log("캔버스 변화");
-          console.log(data);
           loadCanvasChange(data.object);
         } else if (data.type == "delete") {
-          console.log("요소 삭제");
-          console.log(data);
           deleteCanvasChange(data.object);
         } else if (data.type == "load") {
-          console.log("프리셋 불러오기");
           stage.current.children[0].removeChildren();
           stage.current.children[2].removeChildren();
           loadCanvas(data);
         } else {
-          console.log("데이터");
           console.log(data);
         }
       }
@@ -611,13 +521,7 @@ export default function GroupChat() {
 
   function deleteCanvasChange(data) {
     let deleteElement = Konva.Node.create(data);
-
-    console.log("삭제 객체");
-    console.log(deleteElement);
     let objectId = deleteElement.attrs.id;
-    console.log("소캣에서 넘어온 객체 아이디");
-    console.log(objectId);
-    console.log(stage.current);
 
     let target = stage.current.find("#" + objectId); //객체 탐색
     if (target.length > 0) {
@@ -636,9 +540,7 @@ export default function GroupChat() {
     let backChildren = JSON.parse(data.background);
 
     if (backChildren.children.length > 0) {
-      console.log("서버에 있는 배경 레이어");
       remoteBGLayer = Konva.Node.create(data.background);
-      console.log(remoteBGLayer);
 
       let backgroundObj = remoteBGLayer.children[0];
       console.log(backgroundObj);
@@ -646,7 +548,6 @@ export default function GroupChat() {
       let imageObj = new Image();
       imageObj.crossOrigin = "anonymous";
       let imageName = backgroundObj.getAttr("id"); //img- 제거한 나머지를 이름으로 설정
-      console.log(imageName);
       imageObj.src =
         "https://dm51j1y1p1ekp.cloudfront.net/channel-background/" +
         imageName.substring(3) +
@@ -661,28 +562,21 @@ export default function GroupChat() {
         backgroundObj.setAttr("height", windowSize.current[1]);
       };
 
-      console.log(stage.current);
-
       stage.current.children[0].add(backgroundObj);
     }
     //비디오 레이어 로드
     if (data.video != null) {
-      console.log("서버에 있는 비디오 레이어");
       remoteVideoLayer = Konva.Node.create(data.video);
-      console.log(remoteVideoLayer);
     }
     //이미지 레이어 로드
     if (data.image != null) {
-      console.log("서버에 있는 이미지 레이어");
       remoteImageLayer = Konva.Node.create(data.image);
-      console.log(remoteImageLayer);
       let images = remoteImageLayer.find("Image");
 
       for (let i = 0; i < images.length; i++) {
         //이미지 변수 생성
         let imageObj = new Image();
         imageObj.crossOrigin = "anonymous";
-        let splitedName = images[i].getAttr("id").split("-");
         let imageName = images[i]
           .getAttr("id")
           .substring(
@@ -690,19 +584,14 @@ export default function GroupChat() {
               .getAttr("id")
               .indexOf("-", images[i].getAttr("id").indexOf("-") + 1) + 1
           ); //img- 제거한 나머지를 이름으로 설정
-        console.log("최초 이미지 로드 대상");
 
-        console.log(imageName);
         imageObj.src =
           "https://dm51j1y1p1ekp.cloudfront.net/sticker/" +
           imageName +
           "?timestamp=2";
 
-        console.log("이미지 경로");
-        console.log(imageObj.src);
         //로딩돠면
         imageObj.onload = function () {
-          console.log("이미지 로드 완료");
           images[i].setAttr("image", imageObj);
         };
 
@@ -715,7 +604,6 @@ export default function GroupChat() {
         images[i].on("transformend", function () {
           changeCanvas(images[i], "update");
         });
-        console.log(stage.current);
 
         function limitDragBounds(pos) {
           var newX = Math.max(
@@ -736,7 +624,6 @@ export default function GroupChat() {
         // 우클릭 이벤트 핸들러 등록
         images[i].on("contextmenu", function (e) {
           e.evt.preventDefault();
-          console.log("우클릭 입력");
 
           let deleteBtn = document.querySelector("#delete-button");
           deleteBtn.setAttribute("data-imgid", images[i].getAttr("id"));
@@ -747,8 +634,6 @@ export default function GroupChat() {
           currentShape = e.target;
           menuNode.style.display = "initial";
           menuNode.style.zIndex = "1";
-
-          console.log(menuNode);
 
           var containerRect = stage.current.container().getBoundingClientRect();
           menuNode.style.top =
@@ -765,7 +650,6 @@ export default function GroupChat() {
   }
 
   async function joinSession() {
-    console.log("join !");
     if (stompSocket.current != null) {
       return;
     }
@@ -774,7 +658,6 @@ export default function GroupChat() {
     userId = userNick;
 
     //참가한 채널 명을 url로 구분하도록 커스터마이징함
-    console.log("캔버스 로드");
     const headers = {
       Authorization: `Bearer ${Token}`,
       "Content-Type": "application/json",
@@ -783,8 +666,6 @@ export default function GroupChat() {
     let apiCall = await axiosInstance
       .get(`/canvas/${channelSeqRef.current}`, { headers })
       .then((response) => {
-        console.log("받은 데이터");
-        console.log(response);
         let data = response.data.canvas;
         if (data == null) {
           let parameters = {
@@ -806,7 +687,6 @@ export default function GroupChat() {
         }
       })
       .catch((err) => {
-        console.log("에러 발생");
         console.log(err);
       });
 
@@ -820,11 +700,11 @@ export default function GroupChat() {
 
     // --- 2) Init a session ---
     session.current = CamOV.current.initSession();
+
     sessionScreen.current = ScreenOV.current.initSession();
 
     //말하면 반응하는거
     session.current.on("publisherStartSpeaking", (event) => {
-      console.log(event);
       let speakUserId = JSON.parse(event.connection.data).clientData;
       let videoId;
 
@@ -833,11 +713,6 @@ export default function GroupChat() {
       } else {
         videoId = "remote-video-" + event.streamId;
       }
-
-      console.log(speakUserId + "가 말하는 중");
-      console.log("비디오 아이디 : " + videoId);
-      console.log("비디오가 들어있는 div");
-      console.log(document.querySelector("#" + videoId));
 
       const videoBox = document.getElementById("video-container");
       const originalVideo = videoBox.querySelector("#" + videoId);
@@ -856,7 +731,6 @@ export default function GroupChat() {
 
     //말 끝나면 반응하는거
     session.current.on("publisherStopSpeaking", (event) => {
-      console.log(event);
       let speakUserId = JSON.parse(event.connection.data).clientData;
       let videoId;
 
@@ -874,14 +748,11 @@ export default function GroupChat() {
 
       const videoBox = document.getElementById("video-container");
       videoBox.appendChild(clonedVideo);
-
-      console.log(speakUserId + "가 말 끝남");
     });
 
     // --- 3) Specify the actions when events take place in the session ---
     // On every new Stream received...
     session.current.on("streamCreated", (event) => {
-      console.log("카메라 세션 온");
       // Subscribe to the Stream to receive it. HTML video will be appended to element with 'video-container' id
       if (event.stream.typeOfVideo == "CAMERA") {
         let subscriber = session.current.subscribe(
@@ -891,7 +762,6 @@ export default function GroupChat() {
 
         // When the HTML video has been appended to DOM...
         subscriber.on("videoElementCreated", (event) => {
-          console.log("접속자 비디오 생성");
           // Add a new <p> element for the user's nickname just below its video
           appendUserData(event.element, subscriber.stream.connection);
           addVideoInCanvas(event.element, subscriber.stream.connection);
@@ -917,10 +787,6 @@ export default function GroupChat() {
     });
     // On every Stream destroyed...
     session.current.on("streamDestroyed", (event) => {
-      // if (event.reason != "unpublish") {
-      console.log(session.current);
-      console.log(sessionScreen.current);
-      console.log("접속자 비디오 나감");
       // Delete the HTML element with the user's nickname. HTML videos are automatically removed from DOM
       removeUserInCanvas(event.stream.connection.connectionId);
       removeUserData(event.stream.connection);
@@ -955,15 +821,12 @@ export default function GroupChat() {
             insertMode: "APPEND", // How the video is inserted in the target element 'video-container'
             mirror: false, // Whether to mirror your local video or not
           });
-          console.log("cam");
-          console.log(publisher);
           camPublisherRef.current = publisher;
           setPublisher(publisher);
 
           // --- 7) Specify the actions when events take place in our publisher ---
           // When our HTML video has been added to DOM...
           publisher.on("videoElementCreated", function (event) {
-            console.log("내 비디오 시작");
             initMainVideo(event.element, userId);
             appendUserData(event.element, userId);
             addVideoInCanvas(event.element, userId);
@@ -1000,19 +863,13 @@ export default function GroupChat() {
           );
         });
     });
-    console.log(stomp.current);
   }
 
   function chatConnect() {
-    console.log(channelSeqRef.current);
-    console.log("connect CHAT");
-    console.log(stomp.current);
     const channelSubscribe = stomp.current.subscribe(
       `/api/sub/chat/channel/${channelSeqRef.current}`,
       (message) => {
-        console.log("구독 성공");
         const receivedMessage = JSON.parse(message.body);
-        console.log(receivedMessage);
         setLastChat(receivedMessage);
 
         if (!chatClicked && receivedMessage.userDto.nickname != userNick) {
@@ -1036,8 +893,6 @@ export default function GroupChat() {
     );
 
     return () => {
-      console.log("채널 나감");
-      console.log(stomp);
       channelSubscribe.unsubscribe(
         `/api/sub/chat/channel/${channelSeqRef.current}`,
         function () {
@@ -1053,7 +908,6 @@ export default function GroupChat() {
   }
 
   function chatEnterMsg() {
-    console.log("들어가는 메세지를 보내주자 !");
     stomp.current.send(
       `/api/pub/server/${serverSeq}/channel/${channelSeqRef.current}/enter`,
       {},
@@ -1062,7 +916,6 @@ export default function GroupChat() {
   }
 
   function chatLeaveMsg() {
-    console.log("나가는 메세지를 보내주자 !");
     stomp.current.send(
       `/api/pub/server/${serverSeq}/channel/${channelSeqRef.current}/leave`,
       {},
@@ -1070,36 +923,16 @@ export default function GroupChat() {
     );
   }
 
-  //외부를 클릭하면 우클릭 메뉴가 없어지는 것
-  // window.addEventListener("click", () => {
-  //   if (location.pathname.indexOf("/groupchat") == -1) {
-  //     return;
-  //   }
-  //   // hide menu
-  //   let deleteBtn = document.querySelector("#delete-button");
-  //   deleteBtn.setAttribute("data-imgid", "");
-  //   let menuNode = document.getElementById("delete-img-menu");
-  //   menuNode.style.display = "none";
-  // });
-
   function publishScreenShare() {
     // --- 9.1) To create a publisherScreen set the property 'videoSource' to 'screen'
-    console.log("스크린 ov");
-    console.log(stage);
-    console.log(ScreenOV.current);
     if (ScreenOV.current != null && ScreenOV.current.publishers.length > 0) {
       for (let i = 0; i < ScreenOV.current.publishers.length; i++) {
-        console.log("기존에 존재한 스트림");
-        console.log(ScreenOV.current.publishers[i]);
         sessionScreen.current.unpublish(ScreenOV.current.publishers[i]);
       }
     }
     var publisherScreen = ScreenOV.current.initPublisher("container-screens", {
       videoSource: "screen",
     });
-
-    console.log("스크린 publisher");
-    console.log(publisherScreen);
 
     // --- 9.2) Publish the screen share stream only after the user grants permission to the browser
     publisherScreen.once("accessAllowed", () => {
@@ -1109,7 +942,6 @@ export default function GroupChat() {
         .getMediaStream()
         .getVideoTracks()[0]
         .addEventListener("ended", () => {
-          console.log('User pressed the "Stop sharing" button');
           sessionScreen.current.unpublish(publisherScreen);
           screensharing = false;
           setFullscreen(true);
@@ -1118,7 +950,6 @@ export default function GroupChat() {
     });
 
     publisherScreen.on("videoElementCreated", function (event) {
-      console.log("videoElementCreated");
       appendShareData(event.element, sessionScreen.current.connection);
       addScreenInCanvas(event.element, sessionScreen.current.connection);
       event.element["muted"] = true;
@@ -1175,7 +1006,6 @@ export default function GroupChat() {
     dataNode.innerHTML = "<p>" + userData + "</p>";
     videoElement.parentNode.insertBefore(dataNode, videoElement.nextSibling);
     addClickListener(videoElement, userData);
-    console.log("data clear");
   }
 
   //오픈비두 예제 함수
@@ -1196,16 +1026,12 @@ export default function GroupChat() {
     dataNode.innerHTML = "<p>" + userData + "-share" + "</p>";
     videoElement.parentNode.insertBefore(dataNode, videoElement.nextSibling);
     addClickListener(videoElement, userData);
-    console.log("data clear");
   }
 
   //캔버스에 영상을 삭제하는 함수
   function removeUserInCanvas(connectionId) {
-    console.log("영상 아이디");
-    console.log(connectionId);
     var dataNode = document.getElementById("data-" + connectionId);
     var targetId = dataNode.innerText;
-    console.log(targetId);
     //트랜스포머랑 비디오 삭제
     let target = stage.current.find("#" + targetId);
     if (target.length > 0) {
@@ -1225,9 +1051,6 @@ export default function GroupChat() {
     jsonData["channelSeq"] = channelSeqRef.current;
     jsonData["userSeq"] = userSeq;
     jsonData["stage"] = stage;
-
-    console.log(jsonData);
-    console.log(JSON.stringify(jsonData));
 
     stomp.current.send(
       "/api/pub/canvas/channel/" + channelSeqRef.current,
@@ -1258,7 +1081,6 @@ export default function GroupChat() {
 
   //캔버스에 영상을 넣는 함수
   function addVideoInCanvas(videoElement, connection) {
-    console.log("video in canvas");
     var connectionId = connection;
 
     //자기 자신의 영상의 커넥션 아이디 : 로그인한 유저 닉네임
@@ -1269,11 +1091,6 @@ export default function GroupChat() {
 
     //비디오 영상 초기 디자인
     var video;
-    // var baseImg;
-    console.log("connectionId");
-    console.log(connectionId);
-    console.log("layer");
-    console.log(layer);
 
     //자기 자신영상인 경우
     if (typeof connection === "string") {
@@ -1285,7 +1102,6 @@ export default function GroupChat() {
       connectionId = document.querySelector(
         "#data-" + connection.connectionId + " p"
       ).textContent;
-      console.log(connectionId);
     }
     //이미 채널에 참가한 사람의 영상인지 아닌지 비디오 레이어에서 찾는 코드
     let remoteVideo = remoteVideoLayer.find("#" + connectionId);
@@ -1340,15 +1156,11 @@ export default function GroupChat() {
     // 드래그 범위 제한 함수를 객체에 연결
     video.dragBoundFunc(limitDragBounds);
     layer.add(video);
-    console.log("점프");
-    console.log(video);
 
     //자기 자신의 비디오 경우 자동으로 실행이 되지 않는 오류가 있어 직접 실행
     videoElement.oncanplaythrough = function () {
       videoElement.play();
-      console.log("한번더 점프");
     };
-    console.log("한번더 점프");
 
     //비디오를 움직이면 캔버스 변경사항을 다른사람에게 전송
     video.on("dragend", function () {
@@ -1399,7 +1211,6 @@ export default function GroupChat() {
   //오픈비두 기본 함수
   //최초 접속 시 채팅방에 연결하기 위한 정보(채널, 서버 정보)를 가져오는 함수
   function getToken(mySessionId) {
-    console.log("토큰 받기");
     return createSession(mySessionId).then((sessionId) =>
       createToken(sessionId)
     );
@@ -1417,11 +1228,9 @@ export default function GroupChat() {
       customSessionId: sessionId,
       channelSeq: channelSeqRef.current,
     };
-    console.log("세션 만들기");
     return axiosInstance
       .post(url, data, { headers })
       .then((response) => {
-        console.log(response);
         return response.data;
       })
       .catch((error) => Promise.reject(error));
@@ -1465,10 +1274,7 @@ export default function GroupChat() {
   function deleteClickListener() {
     //삭제 버튼 누를시 이벤트
     let deleteBtn = document.querySelector("#delete-button");
-    console.log(deleteBtn);
     let targetId = deleteBtn.getAttribute("data-imgid");
-    console.log("삭제 아이디");
-    console.log(targetId);
 
     let target = stage.current.find("#" + targetId);
     if (target.length > 0) {
@@ -1477,31 +1283,21 @@ export default function GroupChat() {
   }
   //버튼을 누르면 이미지가 생성되는 함수
   function stickertemp(name) {
-    console.log("click");
     var imageObj = new Image();
     imageObj.crossOrigin = "anonymous";
 
     imageObj.src =
       `https://dm51j1y1p1ekp.cloudfront.net/sticker/${name}` + "?timestamp=2";
-    console.log("이미지 객체");
-    console.log(imageObj);
 
     var papago; //이미지 객체
-    let layer;
 
     //이미지는 바로 로딩이 되지 않기 때문에 이미지가 로딩되면 객체를 생성하는 함수
     imageObj.onload = function () {
       let seq = 1;
       let existImg = stage.current.find(`#img-${seq}-${name}`);
 
-      console.log(`img-${seq}-${name}` + " 이미 존재하는 이미지");
-      console.log(existImg);
-
       //이미지 고유 seq값 넣기
       while (existImg.length > 0) {
-        console.log("이미 존재하는 이미지");
-        console.log(existImg);
-
         seq = seq + 1;
         existImg = stage.current.find(`#img-${seq}-${name}`);
       }
@@ -1523,10 +1319,7 @@ export default function GroupChat() {
   }
   // 공유화면 캔버스에 그리기
   function addScreenInCanvas(videoElement, connection) {
-    console.log("share video in canvas");
     var connectionId = connection;
-    console.log("전송받은 커넥션");
-    console.log(connection);
 
     //자기 자신의 영상의 커넥션 아이디 : 로그인한 유저 닉네임
     //다른사람의 커넥션 아이디 : 커넥션 고유 번호
@@ -1536,10 +1329,6 @@ export default function GroupChat() {
 
     //공유 영상 초기 디자인
     var video;
-    console.log("connectionId");
-    console.log(connectionId);
-    console.log("layer");
-    console.log(layer);
 
     //자기 자신영상인 경우
     if (typeof connection === "string") {
@@ -1551,7 +1340,6 @@ export default function GroupChat() {
       connectionId = document.querySelector(
         "#data-" + connection.connectionId + " p"
       ).textContent;
-      console.log(connectionId);
     }
     //이미 채널에 참가한 사람의 영상인지 아닌지 비디오 레이어에서 찾는 코드
     let remoteVideo = remoteVideoLayer.find("#" + connectionId);
@@ -1622,18 +1410,7 @@ export default function GroupChat() {
     });
 
     video.on("contextmenu", function (e) {
-      console.log(e.target);
       e.evt.preventDefault();
-      // video.setAttrs({
-      //   x: -5,
-      //   y: -5,
-      //   draggable: false,
-      //   width: window.innerWidth + 10,
-      //   height: window.innerHeight + 10,
-      // });
-      // layer.draw();
-      // console.log(video.attrs);
-      // console.log(layer);
       const shaerVideoId = e.target.attrs.image.id;
       const sharingVideoDiv = document.getElementById("container-screens");
       const targetVideo = sharingVideoDiv.querySelector("#" + shaerVideoId);
@@ -1647,20 +1424,6 @@ export default function GroupChat() {
     });
   }
   function pushX() {
-    // let targerlayer = stage.current.children[3];
-    // let sharescreen = targerlayer.find((node) => node.id().endsWith("-share"));
-    // if (sharescreen[0]) {
-    //   console.log(sharescreen[0]);
-    //   console.log(sharescreen[0].attrs);
-    //   sharescreen[0].setAttrs({
-    //     x: 10,
-    //     y: 10,
-    //     width: 300,
-    //     height: 300,
-    //     draggable: true,
-    //   });
-    //   targerlayer.draw();
-    // }
     const destinationContainer = document.getElementById("bigfulldiv");
     const targetVideo = destinationContainer.querySelector("video");
     const videoBox = document.getElementById("container-screens");
@@ -1673,7 +1436,6 @@ export default function GroupChat() {
     const observerCallback = (mutationsList) => {
       for (const mutation of mutationsList) {
         if (mutation.type === "childList") {
-          console.log("Child nodes have changed:", mutation.addedNodes);
           if (mutation.addedNodes.length === 0) {
             setFullscreen(true);
           }
@@ -1700,8 +1462,6 @@ export default function GroupChat() {
 
   function sendChatSocket(message) {
     // 웹소켓에 채팅 전송하는 부분
-    console.log(stomp.current);
-    console.log(message);
     stomp.current.send(
       "/api/pub/chat/channel/message",
       {},
@@ -1714,8 +1474,6 @@ export default function GroupChat() {
   }
 
   function recvMessage(recieve) {
-    console.log("채팅 날라옴");
-    console.log(recieve);
     let chatMessage = recieve.message;
     const chatOwner = recieve.userDto.nickname;
     const chatTime = recieve.sendTime.substr(11, 5);
