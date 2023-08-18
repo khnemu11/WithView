@@ -41,7 +41,11 @@ function Board() {
       url: `/board`,
     })
       .then((res) => {
+<<<<<<< HEAD
         console.log(res.data);
+=======
+        
+>>>>>>> develop
         setPresetCard(res.data.BoardListInfo);
         setSearchCard(res.data.BoardListInfo);
       })
@@ -59,7 +63,10 @@ function Board() {
       url: `/preset/${userPk}/list`,
     })
       .then((res) => {
+<<<<<<< HEAD
         console.log(res.data.PresetListInfo);
+=======
+>>>>>>> develop
         setPresetList(res.data.PresetListInfo);
       })
       .catch((err) => {
@@ -68,8 +75,11 @@ function Board() {
   }, []);
 
   function WritePost() {
+<<<<<<< HEAD
     console.log(selectedImageId[0]);
 
+=======
+>>>>>>> develop
     if (!selectedImageId[0]) {
       alert("프리셋을 선택해주세요!");
     } else if (title === "") {
@@ -88,8 +98,12 @@ function Board() {
           presetId: selectedImageId[0],
         },
       })
+<<<<<<< HEAD
         .then((res) => {
           console.log(res.data);
+=======
+        .then(() => {
+>>>>>>> develop
           setTitle("");
           setContent("");
           setSelectedImageId([]);
@@ -104,7 +118,10 @@ function Board() {
             url: `/board`,
           })
             .then((res) => {
+<<<<<<< HEAD
               console.log(res.data);
+=======
+>>>>>>> develop
               setPresetCard(res.data.BoardListInfo);
               setSearchCard(res.data.BoardListInfo);
             })
@@ -126,7 +143,10 @@ function Board() {
     } else {
       setSelectedImageId([name]);
     }
+<<<<<<< HEAD
     console.log(selectedImageId);
+=======
+>>>>>>> develop
   };
 
   const PresetImages = presetList.map((el) => {
@@ -163,7 +183,11 @@ function Board() {
   });
 
   const PresetCardImages = searchCard.map((el) => {
+<<<<<<< HEAD
     // console.log(el)
+=======
+    
+>>>>>>> develop
     const presetUrl = `https://dm51j1y1p1ekp.cloudfront.net/preset/${el.presetImgSearchName}`;
     const check = el.userDto.profileImgSearchName;
     const profileImageUrl2 = `https://dm51j1y1p1ekp.cloudfront.net/profile/${el.userDto.profileImgSearchName}`;
@@ -293,6 +317,7 @@ function Board() {
             onChange={(e) => {
               setSearchCard(
                 presetCard.filter((el) => {
+<<<<<<< HEAD
                   console.log(el.title);
                   return el.title.includes(e.target.value);
                 })
@@ -300,6 +325,11 @@ function Board() {
 
               console.log(e.target.value);
               console.log(searchCard);
+=======
+                  return el.title.includes(e.target.value);
+                })
+              );
+>>>>>>> develop
             }}
           />
           <span className="icon is-left">
