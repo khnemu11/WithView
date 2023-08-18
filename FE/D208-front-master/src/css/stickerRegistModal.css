@@ -1,0 +1,108 @@
+.modal-form,
+.modal-title {
+  padding: 30px;
+}
+.regist-form {
+  height: 100%;
+}
+.regist-container {
+  height: 90%;
+}
+div:has(.regist-container)::-webkit-scrollbar {
+  width: 0px !important;
+}
+.modal-sticker-name {
+  background-color: #d6e6f2;
+  height: 40px;
+  font-size: 18px;
+  border-radius: 20px;
+  margin-bottom: 28px;
+  display: flex;
+  padding-left: 10px;
+  align-items: center;
+}
+.modal-container {
+  height: 100%;
+}
+.modal-title {
+  font-size: 30px;
+  color: #3077aa;
+  font-weight: bold;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.modal-input-title {
+  font-size: 26px;
+  color: #80c4ff;
+  margin-bottom: 15px;
+}
+.preset-list {
+  margin-top: 20px;
+  height: 55vh;
+  max-height: 600px;
+  overflow-y: scroll;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-rows: auto;
+  row-gap: 20px;
+}
+.card {
+  margin-right: 10px;
+  margin-bottom: 30px;
+}
+.preset-list::-webkit-scrollbar {
+  width: 7px; /* 스크롤바 너비 */
+}
+.preset-list::-webkit-scrollbar-thumb {
+  /* background-clip: border-box; */
+  background-color: #d3d3d3 !important;
+  border-radius: 20px !important;
+}
+.preset-list::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+.title {
+  margin-bottom: 20px !important;
+  padding-bottom: 0px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.is-right {
+  display: flex;
+  justify-content: right;
+}
+
+.load-title,
+.media-content {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* .card-image {
+  object-fit: cover;
+  height: 50%;
+  overflow: hidden;
+} */
+
+.card-image figure {
+  height: 100%;
+  margin-bottom: 20px;
+}
+.card-image figure img {
+  object-fit: fill;
+  background-size: cover;
+  height: 100%;
+  overflow: hidden;
+}
+
+.flex {
+  margin-bottom: 20px;
+}
+.sticker-menu-on {
+  height: 90% !important;
+}
+.modal-sticker-name {
+  width: 100%;
+  border: none;
+}

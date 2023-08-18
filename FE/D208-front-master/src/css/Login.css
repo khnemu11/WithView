@@ -1,97 +1,77 @@
 .login_first {
     display: flex;
     justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+    flex-wrap: wrap;
 }
-.login_login {
-    /* background-image: url("../assets/background.png"); */
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    max-width: 1440px;
-    max-height: 1000px;
-    padding: 0 20px;
-    /* text-align: center; */
+
+.login_wrap { 
+    background-color: #F7FBFC;
+    width: 70%;
+    height: 80%;
+    min-height: 600px;
+    border-radius: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.login_titleWrap { 
-    background-color: #F7FBFC;
-    box-sizing: border-box;
-    width: 70%;
+.login_base{
+    width: 90%;
+    height: 90%;
+}
+.login_title {
+    color: #1E4C80;
+    font-size: 3.7vw;
+    font-weight: 900;
+    
+    height: 15%;
+    
+}
+.login_img{
+    height: 15%;
+    display: flex;
+    justify-content: center;
+}
+.login_inputs {
     height: 60%;
-    border-radius: 20px;
     display: flex;
     flex-direction: column;
-    /* align-items: center; */
-}
-
-.login_inputs {
-    display: flex;
-    width: 100%;
-    height: 70%;
-}
-
-.login_buttons {
-    width: 100%;
-    height: 20%;
-    display: flex;
     justify-content: space-around;
-    align-items: center;
-
+}
+.login_buttons {
+   height: 15%;
+   display: flex;
+   align-items: center;
 }
 
 .login_findes {
-    width: 100%;
+    /* width: 100%; */
+    margin-top: 20px;
     height: 10%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     font-weight: bold;
     font-size: 20px;
     color: #80C4FF;
-}
-.login_inputWrap {
-    /* text-align: center; */
-    width: 60%;
-    height: 100%;
     display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    margin-left: 40px;
-    margin-right: 10px;
-}
-
-.login_input2Wrap {
-    width: 40%;
-    height: 100%;
-    display: flex;
-    margin: 20px;
     justify-content: center;
     align-items: center;
 }
 
-  
-.login_hello {
-    color: #1E4C80;
-    font-size: 40px;
-    font-weight: 900;
-    margin-top: 20px;
-}
+
 
 .login_label{
     color: #80C4FF;
-    font-size: x-large;
-    
+    font-size: 25px;
+    font-weight: bold;
 }
 
 .login_input{
     background-color: #D6E6F2;
     border-radius: 20px;
-    font-size: 30px;
+    font-size: 3.8vh;
 }
 
 .login_button{
@@ -99,18 +79,71 @@
     color: white;
     font-weight: bold;
     border-radius: 20px;
-    font-size: 30px;
+    font-size: 3.8vh;
+    display: flex;
+    align-items: center;
 }
+  
+  
+@media screen and (max-width : 768px) {
+    .login_img{
+        display: none;
+        
+    }
+    
+     .login_input{
+        font-size: 25px;
+    }
+    .login_button{
+        font-size: 25px;
+    }
+    .login_base{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+    }
+
+    .login_label{
+        font-size: 3vw;
+    }
+    .login_findes {
+       font-size: 3.5vw;
+    }
+    .login_title{
+        font-size: 6vw;
+    }
+  }
+
+@media screen and (max-height : 700px) {
+     .login_input{
+        font-size: 25px;
+    }
+    .login_button{
+        font-size: 25px;
+    }
+    
+    .login_label{
+        font-size: 3vh;
+    }
+    .login_findes {
+       font-size: 3vh;
+    }
+    .login_title{
+        font-size: 4vw;
+    }
+  }
 
 
+  .login_transition-enter {
+    transform: translateX(-100%); /* 초기에 왼쪽으로 이동 */
+  }
   
-  
-  
-  
-  
-  
-  
-  
-  
+  .login_transition-enter-active {
+    transform: translateX(0); /* 왼쪽으로 원래 위치로 이동 (0으로 설정) */
+    transition: transform 0.5s ease; /* 0.3초 동안 transition 효과 적용 */
+  }
 
-  
+  .login_transition-exit-active {
+    transform: translateX(-100%); /* 초기에 왼쪽으로 이동 */
+    transition: transform 0.3s ease;
+  }

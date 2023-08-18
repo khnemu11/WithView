@@ -1,4 +1,8 @@
 html {
+  overflow-y: hidden;
+}
+
+body {
   margin: 0;
   padding: 0;
   height: 100vh; /* 뷰포트 높이에 맞게 설정 */
@@ -32,17 +36,25 @@ html {
 
 .serverOptions p {
   margin-right: 20px; /* 서버 옵션 텍스트 간격 조정 */
+  color: black;
+  font-weight: bold;
+}
+
+.serverOptions a {
+  margin-right: 20px; /* 서버 옵션 텍스트 간격 조정 */
+  color: black;
+  font-weight: bold;
 }
 
 .serverOptionsLine {
   width: 100%;
-  border-bottom: 1px solid #3077AA;
+  border-bottom: 1px solid #3077aa;
   margin-top: 7px;
   margin-bottom: 30px; /* 서버 옵션 라인과 컨텐츠 사이 간격 조정 */
 }
 .serverOptionsLine_main {
   width: 100%;
-  border-bottom: 1px solid #3077AA;
+  border-bottom: 1px solid #3077aa;
   margin-top: 7px;
   margin-bottom: 10px; /* 서버 옵션 라인과 컨텐츠 사이 간격 조정 */
 }
@@ -59,16 +71,20 @@ html {
   margin-right: 15px;
 }
 
-.profile-bar-image{
+.profile-bar-image {
   width: 100%;
-  max-width: 50px;
+  max-width: 55px;
   margin-right: 10px;
   border-radius: 50%;
 }
+.profileNameTop {
+  margin-top: 15px;
+  font-size: large;
+}
 
-.userplusImage{
+.userplusImage {
   width: 95px;
-  margin: 0 120px 10px; 
+  margin: 0 120px 10px;
 }
 .serverplusImage {
   width: 80px;
@@ -80,7 +96,6 @@ html {
   margin-top: 10px;
   white-space: nowrap;
 }
-
 
 .ml-auto {
   margin-left: auto;
