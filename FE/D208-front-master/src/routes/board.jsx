@@ -41,7 +41,7 @@ function Board() {
       url: `/board`,
     })
       .then((res) => {
-        console.log(res.data);
+        
         setPresetCard(res.data.BoardListInfo);
         setSearchCard(res.data.BoardListInfo);
       })
@@ -59,7 +59,6 @@ function Board() {
       url: `/preset/${userPk}/list`,
     })
       .then((res) => {
-        console.log(res.data.PresetListInfo);
         setPresetList(res.data.PresetListInfo);
       })
       .catch((err) => {
@@ -68,8 +67,6 @@ function Board() {
   }, []);
 
   function WritePost() {
-    console.log(selectedImageId[0]);
-
     if (!selectedImageId[0]) {
       alert("프리셋을 선택해주세요!");
     } else if (title === "") {
@@ -88,8 +85,7 @@ function Board() {
           presetId: selectedImageId[0],
         },
       })
-        .then((res) => {
-          console.log(res.data);
+        .then(() => {
           setTitle("");
           setContent("");
           setSelectedImageId([]);
@@ -104,7 +100,6 @@ function Board() {
             url: `/board`,
           })
             .then((res) => {
-              console.log(res.data);
               setPresetCard(res.data.BoardListInfo);
               setSearchCard(res.data.BoardListInfo);
             })
@@ -126,7 +121,6 @@ function Board() {
     } else {
       setSelectedImageId([name]);
     }
-    console.log(selectedImageId);
   };
 
   const PresetImages = presetList.map((el) => {
@@ -163,7 +157,7 @@ function Board() {
   });
 
   const PresetCardImages = searchCard.map((el) => {
-    // console.log(el)
+    
     const presetUrl = `https://dm51j1y1p1ekp.cloudfront.net/preset/${el.presetImgSearchName}`;
     const check = el.userDto.profileImgSearchName;
     const profileImageUrl2 = `https://dm51j1y1p1ekp.cloudfront.net/profile/${el.userDto.profileImgSearchName}`;
@@ -293,13 +287,9 @@ function Board() {
             onChange={(e) => {
               setSearchCard(
                 presetCard.filter((el) => {
-                  console.log(el.title);
                   return el.title.includes(e.target.value);
                 })
               );
-
-              console.log(e.target.value);
-              console.log(searchCard);
             }}
           />
           <span className="icon is-left">
