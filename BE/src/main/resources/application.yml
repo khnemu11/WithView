@@ -1,9 +1,9 @@
 spring:
   datasource:
-    username: S09P12D208
-    url: jdbc:mariadb://stg-yswa-kr-practice-db-master.mariadb.database.azure.com:3306/S09P12D208?serverTimezone=Asia/Seoul&useUnicode=true&characterEncoding=utf8
+    username: 
+    url: 
     driverClassName: org.mariadb.jdbc.Driver
-    password: Pmgwb2y284
+    password: 
     hikari:
       maximum-pool-size: 3
   jpa:
@@ -11,7 +11,7 @@ spring:
       ddl-auto: update
   data:
     mongodb:
-      uri: mongodb+srv://S09P12D208:xACDfpmiw5@ssafy.ngivl.mongodb.net/S09P12D208?authSource=admin
+      uri: 
   mvc:
     view:
       prefix: /WEB-INF/views/
@@ -41,33 +41,33 @@ management:
 cloud:
   aws:
     s3:
-      bucket: with-view-bucket
+      bucket: 
     stack.auto: false
-    region.static: ap-northeast-2
+    region.static:
     credentials:
-      accessKey: AKIAQZFCIQLESJZHO4EF
-      secretKey: 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
+      accessKey: 
+      secretKey:
     ses:
-      access-key: AKIASOYPQPSFBDSTFBV4
-      secret-key: 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
+      access-key: 
+      secret-key: 
 
 #OpenVidu
-OPENVIDU_URL: https://i9d208.p.ssafy.io:8443/
-OPENVIDU_SECRET: ssafy
+OPENVIDU_URL: 
+OPENVIDU_SECRET: 
 
 #Cloudfront
-CLOUD_FRONT_URL: https://dm51j1y1p1ekp.cloudfront.net/
+CLOUD_FRONT_URL: 
 
 #aws
-AWS_ACCESS_KEY: AKIAQZFCIQLESJZHO4EF
-AWS_SECRET_KEY: fe3XBmE8Vq3s4YYVS
+AWS_ACCESS_KEY: 
+AWS_SECRET_KEY: 
 
 #img
 DEFAULT_IMG: logo.png
 
 #naver
-NAVER_CLIENT_ID : EJaP4F6NRqqIUaqpvaAV
-NAVER_SECRET_KEY : 4dzNPOpfeW
+NAVER_CLIENT_ID : 
+NAVER_SECRET_KEY : 
 
 #domain
-FRONT_URL : https://i9d208.p.ssafy.io/
+FRONT_URL :
